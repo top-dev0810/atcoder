@@ -1,0 +1,51 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+void print_vector1i(const vector<int>& x){
+    cout << "[";
+    for (int i=0; i<x.size(); i++){
+        cout << x[i];
+        if (i != x.size() - 1) cout << " ";
+    }
+    cout << "]" << endl;
+}
+//整数の2次元配列を受け取り、出力する
+void print_vector2i(const vector<vector<int>>& x) {
+    for(int i = 0; i < x.size(); i++) {
+        cout << "[";
+        for(int j = 0; j < x[i].size(); j++) {
+            cout << x[i][j];
+            if (j != x[i].size() - 1) cout << " ";
+        }
+        cout << "]" << endl;
+    }
+}
+
+string runlength(string S){
+    int renzoku = 1;
+    string ans = "";
+    int i;
+    for(i=0; i<S.size()-1; i++){
+        if(S[i] == S[i+1]){
+            renzoku++;
+        }
+        else{
+            ans += S[i] + to_string(renzoku);
+            renzoku = 1;
+        }
+    }
+    ans += S[i] + to_string(renzoku);
+    //cout << ans << endl;
+    return ans;
+}
+
+int main() {
+    string S; cin >> S;
+    for(int i=0; i<S.length()-1; i++){
+        if(S[S.length()-1-i] == 'A' && S[S.length()-2-i] == 'W'){
+            S[S.length()-1-i] = 'C';
+            S[S.length()-2-i] = 'A';
+        }
+    }
+    cout << S << endl;
+}

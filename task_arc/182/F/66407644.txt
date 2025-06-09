@@ -1,0 +1,187 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define int ll
+typedef long long ll;
+typedef unsigned long long ull;
+
+#define mk make_pair
+#define fi first
+#define se second
+typedef pair<int,int> pii;
+typedef pair<double,double> pdd;
+
+#define ReadIn(s) freopen(s,"r",stdin)
+#define OutPut(s) freopen(s,"w",stdout)
+
+#define btpcll(x) __builtin_popcountll(x)
+#define btpc(x) __builtin_popcount(x)
+
+#define eb emplace_back
+#define sz(x) (int)(x.size())
+
+template<typename T>
+void read(T &x){
+	x=0;char c=getchar();T neg=0;
+	while(!isdigit(c)) neg|=!(c^'-'),c=getchar();
+	while(isdigit(c)) x=(x<<3)+(x<<1)+(c^48),c=getchar();
+	if(neg) x=(~x)+1;
+}
+template<typename T,typename ...Args>
+void read(T &x,Args &...args) {
+	read(x);read(args...);
+}
+
+const int M=1e6+10;
+const int inf=0x3f3f3f3f3f3f3f3f;
+const double eps=1e-10;
+
+inline int comp (double x,double y) {
+	if(x-y>eps) return 1;
+	if(y-x>eps) return -1;
+	return 0;
+}
+
+bool Mst;
+//in this
+
+int N,q;
+int A,B;
+
+int prime[M];
+int flag[M];
+int tot;
+
+int ph[M];
+
+vector<int>di[M];
+
+void euler(int M=M-1) {
+	flag[0]=flag[1]=1;ph[1]=1;
+	for(int i=2;i<=M;i++) {
+		if(!flag[i]) prime[++tot]=i,ph[i]=i-1;
+		for(int j=1;j<=tot&&i*prime[j]<=M;j++) {
+			flag[i*prime[j]]=1;
+			if(i%prime[j]==0) {
+				ph[i*prime[j]]=ph[i]*prime[j];
+				break;
+			}
+			ph[i*prime[j]]=ph[i]*(prime[j]-1);
+		}
+	}
+	
+	for(int i=1;i<=tot;i++) {
+		int pr=prime[i];
+		for(int j=pr;j<=M;j+=pr) di[j].eb(pr);
+	}
+	
+}
+
+int ksm (__int128 x,int y,int p) {
+	__int128 res=1;
+	for(;y;y>>=1,x=x*x%p) if(y&1) res=res*x%p;
+	return res;
+}
+
+pair<vector<int>,int> get(int a,int b) {
+	vector<int>d;
+	for(auto it:di[a]) d.eb(it);
+	for(auto it:di[b]) d.eb(it);
+	
+	sort(d.begin(),d.end());
+	d.erase(unique(d.begin(),d.end()),d.end());
+	
+	vector<int>_d;
+	
+	int x=a*b;
+	int phi=a*b;
+	for(auto it:d) {
+		int cnt=0;
+		while(x%it==0) x/=it,cnt++;
+		phi=phi/it*(it-1);
+		for(auto _it:di[it-1]) _d.eb(_it);
+		if(cnt>=2) _d.eb(it);
+	}
+	
+	sort(_d.begin(),_d.end());
+	_d.erase(unique(_d.begin(),_d.end()),_d.end());
+	
+	return mk(_d,phi);
+	
+}
+
+inline int gcd(int x,int y) {
+	int d=1,_d=1;
+	while((_d=__gcd(x,y))^1) x/=_d,d*=_d;
+	return d;
+}
+
+int ans;
+map<int,int>vis;
+
+pair<vector<int>,int>ele;
+
+void solve() {
+	read(A,B);
+	
+	int n=N;
+	
+	if(!A) return cout<<1<<"\n",void();
+	if(A==1) return cout<<__gcd(n,B)<<"\n",void();
+	
+	if(__gcd(n,A)!=1) {
+		int d=gcd(n,A);
+		A%=n/d;
+		(B*=ksm(A,n,n))%=n/d;
+		n/=d;
+	}
+	
+	if(!A) return cout<<1<<"\n",void();
+	if(A==1) return cout<<__gcd(n,B)<<"\n",void();
+	
+//	cout<<n<<" "<<A<<" "<<B<<"\n";
+	
+	int d=__gcd(A-1,B);
+	int _A=(A-1)/d,_n=n/gcd(n,_A);
+	
+	ele=get(n,_A);
+	
+//	cout<<ele.se<<":";
+//	for(auto it:ele.fi) cout<<it<<" ";cout<<"\n";
+	
+//	cout<<_n<<" "<<_A<<" "<<B<<"\n";
+	
+	function<void(int,int)> solve = [&] (int x,int c) {
+		if(vis.count(x)) return ;
+		vis[x]=1;
+		int p=n*_A/x;
+		for(auto it:ele.fi) {
+			while(c%it==0&&ksm(A,c/it,p)<=1) c/=it;
+		}
+		ans+=n/_n*ph[_n/x]/c;
+		for(auto it:di[_n/x]) solve(x*it,c);
+	};
+	
+	ans=0;vis.clear();
+	solve(1,ele.se);
+	
+	cout<<ans<<"\n";
+	
+} 
+
+//
+bool Med;
+
+signed main() {
+	euler();
+	
+	read(N,q);
+	
+	while(q--) solve();
+	
+	cerr<<"\n";
+	cerr<<"Memory:"<<(&Mst-&Med)/1024.0/1024<<" MB\n";
+	cerr<<"Time:"<<clock()/1.0/CLOCKS_PER_SEC*1000.0<<" ms\n";
+
+	return 0;
+}

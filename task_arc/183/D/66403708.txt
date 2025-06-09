@@ -1,0 +1,86 @@
+#include <bits/stdc++.h>
+#define pii pair<int,int>
+#define pb emplace_back
+#define ll long long
+#define mk make_pair
+#define se second
+#define fi first
+//#define mid ((l+r)>>1)
+//#define rs now<<1|1
+//#define ls now<<1
+using namespace std;
+bool Mst;
+const int Max=2.5e5+10;
+const int mod=998244353;
+const int inf=1e9+10;
+
+inline int read(){
+	int res=0,v=1;
+	char c=getchar();
+	while(c<'0'||c>'9'){v=(c=='-'?-1:1);c=getchar();}
+	while(c>='0'&&c<='9'){res=(res<<3)+(res<<1)+(c^48);c=getchar();}
+	return res*v;
+}
+
+vector<int>v[Max] ;
+int siz[Max],pos[Max],rt;
+void GetRoot(int now,int fa,int sum){
+	siz[now]=1;pos[now]=0;
+	for(auto to:v[now]){
+		if(to==fa)continue;
+		GetRoot(to,now,sum);
+		siz[now]+=siz[to];
+		pos[now]=max(pos[now],siz[to]);
+	}
+	pos[now]=max(pos[now],sum-siz[now]);
+	if(pos[rt]>pos[now])rt=now;
+}
+
+vector<int>d[Max];
+void dfs(int now,int fa,int st){
+	siz[now]=1;d[st].pb(now);
+	for(auto to:v[now]){
+		if(to==fa)continue;
+		if(((now-1)^1)==(to-1))continue;
+		dfs(to,now,st);siz[now]+=siz[to];
+	}
+	int to=(now-1)^1;++to;
+	if(to==fa)return;
+	dfs(to,now,st);
+	siz[now]+=siz[to];
+}
+
+priority_queue<pii>q;
+
+bool Med;
+signed main(){
+	int n=read();
+	for(int i=1;i<n;++i){
+		int x,y;x=read();y=read();
+		v[x].pb(y);v[y].pb(x);
+	}
+	pos[rt=0]=inf;
+	GetRoot(1,0,n);
+	pii beg;
+	for(auto to:v[rt]){
+		dfs(to,rt,to);
+		if(((rt-1)^1)==(to-1))beg=mk(siz[to],to);
+		else q.push(mk(siz[to],to));
+	}
+	while(!q.empty()){
+		pii now=q.top();
+		q.pop();
+		cout << d[beg.se].back() << ' ' << d[now.se].back() << "\n";
+		d[beg.se].pop_back();d[now.se].pop_back();
+		if(beg.fi>1) q.push(mk(beg.fi-1,beg.se));
+		beg=mk(now.fi-1,now.se);
+	}
+	cout << rt << ' ' << beg.se << "\n";
+	cerr<< "Time: "<<clock()/1000.0 << "s\n";
+	cerr<< "Memory: " << (&Mst-&Med)/1000000.0 << "MB\n";
+	return 0;
+}
+/*
+
+*/
+

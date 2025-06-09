@@ -1,0 +1,168 @@
+#include<bits/stdc++.h>
+#define int long long
+#define rep(i,a,b) for(register int i=(a);i<=(b);++i)
+#define per(i,a,b) for(register int i=(a);i>=(b);--i)
+#define edge(i,u) for(int i=head[u];i;i=e[i].next)
+#define lc(u) tre[u].ls
+#define rc(u) tre[u].rs
+#define pii pair<int,int>
+#define pdd pair<double,double>
+#define mp make_pair
+#define pb push_back
+#define fst first
+#define sed second
+#define Max(a,b) (a=max(a,b))
+#define Min(a,b) (a=min(a,b))
+using namespace std;
+const int N=1e6+10,M=1e6+10,inf=1e9,mod=998244353;
+const double eps=1e-6;
+bool MS;int used;
+const int mod1=998244353,mod2=1004535809,base1=2333,base2=233;
+int bs1[N],bs2[N];
+struct hanser{
+	int len,val1,val2;
+	hanser operator+(const hanser&b)
+	{
+		hanser c;
+		c.len=len+b.len;
+		c.val1=(1ll*val1*bs1[b.len]%mod1+b.val1)%mod1;
+		c.val2=(1ll*val2*bs2[b.len]%mod2+b.val2)%mod2;
+		return c;
+	}
+	hanser operator-(const hanser&b)
+	{
+		hanser c;
+		c.len=len-b.len;
+		c.val1=(val1-1ll*b.val1*bs1[c.len]%mod1+mod1)%mod1;
+		c.val2=(val2-1ll*b.val2*bs2[c.len]%mod2+mod2)%mod2;
+		return c;
+	}
+	bool operator<(const hanser&b)const
+	{
+		if(len!=b.len)return len<b.len;
+		if(val1!=b.val1)return val1<b.val1;
+		return val2<b.val2;
+	}
+	bool operator==(const hanser&b)const
+	{
+		return len==b.len&&val1==b.val1&&val2==b.val2;
+	}
+};
+struct modint{
+	int val;
+	static int norm(const int& x){return x<0?x+mod:x;}
+	modint inv()const{
+		int a=val,b=mod,u=1,v=0,t;
+		while (b>0)t=a/b,swap(a-=1ll*t*b,b),swap(u-=1ll*t*v,v);
+		return modint(u);
+	}
+	modint():val(0){}
+//	modint(const int& m):val(norm(m)){}
+	modint(const long long& m):val(norm(m % mod)){}
+	modint operator-()const{return modint(norm(-val));}
+	bool operator==(const modint&o){return val==o.val;}
+	bool operator<(const modint&o){return val<o.val;}
+	modint&operator+=(const modint&o){return val=(1ll*val+o.val)%mod,*this;}
+	modint&operator-=(const modint&o){return val=norm(1ll*val-o.val),*this;}
+	modint&operator*=(const modint&o){return val=static_cast<int>(1ll*val*o.val%mod),*this;}
+	modint operator-(const modint&o)const{return modint(*this)-=o;}
+	modint operator+(const modint&o)const{return modint(*this)+=o;}
+	modint operator*(const modint&o)const{return modint(*this)*=o;}
+	friend std::ostream&operator<<(std::ostream& os, const modint&a){return os<<a.val;}
+	friend std::istream&operator>>(std::istream& is,modint&a){long long v;return is>>v,a.val=norm(v%mod),is;}
+};
+modint qpow(modint a,int b){modint res=1;while(b){if(b&1)res=res*a;a=a*a;b/=2;}return res;}
+int n,m,lim;
+vector<int>a[N];
+map<hanser,vector<int>>pos;
+map<hanser,int>LIM;
+inline int lowbit(int x){return x&(-x);}
+int tre[N<<1];
+void add(int u,int k)
+{
+	u++;
+	while(u<=(1<<lim))
+	{
+		tre[u]+=k;
+		u+=lowbit(u);
+	}
+}
+int query(int u)
+{
+	u++;
+	int res=0;
+	while(u)
+	{
+		res+=tre[u];
+		u-=lowbit(u);
+	}
+	return res;
+}
+bool MT;
+signed main()
+{
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+	bs1[0]=bs2[0]=1;
+	rep(i,1,N-1)
+	{
+		bs1[i]=1ll*bs1[i-1]*base1%mod1;
+		bs2[i]=1ll*bs2[i-1]*base2%mod2;
+	}
+	cin>>n>>m;
+	vector<int>ls;
+	ls.resize(m+1);
+	vector<int>ls2;
+	ls2.resize(m+1);
+	rep(i,1,n)
+	{
+		a[i].resize(m+1);
+		int st=inf;
+		rep(j,1,m)
+		{
+			cin>>a[i][j];
+			if(a[i][j])Min(st,j);
+		}
+		ls=a[i];
+		ls2=a[i];
+		if(st!=inf)
+		{
+			lim=ceil(log2(m-st+1));
+			int res=0;
+			rep(k,0,lim-1)
+			{
+				int v=st+(1<<k);
+				if(v<=m&&!ls[v])
+				{
+					per(j,m,(1<<k)+st)
+					ls[j]^=ls[j-(1<<k)];
+					res+=(1<<k);
+				}
+			}
+			hanser vl={0,0,0};
+			rep(j,1,m)
+			vl=vl+hanser{1,ls[j],ls[j]};
+			pos[vl].pb(res);
+			LIM[vl]=lim;
+		}
+	}
+	modint ans=0;
+	for(auto now:pos)
+	{
+		auto g=now.sed;
+		int len=g.size();
+		lim=LIM[now.fst];
+		modint sum=0;
+		rep(i,0,len-1)
+		{
+			ans+=modint(i)*g[i]-sum+modint(1<<lim)*(query((1<<lim)-1)-query(g[i]));
+			add(g[i],1);
+			sum+=g[i];
+		}
+		rep(i,0,len-1)
+		add(g[i],-1);
+	}
+	cout<<ans<<'\n';
+	cerr<<"Memory:"<<(&MS-&MT)/1048576.0<<"MB Time:"<<clock()/1000.0<<"s\n";
+}

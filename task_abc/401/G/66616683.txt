@@ -1,0 +1,105 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define endl '\n'
+using ll=long long;
+using lll=__int128;
+const int N=10010;
+const int M=200010;
+int idx=1,n,S=0,T;
+ll d[N],cur[N],h[N];
+ll sx[310],sy[310],gx[310],gy[310];
+struct edge{
+    ll v,c,ne;
+}e[M];
+void resetgrap(){
+    idx=1;
+    memset(h,0,sizeof(h));
+}
+void add(int a,int b,int c){
+    e[++idx]={b,c,h[a]};
+    h[a]=idx;
+}
+bool bfs(){
+    memset(d,0,sizeof(d));
+    queue<int>q;
+    q.push(S);
+    d[S]=1;
+    while(!q.empty()){
+        int u=q.front();q.pop();
+        for(int i=h[u];i;i=e[i].ne){
+            int v=e[i].v;
+            if(d[v]==0&&e[i].c){
+                d[v]=d[u]+1;
+                q.push(v);
+                if(v==T)return 1;
+            }
+        }
+    }
+    return 0;
+}
+ll dfs(int u,ll mf){
+    if(u==T)return mf;
+    ll sum=0;
+    for(int i=cur[u];i;i=e[i].ne){
+        cur[u]=i;
+        int v=e[i].v;
+        if(d[v]==d[u]+1&&e[i].c){
+            ll f=dfs(v,min(mf,e[i].c));
+            e[i].c-=f;
+            e[i^1].c+=f;
+            sum+=f;
+            mf-=f;
+            if(mf==0)break;
+        }
+    }
+    if(sum==0)d[u]=0;
+    return sum;
+}
+ll dinic(){
+    ll flow=0;
+    while(bfs()){
+        memcpy(cur,h,sizeof(h));
+        flow+=dfs(S,1e9);
+    }
+    return flow;
+}
+lll pf(int i,int j){
+    return (lll)(sx[i]-gx[j])*(sx[i]-gx[j])+(lll)(sy[i]-gy[j])*(sy[i]-gy[j]);
+}
+bool check(lll x){
+    resetgrap();
+    for(int i=1;i<=n;i++){
+        for(int j=1;j<=n;j++){
+            if(pf(i,j)<=x){
+                add(i,n+j,1);
+                add(n+j,i,0);
+            }
+        }
+    }
+    for(int i=1;i<=n;i++){
+        add(S,i,1);add(i,S,0);
+        add(i+n,T,1);add(T,i+n,0);
+    }
+    return dinic()==n;
+}
+int main(){
+    ios::sync_with_stdio(0);
+    cin.tie(0),cout.tie(0);
+    cin>>n;
+    T=2*n+1;
+    for(int i=1;i<=n;i++){
+        cin>>sx[i]>>sy[i];
+    }
+    for(int i=1;i<=n;i++){
+        cin>>gx[i]>>gy[i];
+    }
+    lll l=1,r=2*lll(1e18)*lll(1e18);
+    while(l<r){
+        lll mid=(l+r)/2;
+        if(check(mid))r=mid;
+        else l=mid+1;
+    }
+     cout.precision(12);
+    cout<<fixed<<sqrtl((long double)r);
+    return 0;
+}

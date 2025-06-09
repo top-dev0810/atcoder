@@ -1,0 +1,32 @@
+#include <iostream>
+using namespace std;
+using ll = long long;
+ll n;
+ll p[2000006];
+ll f[2000006][2];
+int main() {
+    cin >> n;
+    for (ll i = 2; i*i <= n; ++i) {
+        if (!p[i]) {
+            for (ll j = 2*i; j*j <= n; j+=i) {
+                if (p[j] <= 1) {
+                    f[j][p[j]] = i;
+                }
+                p[j]++;
+            }
+        }
+    }
+    ll ans = 0;
+    for (ll i = 2; i*i <=n; ++i) {
+        if (p[i] == 2 && f[i][0]*f[i][1] == i) {
+            ++ans;
+        }
+    }
+    for (ll i = 2; i*i*i*i*i*i*i*i <= n; ++i) {
+        if (!p[i]) {
+            ++ans;
+        }
+    }
+    printf("%lld", ans);
+    return 0;
+}

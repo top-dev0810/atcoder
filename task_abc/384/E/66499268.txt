@@ -1,0 +1,101 @@
+// clang-format off
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+#define rep(i, n) for (int i = 0; i < (int)(n); i++)
+#define debug(x) rep(_i,x.size())cout<<x[_i]<<" \n"[_i==(int)x.size()-1];
+template<typename T> bool chmax(T &a,T b){if(a<b){a=b;return true;}return false;}
+template<typename T> bool chmin(T &a,T b){if(a>b){a=b;return true;}return false;}
+// clang-format on
+using tlii = tuple<ll, int, int>;
+template <typename T>
+struct Grid
+{
+    int h, w;
+    vector<vector<T>> dat;
+    const vector<pair<int, int>> directions = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
+    const vector<pair<int, int>> directions8 = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}, {1, 1}, {1, -1}, {-1, -1}, {-1, 1}};
+    Grid(int h_, int w_) : h(h_), w(w_), dat(h_, vector<T>(w_)) {}
+    Grid(int h_) : h(h_), w(h_), dat(h_, vector<T>(h_)) {}
+
+    int pt(int i, int j)
+    {
+        assert(in_bounds(i, j));
+        return i * w + j;
+    }
+    bool in_bounds(int i, int j) const { return i >= 0 && j >= 0 && i < h && j < w; }
+    vector<pair<int, int>> neighbors(int r, int c) const
+    {
+        vector<pair<int, int>> result;
+        for (auto [dr, dc] : directions)
+        {
+            int nr = r + dr;
+            int nc = c + dc;
+            if (in_bounds(nr, nc))
+            {
+                result.emplace_back(nr, nc);
+            }
+        }
+        return result;
+    }
+    vector<pair<int, int>> neighbors8(int r, int c) const
+    {
+        vector<pair<int, int>> result;
+        for (auto [dr, dc] : directions8)
+        {
+            int nr = r + dr;
+            int nc = c + dc;
+            if (in_bounds(nr, nc))
+            {
+                result.emplace_back(nr, nc);
+            }
+        }
+        return result;
+    }
+    void input()
+    {
+        rep(i, h) rep(j, w)
+        {
+            cin >> dat[i][j];
+        }
+    }
+};
+int main()
+{
+    int h, w, x;
+    cin >> h >> w >> x;
+    int p, q;
+    cin >> p >> q;
+    p--, q--;
+    Grid<ll> g(h, w);
+    g.input();
+    vector vis(h, vector<bool>(w, 0));
+    priority_queue<tlii, vector<tlii>, greater<tlii>> pq;
+    ll ts = 0;
+
+    vis[p][q] = 1;
+    auto merge = [&](int x, int y) -> void
+    {
+        ts += g.dat[x][y];
+        for (auto [i, j] : g.neighbors(x, y))
+        {
+            if (vis[i][j])
+                continue;
+            vis[i][j] = 1;
+            ll s = g.dat[i][j];
+            pq.push(make_tuple(s, i, j));
+        }
+    };
+    merge(p, q);
+    while (!pq.empty())
+    {
+        auto [s, i, j] = pq.top();
+        ll b = ts / x;
+        bool ok = ts % x == 0 ? s < b : s <= b;
+        if (!ok)
+            break;
+        pq.pop();
+        merge(i, j);
+    }
+    cout << ts << "\n";
+}

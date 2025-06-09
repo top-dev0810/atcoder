@@ -1,0 +1,93 @@
+#include<bits/stdc++.h>
+#define int long long
+#define rep(i,a,b) for(register int i=(a);i<=(b);++i)
+#define per(i,a,b) for(register int i=(a);i>=(b);--i)
+#define edge(i,u) for(int i=head[u];i;i=e[i].next)
+#define lc(u) tre[u].ls
+#define rc(u) tre[u].rs
+#define pii pair<int,int>
+#define pdd pair<double,double>
+#define mp make_pair
+#define pb push_back
+#define fst first
+#define sed second
+#define Max(a,b) (a=max(a,b))
+#define Min(a,b) (a=min(a,b))
+using namespace std;
+const int N=1e6+10,M=1e6+10,inf=1e18,mod=1e9+7;
+const double eps=1e-6;
+bool MS;int used;
+int n,x;
+vector<int>edge[2][N];
+bool vis[2][N];
+int a[2][N],p[2][N];
+vector<int>vec[2];
+int cnt;
+int ys[N];
+void dfs(int u,bool tag,bool use)
+{
+	if(vis[tag][u])return;
+	vis[tag][u]=1;
+	use|=a[tag][u];
+	if(use)vec[tag].pb(u);
+	dfs(p[tag][u],tag,use);
+}
+int tre[N],ans;
+inline int lowbit(int x){return x&(-x);}
+void add(int u,int k)
+{
+	while(u<=n)
+	{
+		Max(tre[u],k);
+		u+=lowbit(u);
+	}
+}
+int query(int u)
+{
+	int res=0;
+	while(u)
+	{
+		Max(res,tre[u]);
+		u-=lowbit(u);
+	}
+	return res;
+}
+bool MT;
+signed main()
+{
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+	cin>>n>>x;
+	rep(i,1,n)cin>>a[0][i];
+	rep(i,1,n)cin>>a[1][i];
+	rep(i,1,n)cin>>p[0][i];
+	rep(i,1,n)cin>>p[1][i];
+	vis[0][x]=vis[1][x]=1;
+	dfs(p[0][x],0,0);
+	dfs(p[1][x],1,0);
+	rep(j,0,1)
+	rep(i,1,n)
+	if(a[j][i]&&!vis[j][i])
+	return cout<<-1,0;
+	if(vec[0].empty()&&vec[1].empty())
+	return cout<<0,0;
+	if(vec[0].empty())
+	swap(vec[0],vec[1]);
+	rep(i,0,vec[0].size()-1)
+	{
+		cnt++;
+		ys[vec[0][i]]=cnt;
+	}
+	for(auto u:vec[1])
+	if(ys[u])
+	{
+		int k=query(ys[u])+1;
+		add(ys[u],k);
+		Max(ans,k);
+	}
+//	for(auto u:vec[0])cout<<u<<" ";cout<<'\n';
+//	for(auto u:vec[1])cout<<u<<" ";cout<<'\n';
+	cout<<vec[0].size()+vec[1].size()-ans<<'\n';
+	cerr<<"Memory:"<<(&MS-&MT)/1048576.0<<"MB Time:"<<clock()/1000.0<<"s\n";
+}

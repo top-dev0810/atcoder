@@ -1,0 +1,79 @@
+#include<bits/stdc++.h>
+#define LL long long
+#define Maxn 2000006
+using namespace std;
+const int md = 998244353;
+int n,m,t,tot;
+string a[Maxn];
+
+vector<pair<int,int> > e[Maxn];
+int val[Maxn];
+int mp1(int x, int y){ return (x-1) * m + y; }
+int mp2(int x, int y){ return (x-1) * m + y + t; }
+int mpx(int x){
+	if(x > t) x -= t;
+	return (x + m - 1) / m;
+}
+int mpy(int x){
+	if(x > t) x -= t;
+	return (x + m - 1) % m + 1;
+}
+void add_e(int u, int v, int w){
+	e[u].emplace_back(v, w);
+	e[v].emplace_back(u, w);
+}
+
+queue<int> q;
+bool bfs(int x){
+	while(!q.empty()){ q.pop(); }
+	q.emplace(x); val[x] = 0;
+	int y,z;
+	while(!q.empty()){
+		x = q.front(); q.pop();
+		for(pair<int,int> i : e[x]){
+			tie(y,z) = i;
+			if(~val[y]){
+				if(val[x] ^ val[y] ^ z){
+					return false;
+				}
+			} else {
+				val[y] = val[x] ^ z;
+				q.emplace(y);
+			}
+		}
+	}
+	return true;
+}
+
+void slv(){
+	cin>>n>>m;
+	for(int i=0; i<n; i++) cin>>a[i];
+	t = n * m;
+	tot = t << 1;
+	for(int i=1; i<=tot; i++){ e[i].clear(); val[i] = -1; }
+	for(int i=1; i<=n; i++)for(int j=1; j<=m; j++){
+		if(a[i-1][j-1] == 'A'){
+			add_e(mp1(i,j), mp1(i,j%m+1), 1);
+			add_e(mp2(i,j), mp2(i%n+1,j), 1);
+		} else {
+			add_e(mp1(i,j), mp1(i,j%m+1), 0);
+			add_e(mp2(i,j), mp2(i%n+1,j), 0);
+			add_e(mp1(i,j), mp2(i,j), 1);
+		}
+	}
+	LL ans = 1;
+	for(int i=1; i<=tot; i++)if(val[i] == -1){
+		if(!bfs(i)){
+			printf("0\n"); return;
+		}
+		(ans <<= 1) %= md;
+	}
+	printf("%lld\n", ans);
+}
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+	int ttt; cin>>ttt;
+	while(ttt--) slv();
+	return 0;
+}

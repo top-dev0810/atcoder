@@ -1,0 +1,60 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define ll long long
+#define ld long double
+//#define int ll
+
+const int N = 1e5 + 5, mod = 1e9 + 7;
+ll test_case = 1, n, m, k;
+
+void master() {
+    ll x, y, z;
+    cin >> x >> y >> z;
+    ll _01 = min(x, y), _101 = 0;
+    x -= _01;
+    y -= _01;
+    if (y) {
+        if (_01 < y) {
+            cout << "No";
+            return;
+        }
+        _01 -= y;
+        _101 = y;
+
+        if (z) {
+            if (z > _01 + _101) {
+                cout << "No";
+                return;
+            }
+        } else {
+            if (_01 % 2) {
+                cout << "No";
+                return;
+            }
+        }
+
+    } else {
+        if (_01 % 2 && !z) {
+            cout << "No";
+            return;
+        }
+        if (z > _01 + x) {
+            cout << "No";
+            return;
+        }
+    }
+    cout << "Yes";
+
+}
+
+signed main() {
+    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+    cin >> test_case;
+    while (test_case--) {
+        master();
+        if (test_case)
+            cout << '\n';
+    }
+}

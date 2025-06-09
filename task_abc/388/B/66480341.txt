@@ -1,0 +1,29 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+
+int main(void){
+    int n, d;
+    cin >> n >> d;
+
+    vector<int> t(n, 0);
+    vector<int> l(n, 0);
+    for(int i = 0; i < n; i++){
+        cin >> t[i] >> l[i];
+    }
+    
+    for (int i = 1; i <= d; i++)
+    {
+        int ans=0;
+
+        for (int j = 0; j < n; j++)
+        {
+            ans = max(ans, t[j] * (l[j]+i));
+        }
+        
+        cout << ans << endl;
+        
+    }
+    
+
+}

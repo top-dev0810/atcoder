@@ -1,0 +1,122 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define rep(i,n) for(int i=0;i<(int)(n);i++)
+#define rrep(i,n) for(int i=(int)(n-1);i>=0;i--)
+#define ALL(v) v.begin(),v.end()
+#define RALL(v) v.rbegin(),v.rend()
+template <class T> using V=vector<T>;
+template <class T> using VV=V<V<T>>;
+using u128=__int128_t;
+using ll=long long;
+
+class Dis{
+  public:
+  V<ll> rank,p,siz;
+  int N;
+  
+  Dis(int s){
+    rank.resize(s,0);
+    p.resize(s,0);
+    siz.resize(s,1);
+    rep(i,s) makeSet(i);
+    N=s;
+  }
+  
+  void makeSet(int x){
+    p[x]=x;
+    rank[x]=0;
+  }
+  
+  bool same(int x,int y){return root(x)==root(y);}
+  
+  void unite(int x,int y){
+    if(same(x,y)) return;
+    link(root(x),root(y));
+  }
+  
+  void link(int x,int y){
+    if(rank[x]>rank[y]){
+      p[y]=x;
+      siz[x]+=siz[y];
+    }
+    else{
+      p[x]=y;
+      siz[y]+=siz[x];
+      if(rank[x]==rank[y]) rank[y]++;
+    }
+  }
+  
+  int root(int x){
+    if(x != p[x]) p[x]=root(p[x]);
+    return p[x];
+  }
+  
+  int size(int x){return siz[root(x)];}
+};
+
+int di[]={1,0,-1,0};
+int dj[]={0,1,0,-1};
+ 
+int main(){
+  ios::sync_with_stdio(false);
+  std::cin.tie(nullptr);
+  
+  int h,w;
+  cin>>h>>w;
+  int n=h*w;
+  VV<int> F(h,V<int> (w));
+  V<array<int,3>> P(n);
+  rep(i,h) rep(j,w){
+    cin>>F[i][j];
+    P[i*w+j]={F[i][j],i,j};
+  }
+  sort(RALL(P));
+  int q;
+  cin>>q;
+  V<array<int,6>> Q(q);
+  rep(i,q){
+    rep(j,6) cin>>Q[i][j];
+    Q[i][0]--,Q[i][1]--,Q[i][3]--,Q[i][4]--;
+  }
+  
+  V<int> OK(q,1),NG(q,1000001);
+  rep(k,20){
+    V<int> M(q);
+    rep(i,q){
+      if(NG[i]-OK[i]>1) M[i]=(OK[i]+NG[i])/2;
+      else M[i]=OK[i];
+    }
+    VV<int> ord(1001001);
+    rep(i,q) ord[M[i]].push_back(i);
+    Dis ds=Dis(n);
+    VV<int> vis(h,V<int>(w));
+    int now=0;
+    for(int i=1000000;i>0;i--){
+      while(now<n && P[now][0]==i){
+        int vi=P[now][1],vj=P[now][2];
+        now++;
+        vis[vi][vj]=1;
+        rep(l,4){
+          int ni=vi+di[l],nj=vj+dj[l];
+          if(ni<0 || nj<0 || ni>=h || nj>=w) continue;
+          if(vis[ni][nj]==0) continue;
+          ds.unite(vi*w+vj,ni*w+nj);
+        }
+      }
+      for(auto x:ord[i]){
+        if(ds.same(Q[x][0]*w+Q[x][1],Q[x][3]*w+Q[x][4])){
+          OK[x]=M[x];
+        }
+        else NG[x]=M[x];
+      }
+    }
+  }
+  rep(i,q){
+    int l=Q[i][2],r=Q[i][5];
+    if(l>=OK[i] && r>=OK[i]) cout<<l+r-2*OK[i]<<'\n';
+    else cout<<abs(l-r)<<'\n';
+  }
+  
+  return 0;
+}

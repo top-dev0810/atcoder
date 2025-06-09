@@ -1,0 +1,34 @@
+#include <bits/stdc++.h>
+using namespace std;
+long long s=0,n,m,k,f[550][50100],g[550][50100];
+struct jg
+{
+    long long x,y;
+};
+vector<jg>a[550];
+int main()
+{
+    cin>>n>>m>>k;
+    for(int i=1,x,y,z;i<=n;i++)
+    {
+        cin>>x>>y>>z;
+        a[z].push_back({x,y});
+    }
+    for(int i=1;i<=n;i++)
+    {
+        for(jg x:a[i])
+        {
+            for(int j=m;j>=x.x;j--)
+            {
+                f[i][j]=max(f[i][j],max(f[i][j-x.x],f[i-1][j-x.x]+k)+x.y);
+                s=max(s,f[i][j]);
+            }
+        }
+        for(int j=m;j>=0;j--)
+        {
+            f[i][j]=max(f[i][j],f[i-1][j]);
+        }
+    }
+    cout<<s;
+    return 0;
+}

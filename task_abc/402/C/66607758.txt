@@ -1,0 +1,34 @@
+# include<bits/stdc++.h>
+// # include<atcoder/all>
+// using namespace atcoder;
+using namespace std;
+# define rep(i,n) for (int i = 0; i < (n); i++)
+// const int inf = 1073741823;
+// const long long INF = 1LL<<60;
+using ll = long long;
+using P = pair<int,int>;
+int main() {
+    int n,m;cin>>n>>m;
+    vector<int> k(m);
+    vector<vector<int>> menu(n);
+    rep(i,m){
+        cin>>k[i];
+        rep(j,k[i]){
+            int a;cin>>a;
+            --a;
+            // 食材→料理
+            menu[a].push_back(i);
+        }
+    }
+    int ans = 0;
+    rep(i,n){
+        int b;cin>>b;
+        --b;
+        for(int j:menu[b]){
+            k[j]--;
+            if(k[j]==0)ans++;
+        }
+        cout << ans << endl;
+    }
+    return 0;
+}

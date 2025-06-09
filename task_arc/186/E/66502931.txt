@@ -1,0 +1,101 @@
+#include <iostream>
+#include <cstdio>
+
+using namespace std;
+
+const int S=405;
+
+#define p 998244353
+
+int C[S][S];
+int n,m,k;
+int a[S];
+int f[S],g[S]; // f: a[i]==a[i+1]  g: a[i]!=a[i+1]
+int lst[S]; // lst: k-1
+int h[S][S];
+
+inline int qpow(int x,int y)
+{
+	int res=1;
+	for(;y>0;y>>=1,x=1ll*x*x%p) res=y&1?1ll*res*x%p:res;
+	return res;
+}
+inline void add(int &x,int y)
+{
+	x+=y;
+	if(x>=p) x-=p;
+}
+
+int main()
+{
+	for(int i=0;i<=S-3;i++)
+	{
+		C[i][0]=1;
+		for(int j=1;j<=i;j++) C[i][j]=(C[i-1][j]+C[i-1][j-1])%p;
+	}
+	ios::sync_with_stdio(false),cin.tie(0),cout.tie(0);
+	cin>>n>>m>>k;
+	for(int i=1;i<=m;i++) cin>>a[i];
+	for(int i=k;i<=n;i++)
+	{
+		for(int j=0;j<=k-1;j++)
+		{
+			int pre=1ll*C[k-1][j]*qpow(j,i-1)%p;
+			if(k-1-j&1^1) add(f[i],pre);
+			else add(f[i],p-pre);
+		}
+	}
+	for(int i=k;i<=n;i++)
+	{
+		for(int pp=k-1;pp<=i-1;pp++)
+		{
+			for(int j=0;j<=k-2;j++)
+			{
+				int bef=(qpow(j+1,pp-1)-qpow(j,pp-1)+p)%p;
+				int aft=qpow(k-2,i-1-pp);
+				int pre=1ll*C[k-2][j]*bef%p*aft%p;
+				if(k-2-j&1^1) add(g[i],pre);
+				else add(g[i],p-pre);
+			}
+		}
+	}
+	for(int i=k-1;i<=n;i++)
+	{
+		for(int j=0;j<=k-1;j++)
+		{
+			int pre=1ll*C[k-1][j]*qpow(j,i)%p;
+			if(k-1-j&1^1) add(lst[i],pre);
+			else add(lst[i],p-pre);
+		}
+	}
+	// for(int i=1;i<=n;i++) cout<<f[i]<<' ';cout<<'\n';
+	// for(int i=1;i<=n;i++) cout<<g[i]<<' ';cout<<'\n';
+	// for(int i=1;i<=n;i++) cout<<lst[i]<<' ';cout<<'\n';
+	h[0][0]=1;
+	for(int i=1;i<=m-1;i++)
+		for(int j=0;j<=n;j++)
+		{
+			int u=h[i-1][j];
+			for(int len=k;j+len<=n;len++)
+			{
+				if(a[i]==a[i+1]) add(h[i][j+len],1ll*u*f[len]%p);
+				else add(h[i][j+len],1ll*u*g[len]%p);
+			}
+		}
+	int ans=0;
+	for(int i=0;i<=n;i++)
+		add(ans,1ll*h[m-1][i]*lst[n-i]%p);
+	cout<<ans<<'\n';
+	return 0;
+}
+/*
+记录一下 b 匹配到哪了
+相当于能分 m 段，每一段中 [1,k] 都出现了
+最后一段不能出现 b[m]？
+那不就是每一段匹配一个
+也就是第 i 段中 b[i] 出现在 b[i+1] 后面
+那不是直接backpack吗
+哦
+这样有些最后一位是 b[m] 的子序列没有
+首先我 b 的每一位都是出现在对应段的最后一个，否则其它子序列没有优势
+*/

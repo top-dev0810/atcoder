@@ -1,0 +1,60 @@
+#include <bits/stdc++.h>
+
+using i64 = long long;
+using u64 = unsigned long long;
+using u32 = unsigned;
+using u128 = unsigned __int128;
+
+int main() {
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+    
+    int K;
+    std::cin >> K;
+    
+    std::string S;
+    std::cin >> S;
+    
+    std::string T;
+    std::cin >> T;
+    
+    int N = S.size();
+    int M = T.size();
+    
+    std::vector lcp(2 * K + 1, std::vector<int>(N + 1));
+    for (int d = -K; d <= K; d++) {
+        for (int i = N - 1; i >= 0; i--) {
+            lcp[d + K][i] = i + d >= 0 && i + d < M && S[i] == T[i + d] ? 1 + lcp[d + K][i + 1] : 0;
+        }
+    }
+    
+    std::vector<int> dp(2 * K + 1, -1);
+    dp[K] = lcp[K][0];
+    
+    for (int t = 0; t < K; t++) {
+        auto ndp = dp;
+        for (int d = -t; d <= t; d++) {
+            if (dp[d + K] == -1) {
+                continue;
+            }
+            if (dp[d + K] < N) {
+                ndp[d - 1 + K] = std::max(ndp[d - 1 + K], dp[d + K] + 1 + lcp[d - 1 + K][dp[d + K] + 1]);
+            }
+            if (dp[d + K] + d < M) {
+                ndp[d + 1 + K] = std::max(ndp[d + 1 + K], dp[d + K] + lcp[d + 1 + K][dp[d + K]]);
+            }
+            if (dp[d + K] < N && dp[d + K] + d < M) {
+                ndp[d + K] = std::max(ndp[d + K], dp[d + K] + 1 + lcp[d + K][dp[d + K] + 1]);
+            }
+        }
+        dp = std::move(ndp);
+    }
+    
+    if (std::abs(M - N) <= K && dp[M - N + K] == N) {
+        std::cout << "Yes\n";
+    } else {
+        std::cout << "No\n";
+    }
+    
+    return 0;
+}

@@ -1,0 +1,155 @@
+// LUOGU_RID: 206852928
+#include <bits/stdc++.h>
+using namespace std;
+using ll=long long;
+using ld=long double;
+const ll ILL=2167167167167167167;
+const int INF=2100000000;
+#define rep(i,a,b) for (int i=(int)(a);i<(int)(b);i++)
+#define all(p) p.begin(),p.end()
+template<class T> using _pq = priority_queue<T, vector<T>, greater<T>>;
+template<class T> int LB(vector<T> &v,T a){return lower_bound(v.begin(),v.end(),a)-v.begin();}
+template<class T> int UB(vector<T> &v,T a){return upper_bound(v.begin(),v.end(),a)-v.begin();}
+template<class T> bool chmin(T &a,T b){if(b<a){a=b;return 1;}else return 0;}
+template<class T> bool chmax(T &a,T b){if(a<b){a=b;return 1;}else return 0;}
+template<class T> void So(vector<T> &v) {sort(v.begin(),v.end());}
+template<class T> void Sore(vector<T> &v) {sort(v.begin(),v.end(),[](T x,T y){return x>y;});}
+bool yneos(bool a,bool upp=false){if(a){cout<<(upp?"YES\n":"Yes\n");}else{cout<<(upp?"NO\n":"No\n");}return a;}
+template<class T> void vec_out(vector<T> &p,int ty=0){
+    if(ty==2){cout<<'{';for(int i=0;i<(int)p.size();i++){if(i){cout<<",";}cout<<'"'<<p[i]<<'"';}cout<<"}\n";}
+    else{if(ty==1){cout<<p.size()<<"\n";}for(int i=0;i<(int)(p.size());i++){if(i) cout<<" ";cout<<p[i];}cout<<"\n";}}
+template<class T> T vec_min(vector<T> &a){assert(!a.empty());T ans=a[0];for(auto &x:a) chmin(ans,x);return ans;}
+template<class T> T vec_max(vector<T> &a){assert(!a.empty());T ans=a[0];for(auto &x:a) chmax(ans,x);return ans;}
+template<class T> T vec_sum(vector<T> &a){T ans=T(0);for(auto &x:a) ans+=x;return ans;}
+int pop_count(long long a){int res=0;while(a){res+=(a&1),a>>=1;}return res;}
+template<class T> T square(T a){return a * a;}
+
+#include <atcoder/maxflow>
+
+
+void solve();
+// CITRUS CURIO CITY / FREDERIC
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t = 1;
+    // cin >> t;
+    rep(i, 0, t) solve();
+}
+
+void solve() {
+    int N;
+    ll P, Q;
+    cin >> N >> P >> Q;
+    vector A(N, vector<int>(N));
+    vector<int> B;
+    rep(i, 0, N) rep(j, 0, N) cin >> A[i][j], B.push_back(A[i][j]);
+    So(B);
+    int median = B[(N * N) / 2];
+    int max_cost = 0;
+    rep(i, 0, N) rep(j, 0, N) max_cost += abs(A[i][j] - median);
+    if (Q * max_cost <= P){
+        cout << "0\n";
+        rep(i, 0, N){
+            rep(j, 0, N) A[i][j] = median;
+            vec_out(A[i]);
+        }
+        return;
+    }
+    vector<pair<int, int>> frac;
+    rep(i, 0, 60) rep(j, max(i / 4, 1), 60){
+            if (gcd(i, j) == 1) frac.emplace_back(i, j);
+        }
+    sort(all(frac), [&](pair<int, int> l, pair<int, int> r){
+        return l.first * r.second < r.first * l.second;
+    });
+    const int D = 10;
+    vector ban(N, vector<int>(N));
+    auto f = [&](int num_cost, int diff_cost) -> int {
+        atcoder::mf_graph<int> G(N * N * D + 2);
+        int S = N * N * D, T = S + 1;
+        rep(i, 0, N) rep(j, 0, N){
+            int ind = (i * N + j) * D;
+            G.add_edge(S, ind, num_cost * A[i][j]);
+            G.add_edge(ind + D - 1, T, num_cost * (D - A[i][j]));
+            rep(n, 0, D - 1){
+                G.add_edge(ind + n + 1, ind + n, INF);
+                G.add_edge(ind + n, ind + n + 1, num_cost * abs(A[i][j] - 1 - n));
+            }
+        }
+        rep(i, 0, N) rep(j, 0, N){
+            if (i + 1 < N){
+                int a = (i * N + j) * D;
+                int b = a + N * D;
+                rep(k, 0, D){
+                    G.add_edge(a + k, b + k, diff_cost);
+                    G.add_edge(b + k, a + k, diff_cost);
+                }
+            }
+            if (j + 1 < N){
+                int a = (i * N + j) * D;
+                int b = a + D;
+                rep(k, 0, D){
+                    G.add_edge(a + k, b + k, diff_cost);
+                    G.add_edge(b + k, a + k, diff_cost);
+                }
+            }
+        }
+        G.flow(S, T);
+        auto e = G.min_cut(S);
+        int res = 0;
+        rep(i, 0, N) rep(j, 0, N){
+            if (!e[(i * N + j) * D]){
+                ban[i][j] = 0;
+                res += A[i][j];
+                continue;
+            }
+            ban[i][j] = D;
+            res += D - A[i][j];
+            rep(k, 0, D - 1){
+                int a = (i * N + j) * D + k;
+                if (e[a] ^ e[a + 1]){
+                    ban[i][j] = k + 1;
+                    res += A[i][j] - D + abs(A[i][j] - k - 1);
+                }
+            }
+        }
+        return res;
+    };
+    int l = 1, r = frac.size();
+    while (r - l > 1){
+        int m = (r + l) / 2;
+        int diff = f(frac[m].first, frac[m].second);
+        if (Q * diff < P) r = m;
+        else l = m;
+    }
+
+    if (frac[l].first > frac[r].first) r++;
+    else l--;
+    f(frac[l].first, frac[l].second);
+    auto tmpL = ban;
+    f(frac[r].first, frac[r].second);
+    auto tmpR = ban;
+    ll diffL = 0, diffR = 0;
+    rep(i, 0, N) rep(j, 0, N) diffL += abs(A[i][j] - tmpL[i][j]);
+    rep(i, 0, N) rep(j, 0, N) diffR += abs(A[i][j] - tmpR[i][j]);
+    ll cost = 0;
+    P -= Q * diffR;
+    vector ans(N, vector<ld>(N));
+    ll diff2 = diffL - diffR;
+    diff2 *= Q;
+    rep(i, 0, N) rep(j, 0, N){
+        if (i + 1 < N) cost += abs(tmpR[i][j] - tmpR[i + 1][j]);
+        if (j + 1 < N) cost += abs(tmpR[i][j] - tmpR[i][j + 1]);
+        ans[i][j] = tmpR[i][j] + (ld)((tmpL[i][j] - tmpR[i][j]) * P) / diff2;
+    }
+
+    int m = l + 1;
+    cost *= Q * frac[m].second;
+
+    // cout << " " << cost << " " << P << " " << Q << " " << frac[m].first << " " << frac[m].second << endl;
+    cost -= P * frac[m].first;
+    cout << fixed << setprecision(30) << (ld)(cost) / (ld)(Q * frac[m].second) << "\n";
+    rep(i, 0, N) vec_out(ans[i]);
+}

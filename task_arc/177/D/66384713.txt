@@ -1,0 +1,429 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll=long long;
+using ull=unsigned long long;
+using P=pair<ll,ll>;
+template<typename T>using minque=priority_queue<T,vector<T>,greater<T>>;
+template<typename T>bool chmax(T &a,const T &b){return (a<b?(a=b,true):false);}
+template<typename T>bool chmin(T &a,const T &b){return (a>b?(a=b,true):false);}
+template<typename T1,typename T2>istream &operator>>(istream &is,pair<T1,T2>&p){is>>p.first>>p.second;return is;}
+template<typename T1,typename T2,typename T3>istream &operator>>(istream &is,tuple<T1,T2,T3>&a){is>>std::get<0>(a)>>std::get<1>(a)>>std::get<2>(a);return is;}
+template<typename T,size_t n>istream &operator>>(istream &is,array<T,n>&a){for(auto&i:a)is>>i;return is;}
+template<typename T>istream &operator>>(istream &is,vector<T> &a){for(auto &i:a)is>>i;return is;}
+template<typename T1,typename T2>void operator++(pair<T1,T2>&a,int n){a.first++,a.second++;}
+template<typename T1,typename T2>void operator--(pair<T1,T2>&a,int n){a.first--,a.second--;}
+template<typename T>void operator++(vector<T>&a,int n){for(auto &i:a)i++;}
+template<typename T>void operator--(vector<T>&a,int n){for(auto &i:a)i--;}
+#define overload3(_1,_2,_3,name,...) name
+#define rep1(i,n) for(int i=0;i<(int)(n);i++)
+#define rep2(i,l,r) for(int i=(int)(l);i<(int)(r);i++)
+#define rep(...) overload3(__VA_ARGS__,rep2,rep1)(__VA_ARGS__)
+#define reps(i,l,r) rep2(i,l,r)
+#define all(x) x.begin(),x.end()
+#define pcnt(x) __builtin_popcountll(x)
+#define fin(x) return cout<<(x)<<'\n',static_cast<void>(0)
+#define yn(x) cout<<((x)?"Yes\n":"No\n")
+#define uniq(x) sort(all(x)),x.erase(unique(all(x)),x.end())
+template<typename T>
+inline int fkey(vector<T>&z,T key){return lower_bound(z.begin(),z.end(),key)-z.begin();}
+ll myceil(ll a,ll b){return (a+b-1)/b;}
+template<typename T,size_t n,size_t id=0>
+auto vec(const int (&d)[n],const T &init=T()){
+  if constexpr (id<n)return vector(d[id],vec<T,n,id+1>(d,init));
+  else return init;
+}
+#ifdef LOCAL
+#include<debug.h>
+#define SWITCH(a,b) (a)
+#else
+#define debug(...) static_cast<void>(0)
+#define debugg(...) static_cast<void>(0)
+#define SWITCH(a,b) (b)
+template<typename T1,typename T2>ostream &operator<<(ostream &os,const pair<T1,T2>&p){os<<p.first<<' '<<p.second;return os;}
+#endif
+struct Timer{
+  clock_t start;
+  Timer(){
+    start=clock();
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cout<<fixed<<setprecision(16);
+  }
+  inline double now(){return (double)(clock()-start)/1000;}
+  #ifdef LOCAL
+  ~Timer(){
+    cerr<<"time:";
+    cerr<<now();
+    cerr<<"ms\n";
+  }
+  #endif
+}timer;
+void SOLVE();
+int main(){
+  int testcase=1;
+  //cin>>testcase;
+  for(int i=0;i<testcase;i++){
+    SOLVE();
+  }
+}
+template<typename T>
+struct fast_stack{
+private:
+  T *st;
+  int p;
+public:
+  fast_stack(int n):p(0){
+    st=new T[n];
+  }
+  fast_stack(){}
+  inline void push(const T&x){st[p++]=x;}
+  template<typename...Args>
+  inline T& emplace(Args&&...args){
+    st[p++]=T(std::forward<Args>(args)...);
+    return st[p-1];
+  }
+  inline T& pop(){return st[--p];}
+  inline T top()const{return st[p-1];}
+  inline T& top(){return st[p-1];}
+  inline int size()const{return p;}
+  inline bool empty()const{return !p;}
+  inline void clear(){p=0;}
+  ~fast_stack(){delete[] st;}
+};
+template<typename T,bool MIN=true>
+std::vector<int>cartesian_tree(const std::vector<T>&a){
+  int n=a.size();
+  std::vector<int>res(n,-1);
+  fast_stack<int>st(n);
+  for(int i=0;i<n;i++){
+    int ls=-1;
+    while(!st.empty()){
+      int x=st.top();
+      if constexpr(MIN){
+        if(a[x]>=a[i]){
+          ls=x;
+          st.pop();
+        }
+        else break;
+      }
+      else{
+        if(a[x]<=a[i]){
+          ls=x;
+          st.pop();
+        }
+        else break;
+      }
+    }
+    if(ls!=-1)res[ls]=i;
+    if(!st.empty())res[i]=st.top();
+    st.push(i);
+  }
+  return res;
+}
+#include<type_traits>
+#include<optional>
+constexpr int carmichael_constexpr(int n){
+  if(n==998244353)return 998244352;
+  if(n==1000000007)return 1000000006;
+  if(n<=1)return n;
+  int res=1;
+  int t=0;
+  while(n%2==0){
+    n/=2;
+    t++;
+  }
+  if(t==2)res=2;
+  else if(t>=3)res=1<<(t-2);
+  for(int i=3;i*i<=n;i++)if(n%i==0){
+    int c=0;
+    while(n%i==0){
+      n/=i;
+      c++;
+    }
+    int prod=i-1;
+    for(int j=0;j<c-1;j++)prod*=i;
+    res=std::lcm(res,prod);
+  }
+  if(n!=1)res=std::lcm(res,n-1);
+  return res;
+}
+template<int m>
+struct mod_int{
+private:
+  static constexpr unsigned int umod=static_cast<unsigned int>(m);
+  static constexpr unsigned int car=carmichael_constexpr(m);
+  using uint=unsigned int;
+  using mint=mod_int;
+  uint v;
+  static_assert(m<uint(1)<<31);
+  mint sqrt_impl()const{
+    if(this->val()<=1)return *this;
+    if constexpr(m%8==1){
+      mint b=2;
+      while(b.pow((m-1)/2).val()==1)b++;
+      int m2=m-1,e=0;
+      while(m2%2==0)m2>>=1,e++;
+      mint x=this->pow((m2-1)/2);
+      mint y=(*this)*x*x;
+      x*=*this;
+      mint z=b.pow(m2);
+      while(y.val()!=1){
+        int j=0;
+        mint t=y;
+        while(t.val()!=1)t*=t,j++;
+        z=z.pow(1<<(e-j-1));
+        x*=z;
+        z*=z;
+        y*=z;e=j;
+      }
+      return x;
+    }
+    else if constexpr(m%8==5){
+      mint ret=this->pow((m+3)/8);
+      if((ret*ret).val()==this->val())return ret;
+      else return ret*mint::raw(2).pow((m-1)/4);
+    }
+    else{
+      return this->pow((m+1)/4);
+    }
+  }
+public:
+  using value_type=uint;
+  mod_int():v(0){}
+  template<typename T,std::enable_if_t<std::is_signed_v<T>,std::nullptr_t> =nullptr>
+  mod_int(T a){
+    a%=m;
+    if(a<0)v=a+umod;
+    else v=a;
+  }
+  template<typename T,std::enable_if_t<std::is_unsigned_v<T>,std::nullptr_t> =nullptr>
+  mod_int(T a):v(a%umod){}
+  static constexpr mint raw(int a){
+    mint ret;
+    ret.v=a;
+    return ret;
+  }
+  inline uint val()const{return this->v;}
+  static constexpr int mod(){return m;}
+  inline mint &operator+=(const mint &b){
+    this->v+=b.v;
+    if(this->v>=umod)this->v-=umod;
+    return *this;
+  }
+  inline mint &operator-=(const mint &b){
+    this->v-=b.v;
+    if(this->v>=umod)this->v+=umod;
+    return *this;
+  }
+  inline mint &operator*=(const mint &b){
+    this->v=((unsigned long long)this->v*b.v)%umod;
+    return *this;
+  }
+  inline mint &operator/=(const mint &b){
+    *this*=b.inv();
+    return *this;
+  }
+  inline mint operator+()const{return *this;}
+  inline mint operator-()const{return mint()-*this;}
+  friend inline mint operator+(const mint &a,const mint &b){return mint(a)+=b;}
+  friend inline mint operator-(const mint &a,const mint &b){return mint(a)-=b;}
+  friend inline mint operator*(const mint &a,const mint &b){return mint(a)*=b;}
+  friend inline mint operator/(const mint &a,const mint &b){return mint(a)/=b;}
+  friend inline bool operator==(const mint &a,const mint &b){return a.val()==b.val();}
+  friend inline bool operator!=(const mint &a,const mint &b){return !(a==b);}
+  inline mint operator++(int){
+    mint ret=*this;
+    *this+=mint::raw(1);
+    return ret;
+  }
+  inline mint operator--(int){
+    mint ret=*this;
+    *this-=mint::raw(1);
+    return ret;
+  }
+  mint pow(long long n)const{
+    mint ret=mint::raw(1),a(*this);
+    while(n){
+      if(n&1)ret*=a;
+      a*=a;
+      n>>=1;
+    }
+    return ret;
+  }
+  inline mint inv()const{
+    assert(this->v!=0);
+    return pow(car-1);
+  }
+  std::optional<mint>sqrt()const{
+    if(this->val()<=1||this->pow((m-1)/2)==1)return std::make_optional(this->sqrt_impl());
+    else return std::nullopt;
+  }
+  static constexpr unsigned int order(){return car;}
+  friend std::istream &operator>>(std::istream &is,mint &b){
+    long long a;
+    is>>a;
+    b=mint(a);
+    return is;
+  }
+  friend std::ostream &operator<<(std::ostream &os,const mint &b){
+    os<<b.val();
+    return os;
+  }
+};
+template<int m>
+struct std::hash<mod_int<m>>{
+  std::size_t operator()(mod_int<m>x)const{
+    return std::hash<unsigned int>()(x.val());
+  }
+};
+using mint998=mod_int<998244353>;
+using mint107=mod_int<1000000007>;
+using mint=mint998;
+// #include "math/uso_modint.hpp"
+// using mint=uso_modint<double>;
+#include<concepts>
+template<typename T>
+constexpr std::enable_if_t<std::numeric_limits<T>::digits<=32,int>msb(T n){return n==0?-1:31-__builtin_clz(n);}
+template<typename T>
+constexpr std::enable_if_t<(std::numeric_limits<T>::digits>32),int>msb(T n){return n==0?-1:63-__builtin_clzll(n);}
+
+template<typename T>
+constexpr std::enable_if_t<std::numeric_limits<T>::digits<=32,int>lsb(T n){return n==0?-1:__builtin_ctz(n);}
+template<typename T>
+constexpr std::enable_if_t<(std::numeric_limits<T>::digits>32),int>lsb(T n){return n==0?-1:__builtin_ctzll(n);}
+
+template<typename T>
+constexpr std::enable_if_t<std::is_integral_v<T>,T>floor_pow2(T n){return n==0?0:T(1)<<msb(n);}
+
+template<typename T>
+constexpr std::enable_if_t<std::is_integral_v<T>,T>ceil_pow2(T n){return n<=1?1:T(1)<<(msb(n-1)+1);}
+
+template<std::integral T>
+constexpr T safe_div(T a,T b){return a/b-(a%b&&(a^b)<0);}
+template<std::integral T>
+constexpr T safe_ceil(T a,T b){return a/b+(a%b&&(a^b)>0);}
+template<typename M>
+struct DualSegmentTree{
+  using S=typename M::S;
+  using F=typename M::F;
+private:
+  int n,z,log2n;
+  std::vector<S>dat;
+  std::vector<F>lazy;
+  inline void push(int i){
+    lazy[i*2]=M::composition(lazy[i],lazy[i*2]);
+    lazy[i*2+1]=M::composition(lazy[i],lazy[i*2+1]);
+    lazy[i]=M::id();
+  }
+  void path_push(int i){
+    int l=lsb(i);
+    for(int j=log2n;j>l;j--)push(i>>j);
+  }
+public:
+  DualSegmentTree():n(0),log2n(0),z(0){}
+  DualSegmentTree(int n_):n(n_),z(ceil_pow2(n_)){
+    log2n=msb(z);
+    dat.resize(n,M::e());
+    lazy.resize(z*2,M::id());
+  }
+  DualSegmentTree(const std::vector<S>&init):n(init.size()),z(ceil_pow2((int)init.size())),dat(init){
+    log2n=msb(z);
+    lazy.resize(z*2,M::id());
+  }
+  void apply(int l,int r,const F&f){
+    l+=z,r+=z;
+    path_push(l),path_push(r);
+    while(l<r){
+      if(l&1)lazy[l]=M::composition(f,lazy[l]),l++;
+      if(r&1)--r,lazy[r]=M::composition(f,lazy[r]);
+      l>>=1,r>>=1;
+    }
+  }
+  S get(int i){
+    i+=z;
+    for(int j=log2n;j>=1;j--)push(i>>j);
+    return M::mapping(lazy[i],dat[i-z],1);
+  }
+  void set(int i,const S&x){
+    i+=z;
+    for(int j=log2n;j>=1;j--)push(i>>j);
+    lazy[i]=M::id();
+    dat[i-z]=x;
+  }
+  std::vector<S>get_all(){
+    for(int i=1;i<z;i++)push(i);
+    std::vector<S>res(n);
+    for(int i=0;i<n;i++)res[i]=M::mapping(lazy[i+z],dat[i],1);
+    return res;
+  }
+};
+struct M{
+  using S=mint;
+  static S e(){return mint::raw(1);}
+  using F=mint;
+  static S mapping(F f,S x,long long){return f*x;}
+  static F composition(F x,F y){return x*y;}
+  static F id(){return mint::raw(1);}
+};
+void SOLVE(){
+  int n,h;
+  cin>>n>>h;
+  vector<int>x(n);
+  cin>>x;
+  vector<int>ord(n);
+  iota(all(ord),0);
+  vector<mint>pow2(n+1),pow2inv(n+1);
+  pow2[0]=1;
+  pow2inv[0]=1;
+  mint inv2=mint(2).inv();
+  rep(i,1,n+1){
+    pow2[i]=pow2[i-1]+pow2[i-1];
+    pow2inv[i]=pow2inv[i-1]*inv2;
+  }
+  sort(all(ord),[&](int lhs,int rhs){return x[lhs]<x[rhs];});
+  vector<mint>dp(n);
+  DualSegmentTree<M>seg(n);
+  debug(ord);
+  for(int i=0;i<n;){
+    int j=i+1;
+    while(j<n&&x[ord[j]]-x[ord[j-1]]<=h)j++;
+    vector<int>now(ord.begin()+i,ord.begin()+j);
+    auto par=cartesian_tree(now);
+    vector<int>left(par.size(),-1),right(par.size(),-1);
+    rep(k,par.size()){
+      if(par[k]!=-1){
+        if(k<par[k])left[par[k]]=k;
+        else right[par[k]]=k;
+      }
+    }
+    debug(now);
+    auto dfs=[&](auto self,int v,int dep)->void {
+      debug(v,dep);
+      if(v==-1)return;
+      if(left[v]==-1&&right[v]==-1){
+        dp[now[v]]=pow2inv[dep];
+      }
+      else if(left[v]==-1||right[v]==-1){
+        dp[now[v]]=pow2inv[dep+1];
+      }
+      self(self,left[v],dep+1);
+      self(self,right[v],dep+1);
+    };
+    dfs(dfs,find(all(par),-1)-par.begin(),0);
+    sort(all(now));
+    debug(dp);
+    rep(k,1,now.size())dp[now[k]]+=dp[now[k-1]];
+    seg.apply(0,now[0],0);
+    rep(k,now.size()-1){
+      seg.apply(now[k],now[k+1],dp[now[k]]);
+    }
+    i=j;
+  }
+  auto ans=seg.get_all();
+  debug(ans);
+  rep(i,n){
+    mint ans2=ans[i];
+    if(i)ans2-=ans[i-1];
+    cout<<ans2*pow2[n]<<" \n"[i+1==n];
+  }
+}

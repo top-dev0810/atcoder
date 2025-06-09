@@ -1,0 +1,123 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define task "task"
+#define ii pair<int,int>
+#define fi first
+#define se second
+#define int long long
+#define ll long long
+#define ld double
+#define mp make_pair
+#define lg2 30
+#define iii pair<int,ii>
+#define iiii pair<ii,ii>
+#define base 29
+#define eps 1e-8
+//int dx[]= {0LL,0LL,1,-1,1,1,-1,-1};
+//int dy[]= {1,-1,0LL,0LL,1,-1,1,-1};
+const int maxn=4e5+5;
+const int mod=1e9+7;
+int n;
+struct FEN
+{
+    int n;
+    vector<int>bit;
+    FEN(){};
+    FEN(int _n):bit(n+1,0),n(_n+1)
+    {
+    };
+    int get(int r) {
+        int ret = 0;
+        for (; r >= 0; r = (r & (r + 1)) - 1)
+            ret += bit[r];
+        return ret;
+    }
+
+    int get(int l, int r) {
+        return get(r) - get(l - 1);
+    }
+
+    void update(int idx, int delta) {
+        for (; idx < n; idx = idx | (idx + 1))
+            bit[idx] += delta;
+    }
+    void updateRange(int l,int r,int val)
+    {
+        update(l,val);
+        update(r+1,-val);
+    }
+}bita[2],bitb[2];
+struct pt
+{
+    int a,b,c;
+}v[maxn];
+bool cmp(pt x,pt y)
+{
+    return x.c>y.c;
+}
+signed main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    if(fopen(task".inp","r"))
+    {
+        freopen(task".inp","r",stdin);
+        freopen(task".out","w",stdout);
+    }
+    cin>>n;
+    for(int i=1;i<=n;i++)
+    {
+        cin>>v[i].a;
+    }
+    for(int i=1;i<=n;i++)cin>>v[i].b;
+    for(int i=1;i<=n;i++)cin>>v[i].c;
+    sort(v+1,v+n+1,cmp);
+    bita[0]=FEN(n+2);
+    bita[1]=FEN(n+2);
+    bitb[0]=FEN(n+2);
+    bitb[1]=FEN(n+2);
+    int ans=0,s=0,cnt=0;
+    for(int i=1;i<=n;i++)
+    {
+        // 0->1
+        if(v[i].a&&!v[i].b)
+        {
+            ans+=bita[0].get(i)*v[i].c;
+            bita[0].update(i,1);
+            bita[1].update(i,v[i].c);
+            cnt++;
+        }
+        //1->0
+        if(!v[i].a&&v[i].b)
+        {
+            bitb[0].update(i,1);
+            ans+=bitb[0].get(i)*v[i].c;
+            bitb[1].update(i,v[i].c);
+            cnt++;
+        }
+        if(v[i].a&&v[i].b)
+        {
+            s+=v[i].c;
+        }
+    }
+   // cout<<ans<<'\n';
+    int res=ans+s*cnt;
+    for(int i=1;i<=n;i++)
+    {
+        if(v[i].a&&v[i].b)
+        {
+            s-=v[i].c;
+            cnt+=2;
+            ans+=bita[1].get(i,n)+bita[0].get(i)*v[i].c;
+            bita[0].update(i,1);
+            bita[1].update(i,v[i].c);
+            bitb[1].update(i,v[i].c);
+            ans+=bitb[1].get(i,n)+bitb[0].get(i)*v[i].c;
+            bitb[0].update(i,1);
+            res=min(res,ans+s*cnt);
+        }
+    }
+    cout<<res;
+    cerr <<endl<< "TIME : " << clock() * 0.001 << "s" << endl ;
+}

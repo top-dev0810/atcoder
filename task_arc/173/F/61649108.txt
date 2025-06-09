@@ -1,0 +1,71 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+static const int MOD = 998244353;
+static const int MAXN = 400000;
+
+long long fastPow(long long base, int exp) {
+    long long result = 1;
+    while (exp > 0) {
+        if (exp & 1) result = (result * base) % MOD;
+        base = (base * base) % MOD;
+        exp >>= 1;
+    }
+    return result;
+}
+
+long long factorial[MAXN + 5], invFactorial[MAXN + 5];
+long long combination(int n, int r) {
+    return factorial[n] * invFactorial[r] % MOD * invFactorial[n - r] % MOD;
+}
+
+long long valFunction(int x, int n) {
+    return fastPow(n, x) * invFactorial[x] % MOD;
+}
+
+long long calcWays(int lower, int upper, int steps, int a, int b, int n) {
+    long long total = 0;
+    for (int i = 0; i <= steps; ++i) {
+        if (i <= lower && steps - i <= upper) {
+            long long ways = combination(steps, i);
+            ways = ways * fastPow(b, i) % MOD;
+            ways = ways * fastPow(a, steps - i) % MOD;
+            ways = ways * valFunction(lower - i, n) % MOD;
+            ways = ways * valFunction(upper - (steps - i), n) % MOD;
+            total = (total + ways) % MOD;
+        }
+    }
+    return total;
+}
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, a, b;
+    cin >> n >> a >> b;
+
+    factorial[0] = invFactorial[0] = 1;
+    for(int i = 1; i <= a + b; ++i) {
+        factorial[i] = factorial[i - 1] * i % MOD;
+        invFactorial[i] = fastPow(factorial[i], MOD - 2);
+    }
+
+    long long answer = calcWays(a, b, n - 1, a, b, n);
+    long long subtract1 = (2LL * (n - 1) % MOD) * calcWays(a - 1, b - 1, n - 2, a, b, n) % MOD;
+    long long subtract2 = (1LL * (n - 1) * (n - 2) % MOD) * calcWays(a - 2, b - 1, n - 3, a, b, n) % MOD;
+    long long subtract3 = (1LL * (n - 1) * (n - 2) % MOD) * calcWays(a - 1, b - 2, n - 3, a, b, n) % MOD;
+    long long subtract4 = (1LL * (n - 1) * (n - 2) % MOD) * calcWays(a - 1, b - 1, n - 3, a, b, n) % MOD;
+
+    answer = (answer + MOD - subtract1 % MOD) % MOD;
+    answer = (answer + MOD - subtract2 % MOD) % MOD;
+    answer = (answer + MOD - subtract3 % MOD) % MOD;
+    answer = (answer + MOD - subtract4 % MOD) % MOD;
+
+    long long result = factorial[a] * factorial[b] % MOD;
+    result = result * fastPow(n, MOD - 2) % MOD;
+    result = result * answer % MOD;
+
+    cout << result << "\n";
+    return 0;
+}

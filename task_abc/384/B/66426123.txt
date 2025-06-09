@@ -1,0 +1,19 @@
+#include<iostream>
+#include<bits/stdc++.h>
+using namespace std;
+
+int main(){
+    int N , R ; 
+    cin >> N >> R ; 
+    int div , a;
+    while(N--){
+        cin >> div >> a;
+        if(div == 1 && (R> 2799 || R<1600)) continue;
+        else if ( div == 2 && (R >2399 || R < 1200)) continue;
+        else{
+            R+=a;
+        }
+
+    }
+    cout <<  R;
+}

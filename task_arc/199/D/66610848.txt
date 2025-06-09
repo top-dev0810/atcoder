@@ -1,0 +1,69 @@
+//Author: Kevin
+#include<bits/stdc++.h>
+//#pragma GCC optimize("O2")
+using namespace std;
+#define ll long long
+#define ull unsigned ll
+#define pb emplace_back
+#define mp make_pair
+#define ALL(x) (x).begin(),(x).end()
+#define rALL(x) (x).rbegin(),(x).rend()
+#define srt(x) sort(ALL(x))
+#define rev(x) reverse(ALL(x))
+#define rsrt(x) sort(rALL(x))
+#define sz(x) (int)(x.size())
+#define inf 0x3f3f3f3f
+#define pii pair<int,int>
+#define lb(v,x) (int)(lower_bound(ALL(v),x)-v.begin())
+#define ub(v,x) (int)(upper_bound(ALL(v),x)-v.begin())
+#define uni(v) v.resize(unique(ALL(v))-v.begin())
+#define longer __int128_t
+void die(string S){puts(S.c_str());exit(0);}
+const ll mod=998244353;
+ll C[1005][1005];
+ll dp[1005];
+ll ndp[1005];
+ll f[1005];
+ll nf[1005];
+ll V1[1005][1005],V2[1005][1005],V3[1005][1005];
+int main()
+{
+	ios_base::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	for(int i=0;i<1005;i++)
+		C[i][0]=C[i][i]=1;
+	for(int i=2;i<1005;i++)
+		for(int j=1;j<i;j++)
+			C[i][j]=(C[i-1][j]+C[i-1][j-1])%mod;
+	int h,w;
+	cin>>h>>w;
+	if(h<w) swap(h,w);
+	dp[0]=1;
+	for(int a=0;a<=w;a++)
+		for(int b=0;b<w-a;b++)
+			for(int c=0;c<w-a-b;c++)
+			{
+				V1[a][c]=(V1[a][c]+C[w-a-b-1][c])%mod;
+				V2[a][c]=(V2[a][c]+C[w-a-b-1][c]*((h+1)*c+b))%mod;
+			}
+	for(int i=1;i<=h;i++)
+	{
+		memset(ndp,0,sizeof(ndp));
+		memset(nf,0,sizeof(nf));
+		for(int a=0;a<=w;a++)
+			for(int c=0;c<w-a;c++)
+				ndp[a+c]=(ndp[a+c]+dp[a]*V1[a][c])%mod;
+		for(int a=0;a<=w;a++)
+			ndp[a]=(ndp[a]+dp[a])%mod;
+		for(int a=0;a<=w;a++)
+			for(int c=0;c<w-a;c++)
+				nf[a+c]=(nf[a+c]+dp[a]*V2[a][c]+f[a]*V1[a][c]+mod-dp[a]*V1[a][c]%mod*i%mod*c%mod)%mod;
+		for(int a=0;a<=w;a++)
+			nf[a]=(nf[a]+dp[a]*(w-a)+f[a])%mod;
+		memcpy(dp,ndp,sizeof(dp));
+		memcpy(f,nf,sizeof(f));
+	}
+	cout<<accumulate(f,f+w+1,0ll)%mod<<'\n';
+	return 0;
+}

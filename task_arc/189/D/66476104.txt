@@ -1,0 +1,73 @@
+#include<bits/stdc++.h>
+#define int long long
+using namespace std;
+namespace fast_IO {//我向众神祈祷，回应我的只有心跳
+#define IOSIZE 100000
+	char ibuf[IOSIZE], obuf[IOSIZE], *p1 = ibuf, *p2 = ibuf, *p3 = obuf;
+#define getchar() ((p1==p2)and(p2=(p1=ibuf)+fread(ibuf,1,IOSIZE,stdin),p1==p2)?(EOF):(*p1++))
+#define putchar(x) ((p3==obuf+IOSIZE)&&(fwrite(obuf,p3-obuf,1,stdout),p3=obuf),*p3++=x)
+#define isdigit(ch) (ch>47&&ch<58)
+#define isspace(ch) (ch<33)
+	template<typename T> inline T read() { T s = 0; int w = 1; char ch; while (ch = getchar(), !isdigit(ch) and (ch != EOF)) if (ch == '-') w = -1; if (ch == EOF) return false; while (isdigit(ch)) s = s * 10 + ch - 48, ch = getchar(); return s * w; }
+	template<typename T> inline bool read(T &s) { s = 0; int w = 1; char ch; while (ch = getchar(), !isdigit(ch) and (ch != EOF)) if (ch == '-') w = -1; if (ch == EOF) return false; while (isdigit(ch)) s = s * 10 + ch - 48, ch = getchar(); return s *= w, true; }
+	template<typename T> inline void print(T x) { if (x < 0) putchar('-'), x = -x; if (x > 9) print(x / 10); putchar(x % 10 + 48); }
+	inline bool read(char &s) { while (s = getchar(), isspace(s)); return true; }
+	inline bool read(char *s) { char ch; while (ch = getchar(), isspace(ch)); if (ch == EOF) return false; while (!isspace(ch)) *s++ = ch, ch = getchar(); *s = '\000'; return true; }
+	inline void print(char x) { putchar(x); }
+	inline void print(char *x) { while (*x) putchar(*x++); }
+	inline void print(const char *x) { for (int i = 0; x[i]; i++) putchar(x[i]); }
+	inline bool read(std::string& s) { s = ""; char ch; while (ch = getchar(), isspace(ch)); if (ch == EOF) return false; while (!isspace(ch)) s += ch, ch = getchar(); return true; }
+	inline void print(std::string x) { for (int i = 0, n = x.size(); i < n; i++) putchar(x[i]); }
+	inline bool read(bool &b) { char ch; while(ch=getchar(), isspace(ch)); b=ch^48; return true; }
+	inline void print(bool b) { putchar(b+48); }
+	template<typename T, typename... T1> inline int read(T& a, T1&... other) { return read(a) + read(other...); }
+	template<typename T, typename... T1> inline void print(T a, T1... other) { print(a), print(other...); }
+	struct Fast_IO { ~Fast_IO() { fwrite(obuf, p3 - obuf, 1, stdout); } } io;
+	template<typename T> Fast_IO& operator >> (Fast_IO &io, T &b) { return read(b), io; }
+	template<typename T> Fast_IO& operator << (Fast_IO &io, T b) { return print(b), io; }
+#define cout io
+#define cin io
+#define endl '\n'
+} using namespace fast_IO;
+const int maxn=5e5;
+const int inf=1e15;
+int n,a[maxn+5],ls[maxn+5],rs[maxn+5],sum[maxn+5],rt;
+int st[maxn+5],ed;
+void insert(int now){
+	int las=0;
+	while(ed&&a[st[ed]]<a[now])las=st[ed--];
+	st[++ed]=now;
+	ls[now]=las;rs[st[ed-1]]=now;
+}
+int ans[maxn+5],cnt[maxn+5];
+void dfs1(int now){
+	if(!now)return;
+	sum[now]=a[now]*cnt[now];
+	dfs1(ls[now]);dfs1(rs[now]);
+	sum[now]+=sum[ls[now]];
+	sum[now]+=sum[rs[now]];
+}
+void dfs2(int now,int fat){
+	if(!now)return;
+	ans[now]=sum[now];
+	if(sum[now]>a[fat])ans[now]=ans[fat];
+	dfs2(ls[now],now);dfs2(rs[now],now);
+}
+int belong[maxn+5];
+signed main(){
+	cin>>n;
+	for(int i=1;i<=n;i++)cin>>a[i];
+	for(int i=1;i<=n;i++)belong[i]=(a[i]==a[i-1]?belong[i-1]:i),cnt[belong[i]]++;
+	for(int i=1;i<=n;i++)if(belong[i]==i)insert(i);
+	rt=st[1];
+	dfs1(rt);dfs2(rt,rt);
+	a[0]=a[n+1]=inf;
+	for(int i=1;i<=n;i++){
+		if(a[i]==a[i-1]&&a[i]==a[i+1])cout<<a[i]<<" ";
+		else if(a[i]==a[i-1])cout<<(a[i]>a[i+1]?max(ans[belong[i]],sum[belong[i]]):a[i])<<" ";
+		else if(a[i]==a[i+1])cout<<(a[i]>a[i-1]?max(ans[belong[i]],sum[belong[i]]):a[i])<<" ";
+		else cout<<ans[i]<<" ";
+	}
+//	cout<<ans[belong[2]]<<","<<ans[belong[]]
+	return 0;
+}

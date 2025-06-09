@@ -1,0 +1,60 @@
+#include <bits/stdc++.h>
+using namespace std;
+using int64 = long long;
+
+auto ask = [](int s, int t) {
+    cout << "? " << s+1 << ' ' << t+1 << endl;
+    long long x; cin >> x;
+    if (x == -1) exit(0);
+    return x;
+};
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N; cin >> N;
+
+    /* --- step 1 : find m s.t. P_m is 1 or N --- */
+    int m = 1;
+    long long best = ask(0,1);
+    for (int i=2;i<N;++i){
+        long long cur = ask(0,i);
+        if (cur > best){ best = cur; m = i; }
+    }
+
+    /* --- step 2 : queries from m to every other idx --- */
+    vector<pair<long long,int>> vec;  // (prefix sum, idx)
+    vec.reserve(N-1);
+    for (int i=0;i<N;++i) if(i!=m){
+        vec.emplace_back(ask(m,i), i);
+    }
+    sort(vec.begin(), vec.end());
+
+    vector<int> P(N);       // permutation
+    vector<long long> A(N); // values
+
+    P[m] = 1;
+    for (int i=0;i<N-1;++i){
+        P[vec[i].second] = i+2;
+        if (i) A[i+1] = vec[i].first - vec[i-1].first; // A_3..A_N
+    }
+
+    /* --- step 3 : determine A_1 , A_2 --- */
+    long long total = vec.back().first;         // sum A_1..A_N
+    long long withoutA1 = ask(vec.front().second, vec.back().second);
+    A[0] = total - withoutA1;
+    A[1] = vec.front().first - A[0];
+
+    /* --- step 4 : fix order constraint --- */
+    if (P[0] > P[1]){
+        for (int &x: P) x = N+1 - x;
+        reverse(A.begin(), A.end());
+    }
+
+    cout << '!';
+    for (int x: P) cout << ' ' << x;
+    for (long long x: A) cout << ' ' << x;
+    cout << endl;
+    return 0;
+}

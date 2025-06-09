@@ -1,0 +1,106 @@
+#include<bits/stdc++.h>
+using namespace std;
+using ll = long long;
+
+struct dsu_roll {
+    vector<int> p, sz;
+    vector<pair<int&,int>> roll;
+    int n;
+    dsu_roll(int n) : n(n) {
+        p.assign(n+1, 0); iota(p.begin(), p.end(), 0);
+        sz.assign(n+1, 1);
+    }
+    int find(int u) {
+        while (p[u] != u) u = p[u]; return u;
+    }
+    int join(int u, int v) {
+        u = find(u); v = find(v);
+        if (u == v) return 0;
+        if (sz[u] > sz[v]) swap(u, v);
+        roll.emplace_back(sz[v], sz[v]);
+        roll.emplace_back(p[u], p[u]);
+        sz[v] += sz[u];
+        p[u] = p[v];
+        return 1;
+    }
+    int same(int u, int v) {
+        u = find(u); v = find(v);
+        return u == v;
+    }
+    void snap() {
+        roll.clear();
+    }
+    void rollback() {
+        while (roll.size()) {
+            roll.back().first = roll.back().second;
+            roll.pop_back();
+        }
+    }
+
+};
+
+int main() {
+    ios::sync_with_stdio(false); cin.tie(nullptr);
+    int n; cin >> n;
+    dsu_roll dsu(2*n);
+    vector<pair<ll,ll>> hw(n);
+    for (int i = 0; i < n; ++i) cin >> hw[i].first >> hw[i].second;
+
+    vector<ll> pref(n+1, 0);
+    for (int i = 1; i <= n; ++i) {
+        pref[i] = pref[i-1];
+        pref[i] += hw[i-1].first * hw[i-1].second;
+    }
+
+    for (int i = 1; i < n; ++i) {
+        if (hw[i].first == hw[i-1].first) dsu.join((i-1)*2, i*2);
+        if (hw[i].second == hw[i-1].second) dsu.join((i-1)*2+1, i*2+1);
+    }
+    dsu.snap();
+
+    vector<vector<pair<int,int>>> upd(n);
+    for (int i = 1; i < n; ++i) {
+        //hori -> vert
+        if (hw[i].second >= hw[i-1].second) {
+            ll area_needed = hw[i-1].first * hw[i].second;
+            ll area_find = pref[i] - area_needed;
+            int idx = lower_bound(pref.begin(), pref.begin()+i+1, area_find) - pref.begin();
+            if (idx <= i && pref[idx] == area_find) {
+                upd[idx].emplace_back((i-1)*2, i*2+1);
+            }
+        }
+
+        //vert -> hori
+        if (hw[i].first >= hw[i-1].first) {
+            ll area_needed = hw[i-1].second * hw[i].first;
+            ll area_find = pref[i] - area_needed;
+            int idx = lower_bound(pref.begin(), pref.begin()+i+1, area_find) - pref.begin();
+            if (idx <= i && pref[idx] == area_find) {
+                upd[idx].emplace_back((i-1)*2+1, i*2);
+            }
+        }
+    }
+
+    ll rres = 0;
+    for (int l = 0; l < n; ++l) {
+        for (auto [u, v]: upd[l]) {
+            dsu.join(u, v);
+        }
+        int r = l;
+        for (int k = __builtin_clz(1) - __builtin_clz(n+1); ~k; --k) {
+            int nr = r + (1<<k);
+            if (nr >= n) continue;
+            int flag = 0;
+            for (int a = 0; a < 2; ++a) {
+                for (int b = 0; b < 2; ++b) {
+                    flag |= dsu.same(l*2+a, nr*2+b);
+                }
+            }
+            if (flag) r = nr;
+        }
+        rres += r - l + 1;
+
+        dsu.rollback();
+    }
+    cout << rres << '\n';
+}

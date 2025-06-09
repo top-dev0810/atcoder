@@ -1,0 +1,33 @@
+#include<bits/stdc++.h>
+using namespace std;
+const int N=2100,mod=998244353;
+int n,m,a[N];
+vector<int>g[N];
+bool vis[N],vv[N];
+int dp[N][N];
+void dfs(int x,int f){
+    vis[x]=1;
+    for(int i=1;i<=m;i++)dp[x][i]=1;
+    for(int v:g[x])if(v!=f&&!vv[v]){
+        dfs(v,x);
+        for(int i=1;i<=m;i++)dp[x][i]=1ll*dp[x][i]*dp[v][i]%mod;
+    }
+    for(int i=1;i<=m;i++)(dp[x][i]+=dp[x][i-1])%=mod;
+}
+int main(){
+    scanf("%d%d",&n,&m);
+    for(int i=1;i<=n;i++)scanf("%d",&a[i]),g[a[i]].push_back(i);
+    int ans=1;
+    for(int i=1;i<=n;i++)if(!vis[i]){
+        memset(vv,0,sizeof(vv));
+        int u=i;vector<int>xp;
+        while(!vv[u])vv[u]=1,u=a[u],xp.push_back(u);
+        if(u!=i)continue;
+        for(int o:xp)vis[o]=1;
+        for(int o:xp)if(o!=i)for(int v:g[o])g[i].push_back(v);
+        dfs(i,0);
+        ans=1ll*ans*dp[i][m]%mod;
+    }
+    printf("%d\n",ans);
+    return 0;
+}

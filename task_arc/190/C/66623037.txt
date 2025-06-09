@@ -1,0 +1,125 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define int ll
+typedef long long ll;
+typedef unsigned long long ull;
+
+#define mk make_pair
+#define fi first
+#define se second
+typedef pair<int,int> pii;
+typedef pair<double,double> pdd;
+
+#define ReadIn(s) freopen(s,"r",stdin)
+#define OutPut(s) freopen(s,"w",stdout)
+
+#define btpcll(x) __builtin_popcountll(x)
+#define btpc(x) __builtin_popcount(x)
+
+#define eb emplace_back
+#define sz(x) (int)(x.size())
+
+template<typename T>
+void read(T &x){
+	x=0;char c=getchar();T neg=0;
+	while(!isdigit(c)) neg|=!(c^'-'),c=getchar();
+	while(isdigit(c)) x=(x<<3)+(x<<1)+(c^48),c=getchar();
+	if(neg) x=(~x)+1;
+}
+template<typename T,typename ...Args>
+void read(T &x,Args &...args) {
+	read(x);read(args...);
+}
+
+const int M=3e5+10;
+const int inf=0x3f3f3f3f3f3f3f3f;
+const double eps=1e-10;
+const int p=998244353;
+
+bool Mst;
+//in this
+
+int n,m;
+vector<int>f[M],g[M],a[M];
+
+int q;
+int sx,sy;
+
+void ud1(int x,int y) {
+	if(x==1&&y==1) return f[x][y]=1,void();
+	f[x][y]=(f[x-1][y]*a[x-1][y]+f[x][y-1]*a[x][y-1])%p;
+}
+
+void ud2(int x,int y) {
+	if(x==n&&y==m) return g[x][y]=1,void();
+	g[x][y]=(g[x+1][y]*a[x+1][y]+g[x][y+1]*a[x][y+1])%p;
+}
+
+void ud(int x,int y) {
+	if(n<m) {
+		for(int i=1;i<=n;i++) ud1(i,y);
+		for(int i=n;i;i--) ud2(i,y);
+	}
+	else {
+		for(int i=1;i<=m;i++) ud1(x,i);
+		for(int i=m;i;i--) ud2(x,i);
+	}
+}
+
+void solve() {
+	read(n,m);
+	
+	for(int i=0;i<=n+1;i++) f[i].resize(m+10);
+	for(int i=0;i<=n+1;i++) g[i].resize(m+10);
+	for(int i=0;i<=n+1;i++) a[i].resize(m+10);
+	
+	for(int i=1;i<=n;i++) {
+		for(int j=1;j<=m;j++) {
+			read(a[i][j]);
+		}
+	}
+	
+	for(int i=1;i<=n;i++) {
+		for(int j=1;j<=m;j++) ud1(i,j);
+	}
+	
+	for(int i=n;i;i--) {
+		for(int j=m;j;j--) ud2(i,j);
+	}
+	
+	read(q,sx,sy);
+	
+	int ans=f[n][m]*a[n][m]%p;
+	
+	for(int i=1;i<=q;i++) {
+		char ch;cin>>ch;
+		if(ch=='U') sx--;
+		if(ch=='D') sx++;
+		if(ch=='L') sy--;
+		if(ch=='R') sy++;
+		ud(sx,sy);
+		(ans+=p-a[sx][sy]*f[sx][sy]%p*g[sx][sy]%p)%=p;
+		read(a[sx][sy]);
+		ud(sx,sy);
+		(ans+=a[sx][sy]*f[sx][sy]%p*g[sx][sy])%=p;
+		
+		cout<<ans<<"\n";
+		
+	}
+	
+}
+
+//
+bool Med;
+
+signed main() {
+
+	solve();
+
+	cerr<<"\n";
+	cerr<<"Memory:"<<(&Mst-&Med)/1024.0/1024<<" MB\n";
+	cerr<<"Time:"<<clock()/1.0/CLOCKS_PER_SEC*1000.0<<" ms\n";
+
+	return 0;
+}

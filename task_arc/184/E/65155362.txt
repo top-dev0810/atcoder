@@ -1,0 +1,61 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define ull unsigned long long
+#define pb push_back
+
+const int N=1e6+5,H=998244353;
+const ull bas=233;
+int n,m,d[N],len[N],L[N],ans;
+ull hs[N],b[N];
+bool a[N];
+vector<int> V[N];
+
+int adc(int a,int b){return a+b>=H?a+b-H:a+b;}
+int dec(int a,int b){return a<b?a-b+H:a-b;}
+int mul(int a,int b){return 1ll*a*b%H;}
+void add(int &a,int b){a=adc(a,b);}
+void del(int &a,int b){a=dec(a,b);}
+
+namespace BIT{
+  int tr[N],n;
+  int lowbit(int i){return i&(-i);}
+  void init(int _n){n=_n;for(int i=0;i<=n;i++) tr[i]=0;}
+  void upd(int x){for(int i=x;i<=n;i+=lowbit(i)) ++tr[i];}
+  int qry(int x){
+    int res=0;
+	for(int i=x;i>=1;i-=lowbit(i)) res+=tr[i];
+	return res;
+  }
+}
+
+int main(){
+  /*2025.4.24 H_W_Y AT_arc184_e [ARC184E] Accumulating Many Times 差分 + 图论 + mod 2*/
+  ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);
+  cin>>n>>m;
+  for(int i=1,t=0;i<=n;i++){
+	t=m+1;
+	for(int j=1;j<=m;j++) cin>>a[j],t=min(t,a[j]?j:(m+1));
+	if(t>=m){len[i]=1;continue;}
+    for(int k=0;k<=__lg(m-t);k++) if(a[t+(1<<k)]){
+	  d[i]|=(1<<k);
+	  for(int j=m;j>t;j--) a[j]^=a[j-(1<<k)];
+	}
+	for(int j=1;j<=m;j++) hs[i]=hs[i]*bas+a[j];
+	len[i]=1<<(__lg(m-t)+1),b[i]=hs[i];
+  }
+  sort(b+1,b+n+1);
+  for(int i=1;i<=n;i++){
+	int pos=lower_bound(b+1,b+n+1,hs[i])-b;
+	V[pos].pb(d[i]),L[pos]=len[i];
+  }
+  
+  for(int c=1;c<=n;c++) if(V[c].size()&&L[c]>1){
+	BIT::init(L[c]);
+	for(int i=0,sum=0;i<(int)V[c].size();i++){
+	  add(ans,adc(dec(mul(i,V[c][i]),sum),mul(i-BIT::qry(V[c][i]+1),L[c])));
+	  add(sum,V[c][i]),BIT::upd(V[c][i]+1);
+	}
+  }
+  cout<<ans;
+  return 0;
+}

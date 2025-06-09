@@ -1,0 +1,55 @@
+#include <bits/stdc++.h>
+#define int long long 
+using namespace std;
+const int N = 600005, inf = 1e12, B = 100005;
+int n, C, D, a[N], l[N], r[N], ans[N], res[N];
+struct sgt{
+	int mx[N], add[N], tag[N];
+	sgt(){ for(int i = 0; i < N; i++) tag[i] = inf;}
+	void pu(int x){ mx[x] = max(mx[x << 1], mx[x << 1 | 1]);}
+	void ch(int x, int k, int w){
+		if(w != inf) tag[x] = mx[x] = w, add[x] = 0;
+		add[x] += k, mx[x] += k;
+	}
+	void pd(int x){ ch(x << 1, add[x], tag[x]), ch(x << 1 | 1, add[x], tag[x]), add[x] = 0, tag[x] = inf;}
+	void mdf(int x, int L, int R, int l, int r, int k1, int k2){
+		if(l > r) return ;
+		if(L >= l && R <= r) return ch(x, k1, k2);
+		int mid = L + R >> 1; pd(x);
+		if(l <= mid) mdf(x << 1, L, mid, l, r, k1, k2);
+		if(r > mid) mdf(x << 1 | 1, mid + 1, R, l, r, k1, k2); pu(x);
+	}
+	int bs(int x, int L, int R, int k){
+		if(L == R) return L;
+		int mid = L + R >> 1; pd(x);
+		return mx[x << 1] >= k? bs(x << 1, L, mid, k): bs(x << 1 | 1, mid + 1, R, k);
+	}
+	void dfs(int x, int L, int R){
+		if(L == R) return ans[L + 1] = mx[x], void();
+		int mid = L + R >> 1; pd(x); 
+		dfs(x << 1, L, mid), dfs(x << 1 | 1, mid + 1, R);
+	}
+} T;
+signed main(){
+	cin >> n >> C >> D;
+	for(int i = 1; i <= n; i++) cin >> a[i], a[i] += B;
+	T.mdf(1, 0, B * 2, 0, B - 1, 0, -C), T.mdf(1, 0, B * 2, B, B * 2, 0, C);
+	for(int i = 1; i <= n; i++){
+		l[i] = T.bs(1, 0, B * 2, -C) - 1, r[i] = T.bs(1, 0, B * 2, C);
+		T.mdf(1, 0, B * 2, 0, l[i], 0, -C), T.mdf(1, 0, B * 2, r[i], B * 2, 0, C);
+		T.mdf(1, 0, B * 2, 0, a[i] - 1, -D, inf), T.mdf(1, 0, B * 2, a[i], B * 2, D, inf);
+	}
+	T.dfs(1, 0, B * 2);
+	int id = 0;
+	for(int i = 1; i <= B * 2; i++) if((ans[i] += ans[i - 1]) <= ans[id]) id = i;
+	for(int i = n; i; i--){
+		res[i] = id;
+		if(id > r[i]) id = r[i];
+		if(id <= l[i]) id = l[i] + 1;
+	}
+	res[0] = B; int sum = 0;
+	for(int i = 1; i <= n; i++) sum += abs(res[i] - res[i - 1]) * C + abs(res[i] - a[i]) * D; 
+	cout << sum << '\n';
+	for(int i = 1; i <= n; i++) cout << res[i] - B << ' ';
+	return 0;
+}

@@ -1,0 +1,16 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+  int N, D;
+  cin >> N >> D;
+  vector<int> T(N), L(N), W(N);
+  for (int i=0; i<N; i++) cin >> T.at(i) >> L.at(i);
+  for (int i=1; i<=D; i++){
+    for (int j=0; j<N; j++){
+      W.at(j) = T.at(j) * (L.at(j) + i);
+    }
+    sort(W.rbegin(), W.rend());
+    cout << W.at(0) << endl;
+  }
+}

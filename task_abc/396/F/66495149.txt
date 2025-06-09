@@ -1,0 +1,55 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+
+struct Fenwick {
+    int n;
+    vector<ll> f;
+    Fenwick(int _n): n(_n), f(n+1, 0) {}
+    void update(int i, ll v) {
+        for (; i <= n; i += i & -i) f[i] += v;
+    }
+    ll query(int i) const {
+        ll s = 0;
+        for (; i > 0; i -= i & -i) s += f[i];
+        return s;
+    }
+    ll range(int l, int r) const {
+        return l > r ? 0 : query(r) - query(l - 1);
+    }
+};
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    int N, M;
+    cin >> N >> M;
+    vector<int> A(N);
+    for (int i = 0; i < N; i++){
+        cin >> A[i];
+        ++A[i];
+    }
+
+    Fenwick fenw(M);
+    ll inv0 = 0;
+    for (int i = 0; i < N; i++){
+        inv0 += fenw.range(A[i] + 1, M);
+        fenw.update(A[i], 1);
+    }
+
+    vector<ll> count(M+1), posSum(M+1), ans(M);
+    for (int i = 0; i < N; i++){
+        count[A[i]]++;
+        posSum[A[i]] += i + 1;
+    }
+
+    ans[0] = inv0;
+    for (int k = 1; k < M; k++){
+        int x = M - k + 1;
+        ans[k] = ans[k-1] + 2 * posSum[x] - count[x] * (N + 1);
+    }
+    for (ll v : ans) {
+        cout << v << "\n";
+    }
+    return 0;
+}

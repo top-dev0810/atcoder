@@ -1,0 +1,38 @@
+#include <bits/stdc++.h>
+
+using i64 = long long;
+
+void solve()
+{
+    int r;
+    std::cin >> r;
+    r *= 2;
+
+    i64 ans = 0;
+    for (int i = 1; i < r; i += 2) {
+        i64 v = 1LL * r * r - 1LL * i * i;
+        i64 s = std::sqrt(v);
+        if (s * s > v) {
+            s--;
+        }
+        ans += (s + 1) / 2;
+    }
+    ans *= 4;
+    ans -= 4 * (r / 2);
+    ans++;
+    std::cout << ans << "\n";
+}
+
+int main()
+{
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+
+    int _ = 1;
+    //std::cin >> _;
+    while (_--) {
+        solve();
+    }
+
+   return 0;
+}

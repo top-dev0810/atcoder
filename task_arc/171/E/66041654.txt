@@ -1,0 +1,115 @@
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int MOD = 998244353;
+#ifdef int
+#define inf 0x3f3f3f3f3f3f3f3f
+#else
+#define inf 0x3f3f3f3f
+#endif
+const long long infll = 0x3f3f3f3f3f3f3f3f;
+#define pii pair<int, int>
+#define mkp(x,y) make_pair(x,y)
+
+#ifndef LOCAL
+#define SUBMIT
+#endif
+
+#ifdef SUBMIT
+#define endl '\n'
+//#define cin Fastio ::cin
+//#define cout Fastio ::cout
+#endif
+
+template<typename T>
+void read(vector<T> &vec)
+{
+    for(auto &x:vec)
+    {
+        cin>>x;
+    }
+}
+
+int qpow(int n,int k)
+{
+    int res=1;
+    while(k)
+    {
+        if(k&1)(res*=n)%=MOD;
+        (n*=n)%=MOD;
+        k>>=1;
+    }
+    return res;
+}
+
+int fac[1000010],inv[1000010];
+int n,m,a,b;
+
+int c(int n,int m)
+{
+    if(m>n||m<0||n<0)
+    return 0;
+    return fac[n]*inv[m]%MOD*inv[n-m]%MOD;
+}
+
+int ans=0;
+
+int solve(int x,int y)
+{
+    int h=0,w=0;
+    for(int i=0;i<2;i++)
+    {
+        for(int d=0;d<=m;d++)
+        {
+            int u=m-d;
+            h=(h+c(n-x-d-1,d)*c(x-1-u,u)%MOD*fac[m-1]%MOD*d%MOD)%MOD;
+        }
+        swap(h,w);
+        swap(x,y);
+    }
+    return h*w%MOD;
+}
+
+void work()
+{
+    fac[0]=1;
+    for(int i=1;i<=1000000;i++)
+    {
+        fac[i]=fac[i-1]*i%MOD;
+    }
+    inv[1000000]=qpow(fac[1000000],MOD-2);
+    for(int i=999999;i>=0;i--)inv[i]=inv[i+1]*(i+1)%MOD;
+    cin>>n>>m>>a>>b;
+    if((m&1)||(m==2))
+    {
+        cout<<0<<endl;
+        return ;
+    }
+    m/=2;
+    m--;
+    ans+=solve(a,b);
+    ans+=solve(b,a);
+    ans+=solve(n-a+1,b);
+    ans+=solve(b,n-a+1);
+    ans+=solve(a,n-b+1);
+    ans+=solve(n-b+1,a);
+    ans+=solve(n-a+1,n-b+1);
+    ans+=solve(n-b+1,n-a+1);
+    cout<<ans%MOD<<endl;
+}
+
+signed main()
+{
+    #ifndef cin
+    #ifdef SUBMIT
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    #endif
+    #endif
+    int t=1;
+    t=1;
+    while(t--)
+    {
+        work();
+    }
+}

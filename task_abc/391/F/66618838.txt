@@ -1,0 +1,47 @@
+#include<bits/stdc++.h>
+using namespace std;
+int a[200001],b[200001],c[200001];
+struct node{
+	int i,j,k,a,b,c;
+	long long t;
+	friend bool operator<(node x,node y){
+		return 1ll*x.a*x.b+1ll*x.b*x.c+1ll*x.c*x.a<1ll*y.a*y.b+1ll*y.b*y.c+1ll*y.c*y.a;
+	}
+}f;
+priority_queue<node>q;
+unordered_map<long long,bool>m;
+bool cmp(int x,int y){
+	return x>y;
+}
+int main(){
+	int n,k;
+	scanf("%d%d",&n,&k);
+	for(int i=1;i<=n;i++){
+		scanf("%d",&a[i]);
+	}
+	for(int i=1;i<=n;i++){
+		scanf("%d",&b[i]);
+	}
+	for(int i=1;i<=n;i++){
+		scanf("%d",&c[i]);
+	}
+	sort(a+1,a+n+1,cmp);
+	sort(b+1,b+n+1,cmp);
+	sort(c+1,c+n+1,cmp);
+	q.push({1,1,1,a[1],b[1],c[1],1ll*n*n+n+1});
+	while(k){
+		f=q.top();
+		q.pop();
+		if(m[f.t])	continue;
+		m[f.t]=1;
+		k--;
+		if(!k){
+			printf("%lld",1ll*f.a*f.b+1ll*f.b*f.c+1ll*f.c*f.a);
+			return 0;
+		}
+		if(f.i<n)	q.push({f.i+1,f.j,f.k,a[f.i+1],f.b,f.c,f.t+1ll*n*n});
+		if(f.j<n)	q.push({f.i,f.j+1,f.k,f.a,b[f.j+1],f.c,f.t+n});
+		if(f.k<n)	q.push({f.i,f.j,f.k+1,f.a,f.b,c[f.k+1],f.t+1});
+	}
+	return 0;
+}

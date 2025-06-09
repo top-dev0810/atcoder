@@ -1,0 +1,66 @@
+#include <bits/stdc++.h>
+using namespace std;
+using u32 = unsigned;
+using i64 = long long;
+using u64 = unsigned long long;
+
+constexpr int NN = 20;
+using TT = int;
+struct Sq {
+  TT a[NN][NN];
+  Sq() { memset(a, 0, sizeof(a)); }
+  Sq(const Sq &R) { memcpy(a, R.a, sizeof(R.a)); }
+  Sq(TT front, TT back) { for (int i = 0; i < NN; i++) for (int j = 0; j < NN; j++) a[i][j] = (i == j) ? front : back; }
+  Sq(const vector<vector<TT>> &R) { for (int i = 0; i < NN; i++) for (int j = 0; j < NN; j++) a[i][j] = R[i][j]; }
+  inline Sq &operator=(const Sq &R) { memcpy(a, R.a, sizeof(R.a)); return *this; }
+  inline TT *operator[](int i) { return a[i]; }
+  inline const TT *operator[](int i) const { return a[i]; }
+  inline Sq operator*(const Sq &R) const {
+    Sq res(0, 0);
+    for (int i = 0; i < NN; i++)
+      for (int j = 0; j < NN; j++)
+        if (TT cur = a[i][j]; cur)
+          for (int k = 0; k < NN; k++)
+            res[i][k] |= cur & R[j][k];
+    return res;
+  }
+};
+
+i64 n;
+int m, a, b;
+Sq pw0[40], pw1[40];
+
+int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  cin >> n >> m >> a >> b;
+  Sq B(0, 0);
+  for (int j = 1; j <= 19; j++) B[j][j - 1] = 1;
+  pw0[0] = B;
+  for (int j = 1; j <= 39; j++) pw0[j] = pw0[j - 1] * pw0[j - 1];
+  for (int j = a; j <= b; j++) B[20 - j][19] = 1;
+  pw1[0] = B;
+  for (int j = 1; j <= 39; j++) pw1[j] = pw1[j - 1] * pw1[j - 1];
+  
+  Sq A(0, 0);
+  A[0][19] = 1;
+  i64 pos = 1;
+  for (int i = 1; i <= m; i++) {
+    i64 l, r;
+    cin >> l >> r;
+    for (int j = 39; j >= 0; j--) {
+      if ((l - 1 - pos) >> j & 1) A = A * pw1[j];
+    }
+    for (int j = 39; j >= 0; j--) {
+      if ((r - l + 1) >> j & 1) A = A * pw0[j];
+    }
+    pos = r;
+  }
+  for (int j = 39; j >= 0; j--) {
+    if ((n - pos) >> j & 1) A = A * pw1[j];
+  }
+  
+  if (A[0][19]) cout << "Yes\n";
+  else cout << "No\n";
+  return 0;
+}

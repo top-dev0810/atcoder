@@ -1,0 +1,147 @@
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int MOD = 998244353;
+#ifdef int
+#define inf 0x3f3f3f3f3f3f3f3f
+#else
+#define inf 0x3f3f3f3f
+#endif
+const long long infll = 0x3f3f3f3f3f3f3f3f;
+#define pii pair<int, int>
+#define mkp(x,y) make_pair(x,y)
+
+#ifndef LOCAL
+#define SUBMIT
+#endif
+
+#ifdef SUBMIT
+#define endl '\n'
+//#define cin Fastio ::cin
+//#define cout Fastio ::cout
+#endif
+
+template<typename T>
+void read(vector<T> &vec)
+{
+    for(auto &x:vec)
+    {
+        cin>>x;
+    }
+}
+
+int qpow(int n,int k)
+{
+    int res=1;
+    while(k)
+    {
+        if(k&1)(res*=n)%=MOD;
+        (n*=n)%=MOD;
+        k>>=1;
+    }
+    return res;
+}
+
+vector<pii>edge[200010];
+
+int in[200010];
+
+int cnt=0;
+
+void work()
+{
+    int n,m;
+    cin>>n>>m;
+    for(int i=1;i<=m;i++)
+    {
+        int x,y,z;
+        cin>>x>>y>>z;
+        edge[z].push_back(mkp(x,y));
+        in[x]++;
+        in[y]++;
+    }
+    for(int i=1;i<=n;i++)
+    {
+        if(in[i]==0)cnt++;
+    }
+    int ans=1;
+    for(int i=n;i>=1;i--)
+    {
+        if(edge[i].empty())
+        {
+            ans=ans*cnt%MOD;
+            cnt--;
+            if(ans==0)
+            {
+                cout<<ans<<endl;
+                return ;
+            }
+        }
+        else if(edge[i].size()==1)
+        {
+            int x=edge[i][0].first,y=edge[i][0].second;
+            if(in[x]==1&&in[y]==1)
+            {
+                ans=ans*2%MOD;
+                in[x]--;
+                in[y]--;
+                cnt++;
+            }
+            else
+            {
+                if(in[x]>1&&in[y]>1)
+                {
+                    cout<<0<<endl;
+                    return ;
+                }
+                in[x]--;
+                in[y]--;
+            }
+        }
+        else
+        {
+            pii res=edge[i][0];
+            for(int x=1;x<edge[i].size();x++)
+            {
+                if(edge[i][x].first!=res.first&&edge[i][x].first!=res.second&&edge[i][x].second!=res.first&&edge[i][x].second!=res.second)
+                {
+                    cout<<0<<endl;
+                    return ;
+                }
+                if(edge[i][x].first==res.first||edge[i][x].second==res.first)res.second=0;
+                else res.first=0;
+            }
+            int x=res.first?res.first:res.second;
+            if(in[x]!=edge[i].size())
+            {
+                cout<<0<<endl;
+                return ;
+            }
+            for(auto x:edge[i])
+            {
+                in[x.first]--;
+                in[x.second]--;
+                if(in[x.first]==0)cnt++;
+                if(in[x.second]==0)cnt++;
+            }
+            cnt--;
+        }
+    }
+    cout<<ans<<endl;
+}
+
+signed main()
+{
+#ifndef cin
+#ifdef SUBMIT
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#endif
+#endif
+    int t=1;
+    // cin>>t;
+    while(t--)
+    {
+        work();
+    }
+}

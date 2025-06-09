@@ -1,0 +1,73 @@
+// Problem: D - Strange Mirroring
+// Contest: AtCoder - AtCoder Beginner Contest 380
+// URL: https://atcoder.jp/contests/abc380/tasks/abc380_d
+// Memory Limit: 1024 MB
+// Time Limit: 2000 ms
+// 
+// ixyc
+
+#include <bits/stdc++.h>
+//#include <windows.h>
+#define int long long
+#define chu(c,x) (c%x==0?c/x:c/x+1)
+#define mid(l,r) ((l+r)/2)
+#define P 998244353
+#define Base 3221225477
+#define INF 0x3F3F3F3F3F3F3F3F
+#define N 1001000
+#define do_for(i,k,n)for(int i=k;i<=n;i++)
+#define pi 3.1415926535897932384626
+#define ull unsigned long long
+#define all(x) x.begin(),x.end()
+using namespace std;
+int mod(int a){return ((a%P) + P) % P;}
+int add(int a, int b){a = mod(a);b = mod(b);return (a + b) % P;}
+int add(int a, int b, int c){return add(a, add(b, c));}
+int add(int a, int b, int c, int d){return add(add(a, b), add(c, d));}
+int mul(int a, int b){a = mod(a);b = mod(b);return (a * b) % P;}
+int mul(int a, int b, int c){return mul(a, mul(b, c));}
+int mul(int a, int b, int c, int d){return mul(mul(a, b), mul(c, d));}
+int fpm(int a, int n){int res = 1;while(n){if(n%2){res = mul(res, a);}n /= 2;a = mul(a, a);}return res;}
+int a[N],n,m;
+string s;
+signed main(){
+	ios::sync_with_stdio(0);
+	cin.tie(0);cout.tie(0);
+	cin>>s;
+	int t;
+	cin>>t;
+	while(t--){
+		int k;cin>>k;
+		int p=k;
+		p=(p-1)/s.size()+1;
+		// cout<<p<<endl;
+		 int l=2,h=1;
+		// while(p){
+// 			
+			// h+=p%2,p/=2;
+		// }
+		//cout<<h<<endl;
+		int ll=(k-1)%s.size();
+
+		while(l<p)l*=2,h++;
+		bool f=0;
+		//cout<<h<<endl;
+		for(int i=1;;i++){
+			if(p>l){
+				p-=l;
+				f=1-f;
+			}
+			l/=2;
+			if(!l)break;
+			//cout<<p<<endl;
+		}
+		if(!f)cout<<s[ll]<<' ';
+		else{
+			if(s[ll]>='a'&&s[ll]<='z')cout<<(char)toupper(s[ll])<<' ';
+			else cout<<(char)tolower(s[ll])<<' ';
+		}	
+		//cout<<1/2;
+		
+	}
+	return 0;
+}

@@ -1,0 +1,36 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int h, w, k, ans = 0;
+vector<string> s;
+vector<vector<bool>> visited;
+
+void rec(int i, int j, int step) {
+    if (step == k) {
+        ans++;
+        return;
+    }
+    visited[i][j] = true;
+    int di[] = {1, 0, -1, 0};
+    int dj[] = {0, 1, 0, -1};
+    for (int d = 0; d < 4; d++) {
+        int ni = i+di[d], nj = j+dj[d];
+        if (0 <= ni && ni < h && 0 <= nj && nj < w && s[ni][nj] == '.' && !visited[ni][nj])
+            rec(ni, nj, step+1);
+    }
+    visited[i][j] = false;
+}
+
+int main() {
+    cin >> h >> w >> k;
+    s.resize(h);
+    for (auto& row : s) cin >> row;
+    visited.resize(h, vector<bool>(w, false));
+    for (int i = 0; i < h; i++) {
+        for (int j = 0; j < w; j++) {
+            if (s[i][j] == '.') rec(i, j, 0);
+        }
+    }
+    cout << ans << endl;
+    return 0;
+}

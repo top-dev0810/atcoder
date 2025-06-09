@@ -1,0 +1,113 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define mid ((l+r)>>1)
+#define ls(p) (p<<1)
+#define rs(p) (p<<1|1)
+#define lowbit(i) ((i)&(-i))
+#define double long double
+const int inf=1e18;
+const int mod=998244353;
+int fast(int x,int k)
+{
+	int ret=1;
+	while(k)
+	{
+		if(k&1) ret=ret*x%mod;
+		x=x*x%mod;
+		k>>=1;
+	}
+	return ret;
+}
+void solve()
+{
+	int n;cin>>n;
+	string s;cin>>s;
+	s=" "+s;
+	vector<int> dp(n+1);
+	for(int i=2;i<=n;++i)
+	{
+		dp[i]=dp[i-1];
+		if(s[i]=='A') dp[i]++;
+		else dp[i]--;
+	}
+	int delta=1;
+	if(s[1]=='B') delta=-1;
+	vector cnt(n+2,vector<int>(3,0));
+	for(int i=n;i>=1;--i)
+	{
+		if(dp[i]==0) ++cnt[i][0];
+		else
+		{
+			if(dp[i]==-delta) ++cnt[i][1];
+		}
+		cnt[i][0]+=cnt[i+1][0];
+		cnt[i][1]+=cnt[i+1][1];
+	}
+	int ans=1;
+	auto update=[&](int x) -> int
+	{
+		if(x>0) return 1;
+		if(x==0) return 0;
+		return -1;
+	};
+	// for(int x=1;x<=n;++x)
+	// {
+	// 	int sum=0;
+	// 	cout<<x<<endl;
+	// 	bool flag=0;
+	// 	for(int i=2;i<=n;++i)
+	// 	{
+	// 		if(x<i&&!flag)
+	// 		{
+	// 			flag=1;
+	// 			sum+=delta;
+	// 			if(sum>0) cout<<"A";
+	// 			else if(sum==0) cout<<"C";
+	// 			else cout<<"B";
+	// 		}
+	// 		if(s[i]=='A') ++sum;
+	// 		else --sum;
+	// 		if(sum>0) cout<<"A";
+	// 		else if(sum==0) cout<<"C";
+	// 		else cout<<"B";
+	// 	}
+	// 	if(x==n&&!flag)
+	// 	{
+	// 		sum+=delta;
+	// 		if(sum>0) cout<<"A";
+	// 		else if(sum==0) cout<<"C";
+	// 		else cout<<"B";
+	// 	}
+	// 	cout<<endl;
+	// }
+	for(int i=2;i<=n;++i)
+	{
+		int t1=dp[i-1]+delta;
+		int t2=dp[i]+delta;
+		t1=update(t1);
+		t2=update(t2);
+
+		int t3=dp[i];
+		int t4=dp[i]+delta;
+		t3=update(t3);
+		t4=update(t4);
+		if(t1==t3&&t2==t4) continue;
+		else
+		{
+			++ans;
+			// cout<<t1<<' '<<t2<<' '<<t3<<' '<<t4<<' '<<i<<"!!!!!!!!!!!"<<endl;
+		}
+	}
+	cout<<ans<<'\n';
+
+}
+signed main()
+{
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	int T=1;
+	// cin>>T;
+	while(T--) solve();
+	return 0;
+}

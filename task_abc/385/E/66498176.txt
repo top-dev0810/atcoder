@@ -1,0 +1,41 @@
+// clang-format off
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+#define rep(i, n) for (int i = 0; i < (int)(n); i++)
+#define debug(x) rep(_i,x.size())cout<<x[_i]<<" \n"[_i==(int)x.size()-1];
+template<typename T> bool chmax(T &a,T b){if(a<b){a=b;return true;}return false;}
+template<typename T> bool chmin(T &a,T b){if(a>b){a=b;return true;}return false;}
+// clang-format on
+
+int main()
+{
+    int n;
+    cin >> n;
+    vector<vector<int>> edge(n);
+    rep(i, n - 1)
+    {
+        int u, v;
+        cin >> u >> v;
+        u--, v--;
+        edge[u].push_back(v);
+        edge[v].push_back(u);
+    }
+    int maxsz = 0;
+    rep(i, n)
+    {
+        vector<int> y;
+        for (auto x : edge[i])
+        {
+            y.push_back(edge[x].size() - 1);
+        }
+        sort(y.begin(), y.end());
+        int xmax = y.size();
+        rep(i, xmax)
+        {
+            int x = xmax - i;
+            chmax(maxsz, x * y[i] + x + 1);
+        }
+    }
+    cout << n - maxsz << "\n";
+}

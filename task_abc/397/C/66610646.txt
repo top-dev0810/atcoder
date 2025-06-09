@@ -1,0 +1,39 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+using ll = long long;
+using ld = long double;
+#define rep(i,l,r) for(ll i=l;i<r;++i)
+#define all(x) x.begin(), x.end()
+#define yes cout << "Yes\n"
+#define no cout << "No\n"
+
+int main(){
+    int n;
+    cin >> n;
+    vector<int> a(n);
+    rep(i,0,n) cin >> a[i];
+
+    //AをLとRに分ける。L_i={A_1,A_2,...,A_i}に含まれる数の種類数の和と、R(以下略)をすべて計算して、2つの和の最大値を求めればよい。
+    vector<int> lcnt(n-1);
+    vector<int> rcnt(n-1);
+    set<int> ls;
+    set<int> rs;
+    //種類数の和を全て求める。O(nlogn)
+    rep(i,0,n-1){
+        ls.insert(a[i]);
+        lcnt.at(i) = ls.size();
+    }
+    for(int i=n-1;i>=1;--i){
+        rs.insert(a[i]);
+        rcnt.at(i-1) = rs.size();
+    }
+
+    int max = 0;
+    rep(i,0,n){
+        if(lcnt[i]+rcnt[i]>max){
+            max = lcnt[i]+rcnt[i];
+        }
+    }
+    cout << max << endl;
+}

@@ -1,0 +1,47 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long
+#define mod 998244353
+ll T,A,B,C;
+ll f(ll n){
+	n=(n%mod+mod)%mod;
+	return n*(n+1)/2%mod;
+}
+ll ksm(ll a,ll b){
+	ll answer=1;
+	while(b){
+		if(b&1){
+			answer=answer*a%mod;
+		}
+		a=a*a%mod;
+		b>>=1;
+	}
+	return answer;
+}
+ll get(ll a,ll b,ll c,ll d){
+	ll number;
+	if(A==B)number=(1-a-b)%mod*(c-a-b+1)%mod+f(c)-f(a+b-1);
+	else number=(d-b+1)%mod*(c-a-d+1)%mod+(1-a-b)%mod*(d-b)%mod+f(a+d-1)-f(a+b-1);
+	number=(number%mod+mod)%mod;
+	return number;
+}
+int main(){
+	cin>>T;
+	while(T--){
+		cin>>A>>B>>C;
+		if(A>B)swap(A,B);
+		if(B+1==C){
+			ll sum=81*ksm(10,A+B-2)%mod;
+			sum-=get(ksm(10,B-1),ksm(10,A-1),ksm(10,B)-1,ksm(10,A)-1);
+			sum=(sum%mod+mod)%mod;
+			cout<<sum<<endl;
+		}
+		else if(B==C){
+			cout<<get(ksm(10,B-1),ksm(10,A-1),ksm(10,B)-1,ksm(10,A)-1)<<endl;
+		}
+		else{
+			cout<<0<<endl;
+		}
+	}
+	return 0;
+}

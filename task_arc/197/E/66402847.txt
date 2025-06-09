@@ -1,0 +1,38 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+//2 499122177,4 291154603
+int mod=998244353,mod2=499122177,mod4=291154603;
+signed main()
+{
+	int t;
+	cin>>t;
+	while(t--)
+	{
+		int n,h,w;
+		cin>>n>>h>>w;
+		if(h<2*n||w<2*n)
+		{
+			cout<<0<<endl;
+			continue;
+		}
+		int sum1=1,sum2=1,sum3=1,sum4=1;
+		for(int i=1;i<=2;i++)
+		{
+			sum1=(sum1*((h-2*n+2*1ll)-(i-1ll)))%mod;
+		}
+		for(int i=1;i<=4;i++)
+		{
+			sum3=(sum3*((w-2*n+3*1ll)-(i-1ll)))%mod;
+		}
+		for(int i=1;i<=4;i++)
+		{
+			sum4=(sum4*((h-2*n+3*1ll)-(i-1ll)))%mod;
+		}
+		for(int i=1;i<=2;i++)
+		{
+			sum2=(sum2*((w-2*n+2*1ll)-(i-1ll)))%mod;
+		}
+		cout<<(((sum1*mod2%mod*sum2%mod*mod2)%mod)*((sum1*mod2%mod*sum2%mod*mod2)%mod)%mod-((2*((sum3*mod4%mod*sum4%mod*mod4))%mod))+mod)%mod<<endl;
+	}
+}

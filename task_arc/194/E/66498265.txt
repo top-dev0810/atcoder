@@ -1,0 +1,72 @@
+#include<bits/stdc++.h>
+using namespace std;
+int n,x,y;
+string trans(string a){
+    string b;
+    for(int i=0;i<a.size();++i){
+        int j=i;
+        while(j+1<a.size()&&a[j+1]==a[i])++j;
+        int len=j-i+1;
+        if(a[i]=='0'){
+            while(len>=x)b+='X',len-=x;
+            while(len)b+='0',--len;
+        }
+        else {
+            while(len>=y)b+='Y',len-=y;
+            while(len)b+='1',--len;
+        }
+        i=j;
+    }
+    return b;
+}
+int cnt[505];
+signed main(){
+    ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);
+    cin>>n>>x>>y;
+    string a,b;cin>>a>>b;
+    a=trans(a),b=trans(b);
+    for(int i=0;i<a.size();++i)cnt[a[i]]++;
+    for(int i=0;i<b.size();++i)cnt[b[i]]--;
+    if(cnt['0']!=0||cnt['1']!=0||cnt['X']!=0||cnt['Y']!=0){
+        cout<<"No\n";return 0;
+    }
+    vector<int>c,d;
+    for(int i=0,s=0;i<a.size();++i){
+        if(a[i]=='X')++s;
+        else if(a[i]=='1')c.push_back(s);
+    }
+    for(int i=0,s=0;i<b.size();++i){
+        if(b[i]=='X')++s;
+        else if(b[i]=='1')d.push_back(s);
+    }
+    if(c!=d){
+        cout<<"No\n";
+        cerr<<1<<"\n";
+        return 0;
+    }
+    c.clear();d.clear();
+    for(int i=0,s=0;i<a.size();++i){
+        if(a[i]=='Y')++s;
+        else if(a[i]=='0')c.push_back(s);
+    }
+    for(int i=0,s=0;i<b.size();++i){
+        if(b[i]=='Y')++s;
+        else if(b[i]=='0')d.push_back(s);
+    }
+    if(c!=d){
+        cerr<<"2\n"<<a.size()<<' '<<b.size()<<"\n";
+        cout<<"No\n";return 0;
+    }
+    c.clear();d.clear();
+    for(int i=0,s=0;i<a.size();++i){
+        if(a[i]=='0'||a[i]=='1')c.push_back(a[i]-'0');
+    }
+    for(int i=0,s=0;i<b.size();++i){
+        if(b[i]=='0'||b[i]=='1')d.push_back(b[i]-'0');
+    }
+    if(c!=d){
+        cerr<<"3\n";
+        cout<<"No\n";return 0;
+    }
+    cout<<"Yes\n";
+}

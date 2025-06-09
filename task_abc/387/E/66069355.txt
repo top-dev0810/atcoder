@@ -1,0 +1,120 @@
+//#pragma GCC optimize(2)
+#include<bits/stdc++.h>
+
+using namespace std;
+
+typedef long long LL;
+typedef unsigned long long ULL;
+typedef pair<int,int>PII;
+
+#define rep(x, y, z) for(LL x = (y); x <= (z); ++x)
+#define per(x, y, z) for(LL x = (y); x >= (z); --x)
+#define fi first
+#define se second
+#define ls (u<<1)
+#define rs (u<<1|1)
+#define all(ss) ss.begin(),ss.end()
+#define pb push_back
+#define vi vector<int>
+#define vii vector<vector<int>>
+#define vl vector<LL>
+#define vll vector<vector<LL>>
+#define i128 __int128
+
+int const mod=1e9+7;
+int const B=507;
+double const eps=1e-6;
+//int const mod=998244353;
+//const LL mod1=1e9+21,mod2=1e9+1e8+9;	//不大众的模数
+//const LL base1=61,base2=31;	//不大众的底数
+int const N=2e5+7,M=2e6+7;
+int const INF=0x3f3f3f3f;
+LL const INFF=0x3f3f3f3f3f3f3f3f;
+
+int n,m,K;
+int opt,x,y,z;
+int a[N];
+string s,t;
+vector<int>g[N];
+
+
+LL f(LL x){
+	int cnt=0;
+	LL t=x;
+	while(t) cnt+=t%10,t/=10;
+	return x%cnt==0;
+}
+
+/*
+主要是利用能被3 9整除的数,则其数位之和也可以整除3 9
+还有一个就是1000的倍数一定可以被8整除
+
+*/
+
+void solve(){
+	cin>>s; n=s.size();
+	
+	if(n<6){ //小于10^6
+		LL x=0;
+		for(int i=0;i<n;i++) x=x*10+s[i]-'0';
+		for(LL i=x;i<2*x;i++) if(f(i)&&f(i+1)){
+			cout<<i;
+			return;
+		}
+		cout<<-1;
+	}else{ //>=10^6
+		auto print=[&](int n){
+			for(int i=1;i<=n;i++) cout<<0;
+		};
+		if(s[0]>='6'){
+			cout<<11;
+			print(n-1);
+		}
+		else if(s[0]>='4'){
+			cout<<71;
+			print(n-2);
+		}
+		else if(s[0]=='3'){
+			cout<<44;
+			print(n-2);
+		}
+		else if(s[0]=='2'){
+			cout<<35;
+			print(n-2);
+		}
+		else{
+			int flag=1;
+			for(int i=1;i<n;i++) if(s[i]!='0') flag=0;
+			if(flag){ //10000000这种情况,此时不能选20000000000,因为200000001超过了范围
+				cout<<11;
+				print(n-2);
+			}else{ //不是1000000这种情况则,2000000001<=2*s的
+				cout<<2;
+				print(n-1);
+			}
+		}
+	}
+	
+}
+
+
+void init(){
+
+}
+
+int main()
+{
+// 	freopen("in.txt","r",stdin);
+//	freopen("out.txt","w",stdout);
+    //std::ios::sync_with_stdio(false);   cin.tie(0); cout.tie(0);
+    //init();
+    int T=1;
+    //cin>>T;
+    //scanf("%d",&T);
+
+   	for(int i=1;i<=T;i++){
+	   	solve();
+	}
+
+	return 0;
+}

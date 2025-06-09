@@ -1,0 +1,56 @@
+/*
+dp[i][j]=max(dp[p][j-1]+sum[i])(p<i-k+1)
+*/
+#include<bits/stdc++.h>
+typedef long long ll;
+using namespace std;
+const ll inf = 0x3f3f3f3f3f3f3f3f;
+const int N = 2e5 + 5;
+int n, k;
+ll a[N], c[N];
+vector<ll> dp[N << 2][5][5];
+void merge(vector<ll> &C, vector<ll> A, vector<ll> B, ll val) {
+	int na = A.size() - 1, nb = B.size() - 1, nc = na + nb;
+	for(int k = 0, l = 0, r; k <= nc; k++) {
+		r = k - l;
+		if(r > nb) r = nb, l = k - r;
+		while(l < na && r > 0 && A[l] + B[r] < A[l + 1] + B[r - 1]) l++, r--;
+		C[k + (val != inf)] = max(C[k + (val != inf)], A[l] + B[r] + (val != inf) * val);
+	}
+}
+void dfs(int p, int l, int r) {
+	int len = r - l + 1;
+	for(int i = 0; i < k; i++) for(int j = 0; j < k && i + j <= len; j++) dp[p][i][j] = vector<ll> (1 + (len - i - j) / k, -inf);
+	if(len < 2 * k) {
+		for(int i = 0; i < k; i++)
+			for(int j = 0; j < k && i + j <= len; j++) {
+				dp[p][i][j][0] = 0;
+				for(int h = l + i; h + k - 1 < r - j + 1; h++)
+					dp[p][i][j][1] = max(dp[p][i][j][1], c[h]);
+			}
+		return;
+	}
+	int mid = l + r >> 1;
+	dfs(p << 1, l, mid), dfs(p << 1 | 1, mid + 1, r);
+	for(int i = 0; i < k && i <= mid - l + 1; i++)
+		for(int j = 0; j < k && j <= r - mid; j++) {
+			merge(dp[p][i][j], dp[p << 1][i][0], dp[p << 1 | 1][0][j], inf);
+			for(int h = 1; h < k; h++)
+				if(i + h <= mid - l + 1 && j + k - h <= r - mid)
+					merge(dp[p][i][j], dp[p << 1][i][h], dp[p << 1 | 1][k - h][j], c[mid - h + 1]);
+		}
+}
+int main() {
+#ifdef ddxrS
+    freopen("sample.in", "r", stdin);
+    freopen("sample.out", "w", stdout);
+#endif
+    ios::sync_with_stdio(0);
+    cin.tie(0), cout.tie(0);
+	cin>>n>>k;
+	for(int i = 1; i <= n; i++) cin>>a[i], a[i] += a[i - 1];	
+	for(int i = 1; i <= n - k + 1; i++) c[i] = a[i + k - 1] - a[i - 1];
+	dfs(1, 1, n);
+	for(int i = 1; i < dp[1][0][0].size(); i++) cout<<dp[1][0][0][i]<<' ';
+	return 0;
+}

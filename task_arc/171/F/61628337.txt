@@ -1,0 +1,191 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+const ll MAX_LIMIT = 1e6 + 5;
+const ll MODULO = 998244353;
+
+ll primes[MAX_LIMIT];
+bool isComposite[MAX_LIMIT];
+ll mobius[MAX_LIMIT];
+ll power26[MAX_LIMIT];
+ll primeCount;
+
+void sieveAndMobius(ll n) {
+    isComposite[1] = true;
+    for (ll i = 2; i <= n; i++) {
+        if (!isComposite[i]) {
+            primes[++primeCount] = i;
+            mobius[i] = -1;
+        }
+        for (ll j = 1; j <= primeCount && i * primes[j] <= n; j++) {
+            isComposite[i * primes[j]] = true;
+            mobius[i * primes[j]] = mobius[i] * mobius[primes[j]];
+            if (i % primes[j] == 0) {
+                mobius[i * primes[j]] = 0;
+                break;
+            }
+        }
+    }
+}
+
+vector<ll> prefix[MAX_LIMIT], suffix[MAX_LIMIT];
+ll temp[MAX_LIMIT];
+
+ll gcd(ll a, ll b) {
+    return b == 0 ? a : gcd(b, a % b);
+}
+
+int main() {
+    ll n;
+    cin >> n;
+
+    power26[0] = 1;
+    for (ll i = 1; i <= n; i++) {
+        power26[i] = (power26[i - 1] * 26) % MODULO;
+    }
+
+    sieveAndMobius(n);
+
+    string inputString;
+    cin >> inputString;
+
+    ll result = 0;
+
+    for (ll divisor = 2; divisor <= n; divisor++) {
+        if (n % divisor != 0) continue;
+
+        if (mobius[divisor]) {
+            ll segmentLength = n / divisor;
+            fill(temp, temp + segmentLength, -1);
+            ll possibilities = 1;
+            bool isValid = true;
+
+            for (ll i = 0; i < n; i++) {
+                if (inputString[i] == '?') continue;
+
+                if (temp[i % segmentLength] != -1 && temp[i % segmentLength] != inputString[i] - 'a') {
+                    isValid = false;
+                    break;
+                }
+
+                temp[i % segmentLength] = inputString[i] - 'a';
+            }
+
+            if (!isValid) continue;
+
+            for (ll i = 0; i < (segmentLength + 1) / 2; i++) {
+                if (temp[segmentLength - 1 - i] != -1 && temp[i] != -1 && temp[i] != temp[segmentLength - 1 - i]) {
+                    isValid = false;
+                    break;
+                } else if (temp[i] == -1 && temp[segmentLength - 1 - i] == -1) {
+                    possibilities = (possibilities * 26) % MODULO;
+                }
+            }
+
+            if (isValid) {
+                result = (result + possibilities * -mobius[divisor] + MODULO) % MODULO;
+            }
+        }
+    }
+
+    for (ll divisor = 2; divisor <= n; divisor++) {
+        if (n % divisor != 0 || divisor % 2 != 0) continue;
+
+        ll segmentLength = n / divisor;
+        ll currentPrefix = 1;
+
+        fill(temp, temp + segmentLength, -1);
+
+        for (ll i = 1; i <= n; i++) {
+            prefix[i].clear();
+            suffix[i].clear();
+        }
+
+        prefix[currentPrefix].resize(segmentLength, -1);
+
+        for (ll i = 0; i < n; i++) {
+            ll position = ((i / segmentLength) % 2 == 0) ? (i % segmentLength) : (segmentLength - 1 - (i % segmentLength));
+
+            if (inputString[i] != '?') {
+                if (prefix[currentPrefix][position] != -1 && prefix[currentPrefix][position] != inputString[i] - 'a') {
+                    prefix[currentPrefix][position] = -2;
+                } else {
+                    prefix[currentPrefix][position] = inputString[i] - 'a';
+                }
+            }
+
+            if ((i + 1) % segmentLength == 0 && (((i + 1) / segmentLength) & 1)) {
+                for (ll k = 0; k < segmentLength; k++) {
+                    prefix[currentPrefix + 1].push_back(prefix[currentPrefix][k]);
+                }
+                currentPrefix++;
+            }
+        }
+
+        ll currentSuffix = 1;
+        suffix[currentSuffix].resize(segmentLength, -1);
+
+        for (ll i = n - 1; i >= 0; i--) {
+            ll adjustedIndex = (n - 1 - i);
+            ll position = ((adjustedIndex / segmentLength) % 2 == 0) ? (segmentLength - 1 - (adjustedIndex % segmentLength)) : (adjustedIndex % segmentLength);
+
+            if (inputString[i] != '?') {
+                if (suffix[currentSuffix][position] != -1 && suffix[currentSuffix][position] != inputString[i] - 'a') {
+                    suffix[currentSuffix][position] = -2;
+                } else {
+                    suffix[currentSuffix][position] = inputString[i] - 'a';
+                }
+            }
+
+            if ((adjustedIndex + 1) % segmentLength == 0 && (((adjustedIndex + 1) / segmentLength) & 1)) {
+                for (ll k = 0; k < segmentLength; k++) {
+                    suffix[currentSuffix + 1].push_back(suffix[currentSuffix][k]);
+                }
+                currentSuffix++;
+            }
+        }
+
+        for (ll i = 1; i <= divisor / 2; i++) {
+            if (gcd(2 * i - 1, (divisor / 2 + 1 - i) * 2 - 1) != 1) continue;
+
+            ll possibilities = 0;
+            bool isValid = true;
+
+            for (ll j = 0; j < segmentLength; j++) {
+                if (prefix[i][j] == -2 || suffix[divisor / 2 + 1 - i][j] == -2) {
+                    isValid = false;
+                    break;
+                }
+
+                if (prefix[i][j] != -1 && suffix[divisor / 2 + 1 - i][j] != -1 && suffix[divisor / 2 + 1 - i][j] != prefix[i][j]) {
+                    isValid = false;
+                    break;
+                }
+
+                temp[j] = (prefix[i][j] != -1) ? prefix[i][j] : suffix[divisor / 2 + 1 - i][j];
+                possibilities += (temp[j] == -1);
+            }
+
+            if (!isValid) continue;
+
+            result = (result + power26[possibilities]) % MODULO;
+
+            ll doubleCount = 0;
+            for (ll j = 0; j < (segmentLength + 1) / 2; j++) {
+                if (temp[segmentLength - 1 - j] != -1 && temp[j] != -1 && temp[j] != temp[segmentLength - 1 - j]) {
+                    isValid = false;
+                    break;
+                } else if (temp[j] == -1 && temp[segmentLength - 1 - j] == -1) {
+                    doubleCount++;
+                }
+            }
+
+            if (!isValid) continue;
+
+            result = (result + MODULO - power26[doubleCount]) % MODULO;
+        }
+    }
+
+    cout << result << "\n";
+    return 0;
+}

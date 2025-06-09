@@ -1,0 +1,22 @@
+#include <iostream>
+using namespace std;
+
+int gcd(int a, int b){
+  if (b == 0) return a;
+  return gcd(b, a % b);
+}
+
+int main(){
+  cin.tie(nullptr)->sync_with_stdio(false);
+  int t;
+  cin >> t;
+  while (t--) {
+    int n, k;
+    cin >> n >> k;
+    if (gcd(n, 2 * k) == 1 or (gcd(n, 2 * k) == 2 and ((n / 2) & 1))) {
+      cout << "Yes\n";
+    } else {
+      cout << "No\n";
+    }
+  }
+}

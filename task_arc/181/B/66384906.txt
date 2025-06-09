@@ -1,0 +1,226 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+// --------------------- Fast IO ---------------------
+#define FAST_IO                       \
+    ios_base::sync_with_stdio(false); \
+    cin.tie(NULL)
+
+// --------------------- Macros ---------------------
+#define int long long
+#define endl '\n'
+#define all(v) v.begin(), v.end()
+#define rall(v) v.rbegin(), v.rend()
+#define print(v)          \
+    for (auto x : v)      \
+        cout << x << " "; \
+    cout << endl
+#define YES cout << "Yes\n"
+#define NO cout << "No\n"
+#define pb push_back
+#define F first
+#define S second
+
+// --------------------- Constants ---------------------
+const int INF = 1e18;
+const int MOD = 998244353;
+const double EPS = 1e-9;
+const double PI = acos(-1.0);
+
+// --------------------- Type Definitions ---------------------
+typedef pair<int, int> pii;
+typedef vector<int> vi;
+
+// --------------------- Utility Functions ---------------------
+int gcd(int a, int b) { return b ? gcd(b, a % b) : a; }
+int lcm(int a, int b) { return a / gcd(a, b) * b; }
+
+int power(int a, int b)
+{
+    int res = 1;
+    while (b)
+    {
+        if (b & 1)
+            res = res * a;
+        a = a * a;
+        b >>= 1;
+    }
+    return res;
+}
+
+int bigmod(int a, int b, int m = MOD)
+{
+    int res = 1;
+    a %= m;
+    while (b)
+    {
+        if (b & 1)
+            res = res * a % m;
+        a = a * a % m;
+        b >>= 1;
+    }
+    return res;
+}
+
+// --------------------- Geometry Structs & Functions ---------------------
+struct Point
+{
+    int x, y;
+    bool operator<(const Point &other) const
+    {
+        return x == other.x ? y < other.y : x < other.x;
+    }
+    bool operator==(const Point &other) const
+    {
+        return x == other.x && y == other.y;
+    }
+};
+
+int orientation(Point a, Point b, Point c)
+{
+    int val = (b.y - a.y) * (c.x - b.x) - (b.x - a.x) * (c.y - b.y);
+    if (val == 0)
+        return 0;             // colinear
+    return (val > 0) ? 1 : 2; // clock or counterclockwise
+}
+
+vector<Point> convex_hull(vector<Point> pts)
+{
+    if (pts.size() <= 1)
+        return pts;
+    sort(all(pts));
+    vector<Point> lower, upper;
+
+    for (auto p : pts)
+    {
+        while (lower.size() >= 2 &&
+               orientation(lower[lower.size() - 2], lower[lower.size() - 1], p) != 2)
+            lower.pop_back();
+        lower.push_back(p);
+    }
+
+    for (int i = pts.size() - 1; i >= 0; i--)
+    {
+        auto p = pts[i];
+        while (upper.size() >= 2 &&
+               orientation(upper[upper.size() - 2], upper[upper.size() - 1], p) != 2)
+            upper.pop_back();
+        upper.push_back(p);
+    }
+
+    lower.pop_back();
+    upper.pop_back();
+    lower.insert(lower.end(), all(upper));
+    return lower;
+}
+
+// --------------------- Inside Polygon (Ray Casting) ---------------------
+bool on_segment(Point a, Point b, Point c)
+{
+    return min(a.x, b.x) <= c.x && c.x <= max(a.x, b.x) &&
+           min(a.y, b.y) <= c.y && c.y <= max(a.y, b.y);
+}
+
+int direction(Point a, Point b, Point c)
+{
+    return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+}
+
+bool inside_polygon(vector<Point> &poly, Point p)
+{
+    int cnt = 0, n = poly.size();
+    Point extreme = {INT_MAX, p.y};
+    for (int i = 0; i < n; ++i)
+    {
+        Point a = poly[i], b = poly[(i + 1) % n];
+        if (direction(a, b, p) == 0 && on_segment(a, b, p))
+            return true;
+        if ((a.y > p.y) != (b.y > p.y))
+        {
+            double x = (b.x - a.x) * (p.y - a.y) / (double)(b.y - a.y) + a.x;
+            if (x > p.x)
+                cnt++;
+        }
+    }
+    return cnt % 2 == 1;
+}
+
+const int N = 2e5 + 10;
+vector<int> graph[N];
+vector<int> leafs(N, 0);
+
+int dfs(int vertex, int parent)
+{
+    if (graph[vertex].size() == 1 && graph[vertex][0] == parent)
+        return leafs[vertex] = 1;
+    int total = 0;
+    for (auto child : graph[vertex])
+    {
+        if (child == parent)
+            continue;
+        total += dfs(child, vertex);
+    }
+    return leafs[vertex] = total;
+}
+
+int ans(vector<int>&v,int sz){
+    if((v[0]+v[v.size()-1])%2==0) return sz - (int)v.size();
+    vector<int>v1,v2;
+    for(int i=0;i<v.size()-1;i++) v1.push_back(v[i]);
+    for(int i=1;i<v.size();i++) v2.push_back(v[i]);
+    return min(ans(v1,sz),ans(v2,sz));
+}
+long long smallest_prime_factor(long long n) {
+    if (n <= 1) return -1; // SPF undefined for n <= 1
+
+    if (n % 2 == 0) return 2;
+
+    for (long long i = 3; i * i <= n; i += 2) {
+        if (n % i == 0) return i;
+    }
+
+    return n; // n is prime, so its smallest prime factor is itself
+}
+// --------------------- Solve Function ---------------------
+void solve() {
+    string s, x, y;
+    cin >> s >> x >> y;
+    int n = s.size();
+    int x1 = count(all(x), '1'), x0 = x.size() - x1;
+    int y1 = count(all(y), '1'), y0 = y.size() - y1;
+
+    if (x0 == y0) {
+        YES;
+        return;
+    }
+
+    if ((x1 == y1) || ((x0 - y0) * (y1 - x1)) < 0 || (n * (x0 - y0)) % (y1 - x1)) {
+        NO;
+        return;
+    }
+
+    int d = (n * (x0 - y0)) / (y1 - x1);
+    d = gcd(d, n);
+
+    for (int i = 0; i < n - d; ++i) {
+        if (s[i] != s[i + d]) {
+            NO;
+            return;
+        }
+    }
+
+    YES;
+}
+
+
+
+// --------------------- Main Function ---------------------
+int32_t main()
+{
+    FAST_IO;
+    int t = 1;
+    cin >> t;
+    while (t--)
+        solve();
+    return 0;
+}

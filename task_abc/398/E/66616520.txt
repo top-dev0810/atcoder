@@ -1,0 +1,53 @@
+#include<bits/stdc++.h>
+using namespace std;
+int edge[205][205],f[205][205],ans,n,x=1,y=1;
+void answer(){
+	for(int i=1;i<=n;i++){
+		for(int j=i+1;j<=n;j++){
+			if(f[i][j]%2 and f[i][j]<=1e9 and f[i][j]>1 and edge[i][j]==0){
+				cout<<i<<" "<<j<<endl;
+				edge[i][j]=1;
+				return ;
+			}
+		}
+	}
+	cout<<"No"<<endl;
+} 
+int main()
+{
+	cin>>n;
+	memset(f,0x3f,sizeof (f));
+	for(int i=1;i<n;i++){
+		int x,y;
+		cin>>x>>y;
+		f[x][y]=f[y][x]=1;
+	} 
+	for(int i=1;i<=n;i++){
+		f[i][i]=0;
+	}
+	for(int k=1;k<=n;k++) {
+		for(int i=1;i<=n;i++){
+			for(int j=1;j<=n;j++){
+				f[i][j]=min(f[i][j],f[i][k]+f[k][j]);
+			} 
+		} 
+	}
+	for(int i=1;i<=n;i++){
+		for(int j=i+1;j<=n;j++){
+			ans+=(f[i][j]<=1e9 and f[i][j]>1 and f[i][j]%2);
+		}
+	}
+	if(ans&1){
+		cout<<"First"<<endl;answer();
+	}
+	else{
+		cout<<"Second"<<endl;
+	}
+	while(1){
+		cin>>x>>y;
+		if(x==-1 and y==-1) return 0;
+		edge[x][y]=1;
+		answer();
+	}
+	return 0;
+}

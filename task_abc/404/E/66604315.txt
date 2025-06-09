@@ -1,0 +1,32 @@
+#include<bits/stdc++.h>
+using namespace std;
+const int N=2005;
+int c[N],n,a[N],dp[N];
+#define oo  0x3f3f3f3f
+//dp[i] 位置i的豆子移动到前面有豆子的碗的最小步骤数
+int main(){
+    scanf("%d",&n);
+    //输入每个位置允许前移的范围
+    for(int i=1;i<=n-1;i++)
+        scanf("%d",&c[i]);
+    //输入每个碗中的原始豆子数
+    for(int i=1;i<=n-1;i++)
+        scanf("%d",&a[i]);
+
+    dp[1]=1;
+    
+    for(int i=2;i<=n-1;i++){
+        dp[i]=oo;//dp[i]初始化
+        //i向前范围内有有豆子的碗  dp值为1
+        //否则取有豆子的碗的位置的dp值+1里最小的
+        for(int j=i-c[i];j<i;j++){
+            if(a[j]==0)dp[i]=min(dp[i],dp[j]+1);
+            else dp[i]=1;
+        }
+    }
+    int ans=0;
+    for(int i=1;i<=n-1;i++){
+        if(a[i])ans+=dp[i];
+    }
+    printf("%d",ans);
+}

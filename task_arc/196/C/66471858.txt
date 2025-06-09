@@ -1,0 +1,103 @@
+#include <bits/stdc++.h>
+using namespace std;
+const int N = 1 << 20;
+typedef long long ll;
+const ll mod = 998244353;
+ll ksm(ll a, ll b)
+{
+    ll ans = 1;
+    while (b)
+    {
+        if (b & 1)ans = ans * a % mod;
+        a = a * a % mod; b >>= 1;
+    }
+    return ans;
+}
+string s; int sb[N], sw[N];
+ll fac[N], ifac[N], dp[N];
+ll C(ll n, ll m) { return fac[n] * ifac[m] % mod * ifac[n - m] % mod; }
+ll a[N], b[N], c[N];int rev[N], aa, bb, nn, bit;
+void work()
+{
+    bit = 0; nn = 1;
+    while (nn <= aa + bb)nn <<= 1, bit++;
+    for (int i = 1;i < nn;i++)rev[i] = (rev[i >> 1] >> 1) | ((i & 1) << (bit - 1));
+    for (int i = aa + 1;i < nn;i++)a[i] = 0;
+    for (int i = bb + 1;i < nn;i++)b[i] = 0;
+    for (int i = 0;i < nn;i++) if (i < rev[i])
+        swap(a[i], a[rev[i]]), swap(b[i], b[rev[i]]);
+    for (int len = 1;len < nn;len *= 2)
+    {
+        const ll w1 = ksm(3, (mod - 1) / len / 2);
+        for (int i = 0;i < nn;i += len * 2)
+        {
+            ll wn = 1;
+            for (int j = 0;j < len;j++, wn = wn * w1 % mod)
+            {
+                {
+                    ll x = a[i + j], y = a[i + j + len] * wn % mod;
+                    a[i + j] = (x + y) % mod;
+                    a[i + j + len] = (x - y + mod) % mod;
+                }
+                {
+                    ll x = b[i + j], y = b[i + j + len] * wn % mod;
+                    b[i + j] = (x + y) % mod;
+                    b[i + j + len] = (x - y + mod) % mod;
+                }
+            }
+        }
+    }
+    for (int i = 0;i < nn;i++)c[i] = a[i] * b[i] % mod;
+    for (int i = 0;i < nn;i++) if (i < rev[i])
+        swap(c[i], c[rev[i]]);
+    for (int len = 1;len < nn;len *= 2)
+    {
+        const ll w1 = ksm((mod + 1) / 3, (mod - 1) / len / 2);
+        for (int i = 0;i < nn;i += len * 2)
+        {
+            ll wn = 1;
+            for (int j = 0;j < len;j++, wn = wn * w1 % mod)
+            {
+                ll x = c[i + j], y = c[i + j + len] * wn % mod;
+                c[i + j] = (x + y) % mod;
+                c[i + j + len] = (x - y + mod) % mod;
+            }
+        }
+    }
+    const int inv = ksm(nn, mod - 2);
+    for (int i = 0;i < nn;i++) c[i] = c[i] * inv % mod;
+}
+void work(int l, int m, int r)
+{
+    const int det = max(sw[m] - sb[m], 0);
+    aa = sb[m] - sb[l]; bb = sw[r] - sb[l] - det;
+    if (bb < 0)return;
+    for (int i = 0;i <= aa;i++) a[i] = 0;
+    for (int i = l;i <= m;i++)
+        (a[sb[i] - sb[l]] += dp[i]) %= mod;
+    for (int i = 0;i <= bb;i++) b[i] = (i + det >= 0 ? fac[i + det] : 0); work();
+    for (int i = m + 1;i <= r;i++) if (sw[i] - sb[i] >= 0)
+        dp[i] = (dp[i] + mod - c[sw[i] - sb[l] - det] * ifac[sw[i] - sb[i]] % mod) % mod;
+}
+void solve(int l, int r)
+{
+    const int m = l + r >> 1; if (l == r)return;
+    solve(l, m); work(l, m, r); solve(m + 1, r);
+}
+int main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr); cout.tie(nullptr);
+    int n; cin >> n >> s; s = " " + s;
+    for (int i = 1;i <= n * 2;i++)
+    {
+        sb[i] = sb[i - 1] + (s[i] == 'B');
+        sw[i] = sw[i - 1] + (s[i] == 'W');
+    }
+    fac[0] = 1;
+    for (int i = 1;i < N;i++) fac[i] = fac[i - 1] * i % mod;
+    ifac[N - 1] = ksm(fac[N - 1], mod - 2);
+    for (int i = N - 1;i >= 1;i--) ifac[i - 1] = ifac[i] * i % mod;
+    dp[0] = mod - 1; solve(0, n * 2); cout << dp[n * 2] << '\n';
+    return 0;
+}

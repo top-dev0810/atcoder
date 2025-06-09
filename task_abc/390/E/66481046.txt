@@ -1,0 +1,75 @@
+#include <bits/stdc++.h>
+
+#define ll long long
+#define endl "\n"
+using namespace std;
+
+void solve()
+{
+    ll n, x;
+    cin >> n >> x;
+    vector<array<ll, 2>> v1, v2, v3;
+    for (int i = 1; i <= n; i++)
+    {
+        ll a, b, c;
+        cin >> a >> b >> c;
+        if (a == 1)
+        {
+            v1.push_back({c, b});
+        }
+        else if (a == 2)
+        {
+            v2.push_back({c, b});
+        }
+        else if (a == 3)
+        {
+            v3.push_back({c, b});
+        }
+    }
+    vector<ll> dpv1(x + 5), dpv2(x + 5), dpv3(x + 5);
+    for (int i = 0; i < v1.size(); i++)
+    {
+        for (int j = x; j >= v1[i][0]; j--)
+        {
+            dpv1[j] = max(dpv1[j], dpv1[j - v1[i][0]] + v1[i][1]);
+        }
+    }
+    for (int i = 0; i < v2.size(); i++)
+    {
+        for (int j = x; j >= v2[i][0]; j--)
+        {
+            dpv2[j] = max(dpv2[j], dpv2[j - v2[i][0]] + v2[i][1]);
+        }
+    }
+    for (int i = 0; i < v3.size(); i++)
+    {
+        for (int j = x; j >= v3[i][0]; j--)
+        {
+            dpv3[j] = max(dpv3[j], dpv3[j - v3[i][0]] + v3[i][1]);
+        }
+    }
+    ll ans = 0;
+    for (ll a = 0; a <= x; a++)
+    {
+        for (ll b = 0; b <= x - a; b++)
+        {
+            ll c = x - a - b;
+            ll cnt = min({dpv1[a], dpv2[b], dpv3[c]});
+            ans = max(ans, cnt);
+        }
+    }
+    cout << ans << endl;
+}
+
+int main()
+{
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    ll t = 1;
+    // cin >> t;
+    while (t--)
+    {
+        solve();
+    }
+    return 0;
+}

@@ -1,0 +1,30 @@
+#include <bits/stdc++.h>
+using namespace std;
+long long n,m;
+double f[5010],g[5010],a[5010];
+int main()
+{
+    cin>>n>>m;
+    g[0]=1;
+    for(int i=1;i<=n;i++)
+    {
+        cin>>a[i];
+        a[i]=a[i]/100;
+        for(int j=n;j>0;j--)
+        {
+            g[j]=g[j]*(1-a[i])+g[j-1]*a[i];
+        }
+        g[0]=g[0]*(1-a[i]);
+    }
+    for(int i=1;i<=m;i++)
+    {
+        f[i]=1;
+        for(int j=1;j<=n;j++)
+        {
+            f[i]+=f[max(i-j,0)]*g[j];
+        }
+        f[i]=f[i]/(1-g[0]);
+    }
+    printf("%.8f",f[m]);
+    return 0;
+}

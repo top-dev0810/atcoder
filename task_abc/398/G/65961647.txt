@@ -1,0 +1,49 @@
+#include <bits/stdc++.h>
+using namespace std;
+signed main() 
+{
+	int n, m;
+	scanf("%d%d",&n,&m);
+	vector<pair<int,int> > uv(m);
+	for(int i = 0;i < m;i++) scanf("%d%d",&uv[i].first,&uv[i].second);
+	if (n & 1) 
+	{
+		if(m & 1) puts("Aoki");
+		else puts("Takahashi");
+		return 0;
+	}
+	vector<vector<int> > g(n);
+	for(auto& [u, v] : uv) 
+	{
+		u--;
+		v--;
+		g[u].emplace_back(v);
+		g[v].emplace_back(u);
+	}
+	vector<bool> seen(n);
+	vector<int> c(2);
+	auto dfs = [&](auto dfs, int v, bool x) -> void
+	{
+		if (seen[v]) return;
+		seen[v] = true;
+		++c[x];
+		for(auto& nv : g[v]) dfs(dfs, nv, x ^ true);
+	};
+	vector<int> d(4);
+	for (int i = 0; i < n; ++i) 
+	{
+		if (seen[i]) continue;
+		c[0] = 0;
+		c[1] = 0;
+		dfs(dfs, i, 0);
+		if(c[0] + c[1] == 1) ++d[3];
+		else ++d[(c[0] & 1) + (c[1] & 1)];
+	}
+	bool z = false;
+	if (d[1] == 0) z = ((d[2] + d[3] / 2) & 1) ^ (m & 1);
+	else if (d[1] <= 2) z = true; 
+	else z = (m & 1);
+	if(z) puts("Aoki");
+	else puts("Takahashi");
+	return 0;
+}

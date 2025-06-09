@@ -1,0 +1,88 @@
+#include <bits/stdc++.h>
+// #define double long double
+#define int long long
+using namespace std;
+int n,a[100005],q;
+int d(pair<int,int> p1,pair<int,int> p2){
+    return abs(p1.first-p2.first)+abs(p1.second-p2.second);
+}
+
+struct dsu{
+    int a[4000],num;
+    void init(){
+        for (int i=0;i<=3500;i++) 
+            a[i]=i;
+    }
+    int find(int x){
+        if (a[x]==x) return x;
+        return a[x]=find(a[x]);
+    }
+    void u(int x,int y){
+        x=find(x),y=find(y);
+        if (x==y) return;
+        num--;
+        a[x]=y;
+    }
+    int f(int x,int y){
+        return find(x)==find(y);
+    }
+};
+dsu ds;
+struct AMT{int a,b,c;};
+bool operator<(AMT a1,AMT a2) {return a1.c<a2.c;}
+bool operator>(AMT a1,AMT a2) {return a1.c>a2.c;}
+signed main(){
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    ds.init();
+    cin>>n>>q;
+    ds.num=n;
+    vector<pair<int,int>> G;
+    priority_queue<AMT,vector<AMT>,greater<AMT>> best;
+    int k=2e18;
+    for (int i=0;i<n;i++){
+        int a,b;
+        cin>>a>>b;
+        G.push_back({a,b});
+        for (int j=0;j<G.size();j++){
+            if (ds.f(i,j)) continue;
+            int curd=d(G[i],G[j]);
+            best.push({i,j,curd});
+        }
+    }
+    while (q--){
+        int op,a,b;
+        cin>>op;
+        if (op==1){
+            cin>>a>>b;
+            G.push_back({a,b});
+            int i=n;
+            n++;
+            ds.num++;
+            for (int j=0;j<G.size();j++){
+                if (ds.f(i,j)) continue;
+                int curd=d(G[i],G[j]);
+                best.push({i,j,curd});
+            }
+        }
+        if (op==2){
+            if (ds.num>1){
+                while (best.size()&&ds.f(best.top().a,best.top().b)) best.pop();
+                k=best.top().c;
+                cout<<k<<"\n";
+                while (best.size()&&best.top().c==k) {
+                    ds.u(best.top().a,best.top().b);
+                    best.pop();
+                }
+            }
+            else cout<<"-1\n";
+        }
+        if (op==3){
+            cin>>a>>b;
+            a--;
+            b--;
+            ds.f(a,b)?cout<<"Yes\n":cout<<"No\n";
+        }
+    }
+
+}

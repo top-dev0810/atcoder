@@ -1,0 +1,33 @@
+#include<bits/stdc++.h>
+using namespace std;
+long long n,m,x,v,u;
+bool vis[200005][2];
+vector<long long> ve[200005][2];
+struct node{
+	long long id,fl,ans;
+	bool operator<(node b)const{
+		return ans>b.ans;
+	}
+};
+priority_queue<node> q;
+int main(){
+	cin>>n>>m>>x;
+	for(int i=1;i<=m;i++){
+		cin>>u>>v;
+		ve[v][0].push_back(u);
+		ve[u][1].push_back(v);
+	}
+	q.push({1,1,0});
+	while(!q.empty()){
+		node G=q.top();q.pop();
+		if(G.id==n){
+			cout<<G.ans;
+			return 0;
+		}
+		if(vis[G.id][G.fl]) continue;
+		vis[G.id][G.fl]=1;
+		for(int i=0;i<ve[G.id][G.fl^1].size();i++) q.push({ve[G.id][G.fl^1][i],G.fl^1,G.ans+1+x});
+		for(int i=0;i<ve[G.id][G.fl].size();i++) q.push({ve[G.id][G.fl][i],G.fl,G.ans+1});
+	}
+	return 0;
+}

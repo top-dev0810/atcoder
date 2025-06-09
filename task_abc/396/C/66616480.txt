@@ -1,0 +1,43 @@
+#include <bits/stdc++.h>
+
+// #include <atcoder/modint>
+
+using namespace std;
+// using namespace atcoder;
+// using mint = modint998244353;
+
+typedef long long ll;
+typedef unsigned long long ull;
+#define rep(i, n) for (int i = 0; i < (int)(n); i++)
+#define all(a) a.begin(), a.end()
+#define rall(a) a.rbegin(), a.rend()
+
+int main(void) {
+    int n, m;
+    cin >> n >> m;
+
+    vector<int> b(n), w(m);
+    rep(i, n) { cin >> b[i]; }
+    rep(i, m) { cin >> w[i]; }
+    sort(rall(b));
+    sort(rall(w));
+
+    ll ans = 0;
+
+    rep(i, n) {
+        if (b[i] > 0) {
+            ans += b[i];
+            if (i < m && w[i] > 0) {
+                ans += w[i];
+            }
+        } else {
+            if (i < m && (b[i] + w[i] > 0)) {
+                ans += (b[i] + w[i]);
+            }
+        }
+    }
+
+    cout << ans << endl;
+
+    return 0;
+}

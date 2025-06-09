@@ -1,0 +1,94 @@
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int MOD = 998244353;
+#ifdef int
+#define inf 0x3f3f3f3f3f3f3f3f
+#else
+#define inf 0x3f3f3f3f
+#endif
+const long long infll = 0x3f3f3f3f3f3f3f3f;
+#define pii pair<int, int>
+#define mkp(x,y) make_pair(x,y)
+
+#ifndef LOCAL
+#define SUBMIT
+#endif
+
+#ifdef SUBMIT
+#define endl '\n'
+//#define cin Fastio ::cin
+//#define cout Fastio ::cout
+#endif
+
+template<typename T>
+void read(vector<T> &vec)
+{
+    for(auto &x:vec)
+    {
+        cin>>x;
+    }
+}
+
+int qpow(int n,int k)
+{
+    int res=1;
+    while(k)
+    {
+        if(k&1)(res*=n)%=MOD;
+        (n*=n)%=MOD;
+        k>>=1;
+    }
+    return res;
+}
+
+int p[10010],v[10010];
+
+int f[10010][2];
+
+void work()
+{
+    int n,q;
+    cin>>n>>q;
+    for(int i=1;i<=q;i++)
+    {
+        cin>>p[i]>>v[i];
+        f[i][0]=f[i][1]=1;
+        for(int j=1;j<i;j++)
+        {
+            if(v[i]>=v[j])continue;
+            if(p[i]==p[j])
+            {
+                cout<<0<<endl;
+                return ;
+            }
+            if(p[i]<p[j])
+            {
+                f[i][0]=f[j][1]=0;
+            }
+            else
+            {
+                f[i][1]=f[j][0]=0;
+            }
+        }
+    }
+    int ans=1;
+    for(int i=1;i<=q;i++)ans=ans*(f[i][0]+f[i][1])%MOD;
+    cout<<ans<<endl;
+}
+
+signed main()
+{
+#ifndef cin
+#ifdef SUBMIT
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#endif
+#endif
+    int t=1;
+    // cin>>t;
+    while(t--)
+    {
+        work();
+    }
+}

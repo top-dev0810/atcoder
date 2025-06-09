@@ -1,0 +1,453 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+template <class T>
+using vc = vector<T>;
+template <class T>
+using vvc = vector<vc<T>>;
+template <class T>
+using vvvc = vector<vvc<T>>;
+template <class T>
+using vvvvc = vector<vvvc<T>>;
+template <class T>
+using vvvvvc = vector<vvvvc<T>>;
+
+#define vv(type, name, h, w) vector<vector<type>> name(h, vector<type>(w))
+#define vvv(type, name, h, w, l) vector<vector<vector<type>>> name(h, vector<vector<type>>(w, vector<type>(l)))
+#define vvvv(type, name, a, b, c, d) vector<vector<vector<vector<type>>>> name(a, vector<vector<vector<type>>>(b, vector<vector<type>>(c, vector<type>(d))))
+#define vvvvv(type, name, a, b, c, d, e) vector<vector<vector<vector<vector<type>>>>> name(a, vector<vector<vector<vector<type>>>>(b, vector<vector<vector<type>>>(c, vector<vector<type>>(d, vector<type>(e)))))
+
+#define elif else if
+
+#define FOR1(a) for (long long _ = 0; _ < (long long)(a); _++)
+#define FOR2(i, n) for (long long i = 0; i < (long long)(n); i++)
+#define FOR3(i, l, r) for (long long i = l; i < (long long)(r); i++)
+#define FOR4(i, l, r, c) for (long long i = l; i < (long long)(r); i += c)
+#define FOR1_R(a) for (long long _ = (long long)(a) - 1; _ >= 0; _--)
+#define FOR2_R(i, n) for (long long i = (long long)(n) - 1; i >= (long long)(0); i--)
+#define FOR3_R(i, l, r) for (long long i = (long long)(r) - 1; i >= (long long)(l); i--)
+#define FOR4_R(i, l, r, c) for (long long i = (long long)(r) - 1; i >= (long long)(l); i -= (c))
+#define overload4(a, b, c, d, e, ...) e
+#define FOR(...) overload4(__VA_ARGS__, FOR4, FOR3, FOR2, FOR1)(__VA_ARGS__)
+#define FOR_R(...) overload4(__VA_ARGS__, FOR4_R, FOR3_R, FOR2_R, FOR1_R)(__VA_ARGS__)
+#define FOR_in(a, A) for (auto a: A)
+#define FOR_each(a, A) for (auto &&a: A)
+#define FOR_subset(t, s) for(long long t = (s); t >= 0; t = (t == 0 ? -1 : (t - 1) & (s)))
+
+#define all(x) x.begin(), x.end()
+#define len(x) int(x.size())
+
+int popcount(int x) { return __builtin_popcount(x); }
+int popcount(uint32_t x) { return __builtin_popcount(x); }
+int popcount(long long x) { return __builtin_popcountll(x); }
+int popcount(uint64_t x) { return __builtin_popcountll(x); }
+// __builtin_clz(x)は最上位bitからいくつ0があるか.
+int topbit(int x) { return (x == 0 ? -1 : 31 - __builtin_clz(x)); }
+int topbit(uint32_t x) { return (x == 0 ? -1 : 31 - __builtin_clz(x)); }
+int topbit(long long x) { return (x == 0 ? -1 : 63 - __builtin_clzll(x)); }
+int topbit(uint64_t x) { return (x == 0 ? -1 : 63 - __builtin_clzll(x)); }
+
+// 入力
+void rd() {}
+void rd(char &c) { cin >> c; }
+void rd(string &s) { cin >> s; }
+void rd(int &x) { cin >> x; }
+void rd(uint32_t &x) { cin >> x; }
+void rd(long long &x) { cin >> x; }
+void rd(uint64_t &x) { cin >> x; }
+template<class T>
+void rd(vector<T> &v) {
+  for (auto& x:v) rd(x);
+}
+
+void read() {}
+template <class H, class... T>
+void read(H &h, T &... t) {
+  rd(h), read(t...);
+}
+
+#define CHAR(...) \
+  char __VA_ARGS__; \
+  read(__VA_ARGS__)
+
+#define STRING(...) \
+  string __VA_ARGS__; \
+  read(__VA_ARGS__)
+
+#define INT(...) \
+  int __VA_ARGS__; \
+  read(__VA_ARGS__)
+
+#define U32(...) \
+  uint32_t __VA_ARGS__; \
+  read(__VA_ARGS__)
+
+#define LL(...) \
+  long long __VA_ARGS__; \
+  read(__VA_ARGS__)
+
+#define U64(...) \
+  uint64_t __VA_ARGS__; \
+  read(__VA_ARGS__)
+
+#define VC(t, a, n) \
+  vector<t> a(n); \
+  read(a)
+
+#define VVC(t, a, h, w) \
+  vector<vector<t>> a(h, vector<t>(w)); \
+  read(a)
+
+//出力
+void wt() {}
+void wt(const char c) { cout << c; }
+void wt(const string s) { cout << s; }
+void wt(int x) { cout << x; }
+void wt(uint32_t x) { cout << x; }
+void wt(long long x) { cout << x; }
+void wt(uint64_t x) { cout << x; }
+void wt(double x) { cout << fixed << setprecision(16) << x; }
+void wt(long double x) { cout << fixed << setprecision(16) << x; }
+
+template<class T>
+void wt(const vector<T> v) {
+  int n = v.size();
+  for (int i = 0; i < n; i++) {
+    if (i) wt(' ');
+    wt(v[i]);
+  }
+}
+
+void print() { wt('\n'); }
+template <class Head, class... Tail>
+void print(Head &&head, Tail &&... tail) {
+  wt(head);
+  if (sizeof...(Tail)) wt(' ');
+  print(forward<Tail>(tail)...);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+template <class T>
+T min(vector<T> A) {
+  assert (A.size());
+  T S = A[0];
+  for (T a : A) S = min(a, S);
+  return S;
+}
+
+template <class T>
+T max(vector<T> A) {
+  assert (A.size());
+  T S = A[0];
+  for (T a : A) S = max(a, S);
+  return S;
+}
+
+long long add(long long x, long long y) {return x + y; }
+
+template <class mint>
+mint add(mint x, mint y) { return x + y; }
+
+template <class T>
+bool chmin(T & x, T a) { return a < x ? (x = a, true) : false; }
+
+template <class T>
+bool chmax(T & x, T a) { return a > x ? (x = a, true) : false; }
+
+template <class T>
+T sum(vector<T> A) {
+  T S = 0;
+  for (int i = 0; i < int(A.size()); i++) S += A[i];
+  return S;
+}
+
+uint64_t random_u64(uint64_t l, uint64_t r) {
+  static std::random_device rd;
+  static std::mt19937_64 gen(rd());
+  std::uniform_int_distribution<uint64_t> dist(l, r);
+  return dist(gen);
+}
+
+long long gcd(long long a, long long b) {
+  while (a) {
+    b %= a;
+    if (b == 0) return a;
+    a %= b;
+  }
+  return b;
+}
+
+long long lcm(long long a, long long b) {
+  if (a * b == 0) return 0;
+  return a * b / gcd(a, b);
+}
+
+long long pow_mod(long long a, long long r, long long mod) {
+  long long res = 1, p = a % mod;
+  while (r) {
+    if ((r % 2) == 1) res = res * p % mod;
+    p = p * p % mod, r >>= 1;
+  }
+  return res;
+}
+
+long long mod_inv(long long a, long long mod) {
+  if (mod == 1) return 0;
+  a %= mod;
+  long long b = mod, s = 1, t = 0;
+  while (1) {
+    if (a == 1) return s;
+    t -= (b / a) * s;
+    b %= a;
+    if (b == 1) return t + mod;
+    s -= (a / b) * t;
+    a %= b;
+  }
+}
+
+long long Garner(vector<long long> Rem, vector<long long> Mod, int MOD) {
+  assert (Rem.size() == Mod.size());
+  long long mod = MOD;
+  Rem.push_back(0);
+  Mod.push_back(mod);
+  long long n = Mod.size();
+  vector<long long> coffs(n, 1);
+  vector<long long> constants(n, 0);
+  for (int i = 0; i < n - 1; i++) {
+    long long v = (Mod[i] + Rem[i] - constants[i]) % Mod[i];
+    v *= mod_inv(coffs[i], Mod[i]);
+    v %= Mod[i];
+    for (int j = i + 1; j < n; j++) {
+      constants[j] = (constants[j] + coffs[j] * v) % Mod[j];
+      coffs[j] = (coffs[j] * Mod[i]) % Mod[j];
+    }
+  }
+  return constants[n - 1];
+}
+
+long long Tonelli_Shanks(long long a, long long mod) {
+  a %= mod;
+  if (a < 2) return a;
+  if (pow_mod(a, (mod - 1) / 2, mod) != 1) return -1;
+  if (mod % 4 == 3) return pow_mod(a, (mod + 1) / 4, mod);
+
+  long long b = 3;
+  if (mod != 998244353) {
+    while (pow_mod(b, (mod - 1) / 2, mod) == 1) {
+      b = random_u64(2, mod - 1);
+    }
+  }
+
+  long long q = mod - 1;
+  long long Q = 0;
+  while (q % 2 == 0) {
+    Q++, q /= 2;
+  }
+
+  long long x = pow_mod(a, (q + 1) / 2, mod);
+  b = pow_mod(b, q, mod);
+
+  long long shift = 2;
+  while ((x * x) % mod != a) {
+    long long error = (((pow_mod(a, mod - 2, mod) * x) % mod) * x) % mod;
+    if (pow_mod(error, 1 << (Q - shift), mod) != 1) {
+      x = (x * b) % mod;
+    }
+    b = (b * b) % mod;
+    shift++;
+  }
+  return x;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+template <int id>
+struct dynamic_modint {
+
+  static inline uint32_t umod = 998244353;
+
+  static void set_mod(uint32_t mod) {
+    assert(mod < (1u << 31));
+    umod = mod;
+  }
+
+  uint32_t val;
+
+  static dynamic_modint raw(uint32_t v) {
+    dynamic_modint x;
+    x.val = v;
+    return x;
+  }
+
+  dynamic_modint() : val(0) {}
+  dynamic_modint(uint32_t x) : val(x % umod) {}
+  dynamic_modint(uint64_t x) : val(x % umod) {}
+  dynamic_modint(__uint128_t x) : val(x % umod) {}
+  dynamic_modint(int x) : val((x %= int(umod)) < 0 ? x + umod : x) {};
+  dynamic_modint(long long x) : val((x %= int(umod)) < 0 ? x + umod : x) {};
+  dynamic_modint(__int128_t x) : val((x %= int(umod)) < 0 ? x + umod : x) {};
+
+  bool operator<(const dynamic_modint &other) const { return val < other.val; }
+  dynamic_modint &operator+=(const dynamic_modint &p) {
+    if ((val += p.val) >= umod) val -= umod;
+    return *this;
+  }
+  dynamic_modint &operator-=(const dynamic_modint &p) {
+    if ((val += umod - p.val) >= umod) val -= umod;
+    return *this;
+  }
+  dynamic_modint &operator*=(const dynamic_modint &p) {
+    val = uint64_t(val) * p.val % umod;
+    return *this;
+  }
+  dynamic_modint &operator/=(const dynamic_modint &p) {
+    val = uint64_t(val) * p.inverse().val % umod;
+    return *this;
+  }
+  dynamic_modint operator-() const { return dynamic_modint::raw(val ? umod - val : uint32_t(0)); }
+  dynamic_modint operator+(const dynamic_modint &p) const { return dynamic_modint(*this) += p; }
+  dynamic_modint operator-(const dynamic_modint &p) const { return dynamic_modint(*this) -= p; }
+  dynamic_modint operator*(const dynamic_modint &p) const { return dynamic_modint(*this) *= p; }
+  dynamic_modint operator/(const dynamic_modint &p) const { return dynamic_modint(*this) /= p; }
+  bool operator==(const dynamic_modint &p) const { return val == p.val; }
+  bool operator!=(const dynamic_modint &p) const { return val != p.val; }
+
+  dynamic_modint inverse() const {
+    int a = val, b = umod, s = 1, t = 0;
+    while (1) {
+      if (a == 1) return dynamic_modint(s);
+      t -= (b / a) * s;
+      b %= a;
+      if (b == 1) return dynamic_modint(t + umod);
+      s -= (a / b) * t;
+      a %= b;
+    }
+  }
+
+  dynamic_modint pow(long long n) const {
+    n %= (long long)(umod);
+    if (n < 0) n += umod - 1;
+    dynamic_modint res(1), a(val);
+    while (n > 0) {
+      if (n & 1) res *= a;
+      a *= a;
+      n >>= 1;
+    }
+    return res;
+  }
+
+  uint32_t get() const { return val; }
+
+  static uint32_t get_mod() { return umod; }
+  
+  static pair<int, int> ntt_info() {
+    if (umod == 167772161) return {25, 17};
+    if (umod == 469762049) return {26, 30};
+    if (umod == 754974721) return {24, 362};
+    if (umod == 880803841) return {23, 211};
+    if (umod == 998244353) return {23, 31};
+    return {-1, -1};
+  }
+};
+
+template <typename mint>
+mint fact(long long n) {
+  static vector<mint> res = {1, 1};
+  static long long le = 1;
+  if (n < 0) return mint(0);
+  while (le <= n){
+    le++;
+    res.push_back(res[le - 1] * le);
+  }
+  return res[n];
+}
+
+template <typename mint>
+mint fact_inv(long long n) {
+  static vector<mint> res = {1, 1};
+  static long long le = 1;
+  if (n < 0) return mint(0);
+  while (le <= n) {
+    le++;
+    res.push_back(res[le - 1] / le);
+  }
+  return res[n];
+}
+
+template <typename mint>
+mint binom(long long n, long long r) {
+  if (n < 0 || r < 0 || n < r) return 0;
+  mint res = fact<mint>(n) * (fact_inv<mint>(n - r) * fact_inv<mint>(r));
+  return res;
+}
+
+using mint = dynamic_modint<123>;
+using poly = vector<mint>;
+
+vector<vector<poly>> F(16, vector<poly>(16, poly(501)));
+
+void solve() {
+  INT(N, P);
+  mint::set_mod(P);
+  // 前計算
+  for (int pre = 1; pre <= 15; pre++) {
+    for (int nex = 1; nex <= 15; nex++) {
+      int c = (nex * (nex - 1)) / 2;
+      for (int i = 0; i <= nex; i++) {
+        mint res = binom<mint>(nex, i);
+        if (i & 1) res = -res;
+        int d = c + pre * (nex - i);
+        for (int j = nex; j <= d; j++) {
+          mint p = binom<mint>(d, j);
+          F[pre][nex][j] += p * res;
+        }
+      }
+    }
+  }
+  vvvvv(mint, dp, N + 1, (N / 2) + 1, 2, (N / 2) + 1, (N * (N - 1)) / 2 + 1);
+  //dp[n][e][f][pre][m] : n頂点, 偶数e頂点, 直前の偶奇, その前に追加, m辺
+  dp[1][1][0][1][0] = mint(1);
+  for (int n = 1; n < N; n++) {
+    for (int e = 1; e <= (N / 2); e++) {
+      int o = n - e;
+      if (o < 0) break;
+      for (int f = 0; f < 2; f++) {
+        for (int pre = 1; pre <= (N / 2); pre++) {
+          if (pre > n) break;
+          for (int m = 0; m < (N * (N - 1)) / 2; m++) {
+            if (dp[n][e][f][pre][m] == mint(0)) continue;
+            for (int nex = 1; nex <= (N / 2); nex++) {
+              if (n + nex > N) break;
+              if (f == 1 && e + nex > N / 2) break;
+              if (f == 0 && o + nex > N / 2) break;
+              int c = pre * nex + (nex * (nex - 1)) / 2;
+              for (int mm = nex; mm <= c; mm++) {
+                if (m + mm > (N * (N - 1)) / 2) break;
+                mint res = fact_inv<mint>(nex);
+                res *= F[pre][nex][mm] * dp[n][e][f][pre][m];
+                if (f == 1) dp[n + nex][e + nex][f ^ 1][nex][m + mm] += res;
+                if (f == 0) dp[n + nex][e][f ^ 1][nex][m + mm] += res;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  poly ans((N * (N - 1)) / 2 + 1);
+  for (int f = 0; f < 2; f++) {
+    for (int pre = 1; pre <= (N / 2); pre++) {
+      for (int m = N - 1; m <= (N * (N - 1)) / 2; m++) ans[m] += dp[N][N / 2][f][pre][m];
+    }
+  }
+  ans = {ans.begin() + N - 1, ans.end()};
+  vector<int> res;
+  FOR_in(c, ans) res.push_back((c * fact<mint>(N - 1)).get());
+  print(res);
+}
+
+int main() {
+  int T = 1;
+  //cin >> T;
+  FOR(T) solve();
+}

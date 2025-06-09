@@ -1,0 +1,39 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+#define all(x) (x).begin(),(x).end()
+
+
+int main() {
+	ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    int n,q;
+    cin >> n >> q;
+    vector<int> loc(n+1),phy(n+1),lbl(n+1);
+    for(int i=1;i<=n;i++) {
+        loc[i] = i;
+        phy[i] = i;
+        lbl[i] = i;
+    }
+    while(q--) {
+        int op;
+        cin >> op;
+        if(op == 1) {
+            int a,b;
+            cin >> a >> b;
+            loc[a] = phy[b];
+        }
+        else if(op == 2) {
+            int a,b;
+            cin >> a >> b;
+            swap(phy[a],phy[b]);
+            lbl[phy[a]] = a;
+            lbl[phy[b]] = b;
+        }
+        else {
+            int a;
+            cin >> a;
+            cout << lbl[loc[a]] << '\n';
+        }
+    }
+}

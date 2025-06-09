@@ -1,0 +1,13 @@
+#import<iostream>
+long n, m, k;
+using namespace std;
+main()
+{
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	for(cin >> m; cin >> n >> m >> k; )
+		if(n < m | m - 1 > k)
+			cout << "6248"[(n < m ? n : (n-m) % (m-k) + k) & 3] << "\n";
+		else
+			cout << "0\n";
+}

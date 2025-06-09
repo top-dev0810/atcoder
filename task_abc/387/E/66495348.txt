@@ -1,0 +1,81 @@
+// clang-format off
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+#define rep(i, n) for (int i = 0; i < (int)(n); i++)
+#define debug(x) rep(_i,x.size())cout<<x[_i]<<" \n"[_i==(int)x.size()-1];
+template<typename T> bool chmax(T &a,T b){if(a<b){a=b;return true;}return false;}
+template<typename T> bool chmin(T &a,T b){if(a>b){a=b;return true;}return false;}
+// clang-format on
+
+void outPut(int head, int size)
+{
+    if (head == 1)
+    {
+        cout << 11;
+        rep(i, size - 2) cout << 0;
+        cout << "\n";
+    }
+    if (head == 2)
+    {
+        cout << 2;
+        rep(i, size - 1) cout << 0;
+        cout << "\n";
+    }
+    if (head > 2)
+    {
+        cout << head;
+        cout << 8 - head;
+        rep(i, size - 2) cout << 0;
+        cout << "\n";
+    }
+}
+
+int main()
+{
+    string n;
+    cin >> n;
+    if (n.size() < 5)
+    {
+        int in = stoi(n);
+        vector<int> dsum(in);
+        rep(i, in)
+        {
+            int tmp = i + in;
+            rep(j, 4)
+            {
+                dsum[i] += tmp % 10;
+                tmp /= 10;
+            }
+        }
+        int ans = -1;
+        rep(i, in)
+        {
+            int a = in + i;
+            int a1 = a + 1;
+            if (a % dsum[i] == 0 && a1 % dsum[i + 1] == 0)
+            {
+                ans = a;
+                break;
+            }
+        }
+        cout << ans << "\n";
+        return 0;
+    }
+    int head = int(n[0] - '0');
+    if (head == 1)
+    {
+        if (n[1] == '0')
+            outPut(1, n.size());
+        else
+            outPut(2, n.size());
+    }
+    if (head >= 2 && head <= 5)
+    {
+        outPut(head + 1, n.size());
+    }
+    if (head >= 6)
+    {
+        outPut(1, n.size() + 1);
+    }
+}

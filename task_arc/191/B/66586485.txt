@@ -1,0 +1,41 @@
+#include<bits/stdc++.h>
+using namespace std ;
+typedef long long ll ;
+typedef unsigned long long ull ;
+typedef pair < int , int > pii ;
+typedef vector < int > vi ;
+#define fi first
+#define se second
+mt19937 rng(chrono::high_resolution_clock::now().time_since_epoch().count());
+
+
+void solve ( ) {
+    int n , k ; cin >> n >> k ;
+    vector < int > v ;
+    for ( int i = 0 ; i < 30 ; ++ i ) {
+        if ( ( 1 << i ) > n ) { break ; }
+        if ( ( n & ( 1 << i ) ) == 0 ) { v.push_back ( i ) ; }
+    }
+
+    if ( ( 1 << (int)v.size ( ) ) < k ) {
+        cout << "-1\n" ;
+        return ;
+    }
+    -- k ;
+    int ans = n ;
+    for ( int i = 0 ; i < (int)v.size ( ) ; ++ i ) {
+        if ( ( k & ( 1 << i ) ) > 0 ) {
+            ans += ( 1 << v[ i ] ) ;
+        }
+    }
+    cout << ans << "\n" ;
+}
+
+int main ( ) {
+    ios_base :: sync_with_stdio ( false ) ;
+    cin.tie ( NULL ) ;
+    int t = 1 ; cin >> t ;
+    while ( t -- ) { solve ( ) ; }
+    return 0 ;
+}
+

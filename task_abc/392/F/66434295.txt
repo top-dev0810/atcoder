@@ -1,0 +1,219 @@
+// Mohamed_Waheed
+#include <bits/stdc++.h>
+using namespace std;
+
+class Treap {
+private:
+    struct node {
+        int priority;
+        int size = 1;
+        node *left = nullptr, *right = nullptr;
+
+        node(int v) : priority(rand()), val(v), sum(v) {}
+
+        int val = 0;
+        long long sum = 0;
+        bool lazy_rev = false;
+        long long lazy_add = 0;
+
+        void apply(int v) {
+            val += v;
+            sum += size * v;
+            lazy_add += v;
+        }
+
+        void pull() {
+            size = 1;
+            sum = val;
+            if (left) {
+                size += left->size;
+                sum += left->sum;
+            }
+            if (right) {
+                size += right->size;
+                sum += right->sum;
+            }
+        }
+
+        void push() {
+            if (lazy_rev) {
+                swap(left, right);
+                if (left) left->lazy_rev = !left->lazy_rev;
+                if (right) right->lazy_rev = !right->lazy_rev;
+                lazy_rev = false;
+            }
+            if (lazy_add) {
+                if (left) left->apply(lazy_add);
+                if (right) right->apply(lazy_add);
+                lazy_add = 0;
+            }
+        }
+    };
+
+    node *root = nullptr;
+
+    int get_size(node *t) {
+        return t ? t->size : 0;
+    }
+
+    void push(node *t) {
+        if (t) t->push();
+    }
+
+    node *merge(node *left, node *right) {
+        if (!left) return right;
+        if (!right) return left;
+        left->push();
+        right->push();
+        if (left->priority > right->priority) {
+            left->right = merge(left->right, right);
+            push(left->left);
+            left->pull();
+            return left;
+        }
+        else {
+            right->left = merge(left, right->left);
+            push(right->right);
+            right->pull();
+            return right;
+        }
+    }
+
+    void split(node *t, int k, node *&left, node *&right) {
+        if (!t) {
+            left = right = nullptr;
+            return;
+        }
+        push(t);
+        int left_size = get_size(t->left);
+        if (left_size >= k) {
+            split(t->left, k, left, t->left);
+            right = t;
+            push(right->right);
+            right->pull();
+        }
+        else {
+            split(t->right, k - left_size - 1, t->right, right);
+            left = t;
+            push(left->left);
+            left->pull();
+        }
+    }
+
+public:
+    Treap() {
+        srand(time(0));
+    }
+
+    void insert(int pos, int val) {
+        node *new_node = new node(val);
+        node *left = nullptr, *right = nullptr;
+        split(root, pos, left, right);
+        root = merge(merge(left, new_node), right);
+    }
+
+    node *erase(int l, int r) {
+        if (l > r) {
+            return nullptr;
+        }
+        int n = get_size(root);
+        if (l >= n || r < 0) {
+            return nullptr;
+        }
+        if (l < 0) {
+            l = 0;
+        }
+        if (r >= n) {
+            r = n - 1;
+        }
+        node *left = nullptr, *mid = nullptr, *right = nullptr;
+        split(root, l, left, mid);
+        split(mid, r - l + 1, mid, right);
+        root = merge(left, right);
+        return mid;
+    }
+
+    void push_back(node *x) {
+        root = merge(root, x);
+    }
+
+    void reverse(int l, int r) {
+        node *left = nullptr, *mid = nullptr, *right = nullptr;
+        split(root, l, left, mid);
+        split(mid, r - l + 1, mid, right);
+        if (mid) {
+            mid->lazy_rev = !mid->lazy_rev;
+        }
+        root = merge(merge(left, mid), right);
+    }
+
+    void update(int l, int r, long long val) {
+        node *left = nullptr, *mid = nullptr, *right = nullptr;
+        split(root, l, left, mid);
+        split(mid, r - l + 1, mid, right);
+        if (mid) {
+            mid->apply(val);
+        }
+        root = merge(merge(left, mid), right);
+    }
+
+    long long query(int l, int r) {
+        node *left = nullptr, *mid = nullptr, *right = nullptr;
+        split(root, l, left, mid);
+        split(mid, r - l + 1, mid, right);
+        long long res = 0;
+        if (mid) {
+            res = mid->sum;
+        }
+        root = merge(merge(left, mid), right);
+        return res;
+    }
+
+    vector<int> v;
+    void dfs(node *root) {
+        if (!root) return;
+        push(root);
+        dfs(root->left);
+        v.push_back(root->val);
+        dfs(root->right);
+    }
+
+    vector<int> ans() {
+        v.clear(), dfs(root);
+        return v;
+    }
+};
+
+void Main(...) {
+    int n;
+    cin >> n;
+
+    Treap t;
+    for (int i = 0, x; i < n; ++i) {
+        cin >> x;
+        t.insert(x - 1, i + 1);
+    }
+
+    for (auto it : t.ans()) {
+        cout << it << " ";
+    }
+}
+/*
+
+
+
+
+
+
+
+
+
+*/
+signed main() {
+    cin.tie(0)->sync_with_stdio(0);
+    int T = 1;
+    // cin >> T;
+    for (int i = 1; i <= T; i++) {
+        Main(i), cout << '\n';
+    }
+}

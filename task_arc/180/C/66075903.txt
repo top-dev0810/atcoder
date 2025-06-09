@@ -1,0 +1,217 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+
+#define all(a) begin(a), end(a)
+#define len(a) (int)((a).size())
+
+/*
+ ! WARNING: MOD must be prime if you use division or .inv().
+ ! WARNING: 2 * (MOD - 1) must be smaller than INT_MAX
+ * Use .value to get the stored value.
+ */
+template<typename T>
+int normalize(T value, int mod) {
+    if (value < -mod || value >= 2 * mod) value %= mod;
+    if (value < 0) value += mod;
+    if (value >= mod) value -= mod;
+    return value;
+}
+
+template<int mod>
+struct static_modular_int {
+    static_assert(mod - 2 <= std::numeric_limits<int>::max() - mod, "2(mod - 1) <= INT_MAX");
+    using mint = static_modular_int<mod>;
+
+    int value;
+
+    static_modular_int() : value(0) {}
+    static_modular_int(const mint &x) : value(x.value) {}
+
+    template<typename T, typename U = std::enable_if_t<std::is_integral<T>::value>>
+    static_modular_int(T value) : value(normalize(value, mod)) {}
+
+    static constexpr int get_mod() {
+		return mod;
+	}
+
+    template<typename T>
+    mint power(T degree) const {
+        mint prod = 1, a = *this;
+        for (; degree > 0; degree >>= 1, a *= a)
+            if (degree & 1)
+                prod *= a;
+
+        return prod;
+    }
+
+    mint inv() const {
+        return power(mod - 2);
+    }
+
+    mint& operator=(const mint &x) {
+        value = x.value;
+        return *this;
+    }
+
+    mint& operator+=(const mint &x) {
+        value += x.value;
+        if (value >= mod) value -= mod;
+        return *this;
+    }
+
+    mint& operator-=(const mint &x) {
+        value -= x.value;
+        if (value < 0) value += mod;
+        return *this;
+    }
+
+    mint& operator*=(const mint &x) {
+        value = int64_t(value) * x.value % mod;
+        return *this;
+    }
+
+    mint& operator/=(const mint &x) {
+        return *this *= x.inv();
+    }
+
+    friend mint operator+(const mint &x, const mint &y) {
+        return mint(x) += y;
+    }
+
+    friend mint operator-(const mint &x, const mint &y) {
+        return mint(x) -= y;
+    }
+
+    friend mint operator*(const mint &x, const mint &y) {
+        return mint(x) *= y;
+    }
+
+    friend mint operator/(const mint &x, const mint &y) {
+        return mint(x) /= y;
+    }
+
+    mint& operator++() {
+        ++value;
+        if (value == mod) value = 0;
+        return *this;
+    }
+
+    mint& operator--() {
+        --value;
+        if (value == -1) value = mod - 1;
+        return *this;
+    }
+
+    mint operator++(int) {
+        mint prev = *this;
+        value++;
+        if (value == mod) value = 0;
+        return prev;
+    }
+
+    mint operator--(int) {
+        mint prev = *this;
+        value--;
+        if (value == -1) value = mod - 1;
+        return prev;
+    }
+
+    mint operator-() const {
+        return mint(0) - *this;
+    }
+
+    bool operator==(const mint &x) const {
+        return value == x.value;
+    }
+
+    bool operator!=(const mint &x) const {
+        return value != x.value;
+    }
+
+    template<typename T>
+    explicit operator T() {
+        return value;
+    }
+
+    friend std::istream& operator>>(std::istream &in, mint &x) {
+        std::string s;
+        in >> s;
+        x = 0;
+        bool neg = s[0] == '-';
+        for (const auto c : s)
+            if (c != '-')
+                x = x * 10 + (c - '0');
+
+        if (neg)
+            x *= -1;
+
+        return in;
+    }
+
+    friend std::ostream& operator<<(std::ostream &out, const mint &x) {
+        return out << x.value;
+    }
+};
+
+constexpr int MOD = 1'000'000'007;
+// constexpr int MOD = 998'244'353;
+using mint = static_modular_int<MOD>;
+
+const int SZ = 2500;
+mint fact[SZ], ifact[SZ];
+void init() {
+    fact[0] = 1;
+    for (int i = 1; i < SZ; ++i) fact[i] = fact[i - 1] * i;
+    ifact[SZ - 1] = fact[SZ - 1].inv();
+    for (int i = SZ - 2; i >= 0; --i) ifact[i] = ifact[i + 1] * (i + 1);
+    assert(ifact[0] == 1);
+}
+mint cn(int n, int k) {
+    if (n < 0 || k < 0 || k > n) return 0;
+    return fact[n] * ifact[k] * ifact[n - k];
+}
+mint catalan(int n) {
+    return cn(2 * n, n) / (n + 1);
+}
+
+mint dp[SZ][SZ][2];
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n;
+    cin >> n;
+    vector<int> vec(n);
+    for (auto &c : vec) cin >> c;
+
+    dp[0][SZ / 2][1] = 1;
+    mint ans = 0;
+    for (int i = 1; i <= n; ++i) {
+        for (int sm = 0; sm < SZ; ++sm) {
+            if (sm != SZ / 2) {
+                dp[i][sm][1] += dp[i - 1][sm][1];
+                dp[i][sm][0] += dp[i - 1][sm][0];
+                if (sm + vec[i - 1] >= 0 && sm + vec[i - 1] < SZ) dp[i][sm + vec[i - 1]][1] += dp[i - 1][sm][0] + dp[i - 1][sm][1];
+            } else {
+                vector<int> vis(21, 0);
+                for (int j = i; j <= n; ++j) {
+                    if (!vis[vec[j - 1] + 10] && vec[j - 1] != 0) {
+                        vis[vec[j - 1] + 10] = 1;
+                        dp[j][sm + vec[j - 1]][0] += dp[i - 1][sm][1];
+                    }
+                }   
+                ans += dp[i - 1][sm][1];
+            }
+        }
+    }
+
+    for (int sm = 0; sm < SZ; ++sm) {
+        ans += dp[n][sm][1];
+    }
+
+    cout << ans << "\n";
+
+    return 0;
+} 

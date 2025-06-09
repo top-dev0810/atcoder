@@ -1,0 +1,106 @@
+// श्री DR.MDD को समर्पित — जहां तर्क समाप्त होता है, वहां से आस्था शुरू होती है।
+#include<bits/stdc++.h>
+using i64 = long long;
+const int mod = 998244353;
+
+i64 modexp(i64 base, i64 exp, i64 m) {
+    if (exp <= 0) return 1;
+    i64 half = modexp(base, exp / 2, m);
+    half = half * half % m;
+    return (exp & 1) ? half * base % m : half;
+}
+
+int main() {
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+
+    int n;
+    std::cin >> n;
+    std::vector<int> left(n), right(n);
+    for (int idx = 0; idx < n; idx++) {
+        std::cin >> left[idx];
+        left[idx]--;
+    }
+    for (int idx = 0; idx < n; idx++) {
+        std::cin >> right[idx];
+        if (right[idx] >= 0) right[idx]--;
+    }
+
+    std::vector<int> freqL(n, 0), freqR(n, 0);
+    for (int idx = 0; idx < n; idx++) {
+        freqL[left[idx] / 2]++;
+        if (right[idx] >= 0) freqR[right[idx] / 2]++;
+    }
+
+    for (int idx = 0; idx < n; idx++) {
+        if (freqL[idx] > 1 || freqR[idx] > 1) {
+            std::cout << 0 << "\n";
+            return 0;
+        }
+    }
+
+    std::vector<int> forward(n, -1), backward(n, -1);
+    for (int x = 0; x < n; x++) {
+        int match = -1;
+        for (int y = 0; y < n; y++) {
+            if (right[y] == (left[x] ^ 1)) {
+                match = y;
+            }
+        }
+        if (match == -1) continue;
+        forward[x] = match;
+        backward[match] = x;
+    }
+
+    for (int z = 0; z < n; z++) {
+        if (backward[z] != -1) {
+            int now = forward[z];
+            int bitmask = 1 << (left[z] & 1);
+            while (now != -1 && now != z) {
+                bitmask |= 1 << (left[now] & 1);
+                now = forward[now];
+            }
+            if (now == -1) continue;
+            if (bitmask == 1 || bitmask == 2) {
+                std::cout << 0 << "\n";
+                return 0;
+            }
+        }
+    }
+
+    int group[4] = {0, 0, 0, 0};
+    for (int i = 0; i < n; i++) {
+        if (backward[i] == -1) {
+            int now = i;
+            int mask = 1 << (left[i] & 1);
+            while (forward[now] != -1) {
+                now = forward[now];
+                mask |= 1 << (left[now] & 1);
+            }
+            group[mask % 3]++;
+        }
+    }
+
+    std::vector<i64> fact(n + 1), invf(n + 1);
+    fact[0] = 1;
+    for (int i = 1; i <= n; i++) fact[i] = fact[i - 1] * i % mod;
+    invf[n] = modexp(fact[n], mod - 2, mod);
+    for (int i = n; i > 0; i--) invf[i - 1] = invf[i] * i % mod;
+
+    i64 result = 0;
+    for (int i = 0; i <= std::min(1, group[1]); i++) {
+        for (int j = 0; j <= std::min(1, group[2]); j++) {
+            i64 ways1 = fact[group[1]] * invf[i] % mod * invf[group[1] - i] % mod;
+            i64 ways2 = fact[group[2]] * invf[j] % mod * invf[group[2] - j] % mod;
+
+            i64 curr = ways1 * ways2 % mod * fact[i] % mod * fact[j] % mod;
+            curr = curr * fact[group[0] + group[1] + group[2] - i - j] % mod;
+
+            if (i + j == 1) curr = (mod - curr) % mod;
+            result = (result + curr) % mod;
+        }
+    }
+
+    std::cout << result << "\n";
+    return 0;
+}

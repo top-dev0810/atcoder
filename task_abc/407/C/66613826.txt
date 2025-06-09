@@ -1,0 +1,23 @@
+#include <bits/stdc++.h>
+using namespace std;
+string s;
+long long a;
+long long b;
+int main(){
+    cin >> s;
+    a = 0;
+    b = 0;
+    for(int i = s.length()-1; i>=0; i--){
+        int si = s[i]-'0';
+        si = (si-b)%10;
+        if(si<0){
+            b += (10+si);
+        }else{
+            b += si;
+        }
+        a++;
+        //cout << si << " " << a << " " << b << endl;
+    }
+    cout << a+b << endl;
+    return 0;
+}

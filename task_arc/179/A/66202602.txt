@@ -1,0 +1,54 @@
+#include<bits/stdc++.h>
+using namespace std;
+const int Maxn=200000;
+int t,n,k,nums[Maxn+10];
+void solve()
+{
+    for(int i=1;i<=n;i++)
+        cin>>nums[i];
+    sort(nums+1,nums+n+1);
+    if(k>0)
+    {
+        long long sum=0;
+        bool flag=false;
+        for(int i=1;i<=n;i++)
+        {
+            sum+=nums[i];
+            if(sum>=k&&!flag) flag=true;
+            if(sum<k&&flag)
+            {
+                cout<<"No"<<endl;
+                return;
+            }
+        }
+        cout<<"Yes"<<endl;
+        for(int i=1;i<=n;i++)
+            cout<<nums[i]<<" ";
+        cout<<endl;
+    }
+    else
+    {
+        long long sum=0;
+        for(int i=n;i>=1;i--)
+        {
+            sum+=nums[i];
+            if(sum<k)
+            {
+                cout<<"No"<<endl;
+                return;
+            }
+        }
+        cout<<"Yes"<<endl;
+        for(int i=n;i>=1;i--)
+            cout<<nums[i]<<" ";
+        cout<<endl;
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    while(cin>>n>>k)
+        solve();
+    return 0;
+}

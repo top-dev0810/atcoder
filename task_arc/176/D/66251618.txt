@@ -1,0 +1,162 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+typedef long long lnt;
+
+const int N = 2e5 + 7, M = 998244353;
+
+int ksm(int x, int y = M - 2, int res = 1) {
+    for (; y; x = (lnt) x * x % M, y /= 2) {
+        if (y & 1) {
+            res = (lnt) res * x % M;
+        }
+    }
+    return res;
+}
+
+template<size_t n, size_t m>
+struct Mat {
+    int a[n][m];
+    
+    inline void clear() {
+        memset(a, 0, sizeof(a));
+    }
+    
+    inline Mat() {
+        clear();
+    }
+    
+    inline Mat(const initializer_list<int> &x) {
+        auto it = x.begin();
+        for (auto &i : a) {
+            for (auto &j : i) {
+                j = *it;
+                ++ it;
+            }
+        }
+    }
+    
+    inline int* operator[] (int i) {
+        return a[i];
+    }
+    
+    inline const int* operator[] (int i) const {
+        return a[i];
+    }
+};
+
+template<size_t n, size_t m, size_t w>
+Mat<n, w> operator* (const Mat<n, m> &x, const Mat<m, w> &y) {
+    Mat<n, w> z;
+    for (size_t i = 0; i < n; ++ i) {
+        for (size_t j = 0; j < m; ++ j) {
+            for (size_t k = 0; k < w; ++ k) {
+                z[i][k] = (
+                    z[i][k] + 
+                    (lnt) x[i][j] * y[j][k]
+                ) % M;
+            }
+        }
+    }
+    return z;
+}
+
+template<size_t n, size_t m>
+Mat<n, m> ksm(Mat<m, m> x, int y, Mat<n, m> res) {
+    for (; y; x = x * x, y /= 2) {
+        if (y & 1) {
+            res = res * x;
+        }
+    }
+    return res;
+}
+
+int n, m;
+int a[N];
+int s[N];
+lnt su;
+Mat<1, 7> f;
+Mat<7, 7> g;
+
+void INIT() { }
+
+int in2;
+int in3;
+
+void seti() {
+    for (int i = 1; i <= n; ++ i) {
+        s[i] = ((lnt) i * (i - 1) / 2 + (lnt) (n - i) * (n - i + 1) / 2) % M;
+        su += s[i];
+    }
+    su %= M;
+    
+    int n2 = (lnt) (n - 2) * (n - 3) / 2 % M;
+    int n3 = (n2 + (n - 3)) % M;
+    int n4 = (n2 + 2 * (n - 4) + 1) % M;
+    
+    f[0][0] = 1;
+    g = Mat<7, 7> ({
+        n2   , 1    , n - 2, 0    , n - 2, 0    , 0    ,
+        1    , n2   , 0    , n - 2, 0    , n - 2, 0    ,
+        1    , 0    , n3   , 1    , 0    , 1    , n - 3,
+        0    , 1    , 1    , n3   , 1    , 0    , n - 3,
+        1    , 0    , 0    , 1    , n3   , 1    , n - 3,
+        0    , 1    , 1    , 0    , 1    , n3   , n - 3,
+        0    , 0    , 1    , 1    , 1    , 1    , n4   
+    });
+    
+    in2 = ksm(n - 2);
+    in3 = ksm((lnt) (n - 2) * (n - 3) % M);
+}
+
+int ans;
+
+void calc(int x, int y) {
+    int dt = abs(y - x);
+    int kx = s[x];
+    int ky = s[y];
+    ans = (
+        ans + 
+        (lnt) (f[0][0] + f[0][1]) * dt +
+        (lnt) (f[0][2] + f[0][3]) * (ky - dt) % M * in2 +
+        (lnt) (f[0][4] + f[0][5]) * (kx - dt) % M * in2 +
+        (lnt) f[0][6] * (su - (kx + ky - dt) % M * 2) % M * in3
+    ) % M;
+}
+
+void WORK() {
+    cin >> n >> m;
+    for (int i = 1; i <= n; ++ i) {
+        cin >> a[i];
+    }
+    
+    seti();
+    f = ksm(g, m, f);
+    for (int i = 1; i < n; ++ i) {
+        calc(a[i], a[i + 1]);
+    }
+    if (ans < 0) {
+        ans += M;
+    }
+    cout << ans << '\n';
+}
+
+//#define filename ""
+
+int main() {
+    #ifdef filename
+    freopen(filename ".in", "r", stdin);
+    freopen(filename ".out", "w", stdout);
+    #endif
+    cin.tie(0); cout.tie(0);
+    ios::sync_with_stdio(0);
+    
+    INIT();
+    int Turn = 1;
+    //cin >> Turn;
+    while (Turn -- ) {
+        WORK();
+    }
+    return 0;
+}

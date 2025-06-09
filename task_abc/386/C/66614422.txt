@@ -1,0 +1,41 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+  int K;
+  cin >> K;
+  string S, T;
+  cin >> S >> T;
+  bool ok = false;
+  if (S.size() == T.size()){
+    int i=0;
+    while (i<S.size() && S[i] == T[i]){
+      i++;
+      //cout << i << endl;
+    }
+    if (i == S.size()) ok = true;
+    else {
+      i++;
+      while (i<S.size() && S[i] == T[i]){
+        i++;
+        //cout << i << endl;
+      }
+      if (i == S.size()) ok = true;
+    }
+  }
+  else if (S.size()+1 == T.size()){
+    int i=0;
+    while (i<S.size() && S[i] == T[i]) i++;
+    while (i<S.size() && S[i] == T[i+1]) i++;
+    if (i == S.size()) ok = true;
+  }
+  else if (S.size()-1 == T.size()){
+    int i=0;
+    while (i<S.size() && S[i] == T[i]) i++;
+    while (i<S.size() && S[i+1] == T[i]) i++;
+    if (i == S.size()) ok = true;
+  }
+  
+  if (ok) cout << "Yes" << endl;
+  else cout << "No" << endl;
+}

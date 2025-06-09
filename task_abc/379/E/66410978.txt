@@ -1,0 +1,39 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+
+void solve() {
+  ll n; cin >> n;
+  string s; cin >> s;
+  vector<ll> freq(n);
+  for (ll i = 0; i < n; i++) {
+    freq[i] = (i + 1) * (s[i] - '0');
+  }
+  for (ll i = 1; i < n; i++) {
+    freq[i] += freq[i - 1];
+  }
+  ll carry = 0;
+  vector<ll> ans;
+  for (ll i = n - 1; i >= 0; i--) {
+    carry += freq[i];
+    ans.push_back(carry % 10);
+    carry /= 10;
+  }
+  while (carry) {
+    ans.push_back(carry % 10);
+    carry /= 10;
+  }
+  reverse(ans.begin(), ans.end());
+  for (ll i : ans) cout << i; cout << "\n";
+}
+
+int main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);
+
+  ll tt = 1;
+  // cin >> tt;
+  while (tt--) {
+    solve();
+  }
+}

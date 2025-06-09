@@ -1,0 +1,17 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+int t[1000],v[1000];
+
+int main(){
+	int n,total = 0;
+	cin>>n;
+	for(int i = 0;i < n;i++){
+		cin>>t[i]>>v[i];
+		if(i) total = max(0,total-(t[i]-t[i-1]));
+		total += v[i];
+	}
+	cout<<total;
+	
+	return 0;
+}

@@ -1,0 +1,97 @@
+#include<bits/stdc++.h>
+#define int long long
+#define rep(i,a,b) for(register int i=(a);i<=(b);++i)
+#define per(i,a,b) for(register int i=(a);i>=(b);--i)
+#define edge(i,u) for(int i=head[u];i;i=e[i].next)
+#define lc(u) tre[u].ls
+#define rc(u) tre[u].rs
+#define pii pair<int,int>
+#define pdd pair<double,double>
+#define mp make_pair
+#define pb push_back
+#define fst first
+#define sed second
+#define Max(a,b) (a=max(a,b))
+#define Min(a,b) (a=min(a,b))
+using namespace std;
+const int N=1e6+10,M=1e6+10,inf=1e9,mod=998244353;
+struct modint{
+	int val;
+	static int norm(const int& x){return x<0?x+mod:x;}
+	modint inv()const{
+		int a=val,b=mod,u=1,v=0,t;
+		while (b>0)t=a/b,swap(a-=1ll*t*b,b),swap(u-=1ll*t*v,v);
+		return modint(u);
+	}
+	modint():val(0){}
+//	modint(const int& m):val(norm(m)){}
+	modint(const long long& m):val(norm(m % mod)){}
+	modint operator-()const{return modint(norm(-val));}
+	bool operator==(const modint&o){return val==o.val;}
+	bool operator<(const modint&o){return val<o.val;}
+	modint&operator+=(const modint&o){return val=(1ll*val+o.val)%mod,*this;}
+	modint&operator-=(const modint&o){return val=norm(1ll*val-o.val),*this;}
+	modint&operator*=(const modint&o){return val=static_cast<int>(1ll*val*o.val%mod),*this;}
+	modint operator-(const modint&o)const{return modint(*this)-=o;}
+	modint operator+(const modint&o)const{return modint(*this)+=o;}
+	modint operator*(const modint&o)const{return modint(*this)*=o;}
+	friend std::ostream&operator<<(std::ostream& os, const modint&a){return os<<a.val;}
+	friend std::istream&operator>>(std::istream& is,modint&a){long long v;return is>>v,a.val=norm(v%mod),is;}
+};
+modint qpow(modint a,int b){modint res=1;while(b){if(b&1)res=res*a;a=a*a;b/=2;}return res;}
+const double eps=1e-6;
+bool MS;int used;
+modint fac[N],ifac[N];
+modint C(int u,int v){if(u-v<0||v<0)return 0;return fac[u]*ifac[v]*ifac[u-v];}
+void init()
+{
+	fac[0]=ifac[0]=1;
+	rep(i,1,N-1)fac[i]=fac[i-1]*i;
+	ifac[N-1]=fac[N-1].inv();
+	per(i,N-2,1)ifac[i]=ifac[i+1]*(i+1);
+}
+
+modint g[1010][1010];
+int n,a[N];
+int lim[N];
+int son[N],fa[N];//儿子个数
+modint f(int i,int j)
+{
+	return C(i+j-2,i-1)-C(i+j-2,j-2);
+}
+modint ans;
+bool MT;
+signed main()
+{
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+	init();
+	cin>>n;
+	rep(i,1,n)
+	cin>>a[i];
+	a[0]=1;
+	int u=0,res=0;
+	int need=0;
+	rep(i,0,n)//[0,i]确定了的 
+	{
+		res++;
+		fa[res]=u;
+		lim[res]=a[i];
+		son[u]++;
+		u=res;
+		need+=lim[res]-1;
+		while(son[u]==lim[u]&&u)
+		u=fa[u];
+		if(!u&&i!=n)goto end;
+		if(need<=n-i-1&&i!=n&&a[i+1])
+		{
+			rep(j,0,min(a[i+1],n-i-need)-1)
+			ans+=f(n-i-1,n-i-need-j);
+		}
+	}
+	if(!u)ans+=1;
+	end:;
+	cout<<ans;
+	cerr<<"Memory:"<<(&MS-&MT)/1048576.0<<"MB Time:"<<clock()/1000.0<<"s\n";
+}

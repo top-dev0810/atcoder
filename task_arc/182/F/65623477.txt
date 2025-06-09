@@ -1,0 +1,101 @@
+#include<bits/stdc++.h>
+#define ll long long
+#define N 1000005
+using namespace std;
+template<typename T>
+void read(T &x){
+	x=0;int f=0;char c=getchar();
+	for(;c<'0'||c>'9';c=getchar()) f=(c=='-');
+	for(;c>='0'&&c<='9';c=getchar()) x=x*10+c-'0';
+	if(f) x=-x;
+}
+ll n,q,A,B;
+ll gcd(ll a,ll b){
+	return b?gcd(b,a%b):a;
+}
+ll qmi(ll a,ll b,ll mod){
+	ll ans=1;
+	for(;b;b>>=1,a=(__int128)a*a%mod) if(b&1) ans=(__int128)ans*a%mod;
+	return ans;
+}
+int v[N],p[N],cp,phi[N];
+void shai(int n){
+	phi[1]=1;
+	for(int i=2;i<=n;i++){
+		if(!v[i]) v[i]=p[++cp]=i,phi[i]=i-1;
+		for(int j=1;j<=cp;j++){
+			if(v[i]<p[j]||i*p[j]>n) break;
+			v[i*p[j]]=p[j];
+			if(i%p[j]==0) phi[i*p[j]]=phi[i]*p[j];
+			else phi[i*p[j]]=phi[i]*(p[j]-1);
+		}
+	}
+}
+vector<int> ds[N],pd[N],d;
+ll c[N];
+void calc(int x,ll lst,int n2,ll mod,int n1,int A2){
+	if(c[x]) return;
+	ll val=lst;
+	for(int p:pd[lst]){
+		while(val%p==0&&qmi(A,val/p,mod)==1%mod) val/=p;
+	}
+	c[x]=val;
+	for(int p:pd[n2]) calc(x*p,val,n2/p,mod/p,n1,A2);
+}
+int main(){
+	read(n),read(q);
+	shai(1000000); 
+	for(int i=1;i<=n;i++){
+		for(int j=i;j<=n;j+=i){
+			ds[j].push_back(i);
+			if(v[i]==i) pd[j].push_back(i);
+		}
+	}
+	while(q--){
+		read(A),read(B);
+		ll n1=n;
+		if(gcd(n,A)!=1){
+			ll pw=qmi(A,n,n);
+			ll d=gcd(pw,n);
+			A%=n/d,B=B*(pw/d)%(n/d);
+			n1=n/d;
+		}
+		if(A==0){
+			puts("1");
+			continue;
+		}
+		if(A==1){
+			printf("%lld\n",gcd(n1,B));
+			continue;
+		}
+		ll A2=(A-1)/gcd(A-1,B),pw=qmi(A2,n1,n1);
+		ll n2=n1/gcd(n1,pw);
+		d=ds[n1];
+		ll ph=phi[n1],mod=n1;
+		int x=A2;
+		while(x>1){
+			if(mod%v[x]==0) ph*=v[x];
+			else ph*=v[x]-1;
+			mod*=v[x];
+			x/=v[x];
+		}
+		c[1]=ph;
+		for(int p:pd[phi[n1]]) while(c[1]%p==0&&qmi(A,c[1]/p,mod)==1%mod) c[1]/=p;
+		for(int p:pd[phi[A2]]) while(c[1]%p==0&&qmi(A,c[1]/p,mod)==1%mod) c[1]/=p;
+		for(int p:pd[n1]) while(c[1]%p==0&&qmi(A,c[1]/p,mod)==1%mod) c[1]/=p;
+		for(int p:pd[A2]) while(c[1]%p==0&&qmi(A,c[1]/p,mod)==1%mod) c[1]/=p;
+		for(int p:pd[n2]) calc(p,c[1],n2/p,mod/p,n1,A2);
+		ll ans=0;
+		for(int x:ds[n2]) ans+=n1/n2*phi[n2/x]/c[x],c[x]=0;
+		printf("%lld\n",ans);
+	}
+	return 0;
+}
+
+/*
+
+
+413 1
+246 154
+
+*/

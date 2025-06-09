@@ -1,0 +1,39 @@
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int N=505;
+const ll mod=998244353;
+ll C[N][N],p[N][N*N/2],g[N],ans;
+int main()
+{
+	ios::sync_with_stdio(0),cin.tie(0);
+	int n,m;
+	cin>>n>>m;
+	C[0][0]=1;
+	for(int i=1;i<=n;++i)
+	{
+		C[i][0]=1;
+		for(int j=1;j<=i;++j)
+			C[i][j]=(C[i-1][j-1]+C[i-1][j])%mod;
+	}
+	p[0][0]=1;
+	for(int i=1;i<=m;++i)
+	{
+		p[i][0]=1;
+		for(int j=1;j<=n*(n-1)/2;++j)
+			p[i][j]=p[i][j-1]*i%mod;
+	}
+	ans=(n-m-1)*p[m][n*(n-1)/2]%mod;
+	for(int k=1;k<=m;++k)
+	{
+		for(int i=1;i<=n;++i)
+		{
+			g[i]=p[m][i*(i-1)/2];
+			for(int j=1;j<i;++j)
+				g[i]=(g[i]-C[i-1][j-1]*g[j]%mod*p[m-k][j*(i-j)]%mod*p[m][(i-j-1)*(i-j)/2])%mod;
+			ans=(ans+C[n][i]*p[m-k][i*(n-i)]%mod*p[m][(n-i-1)*(n-i)/2]%mod*g[i])%mod;
+		}
+	}
+	cout<<(ans+mod)%mod;
+	return 0;
+}

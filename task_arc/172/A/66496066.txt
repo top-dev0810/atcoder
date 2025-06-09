@@ -1,0 +1,36 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+signed main() {
+	ios::sync_with_stdio(false), cin.tie(0);
+    int H, W, N;
+    cin >> H >> W >> N;
+    vector<int> cnt(26, 0);  // 1 ~ 2^25的需求数量
+    for (int i = 0, c; i < N; i++) 
+        cin >> c, cnt[c]++; 
+    int used = 0; // 已经使用的空间
+    for (int i = 25; i >= 0; i--) { 
+        /*
+        先放小的占用空间更大， 从大的开始放
+        计算可以使用的空间 = 总空间 - 使用过的空间
+        如果需求空间 > 可以使用的空间，就放不下这么多巧克力
+        于是我们使用过的空间又要加一个2^i
+        但是我们都是以当前运行的长度作为单位
+        那转化到2^(i - 1)次方时,就要改变单位
+        2^i * 2^i的正方形,相当于几个边长为2^(i - 1)的正方形?
+        2^i * 2^i = 2^2i
+        2^(i - 1)^2 = 2^(2i - 2) = 2^2i / 2^2 = 2^2i / 4
+        所以一个边长为2^i的正方形。相当于4个边长为2^(i - 1)的正方形
+        但因为used是边长为i + 1的标准而cnt[i]是边长为i的标准
+        所以现在的"使用过的空间"要先转化成边长为i的空间, 再加上这一次的需求空间
+        */
+        int pw2 = 1 << i;  
+        int available = (H / pw2) * (W / pw2) - used * 4; 
+        // 可用空间 = 总空间 - 已占用空间(当前运行边长单位)
+        if (cnt[i] > available)  return cout << "No", 0; 
+        // 如果需求空间 > 可以使用的空间，就放不下这么多巧克力
+        used = used * 4 + cnt[i]; 
+    }
+    cout << "Yes"; 
+    return 0;
+}

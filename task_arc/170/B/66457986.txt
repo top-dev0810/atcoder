@@ -1,0 +1,34 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+using ld = long double;
+using P = pair<int, int>;
+const ll mod = 998244353;
+
+int main() {
+    int n;
+    cin >> n;
+
+    vector<int> a(n);
+    for (int i=0; i<n; i++) cin >> a[i];
+    
+    ll ans = 0;
+    for (int i=0; i<n; i++) {
+      int mx = min(n, i+21);
+      for (int j=i; j<mx; j++) {
+        vector<bool> appeared(11, false);
+        for (int k=j+1; k<mx; k++) {
+          int s = a[j]+a[k];
+          if (s%2==0 && appeared[s/2]) {
+            mx = k;
+            break;
+          }
+          appeared[a[k]] = true;
+        }
+      }
+      ans += n-mx;
+    }
+    cout << ans << endl;
+
+    return 0;
+}

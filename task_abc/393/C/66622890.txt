@@ -1,0 +1,36 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+void print_vector1i(const vector<int>& x){
+    cout << "[";
+    for (int i=0; i<x.size(); i++){
+        cout << x[i];
+        if (i != x.size() - 1) cout << " ";
+    }
+    cout << "]" << endl;
+}
+//整数の2次元配列を受け取り、出力する
+void print_vector2i(const vector<vector<int>>& x) {
+    for(int i = 0; i < x.size(); i++) {
+        cout << "[";
+        for(int j = 0; j < x[i].size(); j++) {
+            cout << x[i][j];
+            if (j != x[i].size() - 1) cout << " ";
+        }
+        cout << "]" << endl;
+    }
+}
+
+int main() {
+    int N, M; cin >> N >> M;
+    set<vector<int>> edge;
+    for(int i=0; i<M; i++){
+        vector<int> tmp(2,0);
+        cin >> tmp[0] >> tmp[1];
+        sort(tmp.begin(), tmp.end());
+        //print_vector1i(tmp);
+        if (tmp[0] == tmp[1]) continue;
+        edge.insert(tmp);
+    }
+    cout << M - edge.size() << endl;
+}

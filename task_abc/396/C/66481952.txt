@@ -1,0 +1,47 @@
+#include<bits/stdc++.h>
+using namespace std;
+using ll = long long;
+
+void solve() {
+    int n, m;
+    cin >> n >> m;
+
+    vector <int> b(n), w(m);
+    for(auto &x : b)cin >> x;
+    for(auto &x : w)cin >> x;
+
+    sort(b.rbegin(), b.rend());
+    sort(w.rbegin(), w.rend());
+
+    int l = 0, r = 0;
+    ll sum = 0;
+
+    while(l < n && r < m){
+        if(w[r] < 0)break;
+        if(b[l] + w[r] > 0)sum += b[l] + w[r];
+        else break;
+        ++l, ++r;
+    }    
+
+    while(l < n){
+        if(b[l] > 0)sum += b[l];
+        else break;
+        ++l;
+    }
+
+    cout << sum << "\n";
+}
+
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t = 1;
+    // cin >> t;
+    while(t--) {
+        solve();
+    }
+
+    return 0;
+}

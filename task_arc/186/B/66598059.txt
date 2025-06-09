@@ -1,0 +1,46 @@
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const ll mod=998244353;
+const int N=3e5+10;
+int n,siz[N],s[N],top;
+ll ans=1;
+vector<int> g[N];
+void dfs(int x){
+	siz[x]=1;
+	for(int v:g[x]){
+		dfs(v); siz[x]+=siz[v];
+	}
+}
+ll ksm(ll x,ll k){
+	ll res=1;
+	while(k){
+		if(k&1) res=res*x%mod;
+		x=x*x%mod; k>>=1;
+	}
+	return res;
+}
+int main(){
+	scanf("%d",&n);
+	for(int i=1;i<=n;i++){
+		int x,y=0; scanf("%d",&x);
+		while(top&&s[top]>x){
+			if(y) g[s[top]].push_back(y);
+			y=s[top--];
+		}
+		if(y) g[i].push_back(y);
+		s[++top]=i;
+	}
+	int y=0;
+	while(top){
+		if(y) g[s[top]].push_back(y);
+		y=s[top--];
+	}
+	dfs(y);
+	for(int i=1;i<=n;i++){
+		ans=ans*i%mod;
+		ans=ans*ksm(siz[i],mod-2)%mod;
+	}
+	cout<<ans<<"\n"; 
+	return 0;
+} 

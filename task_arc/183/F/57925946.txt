@@ -1,0 +1,232 @@
+// LUOGU_RID: 177625734
+#include<bits/stdc++.h>
+#define L(i, j, k) for(int i = (j); i <= (k); ++i)
+#define R(i, j, k) for(int i = (j); i >= (k); --i)
+#define ll long long
+#define vi vector <int>
+#define sz(a) ((int) (a).size())
+#define me(f, x) memset(f, x, sizeof(f))
+#define ull unsigned long long
+#define pb emplace_back
+#define int long long
+using namespace std; 
+const int N = 1e6 + 7, mod = 998244353;
+int a, b, n;
+ll X, Y;
+void exgcd(int x, int y, int &a, int &b) {
+	if(y == 0) return a = 1, void();
+	int t = x / y;
+	exgcd(y, x - t * y, b, a);
+	b -= t * a;
+}
+int ia, ib;
+ll ans;
+int calc1(int n, int b, int c, int r) {
+	ll ret = 0;
+	L(i, 1, n) {
+		int u = (ll)i * b % c;
+		// if(u <= r) ret += 1;
+		ret -= u;
+	}
+	ret += (ll)(r + 1) * n;
+	L(i, 1, n) {
+		int u = (ll)(i * b + c - r - 1) % c;
+		ret += u;
+		// if(u <= r) ret += 1;
+	}
+	ret /= c;
+	return ret % mod;
+}
+__int128 fs(int n, int b, int c, int r) {
+	__int128 ret = 0;
+	L(i, 1, n) {
+		int u = (ll)i * b % c;
+		ret += u * u;
+	}
+	return ret;
+}
+int calc2(int n, int b, int c, int r) {
+	// auto d1 = fs();
+	ll ret = 0;
+	L(i, 1, n) {
+		int u = (ll)i * b % c;
+		if(u <= r) ret += u;
+	}
+	return ret % mod;
+}
+ll calc(int n, int b, int c) {
+	// ll ret = 0;
+	// int lm = c / 2;
+	// ll v = calc2(n, b, c, lm);
+	// ret += v;
+	// ret -= calc2(n, b, c, c - 1) - v;
+	// ret += (calc1(n, b, c, c - 1) - calc1(n, b, c, lm)) * c;
+
+
+	// too annoying, i dont want to implement it! 
+
+	ll ret = 0;
+	int tmp = 1;
+	int sq = sqrt(c);
+	for(int p = 1; p <= n; ++p) {
+		int val = (ll)p * b % c;
+		if(val <= sq) {
+			tmp = p;
+			break;
+		}
+		if(c - val <= sq) {
+			tmp = p;
+			b = c - b;
+			break;
+		}
+	}
+	int v = (ll)tmp * b % c;
+	for(int md = 0; md < tmp; ++md) if(n >= md + 1) {
+		int cur = (ll)(md + 1) * b % c;
+		int lim = (n - md - 1) / tmp;
+		while(lim >= 0) {
+			if(cur <= c / 2) {
+				int up = min((c / 2 - cur) / v, lim);
+				ret += cur * (up + 1) + up * (up + 1) / 2 * v;
+				cur += (up + 1) * v;
+				cur %= c;
+				lim -= up + 1;
+			} else {
+				int up = min((c - 1 - cur) / v, lim);
+				ret += (c - cur) * (up + 1) - up * (up + 1) / 2 * v;
+				cur += (up + 1) * v;
+				cur %= c;
+				lim -= up + 1;
+			}
+			// int sv = (ll)(v * i + cur) % c;
+		}
+		// for(int i = 0; i <= lim; ++i) {
+		// 	int sv = (ll)(v * i + cur) % c;
+		// 	if(sv <= c / 2) {
+		// 		ret += sv;
+		// 	} else {
+		// 		ret += c - sv;
+		// 	}
+		// }
+	}
+	// L(i, 1, n) {
+	// 	int u = (ll)i * b % c;
+	// 	if(u <= c / 2) {
+	// 		ret += u;
+	// 	} else {
+	// 		ret += c - u;
+	// 	}
+	// 	u = min(u, c - u);
+	// 	ret += u;
+	// }
+	return ret;
+}
+int acum(int l, int r) {
+	return ((ll)r * (r + 1) / 2 - (ll)l * (l - 1) / 2) % mod;
+}
+int calc(int wa, int wb, int wx, int wy, int wn) {
+	a = wa;
+	b = wb;
+	X = wx;
+	Y = wy;
+	n = wn;
+	if(a == 1) {
+		ll ans = 0;
+		int pos = 0;
+		R(t, 29, 0) {
+			int np = pos + (1 << t);
+			if(np <= n && X * np <= (ll)X * (b - np) + Y)
+				pos += 1 << t;
+		}
+		(ans += (ll)pos * (pos + 1) / 2 % mod * X % mod) %= mod;
+		(ans += mod - (ll)acum(pos + 1, n) * X % mod) %= mod;
+		(ans += (ll)(Y + (ll)X * b) % mod * (n - pos) % mod) %= mod;
+		return ans % mod;
+	}
+	int spe = 0;
+	if(a == 2 && n == a + b - 1) spe = 1, --n;
+	exgcd(a, b, ia, ib);
+	ia = (ia % b + b) % b;
+	ib = (ib % a + a) % a;
+	int ans = (calc(n, ia, b) % mod * X + calc(n, ib, a) % mod * Y) % mod;
+	if(a != 2) {
+		ll p1 = b / 2 + 1;
+		ll p2 = a / 2 + 1;
+		ll chk = p1 * a + p2 * b - a * b;
+		if(chk <= n) {
+			int v1 = p1 * 2 - b;
+			int v2 = p2 * 2 - a;
+			int pos = -1;
+			int lim = (n - chk) / a;
+			R(t, 29, 0) {
+				int np = pos + (1 << t);
+				if(np <= lim && (np * 2 + v1) * X <= v2 * Y)
+					pos += 1 << t;
+			}
+			(ans += (ll)v1 * X % mod * (pos + 1) % mod) %= mod;
+			(ans += (ll)pos * (pos + 1) % mod * X % mod) %= mod;
+			(ans += (ll)(lim - pos) * v2 % mod * Y % mod) %= mod;
+		}
+		// L(u, (b + 1) / 2, a + b + 1) {
+		// 	L(v, (a + 1) / 2, a + b + 1) {
+		// 		ll x = u * a + v * b - a * b;
+		// 		if(x <= n) {
+		// 			ans += min((u * 2 - b) * X, (ll)(v * 2 - a) * Y);
+		// 		}
+		// 	}
+		// }
+
+		// L(i, 1, n) {
+		// 	int u = (ll)i * ia % b;
+		// 	int v = (ll)i * ib % a;
+		// 	if(u * 2 > b && v * 2 > a) {
+		// 		(ans += min(X * (u * 2 - b), Y * (v * 2 - a)) % mod) %= mod;
+		// 	}
+		// }
+	}
+	if(spe) ++n, (ans += min((ll)X * (n / 2), Y * 2 + X * (ll)(b * 2 - n) / 2) % mod) %= mod;
+	return ans;
+}
+void check(int wa, int wb, int wn) {
+	a = wa;
+	b = wb;
+	n = wn;
+	exgcd(a, b, ia, ib);
+	ia = (ia % b + b) % b;
+	ib = (ib % a + a) % a;
+	int v1 = ((ll)ia * wn) % b;
+	int v2 = ((ll)ib * wn) % a;
+	int t1 = v1;
+	int t2 = v2;
+	if(v1 > b - v1) v1 -= b;
+	if(v2 > a - v2) v2 -= a;
+	ll sum = (ll)v1 * a + (ll)v2 * b;
+	if(sum != wn) {
+		if(min(t1 * 2 - b, t2 * 2 - a) != 1) {
+			cout << "qaq" << endl;
+		}
+		cout << t1 * 2 - b << ' ' << t2 * 2 - a << endl;
+		cout << wa << ' ' << wb << " " << wn << " : " << sum << ' ' << v1 << ' ' << v2
+			<< " " << t1 * 2 - b << ' ' << t2 * 2 - a << endl;
+	} else {
+		if(t1 * 2 > b && t2 * 2 > a) {
+			cout << "qaq" << endl;
+		}
+	}
+}
+void Main() {
+	cin >> a >> b >> X >> Y >> n;
+	cout << calc(a, b, X, Y, n) << '\n';
+}
+signed main() {
+	// freopen("data.txt","r",stdin);
+	ios :: sync_with_stdio(false);
+	cin.tie(0); cout.tie(0);
+	// L(i, 3, 100)
+	// 	L(j, i + 1, 100)if(__gcd(i, j) == 1)
+	// 		L(k, 1, i + j - 1)
+	// 			check(i, j, k);
+	// return 0;
+	int t; cin >> t; while(t--) Main();
+	return 0;
+}

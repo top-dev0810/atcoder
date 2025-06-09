@@ -1,0 +1,24 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define rep(i, n) for (int i = 0; i < (int)(n); i++)
+#define all(x) (x).begin(), (x).end()
+using ll = long long;
+const ll MOD = 998244353;
+#include<atcoder/all>
+using namespace atcoder;
+
+int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  int n;
+  cin >> n;
+  string t,a;
+    cin >> t >> a;
+    rep(i,n){
+        if (t.at(i)=='o' && a.at(i)=='o') {
+            cout << "Yes" << endl;
+            return 0;
+        }
+    }
+    cout << "No" << endl;
+}

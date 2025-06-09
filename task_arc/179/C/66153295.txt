@@ -1,0 +1,120 @@
+#include<bits/stdc++.h>
+using namespace std;
+const int Maxn=1000;
+int con[(Maxn<<1)+10];
+bool cmp(int x,int y)
+{
+    cout<<"? "<<x<<" "<<y<<endl;
+    int res;
+    cin>>res;
+    if(res==-1) exit(0);
+    return res;
+}
+void qsort(int *st,int beg,int end)
+{
+    if(beg==end) return;
+    int mid=(beg+end)>>1;
+    qsort(st,beg,mid);
+    qsort(st,mid+1,end);
+    int l=beg,r=mid+1,tmp=beg-1;
+    while(l<=mid&&r<=end)
+    {
+        int x=*(st+l),y=*(st+r);
+        if(cmp(x,y))
+        {
+            tmp++;
+            con[tmp]=x;
+            l++;
+        }
+        else
+        {
+            tmp++;
+            con[tmp]=y;
+            r++;
+        }
+    }
+    while(l<=mid)
+    {
+        tmp++;
+        con[tmp]=*(st+l);
+        l++;
+    }
+    while(r<=end)
+    {
+        tmp++;
+        con[tmp]=*(st+r);
+        r++;
+    }
+    for(int i=beg;i<=end;i++)
+        *(st+i)=con[i];
+    return;
+}
+int n,m,cnt,r;
+int nums[(Maxn<<1)+10],l[(Maxn<<1)+10],p[(Maxn<<1)+10];
+int main()
+{
+    cin>>n;
+    m=n;
+    cnt=n;
+    for(int i=1;i<=n;i++)
+        nums[i]=i;
+    qsort(nums,1,n);
+    while(m>2)
+    {
+        r=0;
+        for(int i=1;i<=(m+1)/3;i++)
+        {
+            cout<<"+ "<<nums[i]<<" "<<nums[m-i+1]<<endl;
+            r++;
+            cnt++;
+            cin>>l[r];
+            if(l[r]==-1) exit(0);
+            l[r]=cnt;
+        }
+        int x=(m+1)/3+1,y=m-(m+1)/3,tmp=0;
+        while(x<=y)
+        {
+            tmp++;
+            nums[tmp]=nums[x];
+            x++;
+        }
+        m=tmp;
+        //sort(l+1,l+r+1,cmp);
+        qsort(l,1,r);
+        tmp=0;
+        int l1=1,l2=m,r1=1,r2=r;
+        while(l1<=l2&&r1<=r2)
+        {
+            if(cmp(nums[l1],l[r1]))
+            {
+                tmp++;
+                p[tmp]=nums[l1];
+                l1++;
+            }
+            else
+            {
+                tmp++;
+                p[tmp]=l[r1];
+                r1++;
+            }
+        }
+        while(l1<=l2)
+        {
+            tmp++;
+            p[tmp]=nums[l1];
+            l1++;
+        }
+        while(r1<=r2)
+        {
+            tmp++;
+            p[tmp]=l[r1];
+            r1++;
+        }
+        m=tmp;
+        for(int i=1;i<=m;i++)
+            nums[i]=p[i];
+    }
+    if(m==2) cout<<"+ "<<nums[1]<<" "<<nums[2]<<endl;
+    cout<<"!"<<endl;
+    return 0;
+}

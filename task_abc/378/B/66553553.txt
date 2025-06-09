@@ -1,0 +1,19 @@
+#include <iostream>
+using namespace std;
+using ll = long long;
+
+int main() {
+  ll N;
+  cin >> N;
+  
+  int q[109], r[109];
+  for (ll i=1; i<=N; i++) cin >> q[i] >> r[i];
+  
+  ll Q;
+  cin >> Q;
+  ll t, d;
+  for (ll i=1; i<=Q; i++) {
+    cin >> t >> d;
+    cout << d + (q[t] + r[t] - d % q[t]) % q[t] << endl;
+  }
+}

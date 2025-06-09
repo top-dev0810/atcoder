@@ -1,0 +1,76 @@
+#include<bits/stdc++.h>
+using namespace std;
+const int P=998244353,G=3;
+typedef long long ll;
+int n;
+const int N=0x200005;
+ll tmpc[N];
+void fft(ll A[N],ll F[N],int L,int R,ll w1){
+    if(L==R){
+        F[L]=A[L];
+        return;
+    }
+    int mid=(L+R)>>1;
+    for(int i=L,j=L;i<=R;i+=2,++j){
+        tmpc[j]=A[i];
+    }
+    for(int i=L+1,j=mid+1;i<=R;i+=2,++j){
+        tmpc[j]=A[i];
+    }
+    for(int i=L;i<=R;++i){
+        A[i]=tmpc[i];
+    }
+    fft(A,F,L,mid,w1*w1%P);
+    fft(A,F,mid+1,R,w1*w1%P);
+    int sz2=mid-L+1;
+    ll w=1;
+    for(int i=0;i<(sz2<<1);++i,w=w*w1%P){
+        tmpc[L+i]=(F[L+i%sz2]+F[mid+1+i%sz2]*w%P)%P;
+    }
+    for(int i=L;i<=R;++i){
+        F[i]=tmpc[i];
+    }
+}
+int qpow(ll a,int b){
+    int res=1;
+    for(;b;b>>=1,a=a*a%P){
+        if(b&1){
+            res=res*a%P;
+        }
+    }
+    return res;
+}
+int s[N];
+ll a[N],f[N];
+bitset<N>org;
+int main(){
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    int ninp;
+    cin>>ninp;
+    int maxs=0;
+    for(int i=1;i<=ninp;++i){
+        cin>>s[i];
+        a[s[i]]=org[s[i]]=1;
+        maxs=max(maxs,s[i]);
+    }
+    for(n=1;n<(maxs<<1|1);n<<=1);
+    ll w1=qpow(G,(P-1)/n);
+    fft(a,f,0,n-1,w1);
+    for(int i=0;i<n;++i){
+        f[i]=f[i]*f[i]%P;
+    }
+    w1=qpow(w1,P-2);
+    fft(f,a,0,n-1,w1);
+    for(int i=0;i<n;++i){
+        a[i]=a[i]*qpow(n,P-2)%P;
+    }
+    ll ans=0;
+    for(int i=1;i<=ninp;++i){
+        ans+=(a[s[i]<<1]-1)>>1;
+    }
+    cout<<ans;
+    return 0;
+}
+//ssq , vj-at , 2025-06-05, 2#

@@ -1,0 +1,26 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+typedef long long LL;
+typedef pair<int, int> PII;
+
+int main() {
+	LL n, k;
+	cin >> n >> k;
+	LL res = 1;
+	LL cnt = 1;
+	while (k -- ) cnt = cnt * 10;
+	while (n -- ) {
+		LL x;
+		cin >> x;
+		if ((long double)res >= (long double)cnt / x) {
+			res = 1;
+		} else {
+			res = res * x;
+		}
+	}
+	cout << res << endl; 
+
+
+    return 0;
+}

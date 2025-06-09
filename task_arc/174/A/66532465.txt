@@ -1,0 +1,39 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+const int N=3e5+10;
+int n,c;
+int a[N];
+int dp[N];
+int ans;
+int k;
+signed main()
+{
+	cin>>n>>c;
+	for(int i=1;i<=n;i++)
+	{
+		cin>>a[i];
+		ans+=a[i];
+	}
+	if(c>0)
+	{
+		for(int i=1;i<=n;i++)
+		{
+			dp[i]=max(a[i],dp[i-1]+a[i]);	
+		}	 
+		for(int i=1;i<=n;i++)
+			k=max(k,dp[i]);
+	}
+	else
+	{
+		for(int i=1;i<=n;i++)
+		{
+			dp[i]=min(a[i],dp[i-1]+a[i]);	
+		}	 
+		for(int i=1;i<=n;i++)
+			k=min(k,dp[i]);
+	}
+	ans+=(c-1)*k;
+	cout<<ans;
+	return 0;	 
+}

@@ -1,0 +1,136 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+int aqx=1,byx=1;
+const int mod=998244353,G=3;
+const int N=1e5+5;
+inline void add(int &a,int b){a=(a+b)%mod;}
+inline void mul(int &a,int b){a=(a*b)%mod;}
+inline int ksm(int a,int b){
+    int ret=1;
+    for(;b;b>>=1,a=a*a%mod)
+        if(b&1)ret=ret*a%mod;
+    return ret;
+}
+inline int inv(int x){return ksm(x,mod-2);}
+int jc[N],jcinv[N];
+inline int C(int n,int m){return (m<0||n<m)?0:jc[n]*jcinv[n-m]%mod*jcinv[m]%mod;}
+struct Poly{
+    vector<int>a;
+    int size()const{return a.size();}
+    void clear(){vector<int>b;swap(a,b);}
+    void expand(int len){if(size()<len)a.resize(len);}
+    void simplify(int len){if(size()>len)a.resize(len);}
+    void simplify(){while(size()&&!a.back())a.pop_back();}
+
+    void read(int n){
+        clear(),a.resize(n+1);
+        for(int i=0;i<size();i++)cin>>a[i];
+    }
+    friend void read(Poly &x,int n){x.read(n);}
+    void write(const char ch1=' ',const char ch2='\n')const{
+        for(int i=0;i<size();i++){
+            cout<<a[i];
+            if(i<size()-1)cout<<ch1;
+        }
+        cout<<ch2;
+    }
+    friend void write(const Poly &x,const char ch1=' ',const char ch2='\n'){x.write(ch1,ch2);}
+    
+    friend Poly _plus(const Poly &x,const Poly &y){
+        Poly z;
+        z.expand(max(x.size(),y.size()));
+        for(int i=0;i<z.size();i++)z.a[i]=((i<x.size()?x.a[i]:0)+(i<y.size()?y.a[i]:0));
+        return z;
+    }
+    friend Poly _minus(const Poly &x,const Poly &y){
+        Poly z;
+        z.expand(max(x.size(),y.size()));
+        for(int i=0;i<z.size();i++)z.a[i]=((i<x.size()?x.a[i]:0)-(i<y.size()?y.a[i]:0));
+        return z;
+    }
+    void NTT(int *e,int len,int g)const{
+        int rev[len];memset(rev,0,sizeof(rev));
+        for(int i=0;i<len;i++)rev[i]=((rev[i>>1]>>1)|((i&1)*(len>>1)));
+        for(int i=0;i<len;i++)if(i<rev[i])swap(e[i],e[rev[i]]);
+        for(int i=1;i<len;i<<=1){
+            int wn=ksm(g,(mod-1)/(i<<1));
+            for(int j=0;j<len;j+=(i<<1))
+                for(int k=0,wk=1;k<i;k++,wk=wk*wn%mod){
+                    int x=e[j+k],y=wk*e[j+k+i]%mod;
+                    e[j+k]=(x+y)%mod,e[j+k+i]=(x-y)%mod;
+                }
+        }
+        for(int i=0;i<len;i++)add(e[i],mod);
+    }
+    friend Poly _multiply(const Poly &x,const Poly &y){
+        Poly z;
+        if(!x.size()||!y.size())return z;
+        z.expand(x.size()+y.size()-1);
+        if(min(x.size(),y.size())<=16){
+            for(int i=0;i<x.size();i++)
+                for(int j=0;j<y.size();j++)
+                    add(z.a[i+j],x.a[i]*y.a[j]);
+            return z;
+        }
+        int len=1;while(len<x.size()+y.size()-1)len<<=1;
+        int ex[len],ey[len];memset(ex,0,sizeof(ex)),memset(ey,0,sizeof(ey));
+        for(int i=0;i<x.size();i++)ex[i]=x.a[i];
+        for(int i=0;i<y.size();i++)ey[i]=y.a[i];
+        z.NTT(ex,len,G),z.NTT(ey,len,G);
+        for(int i=0;i<len;i++)mul(ex[i],ey[i]);
+        z.NTT(ex,len,inv(G));
+        int ivlen=inv(len);
+        for(int i=0;i<len;i++)mul(ex[i],ivlen);
+        for(int i=0;i<z.size();i++)z.a[i]=ex[i];
+        return z;
+    }
+    friend Poly _divide(const Poly &x,const Poly &y){
+        Poly z;
+        if(!x.size()||!y.size()||x.size()<y.size())return z;
+        z.expand(x.size()-y.size()+1);
+        int xx[x.size()],yy[y.size()];
+        for(int i=0;i<x.size();i++)xx[i]=x.a[i];
+        for(int i=0;i<y.size();i++)yy[i]=y.a[i];
+        int iyy=inv(yy[y.size()-1]);
+        for(int i=z.size()-1;i>=0;i--){
+            z.a[i]=xx[i+y.size()-1]*iyy%mod;
+            for(int j=0;j<y.size();j++)add(xx[i+j],-z.a[i]*yy[j]);
+        }
+        for(int i=0;i<z.size();i++)add(z.a[i],mod);
+        return z;
+    }
+    friend Poly operator+(const Poly &x,const Poly &y){return _plus(x,y);}
+    friend Poly operator-(const Poly &x,const Poly &y){return _minus(x,y);}
+    friend Poly operator*(const Poly &x,const Poly &y){return _multiply(x,y);}
+    friend Poly operator/(const Poly &x,const Poly &y){return _divide(x,y);}
+    int val(int x){
+        int y=0;
+        for(int i=0,t=1;i<size();i++,mul(t,x))add(y,t*a[i]);
+        return y;
+    }
+};
+int n,p,ans[N];
+int f[N];
+void solve(){
+    cin>>n>>p,mul(p,inv(100));
+    jc[0]=1;for(int i=1;i<=n;i++)jc[i]=jc[i-1]*i%mod;
+    jcinv[n]=inv(jc[n]);for(int i=n;i;i--)jcinv[i-1]=jcinv[i]*i%mod;
+    f[n]=1;
+    for(int i=n-1;i>=1;i--)f[i]=(f[i+1]+f[i+1]*(1-p)%mod*inv(i))%mod,add(f[i],mod);
+    reverse(f,f+n+1);
+    ans[1]=f[n-1];
+    Poly F,G;F.expand(n),G.expand(n);
+    for(int i=0;i<=n-2;i++)F.a[i]=ksm(1-p,i)*jcinv[i]%mod;
+    for(int i=0;i<=n-2;i++)G.a[i]=jc[n-2-i]*f[i]%mod;
+    F=F*G;
+    for(int k=2;k<=n;k++)ans[k]=ksm(p,k-1)*jcinv[k-2]%mod*F.a[n-k]%mod,add(ans[k],mod);
+    for(int i=1;i<=n;i++)cout<<ans[i]<<'\n';
+}
+signed main(){
+    ios::sync_with_stdio(0),cin.tie(0);
+    // freopen("data.in","r",stdin);
+    // freopen("data.out","w",stdout);
+    for(;byx<=aqx;byx++)solve();
+    return 0;
+}

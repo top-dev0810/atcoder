@@ -1,0 +1,19 @@
+/*AtCoder-arc194_a Operations on a Stack
+动态规划:dp[i]代表前i个数对应的最大栈中元素和.若加入a[i],则前面i-1个数最优为dp[i],最
+大值为dp[i-1]+a[i];若删除最后一个数,则显然只含有前i-2个数,不含有第i-1个数,情况与i-2时
+相同故最大值为dp[i-2].因此dp[i]=max(dp[i-1]+a[i],dp[i-2])由上可得*/
+
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+int n,dp[200005];
+signed main(){
+	ios::sync_with_stdio(false),cin.tie(0),cout.tie(0);
+	cin>>n>>dp[1];
+	for(int i=2,x;i<=n;++i){
+		cin>>x;
+		dp[i]=max(dp[i-1]+x,dp[i-2]); //加入a[i]或者删掉序列一个数
+	}
+	cout<<dp[n]<<"\n";
+	return 0;
+}

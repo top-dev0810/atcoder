@@ -1,0 +1,41 @@
+#include<bits/stdc++.h>
+using namespace std;
+int dx[4]={0,-1,0,1};
+int dy[4]={-1,0,1,0};
+queue<pair<int,int> >q;
+char op[1005][1005];
+int dist[1005][1005],ans;
+int main(){
+    int n,m,d;
+    cin>>n>>m>>d;
+    for(int i=1;i<=n;i++){
+        for(int j=1;j<=m;j++){
+            cin>>op[i][j];
+            if(op[i][j]=='H'){
+                dist[i][j]=1;
+                ans++;
+                q.push({i,j});
+            }
+        }
+    }
+    while(d--){
+        int ss=q.size();
+        while(ss--){
+            pair<int,int>cur=q.front();
+            q.pop();
+            int cx=cur.first;
+            int cy=cur.second;
+            for(int i=0;i<4;i++){
+                int nx=cx+dx[i];
+                int ny=cy+dy[i];
+                if(op[nx][ny]=='.'&&dist[nx][ny]==0){
+                    dist[nx][ny]=1;
+                    ans++;
+                    q.push({nx,ny});
+                }
+            }
+        }
+    }
+    cout<<ans<<'\n';
+    return 0;
+}

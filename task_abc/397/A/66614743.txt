@@ -1,0 +1,35 @@
+#include <iostream>
+// #define LOCAL
+
+using namespace std;
+
+void solve()
+{
+    double x;
+    cin >> x;
+    if (x >= 38.0)
+        cout << 1 << endl;
+    else if (x >= 37.5 && x < 38.0)
+        cout << 2 << endl;
+    else
+        cout << 3 << endl;
+}
+
+int main()
+{
+#ifdef LOCAL
+    freopen("C:/JNU/c++/in.txt", "r", stdin);
+    freopen("C:/JNU/c++/out.txt", "w", stdout);
+#endif
+    int T = 1;
+    // cin >> T;
+    while (T--)
+    {
+        solve();
+    }
+#ifdef LOCAL
+    fclose(stdin);
+    fclose(stdout);
+#endif
+    return 0;
+}

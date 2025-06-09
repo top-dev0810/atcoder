@@ -1,0 +1,22 @@
+#include<bits/stdc++.h>
+#define int long long
+#define x first
+#define y second
+using namespace std;
+const int N=2e6+10,inf=0x3f3f3f3f,mod=1e9+7;
+typedef unsigned long long ull;
+typedef pair<int,int> pii;
+typedef long long ll;
+/*
+
+*/
+int n,tmp,a[3];
+signed main(){
+	cin>>n;
+	for(int i=1;i<=n;i++) cin>>tmp,a[tmp&1ll]++;
+	if(n==1) return cout<<"Fennec",0;
+	if(n==2) return cout<<"Snuke",0;
+	if(n==3) return cout<<(a[1]?"Fennec":"Snuke"),0;
+	cout<<(a[1]&1?"Fennec":"Snuke");
+	return 0;
+}

@@ -1,0 +1,28 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+
+int main(){
+    long n;
+    cin >> n;
+    vector<long> a(n),c(n);
+    vector<pair<long,long>> b(n);
+    for(long i = 0; i < n; i++){
+        int ab;
+        cin >> ab;
+        ab--;
+        a[i]= ab;
+    }
+    for(long i = 0; i < n; i++){
+        int ab;
+        cin >> ab;
+        ab--;
+        b[i] = {ab, a[i]};
+        c[i] = ab;
+    }
+    sort(b.begin(), b.end());
+    for(long i = 0; i < n; i++){
+        cout << c[b[i].second] + 1 << " ";
+    }
+    cout << endl;
+}

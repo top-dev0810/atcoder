@@ -1,0 +1,28 @@
+#include<bits/stdc++.h>
+#define int long long
+using namespace std;
+const int N = 1e6 + 10;
+int n,a,b;
+char c[N],d[N];
+signed main(){
+	cin >> n >> a >> b;
+	for(int i = 1;i <= 2 * n;i++){
+		cin >> c[i];
+	}
+	int len = 0;
+	for(int i = 1;i <= 2 * n;i++){
+		if(len > 0 && d[len] == '(' && c[i] == ')') len--;
+		else d[++len] = c[i];
+	}
+	int cnt1 = 0,cnt2 = 0;
+	for(int i = 1;i <= len;i++){
+		if(d[i] == '(') cnt1++;
+		else cnt2++;
+	}
+	if(cnt1 > cnt2) swap(cnt1,cnt2);
+	int ans1 = a * ((cnt1 + 1) / 2) + (cnt2 - cnt1) / 2 * b;
+	int ans2 = (cnt1 + cnt2) / 2 * b;
+	if(cnt1 % 2 == 1) ans2 += b;
+	cout << min(ans1,ans2) << '\n';
+	return 0;
+}

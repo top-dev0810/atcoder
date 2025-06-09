@@ -1,0 +1,258 @@
+// LUOGU_RID: 172950420
+#include<bits/stdc++.h>
+#define ull unsigned long long
+#define ui unsigned int
+#define ld long double
+#define ll long long
+#define lll __int128
+#define fi first
+#define se second
+#define e emplace
+#define eb emplace_back
+#define db double
+#define ef emplace_front
+#define pii pair<int,int>
+#define pll pair<ll,ll>
+#define vi vector<int>
+#define vp vector<pii>
+#define mp make_pair
+
+//#define LOCALJUDGE
+#define int ll
+bool ST;
+static const ll MOD=998244353,Phi=998244352,inv2=499122177,Root=3,iRoot=332748118;
+static const ll inf=1073741823,INF=4557430888798830399;
+static const double eps=1e-8,pi=3.1415926535;
+const int SIZE=1<<24;
+char in[SIZE],out[SIZE],*p1=in,*p2=in,*p3=out;
+int len;
+using namespace std;
+//#define getchar() (p1==p2&&(p2=(p1=in)+fread(in,1,1<<20,stdin),p1==p2)?EOF:*p1++)
+//#define putchar(ch) (p3==out+SIZE&&flush(),*p3++=(ch))
+struct tup{int x,y,z;tup(int X=0,int Y=0,int Z=0){x=X,y=Y,z=Z;}};
+namespace FastIO
+{
+	template<typename T> inline void write(T x,char ch=' ')
+	{
+		if(is_same<char,T>::value)putchar(x);
+		else
+		{
+			if(x<0)x=-x,putchar('-');
+			static char st[25];int top=0;
+			do{st[top++]=x%10+'0',x/=10;}while(x);
+			while(top)putchar(st[--top]);
+		}
+		ch!='~'?putchar(ch):0;
+	}
+	inline void write(const char*x,char ch=' ')
+	{
+		for(int i=0;x[i]!='\0';++i)putchar(x[i]);
+		ch!='~'?putchar(ch):0;
+	}
+	inline void read(char&s){do s=getchar();while(s=='\n'||s==' ');}
+	inline void read(char s[])
+	{
+		int len=0;char st;
+		do st=getchar();while(st=='\n'||st==' ');
+		s[++len]=st,st=getchar();
+		while(st!='\n'&&st!=' ')s[++len]=st,st=getchar();
+		s[++len]='\0';
+	}
+	template<typename T> inline void read(T &s)
+	{
+
+		s=0;char ch=getchar();
+		while((ch>'9'||ch<'0')&&ch!='-')ch=getchar();
+		bool tf=(ch=='-')&&(ch=getchar());
+		while((ch>='0')&&(ch<='9'))s=(s<<1)+(s<<3)+ch-'0',ch=getchar();
+		s=(tf?-s:s);
+	}
+	template<typename T1,typename T2> inline void read(pair<T1,T2> &s){read(s.fi),read(s.se);}
+	template<typename T,typename...Args> inline void write(T x,Args...args){write(x,'~'),write(args...);}
+	template<typename T,typename...Args> inline void read(T&x,Args&...args){read(x),read(args...);}
+}
+using namespace FastIO;
+namespace MTool
+{
+	inline int Cadd(int a,int b){return (ll)a+b>=MOD?(ll)a+b-MOD:a+b;}
+	inline int Cdel(int a,int b){return a-b<0?a-b+MOD:a-b;}
+	inline int Cmul(int a,int b){return 1ll*a*b%MOD;}
+	inline int sqr(int a){return 1ll*a*a%MOD;}
+	inline void Madd(int&a,int b){a=((ll)a+b>=MOD?(ll)a+b-MOD:a+b);}
+	inline void Mdel(int&a,int b){a=(a-b<0?a-b+MOD:a-b);}
+	inline void Mmul(int&a,int b){a=1ll*a*b%MOD;}
+	template<typename T> inline bool Mmax(T&a,T b){return a<b?a=b,1:0;}
+	template<typename T> inline bool Mmin(T&a,T b){return a>b?a=b,1:0;}
+	template<typename...Args> inline void Madd(int&a,int b,Args...args){Madd(a,b),Madd(a,args...);}
+	template<typename...Args> inline void Mmul(int&a,int b,Args...args){Mmul(a,b),Mmul(a,args...);}
+	template<typename...Args> inline void Mdel(int&a,int b,Args...args){Mdel(a,b),Mdel(a,args...);}
+	template<typename...Args> inline int Cadd(int a,int b,Args...args){return Cadd(Cadd(a,b),args...);}
+	template<typename...Args> inline int Cmul(int a,int b,Args...args){return Cmul(Cmul(a,b),args...);}
+	template<typename...Args> inline int Cdel(int a,int b,Args...args){return Cdel(Cdel(a,b),args...);}
+	template<typename...Args,typename T> inline bool Mmax(T&a,T b,Args...args){return Mmax(a,b)|Mmax(a,args...);}
+	template<typename...Args,typename T> inline bool Mmin(T&a,T b,Args...args){return Mmin(a,b)|Mmin(a,args...);}
+	inline int power(int x,int y){int s=1;for(;y;y>>=1,Mmul(x,x))if(y&1)Mmul(s,x);return s;}
+}
+using namespace MTool;
+namespace WrongAnswer_90
+{
+	namespace Poly
+	{
+	    const int MAXN=400000;
+	    int Shape,Invn[MAXN+10],R[MAXN*4+10],Prt[MAXN*4];
+	    inline void init()
+	    {
+	        Invn[0]=1;
+	        for(int i=1;i<=MAXN;++i)Invn[i]=Cmul(Invn[i-1],i);
+	        int tmp=power(Invn[MAXN],MOD-2);
+	        for(int i=MAXN;i>=1;--i)Invn[i]=Cmul(tmp,Invn[i-1]),Mmul(tmp,i);
+	    }
+	    inline int inv(int x){return x<=MAXN?Invn[x]:power(x,MOD-2);}
+	    inline void NTT(vi&A,int n,int opt)
+	    {
+	        static ull B[MAXN*4+10];ull iv=power(n,MOD-2);A.resize(n);
+	        for(int i=0;i<n;++i)B[i]=A[R[i]];
+	        for(int mid=1;mid<n;mid<<=1)
+	        {
+	            for(int j=0;j<n;j+=mid<<1)
+	            {
+	                for(int k=j;k<j+mid;++k)
+	                {
+	                    ull x=B[k],y=Prt[mid+k-j]*B[k+mid]%MOD;
+	                    B[k]=x+y,B[k+mid]=x+MOD-y;
+	                }
+	            }
+	        }
+	        if(opt)for(int i=0;i<n;++i)A[i]=B[i]%MOD;
+	        else{reverse(B+1,B+n);for(int i=0;i<n;++i)A[i]=Cmul(B[i]%MOD,iv);}
+	    }
+	    inline void init(int lim)
+	    {
+	        if(lim==Shape)return;
+	        int n=lim/2;Shape=lim;
+	        for(int i=0;i<lim;++i)R[i]=(R[i>>1]>>1)|((i&1)?n:0);
+	        for(int i=1;i<lim;i<<=1)
+	        {
+	            int wm=power(Root,(MOD-1)/(i<<1));Prt[i]=1;
+	            for(int j=1;j<i;++j)Prt[i+j]=Cmul(Prt[i+j-1],wm);
+	        }
+	    }
+	    inline vi FFT(vi A,vi B,int N1=-1,int N2=-1)
+	    {
+	        if(N1!=-1)A.resize(N1+1);if(N2!=-1)B.resize(N2+1);
+	        int n=A.size()-1,m=B.size()-1,N=1,len=0;
+	        while(N<=n+m)N<<=1,++len;
+	        init(N),NTT(A,N,1),NTT(B,N,1);
+	        for(int i=0;i<N;++i)A[i]=Cmul(A[i],B[i]);
+	        return NTT(A,N,0),A.resize(n+m+1),A;
+	    }
+	}
+	int n,m,dl,fr[100010],inv[100010],pre[100010],suf[100010],ans[100010];
+	int a[100010],L[100010],R[100010],pw[100010],b[100010],res[100010];
+	inline int C(int n,int m){return m<0||m>n?0:Cmul(fr[n],inv[m],inv[n-m]);}
+	vi add(vi L,vi R)
+	{
+		int N=max(L.size(),R.size());L.resize(N),R.resize(N);
+		for(int i=0;i<N;++i)Madd(L[i],R[i]);
+		return L;
+	}
+	vi move(vi A,int x)
+	{
+		A.resize(A.size()+x);
+		for(int i=A.size()-1;i>=x;--i)A[i]=A[i-x];
+		for(int i=0;i<x;++i)A[i]=0;
+		return A;
+	}
+	vi Binom(vi A,int x)
+	{
+		vi B(x+1);
+		for(int i=0;i<=x;++i)B[i]=C(x,i);
+		A=Poly::FFT(A,B);
+		return A;
+	}
+	vi A,B;
+	vi solve(int l,int r)
+	{
+		if(l==r)return {a[l]};
+		int mid=l+((r-l)>>1);
+		return add(move(solve(l,mid),B[mid]-B[r]),
+		Binom(solve(mid+1,r),A[mid+1]-A[l]));
+	}
+	void solve()
+	{
+		A.resize(n+1),B.resize(n+1);
+		int pos=0;
+		for(int i=1;i<=n;++i)
+		{
+			if(i-1-L[i]>=0)A[i]=i-1-L[i],B[i]=L[i]+1;
+			else A[i]=B[i]=0,pos=i;
+		}
+		for(int i=pos+1;i<=n;++i)Mdel(res[i],a[i]);
+		vi D;
+		if(pos<n)D=move(Binom(solve(pos+1,n),A[pos+1]),B[n]);
+		for(int i=1;i<(int)D.size();++i)Madd(res[i],D[i]);
+	}
+	inline void mian()
+	{
+		Poly::init(),read(n,m),fr[0]=inv[0]=pw[0]=1;
+		for(int i=1;i<=n;++i)fr[i]=Cmul(fr[i-1],i),pw[i]=Cmul(pw[i-1],2);
+		inv[n]=power(fr[n],MOD-2);
+		for(int i=n-1;i>0;--i)inv[i]=Cmul(inv[i+1],i+1);
+		for(int i=1;i<=n;++i)read(a[i]),b[i]=m-a[i];
+		a[0]=-inf,a[n+1]=inf,b[0]=inf,b[n+1]=-inf;
+		for(int i=n,r=0;i>=1;R[i--]=r)
+		{
+			suf[i]=Cadd(suf[i+1],Cmul(power(2,n-i),a[i]));
+			while(a[r+1]<b[i])++r;
+		}
+		for(int i=1,l=n+1;i<=n;L[i++]=l)
+		{
+			pre[i]=Cadd(pre[i-1],Cmul(power(2,i-1),b[i]));
+			while(b[l-1]<=a[i])--l;
+		}
+		write(Cadd(max(a[1],b[1])%MOD,suf[2]),'\n');
+		if(n==1)return;
+		if(n==2)return write(Cadd(max(a[n],b[n])%MOD,pre[n-1]));
+		for(int i=n;i>1;--i)Madd(dl,Cmul(a[i],pw[n-i]));
+		vi X={0},Y={0},Z={0};Z.resize(n+1);
+		for(int i=1;i<=n;++i)X.eb(Cmul(b[i],pw[i-1],fr[n-i-1]));
+		for(int i=1;i<=n;++i)Y.eb(inv[i-1]);
+		for(int i=1;i<n;++i)Z[i]=Cmul(a[n-i+1],pw[i-1],fr[n-i-1]);
+		X=Poly::FFT(X,Y),Z=Poly::FFT(Z,Y);
+		for(int i=2;i<n;++i)
+		{
+			ans[i]=Cadd(Cmul(X[i],inv[n-i]),max(a[i],b[i])%MOD,suf[i+1],pre[i-1],Cmul(inv[i-1],Z[n-i+1]));
+			Madd(dl,Cmul(b[i-1],pw[i-2]));
+			Mdel(dl,Cmul(a[i],pw[n-i]));
+			Mdel(ans[i],dl);
+		}
+		solve();
+		for(int i=1;i<=n;++i)Madd(ans[i],res[i]);
+		memset(res,0,sizeof(res));int v=a[n];
+		for(int i=1;i<=n;++i)a[i]=b[n-i+1],L[i]=n-R[n-i+1]+1;
+		solve();
+		for(int i=1;i<=n;++i)Madd(ans[i],res[n-i+1]);
+		for(int i=2;i<n;++i)write(ans[i],'\n');
+		if(n>1)write(Cadd(max(v,b[n])%MOD,pre[n-1]));
+	}
+}
+bool ED;
+signed main()
+{
+//	#ifdef LOCALJUDGE
+//	freopen("1.in","r",stdin);
+//	freopen("1.out","w",stdout);
+//	#endif
+	double st=clock();
+	WrongAnswer_90::mian();
+	double ed=clock();
+	#ifndef LOCALJUDGE
+ 	cerr<<endl;
+	#endif
+ 	cerr<<"Time: "<<ed-st<<" ms\n";
+	#ifdef LOCALJUDGE
+ 	cerr<<"     ";
+	#endif
+ 	cerr<<"Memory: "<<abs(&ST-&ED)/1024.0/1024.0<<" MB\n";
+	return 0;
+}

@@ -1,0 +1,79 @@
+/*
+    常に最大と最小を足すようにしたい
+*/
+#include <bits/stdc++.h>
+using namespace std;
+
+#define ALL(x) (x).begin(),(x).end()
+#define REP(i, n) for(ll i=0; i<(ll)(n); i++)
+#define FOR(i, a, b) for(ll i=(ll)(a); i<(b); i++)
+#define ROF(i, a, b) for(ll i=(ll)(b)-1; i>=(a); i--)
+
+template<typename T> int LB(const vector<T>& v, T x) { return lower_bound(ALL(v),x)-(v).begin(); }
+template<typename T> int UQ(T& v) { sort(ALL(v)); v.erase(unique(ALL(v)),v.end()); return v.size(); }
+template<typename T> bool chmax(T &a, T b) { return a<b ? a=b, true : false; }
+template<typename T> bool chmin(T &a, T b) { return a>b ? a=b, true : false; }
+template<typename T> using rpriority_queue=priority_queue<T,vector<T>,greater<T>>;
+using ll=long long; const int INF=1e9+10; const ll INFL=4e18; using ld=long double;
+using ull=unsigned long long; using lll=__int128_t; using VST=vector<string>;
+using VI=vector<int>; using VVI=vector<VI>; using VL=vector<ll>; using VVL=vector<VL>;
+using PL=pair<ll,ll>; using VP=vector<PL>; using WG=vector<vector<pair<int,ll>>>;
+
+#ifdef LOCAL
+#include "./debug.hpp"
+#else
+#define debug(...)
+#define print_line
+#endif
+
+
+//----------------------------------------------------------
+
+bool ask(int i, int j) {
+    cout<<"?"<<' '<<i+1<<' '<<j+1<<endl;
+    int q; cin>>q;
+    assert(q!=-1);
+
+    //i<j
+    return q;
+}
+
+int add(int i, int j) {
+    cout<<"+"<<' '<<i+1<<' '<<j+1<<endl;
+    int p; cin>>p;
+    assert(p!=-1);
+
+    return --p;
+}
+
+void solve() {
+    ll N; cin>>N;
+
+    VI idx(N); iota(ALL(idx),0);
+
+    sort(ALL(idx), ask);
+
+    REP(t,N-1) {
+        int x=idx.front(), y=idx.back();
+
+        VI nidx(idx.begin()+1,idx.begin()+idx.size()-1);
+
+        int z=add(x,y);
+
+        int id=lower_bound(ALL(nidx),z,ask)-nidx.begin();
+        nidx.insert(nidx.begin()+id,z);
+
+        swap(idx,nidx);
+    }
+
+    cout<<"!"<<endl;
+    exit(0);
+}
+
+int main() {
+    ios::sync_with_stdio(false); cin.tie(nullptr);
+    //cout<<fixed<<setprecision(15);
+    int T=1;
+    //cin>>T;
+    while(T--) solve();
+}

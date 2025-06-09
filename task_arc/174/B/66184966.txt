@@ -1,0 +1,29 @@
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int Max=3e5+10;
+int p[10];
+
+void work(){
+	int A1,A2,A3,A4,A5;
+	cin>> A1 >> A2 >> A3 >> A4 >> A5;
+	for(int i=1;i<=5;++i){
+		cin>> p[i];
+	}
+	int ans=1e17;
+	int Z=2ll*A1+A2*1ll-A4*1ll-2ll*A5;
+	if(Z>0){
+		ans=min(2*p[4],p[5])*(Z/2)+(Z%2)*(min(p[4],p[5]));
+	}else{
+		ans=0;
+	}
+	cout << ans << "\n";
+	
+}
+
+signed main(){
+	int T;
+	scanf("%lld",&T);
+	while(T--)work() ;
+	return 0;
+}

@@ -1,0 +1,28 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+int main() {
+  int N;
+  cin>>N;
+  vector<int> A(N);
+  for(int i=0;i<N;i++) cin>>A[i];
+  //   int a;
+  //   cin>>a;
+  //   A[i]=max(0,a-N+i+1+i);
+  //   cout<<A[i]<<" \n"[i==N-1];
+  // }
+  vector<int> heru(N);
+  int herasu=0;
+  for(int i=0;i<N;i++) {
+    herasu+=heru[i];
+    int a=A[i]-N+i+1+i-herasu; //渡す分ともらえる分
+    if(a<0){
+      heru[N+a]++;
+    }
+    // cout<<i<<" "<<a<<" "<<herasu<<endl;
+    // if(i==8) cout<<a<<" "<<herasu<<" "<<A[i]<<endl;
+    A[i]=max(0,a);
+  }
+  // for(int i=0;i<N;i++) cout<<heru[i]<<" \n"[i==N-1];
+  for(int i=0;i<N;i++) cout<<A[i]<<" \n"[i==N-1];
+}

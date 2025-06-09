@@ -1,0 +1,206 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define rep(i, l, r) for (int i = l; i < (int)(r); i++)
+
+using vi = vector<int>; using vvi = vector<vi>; using vvvi = vector<vvi>;
+using vs = vector<string>;
+using vc = vector<char>;
+using vvc = vector<vector<char>>;
+using ll = long long;
+using vl = vector<ll>; using vvl = vector<vl>; using vvvl = vector<vvl>;
+using pii = pair<int, int>;
+using pll = pair<ll, ll>;
+
+template<typename T>
+void v_cout(T &vec) {
+    for (auto k : vec) cout << k << ' ';
+    cout << endl;
+    return;
+}
+
+template<typename S>
+void vv_cout(S &vec) {
+    for (auto v : vec) {
+        for (auto k : v) cout << k << ' ';
+        cout << endl;
+    }
+    return;
+}
+template<typename T>
+void chmax(T &a, T b) { a = max(a, b);}
+template<typename T>
+void chmin(T &a, T b) { a = min(a, b);}
+//getlineの使い方： getline(cin, (stringの変数名))
+//#pragma GCC optimize("Ofast")
+//--------------------------------------------------
+// Mod int
+using ull = unsigned long long; using uint = unsigned;
+#define pb push_back
+uint mod = 998244353;
+//const uint mod = 1000000007;
+struct mint {
+    uint x;
+    mint() : x(0) {}
+    mint(ll x) :x((x% mod + mod) % mod) {}
+    mint operator-() const { return mint(0) - *this; }
+    mint operator~() const { return mint(1) / *this; }
+    mint& operator+=(const mint& a) { if ((x += a.x) >= mod) x -= mod; return *this; }
+    mint& operator-=(const mint& a) { if ((x += mod - a.x) >= mod) x -= mod; return *this; }
+    mint& operator*=(const mint& a) { x = (ull)x * a.x % mod; return *this; }
+    mint& operator/=(const mint& a) { x = (ull)x * a.pow(mod - 2).x % mod; return *this; }
+    mint operator+(const mint& a) const { return mint(*this) += a; }
+    mint operator-(const mint& a) const { return mint(*this) -= a; }
+    mint operator*(const mint& a) const { return mint(*this) *= a; }
+    mint operator/(const mint& a) const { return mint(*this) /= a; }
+    mint operator++() const { return *this + 1; }
+    mint operator--() const { return *this - 1; }
+    mint pow(ll t) const {
+        mint res = 1; for (mint p = x; t; p *= p, t >>= 1) if (t & 1) res *= p; return res;
+    }
+    mint ppow(ll t) const { int p = mod - 1; return pow((t % p + p) % p); }
+    bool operator<(const mint& a) const { return x < a.x; }
+    bool operator==(const mint& a) const { return x == a.x; }
+    bool operator!=(const mint& a) const { return x != a.x; }
+};
+mint ex(mint x, ll t) { return x.pow(t); }
+istream& operator>>(istream& i, mint& a) { i >> a.x; return i; }
+//*
+ostream& operator<<(ostream& o, const mint& a) { o << a.x; return o; }
+using vm = vector<mint>;
+using vvm = vector<vm>;
+using vvvm = vector<vvm>;
+struct modinv {
+    int n; vm d;
+    modinv() : n(2), d({ 0,1 }) {}
+    mint operator()(int i) { while (n <= i) d.pb(-d[mod % n] * (mod / n)), ++n; return d[i]; }
+    mint operator[](int i) const { return d[i]; }
+} invs;
+struct modfact {
+    int n; vm d;
+    modfact() : n(2), d({ 1,1 }) {}
+    mint operator()(int i) { while (n <= i) d.pb(d.back() * n), ++n; return d[i]; }
+    mint operator[](int i) const { return d[i]; }
+} facs;
+struct modfactinv {
+    int n; vm d;
+    modfactinv() : n(2), d({ 1,1 }) {}
+    mint operator()(int i) { while (n <= i) d.pb(d.back() * invs(n)), ++n; return d[i]; }
+    mint operator[](int i) const { return d[i]; }
+} ifacs;
+mint comb(int a, int b) {
+    if (a < b || b < 0) return 0;
+    return facs(a) * ifacs(b) * ifacs(a - b);
+}
+mint comb2(int a, int b) { // if a is big and k is small : O(b)
+    if (a < b || b < 0) return 0;
+    mint res = ifacs(b);
+    for (int i = 0; i < b; i++) res *= (a - i);
+    return res;
+}
+mint hcomb(int a, int b) {
+    return comb(a + b - 1, a - 1);
+}
+mint hcomb2(int a, int b) {
+    return comb2(a + b - 1, a - 1);
+}
+mint perm(int a, int b) {
+    if (a < b || b < 0) return 0;
+    return  facs(a) * ifacs(a - b);
+}
+
+
+//https://qiita.com/Suu0313/items/ccc7a7ccd94a3814b36d
+/*
+//定数倍がめちゃ悪い
+template<typename T>
+vector<T> xor_convolution_poweroftwo(vector<T> &A, vector<T> &B) {
+    int N = A.size();
+    if(N == 1) return vector<T>{A[0] * B[0]};
+
+    int M = N / 2;  
+    vector<T> A_plus(M), A_minus(M), B_plus(M), B_minus(M);
+
+    for(int i = 0; i < M; i++) {
+        A_plus[i] = A[i] + A[i + M];
+        A_minus[i] = A[i] - A[i + M];
+
+        B_plus[i] = B[i] + B[i + M];
+        B_minus[i] = B[i] - B[i + M];
+    }
+    vector<T> pc = xor_convolution_poweroftwo(A_plus, B_plus);
+    vector<T> mc = xor_convolution_poweroftwo(A_minus, B_minus);
+    
+    vector<T> C(N);
+    
+    for(int i = 0; i < M; i++) {
+        C[i] = (pc[i] + mc[i]) / 2;
+        C[i + M] = (pc[i] - mc[i]) / 2;
+    }
+    return C;
+}
+*/
+//mintの場合のみ有効
+
+template<typename T>
+void walsh_hadamard_transform(vector<T> &a, bool inverse) {
+    int n = a.size();
+    for (int len = 1; 2 * len <= n; len <<= 1) {
+        for (int i = 0; i < n; i += 2 * len) {
+            for (int j = 0; j < len; ++j) {
+                T u = a[i + j], v = a[i + j + len];
+                a[i + j] = u + v;
+                a[i + j + len] = u - v;
+            }
+        }
+    }
+    if (inverse) {
+        T inv_n = T(1) / T(n);  // modintなら可能
+        for (auto &x : a) x *= inv_n;
+    }
+}
+template<typename T>
+vector<T> xor_convolution_poweroftwo(vector<T> A, vector<T> B) {
+    int n = A.size();
+    walsh_hadamard_transform(A, false);  // 順変換
+    walsh_hadamard_transform(B, false);
+    vector<T> C(n);
+    for (int i = 0; i < n; ++i) C[i] = A[i] * B[i];  // 要素ごとに掛ける（点ごとの積）
+    walsh_hadamard_transform(C, true);   // 逆変換
+    return C;
+}
+template <typename T>
+vector<T> xor_convolution(vector<T> &A, vector<T> &B) {
+    int N = A.size();
+    if(N == 0) return vector<T>();
+    int n = 1;
+    while(n < N) n <<= 1;
+    vector<T> na(n), nb(n);
+    rep(i, 0, N) {
+        na[i] = A[i];
+        nb[i] = B[i];
+    }
+    return xor_convolution_poweroftwo(na, nb);
+}
+int main() {
+    int H, W;
+    cin >> H >> W;
+    vvc B(H, vc(W));
+    rep(i, 0, H) rep(j, 0, W) cin >> B[i][j];
+    vi A(H, 0);
+    rep(i, 0, H) rep(j, 0, W) {
+        if(B[i][j] == '1') A[i] += (1 << j);
+    }
+    vm pc(1 << W, 0); vm cnt(1 << W, 0);
+    rep(i, 0, 1 << W) {
+        int num = __popcount(i);
+        pc[i] = min(num, W - num);
+    }
+    rep(i, 0, H) cnt[A[i]] += 1;
+    auto C = xor_convolution(pc, cnt);
+    int ans = 1001001001;
+    rep(i, 0, 1 << W) {
+        int num = C[i].x;
+        chmin(ans, num);
+    }
+    cout << ans << endl;
+}

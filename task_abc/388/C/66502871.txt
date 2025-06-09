@@ -1,0 +1,16 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+  int N;
+  cin >> N;
+  vector<long long> A(N);
+  for (int i=0; i<N; i++) cin >> A.at(i);
+  long long ans = 0;
+  for (long long i : A){
+    auto p = lower_bound(A.begin(), A.end(), i*2) - A.begin();
+    //cout << i << " " << p << endl;
+    ans += N-p;
+  }
+  cout << ans << endl;
+}

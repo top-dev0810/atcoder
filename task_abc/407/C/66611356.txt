@@ -1,0 +1,27 @@
+#include <bits/stdc++.h>
+using namespace std;
+int main() {
+  string S;
+  cin >> S;
+  int count = 0;
+  vector<int> A(S.size());
+  for (int i = S.size() - 1; i >= 0; i--) {
+    A[i] = S[i] - '0';
+  }
+  vector<int> B(S.size());
+  reverse(A.begin(), A.end());
+  
+  B[0] = A[0];
+  for (int i = 1; i < S.size(); i++) {
+    B[i] = A[i] - A[i - 1];
+  }
+
+  for (int i = 0; i < S.size(); i++) {
+    while (B[i] < 0) {
+      B[i] += 10;
+    }
+    count += B[i] % 10;
+  }
+  cout << count + S.size() << endl;
+  return 0;
+}

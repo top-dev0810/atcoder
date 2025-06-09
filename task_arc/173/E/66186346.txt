@@ -1,0 +1,43 @@
+#include<bits/stdc++.h>
+#define int long long
+
+using namespace std;
+
+const int B=60;
+const int N=110;
+struct Base{
+	int v[N];
+	inline void ins(int x){
+		for(int i=B;~i;--i){
+			if((x>>i)&1){
+				if(!v[i]){v[i]=x;return ;}
+				else x^=v[i];
+			}
+		}
+	}
+	inline int ask(){
+		int res=0;
+		for(int i=B;~i;--i){
+			res=max(res,res^v[i]);v[i]=0;
+		}
+		return res;
+	}
+}b;
+int n,a[N],x;
+
+signed main(){
+	ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+	cin>>n>>x;--n;for(int i=1;i<=n;++i){cin>>a[i];a[i]^=x;}
+	if((n+1)%4!=2||n==1){
+		for(int i=1;i<=n;++i) b.ins(a[i]);
+		cout<<b.ask()<<endl;
+	}else{
+		int res=0;
+		for(int i=1;i<=n;++i){
+			for(int j=1;j<=n;++j) if(i!=j) b.ins(a[j]);
+			res=max(res,b.ask());
+		}
+		cout<<res<<endl;
+	}
+	return 0;
+}

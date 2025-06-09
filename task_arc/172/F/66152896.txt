@@ -1,0 +1,102 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define int ll
+typedef long long ll;
+typedef unsigned long long ull;
+
+#define mk make_pair
+#define fi first
+#define se second
+typedef pair<int,int> pii;
+typedef pair<double,double> pdd;
+
+#define ReadIn(s) freopen(s,"r",stdin)
+#define OutPut(s) freopen(s,"w",stdout)
+
+#define btpcll(x) __builtin_popcountll(x)
+#define btpc(x) __builtin_popcount(x)
+
+#define eb emplace_back
+#define sz(x) (int)(x.size())
+
+template<typename T>
+void read(T &x){
+	x=0;char c=getchar();T neg=0;
+	while(!isdigit(c)) neg|=!(c^'-'),c=getchar();
+	while(isdigit(c)) x=(x<<3)+(x<<1)+(c^48),c=getchar();
+	if(neg) x=(~x)+1;
+}
+template<typename T,typename ...Args>
+void read(T &x,Args &...args) {
+	read(x);read(args...);
+}
+
+const int M=3e5+10;
+const int inf=0x3f3f3f3f3f3f3f3f;
+const double eps=1e-10;
+
+inline int comp (double x,double y) {
+	if(x-y>eps) return 1;
+	if(y-x>eps) return -1;
+	return 0;
+}
+
+bool Mst;
+//in this
+
+int n;
+int dp[4010][4010];
+
+char s[M];
+char t[M];
+
+vector<int>ps,pt;
+
+void solve() {
+	read(n);
+	scanf("%s%s",s+1,t+1);
+	
+	memset(dp,0x3f,sizeof dp);
+	
+	dp[0][0]=0;
+	
+	for(int i=0;i<=n;i++) {
+		for(int j=0;j<=n;j++) {
+			if(i+1<=j) dp[i+1][j]=min(dp[i+1][j],dp[i][j]+1);
+			if(j<n) dp[i][j+1]=min(dp[i][j+1],dp[i][j]+1);
+			if(i<n&&j<n&&s[i+1]==t[j+1]) dp[i+1][j+1]=min(dp[i+1][j+1],dp[i][j]);
+		}
+	}
+	
+	cout<<dp[n][n]/2<<"\n";
+	
+	int x=n,y=n;
+	while(x||y) {
+		if(x>0&&dp[x][y]==dp[x-1][y]+1) ps.eb(x),x--;
+		else if(y>0&&dp[x][y]==dp[x][y-1]+1) pt.eb(y),y--;
+		else x--,y--;
+	}
+	
+	for(int i=sz(ps)-1;i+1;i--) {
+		if(t[pt[i]]=='Y') cout<<2*pt[i]-1<<" ";
+		else cout<<2*pt[i]<<" ";
+		if(s[ps[i]]=='Y') cout<<2*ps[i]-1<<"\n";
+		else cout<<2*ps[i]<<"\n";
+	}
+	
+} 
+
+//
+bool Med;
+
+signed main() {
+	
+	solve();
+	
+	cerr<<"\n";
+	cerr<<"Memory:"<<(&Mst-&Med)/1024.0/1024<<" MB\n";
+	cerr<<"Time:"<<clock()/1.0/CLOCKS_PER_SEC*1000.0<<" ms\n";
+
+	return 0;
+}

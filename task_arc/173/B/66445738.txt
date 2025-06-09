@@ -1,0 +1,55 @@
+#include<bits/stdc++.h>
+using namespace std;
+//#define CF
+const long long INF = 1LL << 62;
+using ll = long long;
+
+#define loop(i,x,y,z) for(int i = x; i < y; i+=z)
+#define rep(i,x,y) for(int i = x; i < y; i++)
+#define def_sort(v) sort(v.begin(), v.end())
+#define def_reverse(v) reverse(v.begin(), v.end())
+#define rev_sort(v) sort(v.rbegin(), v.rend());
+
+void solve() {
+    int n; cin >> n;
+    vector<pair<ll,ll>>points(n);
+    for(int i = 0; i < n; ++i){
+        cin >> points[i].first >> points[i].second;
+    }
+    auto collinear = [&](int i, int j, int k)->int{
+        return 
+        (points[i].first * points[j].second - points[i].second * points[j].first + 
+        points[j].first * points[k].second - points[j].second * points[k].first + 
+        points[k].first * points[i].second - points[k].second * points[i].first == 0);
+    };
+    for(int i = 0; i < n; ++i){
+        for(int j = i +  1; j < n; ++j){
+            int cnt = 2;
+            for(int k = j + 1; k < n; ++k){
+                cnt += collinear(i,j,k);
+            }
+            if(cnt >= (2*n)/3 ){
+                cout << n - cnt << endl;
+                return;
+            }
+        }
+    }
+    cout << n/3;
+}
+
+int main() {
+    std::ios::sync_with_stdio(0), std::cin.tie(0);
+#ifdef FIO
+    // freopen("div7.in", "r", stdin);
+    // freopen("div7.out", "w", stdout);
+#endif
+    // cout << setprecision(50);
+    int tc = 1;
+#ifdef CF
+    cin >> tc;
+#endif
+    while (tc--)
+        solve();
+    cerr << "Time elapsed:" << 1.0 * clock() / CLOCKS_PER_SEC << " s.\n";
+    return 0;
+}

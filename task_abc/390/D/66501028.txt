@@ -1,0 +1,41 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define rep(i, n) for (int i = 0; i < (int)(n); i++)
+#define all(T) T.begin(), T.end()
+using ll = long long;
+using P = pair<int, int>;
+const int di[] = {-1, 0, 1, 0};
+const int dj[] = {0, -1, 0, 1};
+
+int main() {
+    ll n;
+    cin >> n;
+    vector<ll> a(n);
+    rep(i, n) cin >> a[i];
+
+    vector<ll> ans;
+    auto dfs = [&](auto dfs, ll i, vector<ll> xs) -> void {
+        if (i == n) {
+            ll x = 0;
+            rep(j, xs.size()) x ^= xs[j];
+            ans.push_back(x);
+            return;
+        }
+        rep(j, xs.size()) {
+            xs[j] += a[i];
+            dfs(dfs, i + 1, xs);
+            xs[j] -= a[i];
+        }
+
+        xs.push_back(a[i]);
+        dfs(dfs, i + 1, xs);
+    };
+    dfs(dfs, 0, {});
+
+    sort(all(ans));
+    // setではTLE
+    // unorderd_setやuniqueを使えば要素数が高速に求められる
+    ans.erase(unique(all(ans)), ans.end());
+    cout << ans.size() << endl;
+}
+

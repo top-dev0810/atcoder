@@ -1,0 +1,156 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+/*
+  Problem:
+  Given N nodes and M constraints of the form:
+    A[X[i]] XOR A[Y[i]] = Z[i],
+  find a non-negative integer assignment A[1..N] that satisfies all constraints
+  and minimizes the sum of A[i]. If no solution exists, print -1.
+
+  Approach (bitwise, per‐bit bipartite assignment):
+
+  1. We will build A[] by deciding each bit (from 0 up to, say, 30) separately.
+     For bit = b, consider the constraints modulo 2 on that bit:
+       (A[X[i]]_b) XOR (A[Y[i]]_b) = ((Z[i] >> b) & 1)
+     This is a system of XOR‐constraints on {0,1} values for each node's b‐th bit.
+     A graph approach: build a graph of N nodes, where each edge (u,v) has weight w = ((Z[i] >> b) & 1).
+     We want to assign each node a bit value in {0,1} so that for every edge (u,v),
+       bit[u] XOR bit[v] = w.
+
+  2. If the graph (for this bit) is disconnected, we solve each connected component independently:
+     - Pick an unvisited node, assign its bit = 0, and BFS/DFS to propagate assignments.
+     - For an edge (u,v) with weight w, if bit[v] is unassigned, we set bit[v] = bit[u] XOR w.
+       If bit[v] is already assigned, check consistency: bit[v] == (bit[u] XOR w). If not, no solution exists.
+     - After assigning all nodes in a component, we will have a unique 0-root‐based assignment for that component.
+       Flipping the "root" from 0→1 would flip every bit in that component, producing the complementary 0/1 pattern.
+       Either the 0-root assignment or its complement is feasible; we choose whichever yields fewer 1s in that component,
+       because setting fewer 1s at this bit reduces the total sum of A[].
+
+  3. If there is any conflict while propagating (i.e., inconsistency around a cycle), then no assignment is possible: print -1.
+
+  4. Otherwise, after deciding for each bit which nodes get bit=1 (and which get 0), we add (1 << b) to A[node] for each node
+     whose bit is 1. Proceed through all bits b = 0..30 (assuming Z[i] fits in a 32‐bit signed int).
+
+  5. Finally, print the reconstructed A[1..N].
+
+  Complexity:
+    - We do up to B = 31 bits (0..30).
+    - For each bit, we build an adjacency list of size M (O(M)) and do a BFS/DFS over at most N + M operations.
+    - Total: O(B * (N + M)). For N,M up to ~2e5, this is ~31 * 4e5 ≈ 1.2e7 steps, which is acceptable.
+
+*/
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, M;
+    cin >> N >> M;
+
+    vector<int> X(M), Y(M), Z(M);
+    for (int i = 0; i < M; i++) {
+        cin >> X[i] >> Y[i] >> Z[i];
+        // Convert to 0-based internally (optional), but here we keep 1-based for clarity.
+    }
+
+    // This will hold the final A[1..N]. Initialize all to 0.
+    vector<long long> A(N + 1, 0LL);
+
+    // We will process bits from 0 up to 30 (inclusive).
+    const int MAX_BIT = 30;
+
+    // Temporary storage for per-bit visitation/assignment:
+    // bitValue[i] = -1 means unassigned; otherwise it's 0 or 1 for the current bit.
+    vector<int> bitValue(N + 1);
+
+    // For building adjacency for each bit.
+    vector<vector<pair<int,int>>> adj(N + 1);
+
+    // Process each bit independently.
+    for (int b = 0; b <= MAX_BIT; b++) {
+        // 1) Build adjacency list for this bit: every edge (X[i], Y[i]) with weight w = (Z[i] >> b) & 1.
+        for (int i = 1; i <= N; i++) {
+            adj[i].clear();
+            bitValue[i] = -1;
+        }
+        for (int i = 0; i < M; i++) {
+            int u = X[i];
+            int v = Y[i];
+            int w = (Z[i] >> b) & 1;  // desired XOR at bit b
+            adj[u].push_back({v, w});
+            adj[v].push_back({u, w});
+        }
+
+        // 2) For each unvisited node, run BFS/DFS to assign bits in its connected component.
+        for (int start = 1; start <= N; start++) {
+            if (bitValue[start] != -1) continue;  // already assigned in some component
+
+            // Collect all nodes in this component and assign with root bit = 0.
+            vector<int> componentNodes;
+            queue<int> q;
+
+            // Start BFS/DFS from 'start', assign bitValue[start] = 0.
+            bitValue[start] = 0;
+            q.push(start);
+            componentNodes.push_back(start);
+
+            bool conflict = false;
+            while (!q.empty() && !conflict) {
+                int u = q.front();
+                q.pop();
+                for (auto &edge : adj[u]) {
+                    int v = edge.first;
+                    int w = edge.second;
+                    int expected = bitValue[u] ^ w;
+                    if (bitValue[v] == -1) {
+                        bitValue[v] = expected;
+                        q.push(v);
+                        componentNodes.push_back(v);
+                    } else {
+                        // Already assigned: check consistency
+                        if (bitValue[v] != expected) {
+                            conflict = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (conflict) {
+                // No valid assignment for this bit → no overall solution
+                cout << -1 << "\n";
+                return 0;
+            }
+
+            // 3) We have a consistent assignment for "root = 0". Count how many 1s.
+            int countOnes = 0;
+            for (int node : componentNodes) {
+                if (bitValue[node] == 1) countOnes++;
+            }
+            int compSize = (int)componentNodes.size();
+
+            // If flipping the entire assignment in this component yields fewer 1s,
+            // then set bitValue[node] = 1 - bitValue[node] for all nodes in the component.
+            if (countOnes > compSize - countOnes) {
+                for (int node : componentNodes) {
+                    bitValue[node] = 1 - bitValue[node];
+                }
+            }
+
+            // 4) Add this bit to the final A[node] for all nodes whose bitValue[node] == 1.
+            for (int node : componentNodes) {
+                if (bitValue[node] == 1) {
+                    A[node] |= (1LL << b);
+                }
+            }
+        } // end for each component
+    } // end for each bit
+
+    // If we reach here, we found a minimizing assignment A[1..N]. Print it.
+    for (int i = 1; i <= N; i++) {
+        cout << A[i] << (i < N ? ' ' : '\n');
+    }
+
+    return 0;
+}

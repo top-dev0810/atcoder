@@ -1,0 +1,61 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define il inline
+#define pb push_back
+#define debug puts("How can I become successful?")
+using ll=long long;
+using pii=pair<int,int>;
+using db=double;
+#define fi first
+#define se second
+const int N=1e6+5,mod=998244353;
+int n;
+string a;
+ll f[1<<6],g[1<<6],ans;
+//1 1-1
+//2 0-0
+//4 0-2
+//8 2-0
+//16 2-2
+int main() {
+	ios::sync_with_stdio(false);
+	cin.tie(0),cout.tie(0);
+	cin>>n>>a;
+	f[1]=1;
+	for(int i=1;i<=n;i++) {
+		memcpy(g,f,sizeof(g));
+		memset(f,0,sizeof(f));
+		for(int j=1;j<1<<5;j++) {
+			int k=0;
+			if(j&1) k|=2;
+			if(j&4) k|=2;
+			if(j&16) k|=8;
+			(f[k]+=g[j])%=mod;//0
+			k=j;
+			if(a[i-1]-'0') {
+				if(j&1) k|=2;
+				if(j&4) k|=2;
+				if(j&16) k|=8;
+			}
+			(f[k]+=g[j])%=mod;//1
+			k=0;
+			if(j&1) k|=16;
+			if(j&2) k|=4;
+			if(j&8) k|=16;
+			if(a[i-1]-'0') k|=j;
+			(f[k]+=g[j])%=mod;//2
+			k=0;
+			if(a[i-1]-'0') {
+				if(j&1) k|=16;
+				if(j&2) k|=4;
+				if(j&8) k|=16;
+			}
+			(f[k]+=g[j])%=mod;//3
+		}
+	}
+	for(int i=1;i<1<<5;i++) {
+		if((i&1)||(i&4)||(i&8)) (ans+=f[i])%=mod;
+	}
+	cout<<ans;
+	return 0;
+}

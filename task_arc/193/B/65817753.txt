@@ -1,0 +1,62 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+signed main(){
+    int N;
+    string S;
+    cin>>N>>S;
+    int mod = 998244353;
+    vector<int> I(2000100);
+    I[0] = 1;
+    for(int i=0;i<2*N+10;i++) I[i+1] = (I[i]*2)%mod;
+    vector<int> A = {};
+    {
+        vector<int> s = {};
+        for(int i=0;i<N;i++)if(S[i] == '1') s.push_back(i);
+        if(s.size() == 0){
+            cout<<(I[N]+mod-1)%mod<<endl;
+            return 0;
+        }
+        else if(s.size() == 1){
+            cout<<(I[N+1]+mod-2)%mod<<endl;
+            return 0;
+        }
+        for(int i=1;i<s.size();i++) A.push_back(s[i]-s[i-1]);
+        A.push_back(s[0]+N-s[s.size()-1]);
+    }
+    int n = A.size();
+    // x : a -> b
+    int ans = -2;
+    {
+        int a = 1, b = 0;
+        for(int i=0;i<A.size();i++){
+            if(i == A.size()-1){
+                a = (a+b)*I[A[i]]%mod;
+            }
+            else{
+                int aa = (a+b)*I[A[i]]%mod;
+                int bb = (a*(I[A[i]]-1)+b*I[A[i]])%mod;
+                a = aa;
+                b = bb;
+            }
+        }
+        ans += a;
+    }
+    {
+        int a = 0, b = 1;
+        for(int i=0;i<A.size();i++){
+            if(i == A.size()-1){
+                int bb = (a*(I[A[i]]-1)+b*I[A[i]])%mod;
+                b = bb;
+            }
+            else{
+                int aa = (a+b)*I[A[i]]%mod;
+                int bb = (a*(I[A[i]]-1)+b*I[A[i]])%mod;
+                a = aa;
+                b = bb;
+            }
+        }
+        ans += b;
+    }
+    cout<<(ans%mod+mod)%mod<<endl;
+}

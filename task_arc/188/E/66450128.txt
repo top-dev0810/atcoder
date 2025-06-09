@@ -1,0 +1,91 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+typedef long long lnt;
+
+const int N = 2e5 + 7;
+
+int n, m;
+int a[N];
+int b[N];
+
+int fa[N * 3];
+
+int find(int x) {
+    return x == fa[x] ? x : fa[x] = find(fa[x]);
+}
+
+void INIT() { }
+
+void WORK() {
+    cin >> n;
+    if (n == 1) {
+        cout << "1\n";
+        return;
+    }
+    for (int i = 1; i <= n; ++ i) {
+        cin >> a[i];
+        b[n - a[i] + 1] = n - i + 1;
+    }
+    int fl = 0;
+    if (b[n] == 1) {
+        fl = 1;
+        for (int i = 1; i < n; ++ i) {
+            if (fl && a[i] > a[i + 1]) {
+                fl = 0;
+            } else {
+                fl = 1;
+            }
+        }
+        if (fl) {
+            a[n] = 0;
+            -- n;
+            for (int i = 1; i <= n; ++ i) {
+                -- a[i];
+                b[n - a[i] + 1] = n - i + 1;
+            }
+        }
+    }
+    m = n + n;
+    fa[b[1] + 1] = b[1] + 1;
+    fa[b[1]    ] = b[1] + 1;
+    if (b[1] != 1) {
+        fa[b[1] - 1] = b[1] + 1;
+    }
+    int ans = 0;
+    for (int c = 2; c <= n; ++ c) {
+        int i = b[c];
+        int p = i;
+        while (find(p)) {
+            p = fa[p] + 1;
+            fa[p - 1] = p + 1;
+        }
+        if (p != 1) {
+            fa[p - 1] = p + 1;
+        }
+        fa[p    ] = p + 1;
+        fa[p + 1] = p + 1;
+        ans = max(ans, p + n - c);
+    }
+    cout << ans + fl * 2 << '\n';
+}
+
+//#define filename ""
+
+int main() {
+    #ifdef filename
+    freopen(filename ".in", "r", stdin);
+    freopen(filename ".out", "w", stdout);
+    #endif
+    cin.tie(0); cout.tie(0);
+    ios::sync_with_stdio(0);
+    
+    INIT();
+    int Turn = 1;
+    //cin >> Turn;
+    while (Turn -- ) {
+        WORK();
+    }
+    return 0;
+}

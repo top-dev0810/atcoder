@@ -1,0 +1,89 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define mid ((l+r)>>1)
+#define ls(p) (p<<1)
+#define rs(p) (p<<1|1)
+#define lowbit(i) ((i)&(-i))
+#define double long double
+const int inf=1e18;
+const int mod=998244353;
+int fast(int x,int k,int mod)
+{
+	int ret=1;
+	while(k)
+	{
+		if(k&1) ret=ret*x%mod;
+		x=x*x%mod;
+		k>>=1;
+	}
+	return ret;
+}
+void solve()
+{
+	int n,m;
+	cin>>n>>m;
+	vector s(201,vector<char>(201));
+	for(int i=1;i<=n;++i)
+	{
+		for(int j=1;j<=m;++j)
+		{
+			cin>>s[i][j];
+		}
+	}
+	if(m>15)
+	{
+		auto s1=s;
+		for(int i=1;i<=m;++i)
+		{
+			for(int j=1;j<=n;++j)
+			{
+				s[i][j]=s1[j][i];
+			}
+		}
+		swap(n,m);
+	}
+	vector<unordered_map<int,int> > dp(2);
+	vector<int> pw(m+1);
+	pw[0]=1;
+	for(int i=1;i<=m;++i) pw[i]=pw[i-1]*4;
+	dp[0][0]=1;
+	int opt=0;
+	for(int i=1;i<=n;++i)
+	{
+		for(int j=1;j<=m;++j)
+		{
+			opt^=1;
+			dp[opt].clear();
+			for(auto [x,y]:dp[opt^1])
+			{
+				for(int t=1;t<=3;++t)
+				{
+					if(s[i][j]!='?'&&s[i][j]-'0'!=t) continue;
+					if(j!=1)
+					{
+						int b=x%pw[j-1]/pw[j-2];
+						if(b==t) continue;
+					}
+					int b=x%pw[j]/pw[j-1];
+					if(b==t) continue;
+					
+					int tmp=x-b*pw[j-1]+t*pw[j-1];
+					(dp[opt][tmp]+=y)%=mod;
+				}
+			}
+		}
+	}
+	int ans=0;
+	for(auto [x,y]:dp[opt]) (ans+=y)%=mod;
+	cout<<ans<<'\n';
+}
+signed main()
+{
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	int T=1;
+	// cin>>T;
+	while(T--) solve();
+	return 0;
+}

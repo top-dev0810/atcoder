@@ -1,0 +1,73 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+const int M = 3e6;
+const int N = M + 5;
+
+struct SegTree {
+	int sum[N * 4];
+
+	void build(int x, int l, int r) {
+		if (l == r) {
+			sum[x] = 1;
+			return;
+		}
+		int mid = (l + r) / 2;
+		build(x * 2, l, mid);
+		build(x * 2 + 1, mid + 1, r);
+		sum[x] = sum[x * 2] + sum[x * 2 + 1];
+	}
+
+	void remove(int x, int l, int r, int k) {
+		if (l == r) {
+			sum[x] = 0;
+			return;
+		}
+		int mid = (l + r) / 2;
+		if (k <= mid) {
+			remove(x * 2, l, mid, k);
+		}
+		else {
+			remove(x * 2 + 1, mid + 1, r, k);
+		}
+		sum[x] = sum[x * 2] + sum[x * 2 + 1];
+	}
+
+	int find_smallest(int x, int l, int r, int k) {
+		if (l == r) {
+			return l;
+		}
+		int mid = (l + r) / 2;
+		if (k > sum[x * 2]) {
+			k -= sum[x * 2];
+			return find_smallest(x * 2 + 1, mid + 1, r, k);
+		}
+		else {
+			return find_smallest(x * 2, l, mid, k);
+		}
+	}
+};
+
+SegTree tree;
+bool app[N];
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(nullptr);
+	int Q;
+	cin >> Q;
+	fill(begin(app), end(app), false);
+	tree.build(1, 1, N);
+	while (Q--) {
+		int A, B;
+		cin >> A >> B;
+		if (A <= N && !app[A]) {
+			app[A] = true;
+			for (int k = A; k <= N; k += A) {
+				tree.remove(1, 1, N, k);	
+			}
+		}
+		cout << tree.find_smallest(1, 1, N, B) << '\n';
+	}	
+}

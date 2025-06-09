@@ -1,0 +1,58 @@
+//テンプレート
+#include <bits/stdc++.h>
+using namespace std;
+using LL=long long;
+#define rep(i, n) for (int i = 0; i < (n); i++)
+#define repLL(i, n) for (LL i = 0; i < (n); i++)
+using vint=vector<int>;using vvint=vector<vector<int>>;using vvvint=vector<vector<vector<int>>>;
+using vLL=vector<LL>;using vvLL=vector<vector<LL>>;using vvvLL=vector<vector<vector<LL>>>;
+using pint=pair<int,int>;using pLL=pair<LL,LL>;
+//テンプレートここまで
+
+using tint=tuple<int,int,int>;
+
+int main(){
+  int H,W; cin >> H >> W;
+  vector<string> M(H); rep(i,H) cin >> M[i];
+  //移動向き付きbfs
+  vvvint dist(H,vvint(W,vint(2,-1))); //(x,y,移動の向き)=(最短距離)
+  queue<tint> que;
+  pint start,goal;
+  rep(i,H){
+    rep(j,W){
+      if(M[i][j]=='S') start={i,j};
+      if(M[i][j]=='G') goal={i,j};
+    }
+  }
+  dist[start.first][start.second][0]=0;
+  dist[start.first][start.second][1]=0;
+  que.push({start.first,start.second,0}); que.push({start.first,start.second,1});
+  vint d={-1,1};
+  while(!que.empty()){
+    int x,y,t; tie(x,y,t)=que.front(); que.pop();
+    if(t==0){
+      rep(i,2){
+        int nx,ny; nx=x+d[i]; ny=y;
+        if(nx<0 || nx>=H) continue;
+        if(M[nx][ny]=='#') continue;
+        if(dist[nx][ny][1]!=-1) continue;
+        dist[nx][ny][1]=dist[x][y][t]+1;
+        que.push({nx,ny,1});
+      }
+    }
+    else{
+      rep(i,2){
+        int nx,ny; nx=x; ny=y+d[i];
+        if(ny<0 || ny>=W) continue;
+        if(M[nx][ny]=='#') continue;
+        if(dist[nx][ny][0]!=-1) continue;
+        dist[nx][ny][0]=dist[x][y][t]+1;
+        que.push({nx,ny,0});
+      }
+    }
+  }
+  set<int> ST;
+  rep(t,2) if(dist[goal.first][goal.second][t]!=-1) ST.insert(dist[goal.first][goal.second][t]);
+  if((int)ST.size()==0) cout << "-1" << endl;
+  else cout << *begin(ST) << endl;
+}

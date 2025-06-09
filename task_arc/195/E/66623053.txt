@@ -1,0 +1,74 @@
+#include<bits/stdc++.h>
+#define cint const int
+#define uint unsigned int
+#define cuint const unsigned int
+#define ll long long
+#define cll const long long
+#define ull unsigned long long
+#define cull const unsigned long long
+#define sh short
+#define csh const short
+#define ush unsigned short
+#define cush const unsigned short
+using namespace std;
+int read()
+{
+	int x=0;
+	char ch=getchar();
+	while(ch<'0'||ch>'9')
+	{
+		ch=getchar();
+	}
+	while(ch>='0'&&ch<='9')
+	{
+		x=(x<<1)+(x<<3)+(ch-'0');
+		ch=getchar();
+	}
+	return x;
+}
+void print(cint x)
+{
+	if(x<10)
+	{
+		putchar(x+'0');
+		return;
+	}
+	print(x/10);
+	putchar(x%10+'0');
+}
+void princh(cint x,const char ch)
+{
+	print(x);
+	putchar(ch);
+}
+cint N=2e5,Q=2e5;
+cint mod=998244353;
+inline int MOD(cint x)
+{
+	return (x>=mod?x-mod:x);
+}
+int n,q;
+int a[N+1],e[N+1],se[N+1],l[N+1],sl[N+1],fac[N+1],inv[N+1];
+int main()
+{
+	//freopen(".in","r",stdin);
+	//freopen(".out","w",stdout);
+	n=read(),q=read();
+	inv[1]=fac[0]=fac[1]=1;
+	for(int i=2;i<=n;++i)
+	{
+		a[i]=read();
+		inv[i]=1ll*(mod-mod/i)*inv[mod%i]%mod;
+		fac[i]=1ll*i*fac[i-1]%mod;
+		e[i]=(a[i]+1ll*inv[i-1]*se[i-1])%mod;
+		se[i]=MOD(se[i-1]+e[i]);
+		l[i]=1ll*(e[i]+sl[i-1])*inv[i]%mod;
+		sl[i]=MOD(sl[i-1]+l[i]);
+	}
+	while(q--)
+	{
+		cint u=read(),v=read();
+		princh(1ll*(MOD(e[u]+e[v])+mod-MOD(l[u]<<1))*fac[n-1]%mod,'\n');
+	}
+	return 0;
+}

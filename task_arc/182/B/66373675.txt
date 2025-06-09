@@ -1,0 +1,51 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+typedef long long lnt;
+
+//const int N = 
+
+int n, m;
+
+void dfs(int n, int m, int x) {
+    if (n == 1) {
+        cout << (x << m) << ' ';
+        return;
+    }
+    if (m == 0) {
+        for (; n; -- n) {
+            cout << x << ' ';
+        }
+        return;
+    }
+    dfs(    n / 2, m - 1, x << 1    );
+    dfs(n - n / 2, m - 1, x << 1 | 1);
+}
+
+void INIT() { }
+
+void WORK() {
+    cin >> n >> m;
+    dfs(n, m - 1, 1);
+    cout << '\n';
+}
+
+//#define filename ""
+
+int main() {
+    #ifdef filename
+    freopen(filename ".in", "r", stdin);
+    freopen(filename ".out", "w", stdout);
+    #endif
+    cin.tie(0); cout.tie(0);
+    ios::sync_with_stdio(0);
+    
+    INIT();
+    int Turn = 1;
+    cin >> Turn;
+    while (Turn -- ) {
+        WORK();
+    }
+    return 0;
+}

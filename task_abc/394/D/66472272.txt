@@ -1,0 +1,15 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    map<char, char> pairs = {{')', '('}, {']', '['}, {'>', '<'}};
+    stack<char> paren;
+    string s;
+    cin >> s;
+    for (char i : s) {
+        if (!paren.empty() && paren.top() == pairs[i]) paren.pop();
+        else paren.push(i);
+    }
+    (paren.empty()) ? cout << "Yes" : cout << "No";
+
+}

@@ -1,0 +1,232 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define int ll
+typedef long long ll;
+typedef unsigned long long ull;
+
+#define mk make_pair
+#define fi first
+#define se second
+typedef pair<int,int> pii;
+typedef pair<double,double> pdd;
+
+#define ReadIn(s) freopen(s,"r",stdin)
+#define OutPut(s) freopen(s,"w",stdout)
+
+#define btpcll(x) __builtin_popcountll(x)
+#define btpc(x) __builtin_popcount(x)
+
+#define eb emplace_back
+#define sz(x) (int)(x.size())
+
+template<typename T>
+void read(T &x){
+	x=0;char c=getchar();T neg=0;
+	while(!isdigit(c)) neg|=!(c^'-'),c=getchar();
+	while(isdigit(c)) x=(x<<3)+(x<<1)+(c^48),c=getchar();
+	if(neg) x=(~x)+1;
+}
+template<typename T,typename ...Args>
+void read(T &x,Args &...args) {
+	read(x);read(args...);
+}
+
+const int M=3e5+10;
+const int inf=0x3f3f3f3f3f3f3f3f;
+const double eps=1e-10;
+
+inline int comp (double x,double y) {
+	if(x-y>eps) return 1;
+	if(y-x>eps) return -1;
+	return 0;
+}
+
+bool Mst;
+//in this
+
+struct edge {
+	int to,net,w;
+}ed[M<<2];
+int hed[M],cnt=1;
+void add(int x,int y,int z) {
+	ed[++cnt].net=hed[x];
+	hed[x]=cnt;
+	ed[cnt].to=y;
+	ed[cnt].w=z;
+}
+void addedge(int x,int y,int z ) {
+	add(x,y,z);add(y,x,0);
+}
+
+int n,m;
+
+int p[M],q[M];
+
+int dq[M],dp[M];
+
+vector<int>X,Y;
+
+namespace web {
+	int s,t;
+	int up;
+	int dis[M];
+	int fir[M];
+	
+	queue<int>q;
+	
+	int bfs(int s,int t) {
+		fill(dis+1,dis+up+1,-1);
+		dis[s]=0;q.push(s);
+		while(sz(q)) {
+			int now=q.front();q.pop();
+			fir[now]=hed[now];
+			for(int i=hed[now];i;i=ed[i].net) {
+				int to=ed[i].to;
+				if(ed[i].w&&dis[to]==-1) {
+					dis[to]=dis[now]+1;
+					q.push(to);
+				}
+			}
+		}
+		return dis[t]!=-1;
+	}
+	
+	int dfs(int now,int flow,int t) {
+		if(now==t||!flow) return flow;
+		int res=0;
+		for(int &i=fir[now];i;i=ed[i].net) {
+			int to=ed[i].to;
+			if(ed[i].w&&dis[to]==dis[now]+1) {
+				int d=dfs(to,min(flow-res,ed[i].w),t);
+				if(!d) {dis[to]=-1;continue;}
+				res+=d;ed[i].w-=d;ed[i^1].w+=d;
+				if(res==flow) return res;
+			}
+		}
+		return res;
+	}
+	
+	int ma=0;
+	
+	void dinic() {
+		while(bfs(s,t)) ma+=dfs(s,inf,t); 
+	}
+	
+} 
+
+vector<pii>vec;
+
+map<pii,int>mp;
+
+void solve() {
+	read(n,m);
+	
+	if(n<=2*m) {
+		for(int i=1;i<=m;i++) {
+			int x,y;read(x,y);
+			vec.eb(mk(x,y));mp[mk(x,y)]=1;
+			dq[x]++;dp[y]++;
+		}
+		
+		web::up=2*n+2;
+		web::s=2*n+1;
+		web::t=2*n+2;
+		
+		for(int i=1;i<=n;i++) {
+			addedge(2*n+1,i,m-dq[i]);
+		}
+		
+		for(int i=1;i<=n;i++) {
+			addedge(i+n,2*n+2,m-dp[i]);
+		}
+		
+		for(int i=1;i<=n;i++) {
+			for(int j=1;j<=n;j++) {
+				addedge(i,j+n,!mp[mk(i,j)]);
+			}
+		}
+		
+		web::dinic();
+		
+		cout<<m*n<<"\n";
+		
+		for(auto it:vec) cout<<it.fi<<" "<<it.se<<"\n";
+		
+		
+		for(int i=1;i<=n;i++) {
+			for(int j=hed[i];j;j=ed[j].net) {
+				if(ed[j].to<=2*n&&ed[j^1].w) {
+					
+//					cout<<i<<" "<<ed[j].to-n<<" "<<ed[j^1].w<<"\n";
+					
+//					c++;
+					
+					cout<<i<<" "<<ed[j].to-n<<"\n";
+				}
+			}
+		}
+		
+		return ;
+		
+	}
+	
+	for(int i=1;i<=m;i++) {
+		int x,y;read(x,y);
+		X.eb(x);Y.eb(y);
+	}
+	
+	sort(X.begin(),X.end());
+	X.erase(unique(X.begin(),X.end()),X.end());
+	sort(Y.begin(),Y.end());
+	Y.erase(unique(Y.begin(),Y.end()),Y.end());
+	
+	int s0=sz(X),s1=sz(Y);
+	int it0=0,it1=0;
+	
+	for(int i=1;i<=n;i++) {
+		while(it0<s0&&X[it0]<i) it0++;
+		while(it1<s1&&Y[it1]<i) it1++;	
+		
+		if(X[it0]!=i) X.eb(i);
+		if(Y[it1]!=i) Y.eb(i);
+		
+	}
+	
+	cout<<m*n<<"\n";
+	
+	for(int i=0;i<m;i++) {
+		for(int j=0;j<m;j++) {
+			cout<<X[i]<<" "<<Y[j]<<"\n";
+		}
+	}
+	
+	reverse(X.begin(),X.end());for(int i=0;i<m;i++) X.pop_back();reverse(X.begin(),X.end());
+	reverse(Y.begin(),Y.end());for(int i=0;i<m;i++) Y.pop_back();reverse(Y.begin(),Y.end());
+	
+	int x=0,y=0;
+	int lx=sz(X),ly=sz(Y);
+	int c=m*n-m*m;
+	
+	while(c--) {
+		if(mp[mk(x,y)]) (y+=1)%=ly;
+		cout<<X[x]<<" "<<Y[y]<<"\n";
+		mp[mk(x,y)]=1;
+		(x+=1)%=lx;(y+=1)%=ly;
+	}
+	
+}
+
+//
+bool Med;
+
+signed main() {
+	
+	solve();
+	
+	cerr<<"\n";
+	cerr<<"Memory:"<<(&Mst-&Med)/1024.0/1024<<" MB\n";
+	cerr<<"Time:"<<clock()/1.0/CLOCKS_PER_SEC*1000.0<<" ms\n";
+
+	return 0;
+}

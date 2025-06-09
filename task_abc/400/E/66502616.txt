@@ -1,0 +1,35 @@
+//テンプレート
+#include <bits/stdc++.h>
+using namespace std;
+using LL=long long;
+#define rep(i, n) for (int i = 0; i < (n); i++)
+#define repLL(i, n) for (LL i = 0; i < (n); i++)
+using vint=vector<int>;using vvint=vector<vector<int>>;using vvvint=vector<vector<vector<int>>>;
+using vLL=vector<LL>;using vvLL=vector<vector<LL>>;using vvvLL=vector<vector<vector<LL>>>;
+using pint=pair<int,int>;using pLL=pair<LL,LL>;
+//テンプレートここまで
+
+int main(){
+  vint num(1000001,0);
+  for(int i=2; i<=1000000; i++){
+    if(num[i]!=0) continue;
+    //num[i]==0ならiは素数
+    for(int j=1; j<=1000000/i; j++) num[i*j]++;
+  }
+  vLL ans;
+  repLL(i,1000001) if(num[i]==2) ans.push_back(i); //iをLLで格納しないと、後々2乗できない
+  int Q; cin >> Q;
+  rep(q,Q){
+    LL A; cin >> A;
+    //√A以下の最大の自然数okを二分探索
+    LL ok=-1; LL ng=1000001;
+    while(ng-ok>1){
+      LL m=(ng+ok)/2;
+      if(m*m<=A) ok=m;
+      else ng=m;
+    }
+    //ansに含まれるok以下の最大の要素を得る
+    int iter=upper_bound(ans.begin(),ans.end(),ok)-ans.begin()-1; //条件よりok>=6であるから、iterは-1になりえない
+    cout << ans[iter]*ans[iter] << endl;
+  }
+}

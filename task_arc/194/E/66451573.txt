@@ -1,0 +1,66 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+using ll = long long;
+
+int n, A, B;
+char s[500500], t[500500];
+
+vector<array<int, 2>> f(char s[]){
+    vector<array<int, 2>> a;
+    for (int i=1;i<=n;i++){
+        if (a.empty() || a.back()[0] != (s[i]-'0')) a.push_back({s[i]-'0', 1});
+        else a.back()[1]++;
+    }
+
+    vector<array<int, 2>> ret = {{0, 0}};
+    int pt = 0;
+
+    for (auto &[typ, cnt]:a){
+        if (typ==0){
+            ret[pt][1] += cnt / A * A;
+            
+            if (cnt % A != 0){
+                if (ret.back()[0] == 1) ret.push_back({0, cnt % A});
+                else ret.back()[1] += cnt % A;
+            } 
+        }
+
+        else{
+            if (cnt % B == 0){
+                if (ret.back()[0] == 0) ret.push_back({1, cnt});
+                else ret.back()[1] += cnt;
+            }
+
+            else{
+                if (ret.back()[0] == 0){
+                    ret.push_back({1, cnt % B});
+                    ret.push_back({0, 0});
+                    ret.push_back({1, cnt / B * B});
+                } 
+                else{
+                    ret.back()[1] += cnt;
+                    int q = ret.back()[1] / B * B;
+                    ret.back()[1] %= B;
+                    ret.push_back({0, 0});
+                    ret.push_back({1, q});
+                } 
+
+                pt = (int)ret.size() - 2;
+            }
+        }
+    }
+
+    vector<array<int, 2>> nret;
+    for (auto &[typ, cnt]:ret) if (cnt) nret.push_back({typ, cnt});
+    return nret;
+}
+
+int main(){
+    scanf("%d %d %d", &n, &A, &B);
+    scanf("%s", s+1);
+    scanf("%s", t+1);
+
+    if (f(s) == f(t)) printf("Yes\n");
+    else printf("No\n");
+}

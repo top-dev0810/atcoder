@@ -1,0 +1,501 @@
+// QCFium 法
+#pragma GCC target("avx2") // yukicoder では消す
+#pragma GCC optimize("O3") // たまにバグる
+#pragma GCC optimize("unroll-loops")
+
+
+#ifndef HIDDEN_IN_VS // 折りたたみ用
+
+// 警告の抑制
+#define _CRT_SECURE_NO_WARNINGS
+
+// ライブラリの読み込み
+#include <bits/stdc++.h>
+using namespace std;
+
+// 型名の短縮
+using ll = long long; using ull = unsigned long long; // -2^63 ～ 2^63 = 9e18（int は -2^31 ～ 2^31 = 2e9）
+using pii = pair<int, int>;	using pll = pair<ll, ll>;	using pil = pair<int, ll>;	using pli = pair<ll, int>;
+using vi = vector<int>;		using vvi = vector<vi>;		using vvvi = vector<vvi>;	using vvvvi = vector<vvvi>;
+using vl = vector<ll>;		using vvl = vector<vl>;		using vvvl = vector<vvl>;	using vvvvl = vector<vvvl>;
+using vb = vector<bool>;	using vvb = vector<vb>;		using vvvb = vector<vvb>;
+using vc = vector<char>;	using vvc = vector<vc>;		using vvvc = vector<vvc>;
+using vd = vector<double>;	using vvd = vector<vd>;		using vvvd = vector<vvd>;
+template <class T> using priority_queue_rev = priority_queue<T, vector<T>, greater<T>>;
+using Graph = vvi;
+
+// 定数の定義
+const double PI = acos(-1);
+int DX[4] = { 1, 0, -1, 0 }; // 4 近傍（下，右，上，左）
+int DY[4] = { 0, 1, 0, -1 };
+int INF = 1001001001; ll INFL = 4004004003094073385LL; // (int)INFL = INF, (int)(-INFL) = -INF;
+
+// 入出力高速化
+struct fast_io { fast_io() { cin.tie(nullptr); ios::sync_with_stdio(false); cout << fixed << setprecision(18); } } fastIOtmp;
+
+// 汎用マクロの定義
+#define all(a) (a).begin(), (a).end()
+#define sz(x) ((int)(x).size())
+#define lbpos(a, x) (int)distance((a).begin(), std::lower_bound(all(a), (x)))
+#define ubpos(a, x) (int)distance((a).begin(), std::upper_bound(all(a), (x)))
+#define Yes(b) {cout << ((b) ? "Yes\n" : "No\n");}
+#define rep(i, n) for(int i = 0, i##_len = int(n); i < i##_len; ++i) // 0 から n-1 まで昇順
+#define repi(i, s, t) for(int i = int(s), i##_end = int(t); i <= i##_end; ++i) // s から t まで昇順
+#define repir(i, s, t) for(int i = int(s), i##_end = int(t); i >= i##_end; --i) // s から t まで降順
+#define repe(v, a) for(const auto& v : (a)) // a の全要素（変更不可能）
+#define repea(v, a) for(auto& v : (a)) // a の全要素（変更可能）
+#define repb(set, d) for(int set = 0, set##_ub = 1 << int(d); set < set##_ub; ++set) // d ビット全探索（昇順）
+#define repis(i, set) for(int i = lsb(set), bset##i = set; i < 32; bset##i -= 1 << i, i = lsb(bset##i)) // set の全要素（昇順）
+#define repp(a) sort(all(a)); for(bool a##_perm = true; a##_perm; a##_perm = next_permutation(all(a))) // a の順列全て（昇順）
+#define uniq(a) {sort(all(a)); (a).erase(unique(all(a)), (a).end());} // 重複除去
+#define EXIT(a) {cout << (a) << endl; exit(0);} // 強制終了
+#define inQ(x, y, u, l, d, r) ((u) <= (x) && (l) <= (y) && (x) < (d) && (y) < (r)) // 半開矩形内判定
+
+// 汎用関数の定義
+template <class T> inline ll powi(T n, int k) { ll v = 1; rep(i, k) v *= n; return v; }
+template <class T> inline bool chmax(T& M, const T& x) { if (M < x) { M = x; return true; } return false; } // 最大値を更新（更新されたら true を返す）
+template <class T> inline bool chmin(T& m, const T& x) { if (m > x) { m = x; return true; } return false; } // 最小値を更新（更新されたら true を返す）
+template <class T> inline T getb(T set, int i) { return (set >> i) & T(1); }
+template <class T> inline T smod(T n, T m) { n %= m; if (n < 0) n += m; return n; } // 非負mod
+
+// 演算子オーバーロード
+template <class T, class U> inline istream& operator>>(istream& is, pair<T, U>& p) { is >> p.first >> p.second; return is; }
+template <class T> inline istream& operator>>(istream& is, vector<T>& v) { repea(x, v) is >> x; return is; }
+template <class T> inline vector<T>& operator--(vector<T>& v) { repea(x, v) --x; return v; }
+template <class T> inline vector<T>& operator++(vector<T>& v) { repea(x, v) ++x; return v; }
+
+#endif // 折りたたみ用
+
+
+#if __has_include(<atcoder/all>)
+#include <atcoder/all>
+using namespace atcoder;
+
+#ifdef _MSC_VER
+#include "localACL.hpp"
+#endif
+
+using mint = modint998244353;
+//using mint = static_modint<1000000181>;
+//using mint = modint; // mint::set_mod(m);
+
+namespace atcoder {
+	inline istream& operator>>(istream& is, mint& x) { ll x_; is >> x_; x = x_; return is; }
+	inline ostream& operator<<(ostream& os, const mint& x) { os << x.val(); return os; }
+}
+using vm = vector<mint>; using vvm = vector<vm>; using vvvm = vector<vvm>; using vvvvm = vector<vvvm>; using pim = pair<int, mint>;
+#endif
+
+
+#ifdef _MSC_VER // 手元環境（Visual Studio）
+#include "local.hpp"
+#else // 提出用（gcc）
+inline int popcount(int n) { return __builtin_popcount(n); }
+inline int popcount(ll n) { return __builtin_popcountll(n); }
+inline int lsb(int n) { return n != 0 ? __builtin_ctz(n) : 32; }
+inline int lsb(ll n) { return n != 0 ? __builtin_ctzll(n) : 64; }
+inline int msb(int n) { return n != 0 ? (31 - __builtin_clz(n)) : -1; }
+inline int msb(ll n) { return n != 0 ? (63 - __builtin_clzll(n)) : -1; }
+#define dump(...)
+#define dumpel(v)
+#define dump_math(v)
+#define input_from_file(f)
+#define output_to_file(f)
+#define Assert(b) { if (!(b)) { vc MLE(1<<30); EXIT(MLE.back()); } } // RE の代わりに MLE を出す
+#endif
+
+
+//【行列】
+/*
+* Matrix<T>(int n, int m) : O(n m)
+*	n×m 零行列で初期化する．
+*
+* Matrix<T>(int n) : O(n^2)
+*	n×n 単位行列で初期化する．
+*
+* Matrix<T>(vvT a) : O(n m)
+*	二次元配列 a[0..n)[0..m) の要素で初期化する．
+*
+* bool empty() : O(1)
+*	行列が空かを返す．
+*
+* A + B : O(n m)
+*	n×m 行列 A, B の和を返す．+= も使用可．
+*
+* A - B : O(n m)
+*	n×m 行列 A, B の差を返す．-= も使用可．
+*
+* c * A ／ A * c : O(n m)
+*	n×m 行列 A とスカラー c のスカラー積を返す．*= も使用可．
+*
+* A * x : O(n m)
+*	n×m 行列 A と n 次元列ベクトル x の積を返す．
+*
+* x * A : O(n m)（やや遅い）
+*	m 次元行ベクトル x と n×m 行列 A の積を返す．
+*
+* A * B : O(n m l)
+*	n×m 行列 A と m×l 行列 B の積を返す．
+*
+* Mat pow(ll d) : O(n^3 log d)
+*	自身を d 乗した行列を返す．
+*/
+template <class T>
+struct Matrix {
+	int n, m; // 行列のサイズ（n 行 m 列）
+	vector<vector<T>> v; // 行列の成分
+
+	// n×m 零行列で初期化する．
+	Matrix(int n, int m) : n(n), m(m), v(n, vector<T>(m)) {}
+
+	// n×n 単位行列で初期化する．
+	Matrix(int n) : n(n), m(n), v(n, vector<T>(n)) { rep(i, n) v[i][i] = T(1); }
+
+	// 二次元配列 a[0..n)[0..m) の要素で初期化する．
+	Matrix(const vector<vector<T>>& a) : n(sz(a)), m(sz(a[0])), v(a) {}
+	Matrix() : n(0), m(0) {}
+
+	// 代入
+	Matrix(const Matrix&) = default;
+	Matrix& operator=(const Matrix&) = default;
+
+	// アクセス
+	inline vector<T> const& operator[](int i) const { return v[i]; }
+	inline vector<T>& operator[](int i) {
+		// verify : https://judge.yosupo.jp/problem/matrix_product
+
+		// inline を付けて [] でアクセスするとなぜか v[] への直接アクセスより速くなった．
+		return v[i];
+	}
+
+	// 入力
+	friend istream& operator>>(istream& is, Matrix& a) {
+		rep(i, a.n) rep(j, a.m) is >> a.v[i][j];
+		return is;
+	}
+
+	// 行の追加
+	void push_back(const vector<T>& a) {
+		Assert(sz(a) == m);
+		v.push_back(a);
+		n++;
+	}
+
+	// 行の削除
+	void pop_back() {
+		Assert(n > 0);
+		v.pop_back();
+		n--;
+	}
+
+	// サイズ変更
+	void resize(int n_) {
+		v.resize(n_);
+		n = n_;
+	}
+
+	void resize(int n_, int m_) {
+		n = n_;
+		m = m_;
+
+		v.resize(n);
+		rep(i, n) v[i].resize(m);
+	}
+
+	// 空か
+	bool empty() const { return min(n, m) == 0; }
+
+	// 比較
+	bool operator==(const Matrix& b) const { return n == b.n && m == b.m && v == b.v; }
+	bool operator!=(const Matrix& b) const { return !(*this == b); }
+
+	// 加算，減算，スカラー倍
+	Matrix& operator+=(const Matrix& b) {
+		rep(i, n) rep(j, m) v[i][j] += b[i][j];
+		return *this;
+	}
+	Matrix& operator-=(const Matrix& b) {
+		rep(i, n) rep(j, m) v[i][j] -= b[i][j];
+		return *this;
+	}
+	Matrix& operator*=(const T& c) {
+		rep(i, n) rep(j, m) v[i][j] *= c;
+		return *this;
+	}
+	Matrix operator+(const Matrix& b) const { return Matrix(*this) += b; }
+	Matrix operator-(const Matrix& b) const { return Matrix(*this) -= b; }
+	Matrix operator*(const T& c) const { return Matrix(*this) *= c; }
+	friend Matrix operator*(const T& c, const Matrix<T>& a) { return a * c; }
+	Matrix operator-() const { return Matrix(*this) *= T(-1); }
+
+	// 行列ベクトル積 : O(m n)
+	vector<T> operator*(const vector<T>& x) const {
+		vector<T> y(n);
+		rep(i, n) rep(j, m)	y[i] += v[i][j] * x[j];
+		return y;
+	}
+
+	// ベクトル行列積 : O(m n)
+	friend vector<T> operator*(const vector<T>& x, const Matrix& a) {
+		vector<T> y(a.m);
+		rep(i, a.n) rep(j, a.m) y[j] += x[i] * a[i][j];
+		return y;
+	}
+
+	// 積：O(n^3)
+	Matrix operator*(const Matrix& b) const {
+		// verify : https://judge.yosupo.jp/problem/matrix_product
+
+		Matrix res(n, b.m);
+		rep(i, res.n) rep(k, m) rep(j, res.m) res[i][j] += v[i][k] * b[k][j];
+		return res;
+	}
+	Matrix& operator*=(const Matrix& b) { *this = *this * b; return *this; }
+
+	// 累乗：O(n^3 log d)
+	Matrix pow(ll d) const {
+		// verify : https://judge.yosupo.jp/problem/pow_of_matrix
+
+		Matrix res(n), pow2 = *this;
+		while (d > 0) {
+			if (d & 1) res *= pow2;
+			pow2 *= pow2;
+			d >>= 1;
+		}
+		return res;
+	}
+
+#ifdef _MSC_VER
+	friend ostream& operator<<(ostream& os, const Matrix& a) {
+		rep(i, a.n) {
+			os << "[";
+			rep(j, a.m) os << a[i][j] << " ]"[j == a.m - 1];
+			if (i < a.n - 1) os << "\n";
+		}
+		return os;
+	}
+#endif
+};
+
+
+//【階段行列】O(n^2 m)（の改変）
+/*
+* 行基本変形で n×m 行列 A を階段行列に変形し，A の階数を返す．
+* また必要ならピボット位置 (i,j) の昇順リストを piv に格納する．
+*/
+template <class T>
+int reduced_row_echelon_form(Matrix<T>& A, int j0, vector<pii>* piv = nullptr) {
+	// verify : https://judge.yosupo.jp/problem/matrix_rank
+
+	int n = A.n, m = A.m;
+
+	// 直前に見つけたピボットの位置
+	int pi = -1, pj = -1;
+
+	// 注目位置を (i, j)（i 行目かつ j 列目）とする．
+	int i = 0, j = j0;
+
+	while (i < n && j < m) {
+		// 同じ列の下方の行から非 0 成分を見つける．
+		int i2 = i;
+		while (i2 < n && A[i2][j] == 0) i2++;
+
+		// 見つからなかったら注目位置を右に移す．
+		if (i2 == n) {
+			j++;
+			continue;
+		}
+
+		// 見つかったら第 i 行とその行を入れ替える．
+		pi = i; pj = j;
+		if (i != i2) swap(A[i], A[i2]);
+		if (piv) piv->emplace_back(pi, pj);
+
+		// v[i][j] が 1 になるよう行全体を v[i][j] で割る．
+		T Aij_inv = T(1) / A[i][j];
+		repi(j2, j, m - 1) A[i][j2] *= Aij_inv;
+
+		// v[i][j] より下方の行の成分が全て 0 になるよう i 行目を定数倍して減じる．
+		repi(i2, i + 1, n - 1) {
+			T mul = A[i2][j];
+			repi(j2, j, m - 1) A[i2][j2] -= A[i][j2] * mul;
+		}
+
+		//// v[i][j] より上方の行の成分も全て 0 にしたい場合はこれも実行する．
+		//repi(i2, 0, i - 1) {
+		//	T mul = A[i2][j];
+		//	repi(j2, j, m - 1) A[i2][j2] -= A[i][j2] * mul;
+		//}
+
+		// 注目位置を右下に移す．
+		i++; j++;
+	}
+
+	return pi + 1;
+}
+
+
+void solve() {
+	int n, m, C;
+	cin >> n >> m >> C;
+
+	vi a(C);
+	cin >> a;
+
+	vector<vector<pii>> c2uv(C);
+	rep(j, m) {
+		int u, v, c;
+		cin >> u >> v >> c;
+		u--; v--; c--;
+
+		c2uv[c].push_back({ u, v });
+	}
+
+	vi acc_a(C + 1);
+	rep(c, C) acc_a[c + 1] = acc_a[c] + a[c];
+	dump("acc_a:", acc_a);
+
+	int A = acc_a[C];
+
+	mt19937_64 mt((int)time(NULL));
+	uniform_int_distribution<int> rnd(1, 998244352);
+
+	vm d(m);
+	rep(j, m) d[j] = rnd(mt);
+	//	d = { 1, 10, 100, 1000 };
+
+	using M = Matrix<mint>;
+	M mat(n, A);
+
+	int e = 0;
+	rep(c, C) {
+		for (auto [u, v] : c2uv[c]) {
+			mint e_pow = 1;
+			rep(i, a[c]) {
+				mat[u][acc_a[c] + i] -= d[e] * e_pow;
+				mat[v][acc_a[c] + i] += d[e] * e_pow;
+				e_pow *= e;
+			}
+
+			e++;
+		}
+	}
+	dump(mat);
+
+	int res = 0;
+
+	rep(c, C) {
+		dump("--------- c:", c, "-----------");
+
+		vector<pii> piv;
+		int rnk = reduced_row_echelon_form(mat, acc_a[c], &piv);
+		dump(rnk); dump(piv); dump(mat);
+		if (rnk < n - 1) continue;
+
+		int j1 = piv.back().second;
+		int add = C + 1 - ubpos(acc_a, j1);
+		dump(add);
+
+		res += add;
+	}
+
+	EXIT(res);
+}
+
+
+void make_testcase() {
+	int n = 150;
+	int m = n * (n - 1) / 2;
+	int C = 299;
+	
+	cout << n << " " << m << " " << C << endl;
+
+	vi a(C, 1);
+	a[0] = 2;
+
+	rep(c, C) cout << a[c] << " \n"[c == C - 1];
+
+	repi(i, 1, n) {
+		repi(j, i + 1, n) {
+			cout << i << " " << j << " " << 1 << endl;
+		}
+	}
+
+	exit(0);
+}
+
+
+int main() {
+//	input_from_file("input.txt");
+//	output_to_file("output.txt");
+
+//	make_testcase();
+
+	dump(mute_dump = 1);
+
+//	solve(); // 299
+
+	int n, m, C;
+	cin >> n >> m >> C;
+
+	vi a(C);
+	cin >> a;
+
+	vector<vector<pii>> c2uv(C);
+	rep(j, m) {
+		int u, v, c;
+		cin >> u >> v >> c;
+		u--; v--; c--;
+
+		c2uv[c].push_back({ u, v });
+	}
+
+	vi acc_a(C + 1);
+	rep(c, C) acc_a[c + 1] = acc_a[c] + a[c];
+	dump("acc_a:", acc_a);
+
+	int A = acc_a[C];
+
+	mt19937_64 mt((int)time(NULL));
+	uniform_int_distribution<int> rnd(1, 998244352);
+
+//	vm d(m);
+//	rep(j, m) d[j] = rnd(mt);
+//	d = { 1, 10, 100, 1000 };
+
+	using M = Matrix<mint>;
+	M mat(n, A);
+
+	int e = 0;
+	rep(c, C) {
+		for (auto [u, v] : c2uv[c]) {
+			rep(i, a[c]) {
+				int hoge = rnd(mt);
+				mat[u][acc_a[c] + i] -= hoge;
+				mat[v][acc_a[c] + i] += hoge;
+			}
+
+			e++;
+		}
+	}
+	dump(mat);
+
+	int res = 0;
+
+	rep(c, C) {
+		dump("--------- c:", c, "-----------");
+		
+		vector<pii> piv;
+		int rnk = reduced_row_echelon_form(mat, acc_a[c], &piv);
+		dump(rnk); dump(piv); dump(mat);
+		if (rnk < n - 1) continue;
+
+		int j1 = piv.back().second;
+		int add = C + 1 - ubpos(acc_a, j1);
+		dump(add);
+		
+		res += add;
+	}
+
+	EXIT(res);
+}

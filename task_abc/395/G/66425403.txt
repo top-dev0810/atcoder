@@ -1,0 +1,106 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define rep(i, l, r) for (int i = l; i < (int)(r); i++)
+
+using vi = vector<int>; using vvi = vector<vi>; using vvvi = vector<vvi>;
+using vs = vector<string>;
+using vc = vector<char>;
+using vvc = vector<vector<char>>;
+using ll = long long;
+using vl = vector<ll>; using vvl = vector<vl>; using vvvl = vector<vvl>;
+using pii = pair<int, int>;
+using pll = pair<ll, ll>;
+
+template<typename T>
+void v_cout(T &vec) {
+    for (auto k : vec) cout << k << ' ';
+    cout << endl;
+    return;
+}
+
+template<typename S>
+void vv_cout(S &vec) {
+    for (auto v : vec) {
+        for (auto k : v) cout << k << ' ';
+        cout << endl;
+    }
+    return;
+}
+template<typename T>
+void chmax(T &a, T b) { a = max(a, b);}
+template<typename T>
+void chmin(T &a, T b) { a = min(a, b);}
+//getlineの使い方： getline(cin, (stringの変数名))
+//#pragma GCC optimize("Ofast")
+//--------------------------------------------------
+
+int main() {
+    ll inf = 1e18;
+    int N, K;
+    cin >> N >> K;
+    vvl C(N, vl(N));
+    rep(i, 0, N) rep(j, 0, N) cin >> C[i][j];
+    vi vs(K);
+    rep(i, 0, K) vs[i] = i;
+    vvl dp(N, vl(1 << (K + 1), inf));
+    rep(i, 0, K) dp[vs[i]][1 << (vs[i])] = 0;
+    rep(i, 0, N) dp[i][0] = 0;
+    
+    rep(j, 1, (1 << K)) {
+        rep(i, 0, N) {
+            for(int nj = (j - 1) & j; nj >= 1; nj = (nj - 1) & j) {
+                chmin(dp[i][j], dp[i][nj] + dp[i][j - nj]);
+            }
+        }
+        priority_queue<pll, vector<pll>, greater<pll>> que;
+        rep(i, 0, N) que.push(pll(dp[i][j], i));
+        while(!que.empty()) {
+            auto [d, id] = que.top();
+            que.pop();
+            if(d != dp[id][j]) continue;
+            rep(nid, 0, N) {
+                ll nd = d + C[id][nid];
+                if(nd >= dp[nid][j]) continue;
+                dp[nid][j] = nd;
+                que.push(pll(nd, nid));
+            }
+        }
+    }
+    vvvl dps(N, vvl(N, vl(1 << (K + 1))));
+    rep(ii, K, N) {
+        vs.push_back(ii);
+        dps[ii] = dp;
+        auto &ndp = dps[ii];
+        ndp[ii][1 << K] = 0;
+        rep(j, (1 << K), (1 << (K + 1))) {
+            rep(i, 0, N) {
+                for(int nj = (j - 1) & j; nj >= 1; nj = (nj - 1) & j) {
+                    chmin(ndp[i][j], ndp[i][nj] + ndp[i][j - nj]);
+                }
+            }
+            priority_queue<pll, vector<pll>, greater<pll>> que;
+            rep(i, 0, N) que.push(pll(ndp[i][j], i));
+            while(!que.empty()) {
+                auto [d, id] = que.top();
+                que.pop();
+                if(d != ndp[id][j]) continue;
+                rep(nid, 0, N) {
+                    ll nd = d + C[id][nid];
+                    if(nd >= ndp[nid][j]) continue;
+                    ndp[nid][j] = nd;
+                    que.push(pll(nd, nid));
+                }
+            }
+        }
+        vs.pop_back();
+    }
+    int Q;
+    cin >> Q;
+    rep(qi, 0, Q) {
+        int s, t;
+        cin >> s >> t;
+        s--; t--;
+        ll ans = dps[s][t][(1 << (K + 1)) - 1];
+        cout << ans << endl;
+    }
+}

@@ -1,0 +1,92 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define endl '\n'
+#define rep(i, a, b) for(int i = (a); i <= (b); i++)
+#define per(i, a, b) for(int i = (a); i >= (b); i--)
+#define rept(i, a, ne) for(int i = (a); ~i ; i=ne[i])
+#define debug(x) cout<<#x<<": "<<x<<endl
+#define fi first
+#define sec second
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+typedef long long LL;
+typedef long double  LD;
+typedef unsigned long long ULL;
+typedef vector<int> VI;
+typedef pair<int,int>PII;
+const int N=5e2+10;
+int a[N][N];
+int fa[N];
+int res[N];
+int num;
+void op(vector<int>ve,int per)
+{
+    if(ve.size()==1)
+    {
+        fa[ve[0]]=per;
+        res[ve[0]]=a[ve[0]][ve[0]];
+        return ;
+    }
+    int ma=0;
+    for(auto x:ve)
+    for(auto y:ve)
+    {
+        ma=max(ma,a[x][y]);
+    }
+    int o=++num;
+    fa[num]=per;
+    res[num]=ma;
+    vector<bool>bo(ve.size());
+    rep(i,0,ve.size()-1)
+    if(bo[i]==0)
+    {
+        vector<int>ne;
+        rep(j,i,ve.size()-1)
+        if(bo[j]==0&&a[ve[i]][ve[j]]!=ma)
+        {
+            ne.push_back(ve[j]);
+            bo[j]=1;
+        }
+        if(ne.size())
+        op(ne,o);
+    }
+}
+void slove()
+{
+    LL n,m;
+    cin>>n>>m;
+    LL sum=(n+1)*n;
+    LL l=sum-n,r=sum-1;
+    LL p=(l+m-1)/m*m;
+    // debug(p);
+    // debug(l);
+    // debug(r);
+    if(l<=p&&p<=r)
+    {
+        cout<<"Bob"<<endl;
+    }
+    else
+    {
+        cout<<"Alice"<<endl;
+    }
+   
+}
+
+int main()
+{
+    // freopen("test.in","r",stdin);
+    // freopen("test.out","w",stdout);
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+//	cout << fixed << setprecision(9);
+    int t=1;
+	cin>>t;
+    while(t--)
+    {
+        slove();
+    }
+
+
+    return 0;
+}
+//#pragma GCC optimize(2)

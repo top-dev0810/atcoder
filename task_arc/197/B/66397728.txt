@@ -1,0 +1,35 @@
+#include<bits/stdc++.h>
+using namespace std;
+int t, n, a[200005];
+long long sum1[200005], sum2[200005];
+bool check(int l, int r){
+	
+}
+int func(int ll){
+	int l = 1, r = n + 1;
+	while(l < r){
+		int mid = (l + r) >> 1;
+		if(check(ll, r)){
+			
+		}
+	}
+}
+int main(){
+	scanf("%d", &t);
+	while(t--){
+		int ans = 0, tmp = 0;
+		scanf("%d", &n);
+		for(int i = 1;i <= n;i++)scanf("%d", &a[i]);
+		sort(a + 1, a + n + 1);
+		for(int i = 1;i <= n;i++){
+			sum1[i] = sum1[i - 1] + a[i];
+		}
+		for(int i = 1;i <= n;i++){
+			int mid = sum1[i] / i;
+			int tt = i - (upper_bound(a + 1, a + i + 1, mid) - a) + 1;
+			ans = max(ans, tt);
+		}
+		printf("%d\n", ans);
+	}
+	return 0;
+}

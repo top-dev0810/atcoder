@@ -1,0 +1,70 @@
+#include <bits/stdc++.h>
+#define MOD 998244353
+int T,N,a[509][509],pa[509];
+inline int fr(int x) {
+    while(x!=pa[x]) x=pa[x]=pa[pa[x]];
+    return x;
+}
+int sv(std::vector<int> x) {
+    if(x.size()==1) return 1;
+    int ct=0,la;
+    for(int i=0;i<x.size();i++) {
+        int fl=1;
+        for(int j=0;j<x.size();j++) {
+            if(a[x[i]][x[j]]==0) fl=0;
+        }
+        ct+=fl;
+        if(fl) la=x[i];
+    }
+    if(ct==0) return 0;
+    if(ct>=2) {
+        std::vector<int> qq;
+        for(int i=0;i<x.size();i++) if(x[i]!=la) qq.push_back(x[i]);
+        if(x.size()==N) {
+            return sv(qq);            
+        }
+        return 1ll*ct*sv(qq)%MOD;
+    }
+    for(int i=1;i<=N;i++) pa[i]=i;
+    int c[509];
+    for(int i=0;i<x.size();i++) {
+        for(int j=i+1;j<x.size();j++) {
+            if(x[i]==la||x[j]==la) continue;
+            if(a[x[i]][x[j]]==0) continue;
+            int aa=fr(x[i]),bb=fr(x[j]);
+            if(aa!=bb) {
+                pa[aa]=bb;
+            }
+        }
+    }
+    for(int i=1;i<=N;i++) c[i]=fr(i);
+    int ans=1;
+    for(int i=1;i<=N;i++) {
+        std::vector<int> qq;
+        for(int j=0;j<x.size();j++) if(x[j]!=la&&c[x[j]]==i) qq.push_back(x[j]);
+        if(!qq.empty()) ans=1ll*ans*sv(qq)%MOD;
+    }
+    return ans;
+}
+signed main(void) {
+    scanf("%d",&T);
+    while(T--) {
+        scanf("%d",&N);
+        std::vector<int> tp;
+        for(int i=1;i<=N;i++) {
+            for(int j=1;j<=N;j++)scanf("%d",&a[i][j]);
+        }
+        bool ff=0;
+        for(int i=1;i<=N;i++) {
+            if(a[1][i]==0) {
+                ff=1;
+            }
+            tp.push_back(i);
+        }
+        if(ff) {
+            printf("0\n");
+            continue;
+        }
+        printf("%d\n",sv(tp));
+    }
+}

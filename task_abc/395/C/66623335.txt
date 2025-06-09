@@ -1,0 +1,25 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main()
+{
+    int N;
+    cin >> N;
+    vector<int> pre(1e6 + 1, -1);
+    int ans = 1e9;
+    for (int i = 1; i <= N; i++)
+    {
+        int A;
+        cin >> A;
+        if (pre[A] != -1)
+        {
+            ans = min(ans, i - pre[A] + 1);
+        }
+        pre[A] = i;
+    }
+    if (ans == 1e9)
+    {
+        ans = -1;
+    }
+    cout << ans;
+}

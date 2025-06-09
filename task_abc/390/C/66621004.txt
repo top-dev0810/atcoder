@@ -1,0 +1,55 @@
+#include <bits/stdc++.h>
+using ll = long long;
+using namespace std;
+
+template<class T> inline bool chmin(T& a, T b) {
+    if (a > b) {
+        a = b;
+        return true;
+    }
+    return false;
+}
+
+template<class T> inline bool chmax(T& a, T b) {
+    if (a < b) {
+        a = b;
+        return true;
+    }
+    return false;
+}
+
+int H, W;
+string S[1010];
+
+int main() {
+    cin >> H >> W;
+    for (int i = 0; i < H; i++) {
+        cin >> S[i];
+    }
+
+    int rMin = H - 1, rMax = 0;
+    int cMin = W - 1, cMax = 0;
+    for (int i = 0; i < H; i++) {
+        for (int j = 0; j < W; j++) {
+            if (S[i][j] == '#') {
+                chmin(rMin, i);
+                chmax(rMax, i);
+                chmin(cMin, j);
+                chmax(cMax, j);
+            }
+        }
+    }
+
+    for (int i = rMin; i <= rMax; i++) {
+        for (int j = cMin; j <= cMax; j++) {
+            if (S[i][j] == '.') {
+                cout << "No" << endl;
+                return 0;
+            }
+        }
+    }
+
+    cout << "Yes" << endl;
+
+    return 0;
+}

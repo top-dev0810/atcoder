@@ -1,0 +1,78 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+
+template <typename T>
+struct ST_SUM{
+    vector<T>num;
+    T siz;
+
+    ST_SUM(T n){
+        T x = 1;
+        while(n > x) x <<= 1;
+        
+        siz = x;
+        num = vector<T> ((x<<1),0LL);
+    }
+
+    void Update(T x,T i){ 
+        x = x + siz - 1; 
+        num[x] += i;
+
+        while(x != 0){
+            x = (x-1)/2; 
+            num[x] = num[x*2 + 1]+num[x*2 + 2];
+        }
+    }
+
+    T Sub_Serch(T n,T m,T k,T l,T r){
+        if(r <= n || m <= l) return 0;
+        if(n <= l && r <= m) return num[k];
+
+        k *= 2; 
+        T lx = Sub_Serch(n, m, k+1, l, (r+l)/2);
+        T rx = Sub_Serch(n, m, k+2, (l+r)/2, r);
+
+        return lx + rx; 
+    }
+
+    T Serch(T n,T m){
+        return Sub_Serch(n, m+1, 0, 0, siz); 
+    }
+};
+
+int main(){
+    ll n,m;
+    cin >> n >> m;
+
+    vector<ll>sum (n+1,0LL);
+    ST_SUM<ll>cnt (m),asum (m);
+    cnt.Update(0,1);
+
+    for(int i=0;i<n;i++){
+        ll x;
+        cin >> x;
+        sum[i+1] += sum[i] + x;
+        sum[i+1] %= m;
+
+        cnt.Update(sum[i+1],1);
+        asum.Update(sum[i+1],sum[i+1]);
+    }
+
+    ll ans = 0;
+    for(int i=0;i<n;i++){
+        ll now = sum[i];
+        cnt.Update(now,-1LL),asum.Update(now,-now);
+        
+        ll dc = cnt.Serch(0,now-1),ds = asum.Serch(0,now-1);
+        ll uc = cnt.Serch(now,m-1),us = asum.Serch(now,m-1);
+
+        ll dm = dc*now,um = uc*now;
+        ll d = dc*m + ds - dm,u =us - um;
+
+        ans += d+u;
+        
+    } 
+
+    cout << ans << endl;
+}

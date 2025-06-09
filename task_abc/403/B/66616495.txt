@@ -1,0 +1,26 @@
+#include<bits/stdc++.h>
+using namespace std;
+int main(){
+  string t,u;
+  cin>>t>>u;
+  int j=t.length()-1;
+  int i=u.length()-1,c=u.length(),h=i,m=j;
+  while(j>=0 && c!=0){
+    if(t[j]==u[i] || t[j]=='?'){
+      c--;
+      i--;j--;
+    }
+    else{
+       c=u.length();
+       i=h;
+       j=m-1;
+       m--;
+       if(t[j]==u[i]){c--;i--;j--;}
+       
+    }
+    if(c==0) break;
+  }
+  if(c==0) cout<<"Yes";
+  else cout<<"No";
+  return 0;
+}

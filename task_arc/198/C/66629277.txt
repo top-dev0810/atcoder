@@ -1,0 +1,141 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define ll long long
+#define ld long double
+#define int short
+
+ll test_case = 1, n, m, k;
+vector<pair<int, int>> ans;
+
+void master() {
+    cin >> n;
+    int sum1 = 0, sum2 = 0;
+    vector<int> a(n), b(n);
+    for (auto &i: a)cin >> i, sum1 += i;
+    for (auto &i: b)cin >> i, sum2 += i;
+    if (sum1 != sum2) {
+        cout << "No\n";
+        return;
+    }
+    if (n == 2) {
+        if (a[0] != b[0] && a[0] != b[1] - 1) {
+            cout << "No\n";
+        } else if (a[0] == b[0]) {
+            cout << "Yes\n0\n";
+        } else {
+            cout << "Yes\n1\n1 2\n";
+        }
+        return;
+    }
+    if (n == 1) {
+        cout << "Yes\n0\n";
+        return;
+    }
+
+    for (int i = 0; i < n - 2; i++) {
+        if (b[i] == a[i])continue;
+        int cur = i;
+        if (b[i] > a[cur]) {
+            while (1) {
+                if (ans.size() > 31000) {
+                    assert(0);
+                    cout << "No\n";
+                    return;
+                }
+                if (a[i] == b[i])break;
+                if (cur > i && a[cur] == b[i] + 1) {
+                    a[cur]--;
+                    a[i]++;
+                    ans.push_back({i + 1, cur + 1});
+                    swap(a[cur], a[i]);
+                    break;
+                }
+                int cm = cur + 1;
+                while (cm < n && a[cm] < -50)cm++;
+                if (cm < n) {
+                    a[cur]++;
+                    a[cm]--;
+                    ans.push_back({cur + 1, cm + 1});
+                    swap(a[cur], a[cm]);
+                    cur++;
+                } else {
+                    a[cur]--;
+                    a[i]++;
+                    ans.push_back({i + 1, cur + 1});
+                    swap(a[cur], a[i]);
+                    cur = i;
+                }
+
+            }
+        } else {
+            while (1) {
+                if (ans.size() > 31000) {
+                    assert(0);
+                    cout << "No\n";
+                    return;
+                }
+                if (a[i] == b[i])break;
+                if (cur != i && a[cur] == b[i] + 1) {
+                    a[cur]--;
+                    a[i]++;
+                    ans.push_back({i + 1, cur + 1});
+                    swap(a[cur], a[i]);
+                    break;
+                }
+                int cm = cur - 1;
+                while (cm >= i && a[cm] > 150)cm--;
+                if (cm >= i) {
+                    a[cur]--;
+                    a[cm]++;
+                    ans.push_back({cm + 1, cur + 1});
+                    swap(a[cur], a[cm]);
+                    cur--;
+                } else {
+                    a[cur]++;
+                    a[n - 1]--;
+                    ans.push_back({cur + 1, n});
+                    swap(a[cur], a[n - 1]);
+                    cur = n - 1;
+                }
+            }
+        }
+    }
+
+    if (a[n - 1] != b[n - 1]) {
+
+        vector<pair<int, int>> tem = {{n - 2, n - 1},
+                                      {n - 2, n},
+                                      {n - 2, n - 1},
+                                      {n - 1, n}};
+
+        if (a[n - 1] > b[n - 1]) {
+            reverse(tem.begin(), tem.end());
+        }
+        int df = abs(a[n - 1] - b[n - 1]);
+        while (df--) {
+            for (auto i: tem)ans.push_back(i);
+            if (ans.size() > 31000) {
+                assert(0);
+                cout << "No\n";
+                return;
+            }
+        }
+    }
+    if (ans.size() > 31000) {
+        cout << "No\n";
+        return;
+    }
+    cout << "Yes\n" << ans.size() << '\n';
+    for (auto [i, j]: ans)
+        cout << i << ' ' << j << '\n';
+}
+
+signed main() {
+    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+    //cin >> test_case;
+    while (test_case--) {
+        master();
+    }
+}

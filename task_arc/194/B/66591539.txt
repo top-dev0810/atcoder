@@ -1,0 +1,80 @@
+#include <iostream>
+using namespace std;
+
+void solve() {
+	int n;
+	cin >> n;
+	const int BLOCK = 500;
+	static long long block_sum[500];
+	static long long block_delta[500];
+	static long long block_zeros[500];
+	static int value[200000];
+	static int pos[200001];
+	for (int i = 0; i < n; ++i) {
+		int p_i;
+		cin >> p_i;
+		pos[p_i] = i;
+	}
+	for (int i = 0; i < n; ++i) {
+		value[i] = i;
+		block_sum[i / BLOCK] += value[i];
+		block_zeros[i / BLOCK] += value[i] == 0;
+	}
+	long long answer = 0;
+	for (int x = n; x > 0; --x) {
+		int x_block = (pos[x] + 1) / BLOCK;
+		for (int i = x_block * BLOCK; block_delta[x_block] && i < x_block * BLOCK + BLOCK && i < n; ++i) {
+			bool was_zero = value[i] == 0;
+			value[i] += block_delta[x_block];
+			if (value[i] <= 0) {
+				value[i] = 0;
+				block_zeros[x_block] += !was_zero;
+			}
+		}
+		block_delta[x_block] = 0;
+		
+		for (int i = pos[x] + 1; i < x_block * BLOCK + BLOCK && i < n; ++i) {
+			answer += value[i];
+		}
+		for (int block = x_block + 1; block * BLOCK < n; ++block) {
+			answer += block_sum[block];
+		}
+		
+		x_block = pos[x] / BLOCK;
+		for (int i = x_block * BLOCK; block_delta[x_block] && i < x_block * BLOCK + BLOCK && i < n; ++i) {
+			bool was_zero = value[i] == 0;
+			value[i] += block_delta[x_block];
+			if (value[i] <= 0) {
+				value[i] = 0;
+				block_zeros[x_block] += !was_zero;
+			}
+		}
+		block_delta[x_block] = 0;
+		
+		block_sum[x_block] -= value[pos[x]];
+		value[pos[x]] = 0;
+		++block_zeros[x_block];
+		for (int i = pos[x] + 1; i < x_block * BLOCK + BLOCK && i < n; ++i) {
+			if (value[i]) {
+				--value[i];
+				--block_sum[x_block];
+				if (value[i] == 0) {
+					++block_zeros[x_block];
+				}
+			}
+		}
+		for (int block = x_block + 1; block * BLOCK < n; ++block) {
+			--block_delta[block];
+			block_sum[block] -= min(block * BLOCK + BLOCK, n) - block * BLOCK - block_zeros[block];
+		}
+	}
+	cout << answer << '\n';
+}
+
+int main() {
+	cin.tie(nullptr);
+	ios_base::sync_with_stdio(false);
+	solve();
+	return 0;
+}
+

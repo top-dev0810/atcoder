@@ -1,0 +1,118 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+#define loop(i, a, b) for (ll i = a; i <= b; i++)
+
+const ll M = 1e9 + 7;
+const int N = 2e5+10;
+const ll INF = 1e18;
+#define fast ios::sync_with_stdio(false); cin.tie(0);
+struct Node {
+    ll val, prior, size;
+    Node *l, *r;
+    Node(ll v) : val(v), prior(rand()), size(1), l(nullptr), r(nullptr) {}
+};
+
+class ImplicitTreap {
+    Node* root = nullptr;
+
+    ll sz(Node* t) {
+        return t ? t->size : 0;
+    }
+
+    void upd_sz(Node* t) {
+        if (t) t->size = 1 + sz(t->l) + sz(t->r);
+    }
+
+    void split(Node* t, ll k, Node*& l, Node*& r) {
+        if (!t) {
+            l = r = nullptr;
+        } else if (sz(t->l) >= k) {
+            split(t->l, k, l, t->l);
+            r = t;
+            upd_sz(t);
+        } else {
+            split(t->r, k - sz(t->l) - 1, t->r, r);
+            l = t;
+            upd_sz(t);
+        }
+    }
+
+    void merge(Node*& t, Node* l, Node* r) {
+        if (!l || !r) {
+            t = l ? l : r;
+        } else if (l->prior > r->prior) {
+            merge(l->r, l->r, r);
+            t = l;
+        } else {
+            merge(r->l, l, r->l);
+            t = r;
+        }
+        upd_sz(t);
+    }
+
+    void inorder(Node* t) {
+        if (!t) return;
+        inorder(t->l);
+        cout << t->val << " ";
+        inorder(t->r);
+    }
+
+    ll get_kth(Node* t, int k) {
+        ll leftSize = sz(t->l);
+        if (k < leftSize) return get_kth(t->l, k);
+        else if (k == leftSize) return t->val;
+        else return get_kth(t->r, k - leftSize - 1);
+    }
+
+public:
+    // Insert val at position pos
+    void insert(ll pos, ll val) {
+        Node *L, *R;
+        split(root, pos, L, R);
+        Node* new_node = new Node(val);
+        merge(L, L, new_node);
+        merge(root, L, R);
+    }
+
+    // Erase element at position pos
+    void erase(ll pos) {
+        Node *L, *mid, *R;
+        split(root, pos, L, R);
+        split(R, 1, mid, R);
+        delete mid;
+        merge(root, L, R);
+    }
+
+    // Get value at position pos
+    ll get(ll pos) {
+        return get_kth(root, pos);
+    }
+
+    // Print inorder (array-like)
+    void print() {
+        inorder(root);
+        cout << '\n';
+    }
+
+    // Size of treap
+    ll size() {
+        return sz(root);
+    }
+};
+
+int main() {
+    fast
+    ll t,i,j;
+    ll n,d;
+    cin>>n;
+    ll a[n+1];
+    srand(time(0));
+    ImplicitTreap treap;
+    for(i=1;i<=n;i++)
+    {
+      cin>>d;
+      treap.insert(d-1,i);
+    }
+    treap.print();
+}

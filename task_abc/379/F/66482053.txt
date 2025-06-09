@@ -1,0 +1,52 @@
+//Per Aspera, Ad Astra
+#include<bits/stdc++.h>
+using namespace std;
+#define iospeed ios::sync_with_stdio(0),cin.tie(0),cout.tie(0)
+#define int long long
+#define Run(X) while(X--)slove()
+#define endl '\n'
+#define kong ' '
+#define lowbit(i) (i&-i)
+#define pass continue
+#define exit exit(0)
+const int N = 2e5+10,INF = 1e18;
+int n,q;
+int a[N];
+struct node
+{
+    int r,id;
+};
+vector<node>vec[N];
+int stk[N];
+int res[N];
+void slove()
+{
+    cin>>n>>q;
+    for(int i=1;i<=n;i++)cin>>a[i];
+    for(int i=1,l,r;i<=q;i++)
+    {
+        cin>>l>>r;
+        vec[l].push_back({r,i});
+    }
+    int cnt = 0;
+    for(int i=n;i>=1;i--)
+    {
+        for(auto &[r,id]:vec[i])
+        {
+            int j = lower_bound(stk,stk+cnt,r,[](int a,int b){return a>b;})-stk;
+            if(j==0&&stk[j]<=r)res[id]=0;
+            else res[id]=j-1;
+        }
+        while(cnt>0&&a[stk[cnt]]<a[i])cnt--;
+        stk[++cnt]=i;
+    }
+    for(int i=1;i<=q;i++)cout<<res[i]<<endl;
+}
+signed main()
+{
+    iospeed;
+    int QwQ=1;
+    // cin>>QwQ;
+    Run(QwQ);
+    return 0;
+}

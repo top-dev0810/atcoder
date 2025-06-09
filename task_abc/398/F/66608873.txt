@@ -1,0 +1,316 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+using ll = long long;
+using u64 = uint64_t;
+using i128 = __int128_t;
+using u128 = __uint128_t;
+
+template <class T>
+using vc = vector<T>;
+template <class T>
+using vvc = vector<vc<T>>;
+template <class T>
+using vvvc = vector<vvc<T>>;
+template <class T>
+using vvvvc = vector<vvvc<T>>;
+template <class T>
+using vvvvvc = vector<vvvvc<T>>;
+
+#define vv(type, name, h, w) vector<vector<type>> name(h, vector<type>(w))
+#define vvv(type, name, h, w, l) vector<vector<vector<type>>> name(h, vector<vector<type>>(w, vector<type>(l)))
+#define vvvv(type, name, a, b, c, d) vector<vector<vector<vector<type>>>> name(a, vector<vector<vector<type>>>(b, vector<vector<type>>(c, vector<type>(d))))
+#define vvvvv(type, name, a, b, c, d, e) vector<vector<vector<vector<vector<type>>>>> name(a, vector<vector<vector<vector<type>>>>(b, vector<vector<vector<type>>>(c, vector<vector<type>>(d, vector<type>(e)))))
+
+#define elif else if
+
+#define FOR1(a) for (long long _ = 0; _ < (long long)(a); _++)
+#define FOR2(i, n) for (long long i = 0; i < (long long)(n); i++)
+#define FOR3(i, l, r) for (long long i = l; i < (long long)(r); i++)
+#define FOR4(i, l, r, c) for (long long i = l; i < (long long)(r); i += c)
+#define FOR1_R(a) for (long long _ = (long long)(a) - 1; _ >= 0; _--)
+#define FOR2_R(i, n) for (long long i = (long long)(n) - 1; i >= (long long)(0); i--)
+#define FOR3_R(i, l, r) for (long long i = (long long)(r) - 1; i >= (long long)(l); i--)
+#define FOR4_R(i, l, r, c) for (long long i = (long long)(r) - 1; i >= (long long)(l); i -= (c))
+#define overload4(a, b, c, d, e, ...) e
+#define FOR(...) overload4(__VA_ARGS__, FOR4, FOR3, FOR2, FOR1)(__VA_ARGS__)
+#define FOR_R(...) overload4(__VA_ARGS__, FOR4_R, FOR3_R, FOR2_R, FOR1_R)(__VA_ARGS__)
+#define FOR_in(a, A) for (auto a: A)
+#define FOR_each(a, A) for (auto &&a: A)
+#define FOR_subset(t, s) for(long long t = (s); t >= 0; t = (t == 0 ? -1 : (t - 1) & (s)))
+
+#define all(x) x.begin(), x.end()
+#define len(x) int(x.size())
+
+int popcount(int x) { return __builtin_popcount(x); }
+int popcount(uint32_t x) { return __builtin_popcount(x); }
+int popcount(long long x) { return __builtin_popcountll(x); }
+int popcount(uint64_t x) { return __builtin_popcountll(x); }
+// __builtin_clz(x)は最上位bitからいくつ0があるか.
+int topbit(int x) { return (x == 0 ? -1 : 31 - __builtin_clz(x)); }
+int topbit(uint32_t x) { return (x == 0 ? -1 : 31 - __builtin_clz(x)); }
+int topbit(long long x) { return (x == 0 ? -1 : 63 - __builtin_clzll(x)); }
+int topbit(uint64_t x) { return (x == 0 ? -1 : 63 - __builtin_clzll(x)); }
+
+// 入力
+void rd() {}
+void rd(char &c) { cin >> c; }
+void rd(string &s) { cin >> s; }
+void rd(int &x) { cin >> x; }
+void rd(uint32_t &x) { cin >> x; }
+void rd(long long &x) { cin >> x; }
+void rd(uint64_t &x) { cin >> x; }
+template<class T>
+void rd(vector<T> &v) {
+  for (auto& x:v) rd(x);
+}
+
+void read() {}
+template <class H, class... T>
+void read(H &h, T &... t) {
+  rd(h), read(t...);
+}
+
+#define CHAR(...) \
+  char __VA_ARGS__; \
+  read(__VA_ARGS__)
+
+#define STRING(...) \
+  string __VA_ARGS__; \
+  read(__VA_ARGS__)
+
+#define INT(...) \
+  int __VA_ARGS__; \
+  read(__VA_ARGS__)
+
+#define U32(...) \
+  uint32_t __VA_ARGS__; \
+  read(__VA_ARGS__)
+
+#define LL(...) \
+  long long __VA_ARGS__; \
+  read(__VA_ARGS__)
+
+#define U64(...) \
+  uint64_t __VA_ARGS__; \
+  read(__VA_ARGS__)
+
+#define VC(t, a, n) \
+  vector<t> a(n); \
+  read(a)
+
+#define VVC(t, a, h, w) \
+  vector<vector<t>> a(h, vector<t>(w)); \
+  read(a)
+
+//出力
+void wt() {}
+void wt(const char c) { cout << c; }
+void wt(const string s) { cout << s; }
+void wt(int x) { cout << x; }
+void wt(uint32_t x) { cout << x; }
+void wt(long long x) { cout << x; }
+void wt(uint64_t x) { cout << x; }
+void wt(double x) { cout << fixed << setprecision(16) << x; }
+void wt(long double x) { cout << fixed << setprecision(16) << x; }
+
+template<class T>
+void wt(const vector<T> v) {
+  int n = v.size();
+  for (int i = 0; i < n; i++) {
+    if (i) wt(' ');
+    wt(v[i]);
+  }
+}
+
+void print() { wt('\n'); }
+template <class Head, class... Tail>
+void print(Head &&head, Tail &&... tail) {
+  wt(head);
+  if (sizeof...(Tail)) wt(' ');
+  print(forward<Tail>(tail)...);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+long long min(long long a, long long b) { return a < b ? a : b; }
+
+template <class T>
+T min(vector<T> A) {
+  assert (A.size());
+  T S = A[0];
+  for (T a : A) S = min(a, S);
+  return S;
+}
+
+long long max(long long a, long long b) { return a > b ? a : b; }
+
+template <class T>
+T max(vector<T> A) {
+  assert (A.size());
+  T S = A[0];
+  for (T a : A) S = max(a, S);
+  return S;
+}
+
+long long add(long long x, long long y) {return x + y; }
+
+template <class mint>
+mint add(mint x, mint y) { return x + y; }
+
+template <class T>
+bool chmin(T & x, T a) { return a < x ? (x = a, true) : false; }
+
+template <class T>
+bool chmax(T & x, T a) { return a > x ? (x = a, true) : false; }
+
+template <class T>
+T sum(vector<T> A) {
+  T S = 0;
+  for (int i = 0; i < int(A.size()); i++) S += A[i];
+  return S;
+}
+
+uint64_t random_u64(uint64_t l, uint64_t r) {
+  static std::random_device rd;
+  static std::mt19937_64 gen(rd());
+  std::uniform_int_distribution<uint64_t> dist(l, r);
+  return dist(gen);
+}
+
+long long gcd(long long a, long long b) {
+  while (a) {
+    b %= a;
+    if (b == 0) return a;
+    a %= b;
+  }
+  return b;
+}
+
+long long lcm(long long a, long long b) {
+  if (a * b == 0) return 0;
+  return a * b / gcd(a, b);
+}
+
+long long pow_mod(long long a, long long r, long long mod) {
+  long long res = 1, p = a % mod;
+  while (r) {
+    if ((r % 2) == 1) res = res * p % mod;
+    p = p * p % mod, r >>= 1;
+  }
+  return res;
+}
+
+long long mod_inv(long long a, long long mod) {
+  if (mod == 1) return 0;
+  a %= mod;
+  long long b = mod, s = 1, t = 0;
+  while (1) {
+    if (a == 1) return s;
+    t -= (b / a) * s;
+    b %= a;
+    if (b == 1) return t + mod;
+    s -= (a / b) * t;
+    a %= b;
+  }
+}
+
+long long Garner(vector<long long> Rem, vector<long long> Mod, int MOD) {
+  assert (Rem.size() == Mod.size());
+  long long mod = MOD;
+  Rem.push_back(0);
+  Mod.push_back(mod);
+  long long n = Mod.size();
+  vector<long long> coffs(n, 1);
+  vector<long long> constants(n, 0);
+  for (int i = 0; i < n - 1; i++) {
+    long long v = (Mod[i] + Rem[i] - constants[i]) % Mod[i];
+    v *= mod_inv(coffs[i], Mod[i]);
+    v %= Mod[i];
+    for (int j = i + 1; j < n; j++) {
+      constants[j] = (constants[j] + coffs[j] * v) % Mod[j];
+      coffs[j] = (coffs[j] * Mod[i]) % Mod[j];
+    }
+  }
+  return constants[n - 1];
+}
+
+long long Tonelli_Shanks(long long a, long long mod) {
+  a %= mod;
+  if (a < 2) return a;
+  if (pow_mod(a, (mod - 1) / 2, mod) != 1) return -1;
+  if (mod % 4 == 3) return pow_mod(a, (mod + 1) / 4, mod);
+
+  long long b = 3;
+  if (mod != 998244353) {
+    while (pow_mod(b, (mod - 1) / 2, mod) == 1) {
+      b = random_u64(2, mod - 1);
+    }
+  }
+
+  long long q = mod - 1;
+  long long Q = 0;
+  while (q % 2 == 0) {
+    Q++, q /= 2;
+  }
+
+  long long x = pow_mod(a, (q + 1) / 2, mod);
+  b = pow_mod(b, q, mod);
+
+  long long shift = 2;
+  while ((x * x) % mod != a) {
+    long long error = (((pow_mod(a, mod - 2, mod) * x) % mod) * x) % mod;
+    if (pow_mod(error, 1 << (Q - shift), mod) != 1) {
+      x = (x * b) % mod;
+    }
+    b = (b * b) % mod;
+    shift++;
+  }
+  return x;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+vector<int> Manacher(string s) {
+  vector<char> S;
+  for (int i = 0; i < int(s.size()); i++) {
+    S.push_back(s[i]);
+    S.push_back('$'); // dummy
+  }
+  S.pop_back();
+  vector<int> R(S.size(), 0);
+  int i = 0, j = 0, k;
+  while (i < int(S.size())) {
+    while (i - j >= 0 && i + j < int(S.size()) && S[i - j] == S[i + j]) j++;
+    R[i] = j, k = 1;
+    while (i - k >= 0 && k + R[i - k] < j) R[i + k] = R[i - k], k++;
+    i = i + k, j = j - k;
+  }
+  for (int i = 0; i < int(S.size()); i++) {
+    int j = (i % 2) ^ 1;
+    R[i] = ((R[i] - j) / 2) * 2 + j;
+  }
+  return R;
+}
+
+void solve() {
+  STRING(S);
+  int N = int(S.length());
+  vector<int> R = Manacher(S);
+  vector<char> SS(N);
+  FOR(i, N) SS[i] = S[i];
+  FOR(i, 2 * N - 1) {
+    if (((R[i] + i + 1) / 2) == N) {
+      FOR_R(j, 0, N - R[i]) SS.push_back(SS[j]);
+      string ans = "";
+      FOR_in(c, SS) ans += c;
+      print(ans);
+      return; 
+    }
+  }
+}
+
+int main() {
+  int T = 1;
+  //cin >> T;
+  FOR(T) solve();
+}

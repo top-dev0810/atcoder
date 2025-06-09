@@ -1,0 +1,36 @@
+#include <cstdio>
+using namespace std;
+int nt[1000006];
+int tn[1000006];
+int pn[1000006];
+int n;
+int main() {
+    scanf("%d",&n);
+    for (int i = 1; i <= n; ++i) {
+        pn[i] = i;
+        nt[i] = tn[i] = i;
+    }
+    int q;
+    scanf("%d",&q);
+    while (q-->0) {
+        int t;
+        scanf("%d",&t);
+        int a, b;
+        if (t == 1) {
+            scanf("%d%d",&a,&b);
+            pn[a] = tn[b];
+        } else if (t == 2) {
+            scanf("%d%d",&a,&b);
+            int u = tn[a];
+            int v = tn[b];
+            nt[u] = b;
+            nt[v] = a;
+            tn[a] = v;
+            tn[b] = u;
+        } else {
+            scanf("%d", &a);
+            printf("%d\n", nt[pn[a]]);
+        }
+    }
+    return 0;
+}

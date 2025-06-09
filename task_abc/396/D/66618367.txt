@@ -1,0 +1,46 @@
+/**
+ *    author:  Takumi
+ *    created: 09.06.2025 13:25:06
+ **/
+
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+
+int main() {
+  cin.tie(0);
+  ios_base::sync_with_stdio(false);
+  ll n, m;
+  cin >> n >> m;
+
+  vector<vector<ll>> G(n, vector<ll>(n, -1));
+  int u, v;
+  ll w;
+  for (ll i = 0; i < m; i++) {
+    cin >> u >> v >> w;
+    u--;
+    v--;
+    G[u][v] = w;
+    G[v][u] = w;
+  }
+
+  ll ans = 1LL << 60;
+  vector<ll> per(n - 1);
+  iota(per.begin(), per.end(), 1);  // 0 based or 1 based
+  do {
+    int pre = 0;
+    ll sum = 0;
+    for (ll i = 0; i < n - 1; i++) {
+      if (G[pre][per[i]] != -1) {
+        sum ^= G[pre][per[i]];
+        pre = per[i];
+      } else {
+        break;
+      }
+      if (per[i] == n - 1) {
+        ans = min(ans, sum);
+      }
+    }
+  } while (next_permutation(per.begin(), per.end()));
+  cout << ans << '\n';
+}

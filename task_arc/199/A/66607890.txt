@@ -1,0 +1,49 @@
+#include<bits/stdc++.h>
+using namespace std;using ll=long long;
+const int N=1002;int T,n,a[N][N],r[N],c[N],ar[N],ac[N];
+int main(){
+	// freopen(".in","r",stdin),freopen(".out","w",stdout);
+	ios::sync_with_stdio(0),cin.tie(0),cout.tie(0),cin>>T;
+	while(T--){
+		cin>>n;
+		for(int i=1;i<=n;i++)for(int j=1;j<=n;j++){char ch;cin>>ch;a[i][j]=ch-'0';}
+		for(int i=1;i<=n;i++)cin>>r[i],ar[i]=0;
+		for(int i=1;i<=n;i++)cin>>c[i],ac[i]=0;
+		for(int i=2;i<=n;i++){
+			int cnt=0;
+			for(int j=1;j<=n;j++)cnt+=(a[i][j]!=a[1][j]);
+			if(cnt>=(n+1)/2){
+				ar[i]=1;
+				for(int j=1;j<=n;j++)a[i][j]^=1;
+			}
+		}
+		for(int j=1;j<=n;j++){
+			int t=0;
+			for(int i=1;i<=n;i++)t+=a[i][j];
+			if(t!=c[j]){
+				ac[j]=1;
+				for(int i=1;i<=n;i++)a[i][j]^=1;
+			}
+		}
+		bool flag=1;
+		for(int i=1;i<=n;i++){
+			int t=0;
+			for(int j=1;j<=n;j++)t+=a[i][j];
+			if(t!=r[i]){flag=0;break;}
+		}
+		for(int j=1;j<=n;j++){
+			int t=0;
+			for(int i=1;i<=n;i++)t+=a[i][j];
+			if(t!=c[j]){flag=0;break;}
+		}
+		if(flag){
+			cout<<"Yes\n";
+			for(int i=1;i<=n;i++)cout<<ar[i];
+			cout<<"\n";
+			for(int i=1;i<=n;i++)cout<<ac[i];
+			cout<<"\n";
+		}
+		else cout<<"No\n";
+	}
+	return 0;
+}

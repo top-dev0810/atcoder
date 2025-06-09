@@ -1,0 +1,23 @@
+ #include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+  int n,l;
+  cin>>n>>l;
+  if(l%3!=0) cout<< 0;
+  else{
+    vector<long long> a(n,0),b(l,0);
+    b.at(0)++;
+    for(int i=0;i<n-1;i++){
+      cin>>a.at(i+1);
+      a.at(i+1)=a.at(i)+a.at(i+1);
+      b.at(a.at(i+1)%l)++;
+    }
+  
+    long long count=0;
+    for(int i=0;i<l/3;i++){
+        count+=b.at(i)*b.at(i+l/3)*b.at(i+l*2/3);
+    }
+    cout<<count;
+  }
+}

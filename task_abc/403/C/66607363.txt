@@ -1,0 +1,35 @@
+# include<bits/stdc++.h>
+// # include<atcoder/all>
+// using namespace atcoder;
+using namespace std;
+# define rep(i,n) for (int i = 0; i < (n); i++)
+// const int inf = 1073741823;
+// const long long INF = 1LL<<60;
+using ll = long long;
+using P = pair<int,int>;
+int main() {
+    int n,m,q;
+    cin >> n >> m >> q;
+    vector<bool> all(n,false);
+    set<P> st;
+    rep(i,q){
+        int type;cin>>type;
+        if(type==1){
+            int x,y;cin>>x>>y;
+            --x;--y;
+            st.insert(P(x,y));
+        }
+        if(type==2){
+            int x;cin>>x;
+            --x;
+            all[x]=true;
+        }
+        if(type==3){
+            int x,y;cin>>x>>y;
+            --x; --y;
+            if(all[x]||st.contains(P(x,y))) cout << "Yes" << endl;
+            else cout << "No" << endl;
+        }
+    }
+    return 0;
+}

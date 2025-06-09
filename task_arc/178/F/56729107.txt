@@ -1,0 +1,639 @@
+#include "bits/stdc++.h"
+using namespace std;
+
+// #pragma GCC optimize("O3,unroll-loops")
+// #pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
+
+/* 
+find my code templates at https://github.com/galencolin/cp-templates
+also maybe subscribe please thanks 
+*/
+
+#define send {ios_base::sync_with_stdio(false);}
+#define help {cin.tie(NULL);}
+#define f first
+#define s second
+#define getunique(v) {sort(v.begin(), v.end()); v.erase(unique(v.begin(), v.end()), v.end());}
+
+using ll = long long;
+// using ll = int;
+// #pragma warning("int")
+//
+using vl = vector<ll>;
+using pl = pair<ll, ll>;
+
+typedef long double ld;
+typedef unsigned long long ull;
+
+#include <ext/pb_ds/assoc_container.hpp> 
+#include <ext/pb_ds/tree_policy.hpp>
+
+using namespace std;
+using namespace __gnu_pbds; 
+
+template <typename num_t>
+using ordered_set = tree<num_t, null_type, less<num_t>, rb_tree_tag, tree_order_statistics_node_update>;
+
+const string PAIR_LEFT = "(";
+const string PAIR_RIGHT = ")";
+const string IT_LEFT = "[";
+const string IT_RIGHT = "]";
+const string PAIR_SEP = ", ";
+const string IT_SEP = ", ";
+
+// const string PAIR_LEFT = "(";
+// const string PAIR_RIGHT = ")";
+// const string IT_LEFT = "[";
+// const string IT_RIGHT = "]";
+// const string PAIR_SEP = " ";
+// const string IT_SEP = " ";
+
+// const string PAIR_LEFT = "{";
+// const string PAIR_RIGHT = "}";
+// const string IT_LEFT = "{";
+// const string IT_RIGHT = "}";
+// const string PAIR_SEP = ", ";
+// const string IT_SEP = ", ";
+
+// benq - print any container + pair
+template<typename T, typename = void> struct is_iterable : false_type {};
+template<typename T> struct is_iterable<T, void_t<decltype(begin(declval<T>())),decltype(end(declval<T>()))>> : true_type {};
+template<typename T> typename enable_if<is_iterable<T>::value&&!is_same<T, string>::value,ostream&>::type operator<<(ostream &cout, T const &v);
+template<typename A, typename B> ostream& operator<<(ostream &cout, pair<A, B> const &p) { return cout << PAIR_LEFT << p.f << PAIR_SEP << p.s << PAIR_RIGHT; }
+template<typename T> typename enable_if<is_iterable<T>::value&&!is_same<T, string>::value,ostream&>::type operator<<(ostream &cout, T const &v) {
+    cout << IT_LEFT; 
+    for (auto it = v.begin(); it != v.end();) {
+        cout << *it;
+        if (++it != v.end()) cout << IT_SEP;
+    }
+    return cout << IT_RIGHT;
+}
+template<typename A, typename B> istream& operator>>(istream& cin, pair<A, B> &p) {
+    cin >> p.first;
+    return cin >> p.second;
+}
+
+template<typename T> void debug(string s, T x) {cerr << "\033[1;34m" << s << "\033[0;32m = \033[35m" << x << "\033[0m\n";}
+template<typename T, typename... Args> void debug(string s, T x, Args... args) {for (int i=0, b=0; i<(int)s.size(); i++) if (s[i] == '(' || s[i] == '{') b++; else
+        if (s[i] == ')' || s[i] == '}') b--; else if (s[i] == ',' && b == 0) {cerr << "\033[1;34m" << s.substr(0, i) << "\033[0;32m = \033[35m" << x << "\033[31m | "; debug(s.substr(s.find_first_not_of(' ', i + 1)), args...); break;}}
+template<typename T> void debug_nameless(T x) {cerr << "\033[35m" << x << "\033[0m\n";}
+template<typename T, typename... Args> void debug_nameless(T x, Args... args) {cerr << "\033[35m" << x << "\033[31m | "; debug_nameless(args...);}
+
+#ifdef galen_colin_local
+#define pr(...) debug(#__VA_ARGS__, __VA_ARGS__)
+#define prs(...) debug_nameless(__VA_ARGS__)
+const bool local_ = true;
+#else
+#define pr(...) 135
+#define prs(...) 135
+const bool local_ = false;
+#endif
+
+mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+// mt19937_64 rng(61378913);
+/* usage - just do rng() */
+
+void usaco(string filename) {
+// #pragma message("be careful, freopen may be wrong")
+    freopen((filename + ".in").c_str(), "r", stdin);
+    freopen((filename + ".out").c_str(), "w", stdout);
+}
+
+// #include <atcoder/all>
+// using namespace atcoder;
+
+// const ld pi = 3.14159265358979323846;
+// const ll mod = 1000000007;
+const ll mod = 998244353;
+// ll mod;
+
+namespace modop {
+	ll madd(ll a, ll b) {
+	  return (a + b) % mod;
+	}
+	ll msub(ll a, ll b) {
+	  return (((a - b) % mod) + mod) % mod;
+	}
+	ll mmul(ll a, ll b) {
+	  return ((a % mod) * (b % mod)) % mod;
+	}
+    bool p2gen = 0;
+    const ll mx = 5e5;
+    ll p2[mx + 27];
+	ll mpow(ll base, ll exp) {
+        if (!p2gen) {
+            p2gen = 1;
+            p2[0] = 1;
+            for (ll i = 1; i <= mx; i++) p2[i] = (p2[i - 1] * 2) % mod;
+        }
+        if (base == 2 && exp < mx) return p2[exp];
+	  ll res = 1;
+	  while (exp) {
+		if (exp % 2 == 1){
+			res = (res * base) % mod;
+		}
+		exp >>= 1;
+		base = (base * base) % mod;
+	  }
+	  return res;
+	}
+	ll minv(ll base) {
+	  return mpow(base, mod - 2);
+	}
+	ll mdiv(ll a, ll b) {
+	  return mmul(a, minv(b));
+	}
+	
+	const ll FACTORIAL_SIZE = 1.1e6;
+	ll fact[FACTORIAL_SIZE], ifact[FACTORIAL_SIZE];
+	bool __factorials_generated__ = 0;
+	void gen_factorial(ll n) {
+		__factorials_generated__ = 1;
+		fact[0] = fact[1] = ifact[0] = ifact[1] = 1;
+		
+		for (ll i = 2; i <= n; i++) {
+			fact[i] = (i * fact[i - 1]) % mod;
+		}
+		ifact[n] = minv(fact[n]);
+		for (ll i = n - 1; i >= 2; i--) {
+			ifact[i] = ((i + 1) * ifact[i + 1]) % mod;
+		}
+	}
+	ll nck(ll n, ll k) {
+		if (!__factorials_generated__) {
+			cerr << "Call gen_factorial you dope" << endl;
+			exit(1);
+		}
+		if (k < 0 || n < k) return 0;
+		ll den = (ifact[k] * ifact[n - k]) % mod;
+		return (den * fact[n]) % mod;
+	}
+}
+
+using namespace modop;
+
+using T = array<ll, 3>;
+const T null_v{0, 0, 0};
+
+template <typename num_t> 
+struct segtree {
+  int n, depth;
+  vector<num_t> tree;
+
+  void init(int s, vl &arr) {
+    n = s;
+    tree = vector<num_t>(4 * s, 0);
+    init(0, 0, n - 1, arr);
+  }
+
+  num_t init(int i, int l, int r, vl &arr) {
+    if (l == r) return tree[i] = arr[l];
+
+    int mid = (l + r) / 2;
+    num_t a = init(2 * i + 1, l, mid, arr),
+          b = init(2 * i + 2, mid + 1, r, arr);
+    return tree[i] = a.op(b);
+  }
+
+  void update(int l, int r, ll v) {
+	if (l > r) return;
+    update(0, 0, n - 1, l, r, v);
+  }
+
+  num_t update(int i, int tl, int tr, int ql, int qr, ll v) {	
+	if (tr < ql || qr < tl) return tree[i];
+    if (ql <= tl && tr <= qr) {
+      return tree[i] = v;
+    }
+    
+    int mid = (tl + tr) / 2;
+    num_t a = update(2 * i + 1, tl, mid, ql, qr, v),
+          b = update(2 * i + 2, mid + 1, tr, ql, qr, v);
+    return tree[i] = a.op(b);
+  }
+
+  num_t query(int l, int r) {
+	if (l > r) return null_v;
+    return query(0, 0, n-1, l, r);
+  }
+
+  num_t query(int i, int tl, int tr, int ql, int qr) {    
+    if (ql <= tl && tr <= qr) return tree[i];
+    if (tr < ql || qr < tl) return null_v;
+
+    int mid = (tl + tr) / 2;
+    num_t a = query(2 * i + 1, tl, mid, ql, qr),
+          b = query(2 * i + 2, mid + 1, tr, ql, qr);
+    return a.op(b);
+  }
+};
+const ll i2 = minv(2);
+
+void add(ll &a, ll b) {
+    a += b;
+    if (a >= mod) a -= mod;
+}
+
+void sub(ll &a, ll b) {
+    a -= b;
+    if (a < 0) a += mod;
+}
+
+struct sum_t {
+  T val;
+
+  sum_t(): val({0, 0, 0}) {}
+  sum_t(long long v) {
+    if (v == 0) val = {1, 0, 0};
+    else if (v == 1) val = {0, 1, 0};
+    else val = {i2, i2, 0};
+  }
+  sum_t(T v): val(v) {}
+
+  sum_t op(sum_t& other) {
+    T r = {val[0], val[1], val[2]};
+    add(r[0], other.val[0]);
+    add(r[1], other.val[1]);
+    add(r[2], other.val[2]);
+    add(r[2], val[1] * other.val[0] % mod);
+    return r;
+  }
+};
+
+ll n, m, q, k, l, r, x, y, z;
+const ll template_array_size = 1e6 + 206171;
+ll a[template_array_size];
+ll b[template_array_size];
+ll c[template_array_size];
+string s, t;
+
+ll ssinner(string s, vector<vl> v) {
+    ll k = 0;
+    for (char c: s) k = 2 * k + c - '0';
+    vl a;
+    for (vl x: v) {
+        ll t = 0;
+        for (ll y: x) t += 1 << y;
+        a.push_back(t);
+    }
+
+    // pr(k, a);
+
+    vl seq;
+
+    ll ci = 0, tci = 0;
+    ll c1 = 0;
+    for (ll i = 0; i < k; i++) {
+        ll c11 = 0;
+        ll t = 0;
+        for (ll j: a) {
+            ll c = __builtin_popcountll(i & j) % 2;
+            seq.push_back(c);
+            if (c == 0) {
+                ci += c1;
+                tci += c11;
+            } else {
+                ++c1;
+                ++c11;
+            }
+            ++t;
+        }
+    }
+    // pr(seq);
+    // pr(tci, ci - tci);
+    // ci %= mod;
+    return tci;
+}
+
+ll ssouter(string s, vector<vl> v) {
+    ll k = 0;
+    for (char c: s) k = 2 * k + c - '0';
+    vl a;
+    for (vl x: v) {
+        ll t = 0;
+        for (ll y: x) t += 1 << y;
+        a.push_back(t);
+    }
+
+    // pr(k, a);
+
+    vl seq;
+
+    ll ci = 0, tci = 0;
+    ll c1 = 0;
+    for (ll i = 0; i < k; i++) {
+        ll c11 = 0;
+        ll t = 0;
+        for (ll j: a) {
+            ll c = __builtin_popcountll(i & j) % 2;
+            seq.push_back(c);
+            if (c == 0) {
+                ci += c1;
+                tci += c11;
+            } else {
+                ++c1;
+                ++c11;
+            }
+            ++t;
+        }
+    }
+    // pr(seq);
+    // pr(tci, ci - tci);
+    // ci %= mod;
+    return ci - tci;
+}
+
+ll slowslow(string s, vector<vl> v) {
+    ll ans = 0;
+    ans += ssinner(s, v);
+    ans += ssouter(s, v);
+    ans %= mod;
+    return ans;
+}
+
+ll inner(string s, vector<vl> v) {
+    vector<vl> at(n);
+    for (ll i = 0; i < m; i++) {
+        for (ll x: v[i]) at[x].push_back(i);
+    }
+
+    ll i2 = minv(2), i4 = minv(4);
+
+    vl c0(2);
+    ll c1 = 0, c2 = 0;
+
+    vl fl(m);
+
+    ll f1 = 0;
+    vector<vl> at1(2, vl(n));
+    vl t1(n);
+
+    vl sz(m);
+    for (ll i = 0; i < m; i++) sz[i] = v[i].size() == 0 ? fl[i] : 2;
+    segtree<sum_t> st;
+    st.init(m, sz);
+
+    auto u1 = [&](ll x) {
+        sub(f1, at1[0][v[x][0]] * at1[1][v[x][0]] % mod);
+        add(f1, at1[0][v[x][0]] * (at1[0][v[x][0]] - 1) / 2 % mod);
+        add(f1, at1[1][v[x][0]] * (at1[1][v[x][0]] - 1) / 2 % mod);
+    };
+
+    auto r1 = [&](ll x) {
+        add(f1, at1[0][v[x][0]] * at1[1][v[x][0]] % mod);
+        sub(f1, at1[0][v[x][0]] * (at1[0][v[x][0]] - 1) / 2 % mod);
+        sub(f1, at1[1][v[x][0]] * (at1[1][v[x][0]] - 1) / 2 % mod);
+    };
+
+    auto ins = [&](ll x) {
+        if (v[x].size() == 0) ++c0[fl[x]];
+        else if (v[x].size() >= 2) ++c2;
+        else {
+            u1(x);
+            ++c1;
+            ++at1[fl[x]][v[x][0]];
+            r1(x);
+        }
+        st.update(x, x, v[x].size() == 0 ? fl[x] : 2);
+    };
+
+    auto del = [&](ll x) {
+        if (v[x].size() == 0) --c0[fl[x]];
+        else if (v[x].size() >= 2) --c2;
+        else {
+            u1(x);
+            --c1;
+            --at1[fl[x]][v[x][0]];
+            r1(x);
+        }
+    };
+
+    for (ll i = 0; i < m; i++) ins(i);
+
+    ll ans = 0;
+    for (ll p = n - 1; p >= 0; p--) {
+        for (ll x: at[p]) {
+            del(x);
+            v[x].pop_back();
+            ins(x);
+        }
+        if (s[n - 1 - p] == '1') {
+            ll tot = 0;
+            add(tot, st.query(0, m - 1).val[2]);
+            add(tot, f1 * i4 % mod);
+            sub(tot, c2 * (c2 - 1) / 2 % mod * i4 % mod);
+            tot = tot * mpow(2, p) % mod;
+            add(ans, tot);
+        }
+        ll t = s[n - 1 - p] - '0';
+        for (ll x: at[p]) {
+            del(x);
+            fl[x] ^= t;
+            ins(x);
+        }
+    }
+    return ans;
+}
+
+ll outer(string s, vector<vl> v) {
+    vector<vl> at(n);
+    for (ll i = 0; i < m; i++) {
+        for (ll x: v[i]) at[x].push_back(i);
+    }
+
+    vl c0(2);
+    ll c1 = 0, c2 = 0;
+    vl s1(2);
+    vl pv(2);
+    ll ans = 0;
+
+    vl fl(m);
+
+    ll i2 = minv(2), i4 = minv(4);
+
+    ll eq1 = 0, sq1 = 0, f1 = 0;
+    vector<vl> at1(2, vl(n));
+    vl t1(n);
+
+    auto sq = [&](ll x) {return x * x;};
+
+    auto u1 = [&](ll x) {
+        sub(f1, at1[0][v[x][0]] * at1[1][v[x][0]] % mod * (mpow(2, v[x][0]) - 1 + mod) % mod);
+        sub(f1, at1[1][v[x][0]] * at1[1][v[x][0]] % mod * mpow(2, v[x][0]) % mod);
+        add(f1, t1[v[x][0]] * t1[v[x][0]] % mod * mpow(2, v[x][0] + 1) % mod * i4 % mod);
+        add(sq1, at1[0][v[x][0]] * t1[v[x][0]] % mod * mpow(2, v[x][0]) % mod);
+        sub(sq1, at1[1][v[x][0]] * t1[v[x][0]] % mod * mpow(2, v[x][0]) % mod);
+        eq1 -= sq(t1[v[x][0]]);
+    };
+
+    auto r1 = [&](ll x) {
+        add(f1, at1[0][v[x][0]] * at1[1][v[x][0]] % mod * (mpow(2, v[x][0]) - 1 + mod) % mod);
+        add(f1, at1[1][v[x][0]] * at1[1][v[x][0]] % mod * mpow(2, v[x][0]) % mod);
+        sub(f1, t1[v[x][0]] * t1[v[x][0]] % mod * mpow(2, v[x][0] + 1) % mod * i4 % mod);
+        sub(sq1, at1[0][v[x][0]] * t1[v[x][0]] % mod * mpow(2, v[x][0]) % mod);
+        add(sq1, at1[1][v[x][0]] * t1[v[x][0]] % mod * mpow(2, v[x][0]) % mod);
+        eq1 += sq(t1[v[x][0]]);
+    };
+
+    auto ins = [&](ll x) {
+        if (v[x].size() == 0) ++c0[fl[x]];
+        else if (v[x].size() >= 2) ++c2;
+        else {
+            u1(x);
+            add(s1[fl[x]], mpow(2, v[x][0]));
+            ++c1;
+            ++at1[fl[x]][v[x][0]];
+            ++t1[v[x][0]];
+            r1(x);
+        }
+    };
+
+    auto del = [&](ll x) {
+        if (v[x].size() == 0) --c0[fl[x]];
+        else if (v[x].size() >= 2) --c2;
+        else {
+            u1(x);
+            sub(s1[fl[x]], mpow(2, v[x][0]));
+            --c1;
+            --at1[fl[x]][v[x][0]];
+            --t1[v[x][0]];
+            r1(x);
+        }
+    };
+
+    for (ll i = 0; i < m; i++) ins(i);
+
+    for (ll p = n - 1; p >= 0; p--) {
+        for (ll x: at[p]) {
+            del(x);
+            v[x].pop_back();
+            ins(x);
+        }
+        if (s[n - 1 - p] == '1') {
+            if (p > 0) {
+                ll t = p - 1;
+                ll v = (mpow(2, 2 * t + 1) - mpow(2, t) + mod) % mod;
+
+                // 0-0
+                add(ans, c0[1] * c0[0] % mod * v % mod);
+
+                // 0-1
+                {
+                    ll t0 = (c0[0] + c0[1]) % mod;
+                    add(ans, t0 * v % mod * c1 % mod * i2 % mod);
+                    sub(ans, t0 * s1[0] % mod * i2 % mod * mpow(2, t) % mod);
+                    add(ans, t0 * s1[1] % mod * i2 % mod * mpow(2, t) % mod);
+                }
+                
+                // 0-2
+                add(ans, c0[1] * c2 % mod * v % mod * i2 % mod);
+                add(ans, c2 * c0[0] % mod * v % mod * i2 % mod);
+
+                // 1-1
+                {
+                    ll t1 = (c1 * c1 - eq1 + mod) % mod;
+                    t1 = (t1 + mod) % mod;
+                    add(ans, t1 * v % mod * i4 % mod);
+                    sub(ans, s1[0] * c1 % mod * mpow(2, t) % mod * i2 % mod);
+                    add(ans, s1[1] * c1 % mod * mpow(2, t) % mod * i2 % mod);
+                    sub(ans, sq1 * i2 % mod * mpow(2, t) % mod);
+
+                    add(ans, f1 * mpow(2, t) % mod);
+                    add(ans, eq1 % mod * mpow(2, 2 * t + 1) % mod * i4 % mod);
+                }
+
+                // 1-2
+                {
+                    add(ans, c2 * v % mod * c1 % mod * i2 % mod);
+                    sub(ans, c2 * s1[0] % mod * i2 % mod * mpow(2, t) % mod);
+                    add(ans, c2 * s1[1] % mod * i2 % mod * mpow(2, t) % mod);
+                }
+
+                // 2-2
+                add(ans, c2 * c2 % mod * (v + mpow(2, t)) % mod * i4 % mod);
+            }
+
+            // add 0's and 1's to past
+            {
+                vl v(2);
+                for (ll i = 0; i < 2; i++) v[i] = (c0[i] + (m - c0[0] - c0[1]) * i2 % mod) * mpow(2, p) % mod;
+
+                add(ans, pv[1] * v[0] % mod);
+                add(pv[0], v[0]);
+                add(pv[1], v[1]);
+            }
+        }
+        ll t = s[n - 1 - p] - '0';
+        for (ll x: at[p]) {
+            del(x);
+            fl[x] ^= t;
+            ins(x);
+        }
+    }
+
+    return ans;
+}
+
+ll smart(string s, vector<vl> v) {
+    ll ans = 0;
+    ans += inner(s, v);
+    ans += outer(s, v);
+    ans %= mod;
+    return ans;
+}
+
+const bool run = local_ ? 0 : 1;
+void solve(int tc = 0) {
+    cin >> n >> m;
+    cin >> s;
+    vector<vl> v(m);
+    for (vl &x: v) {
+        ll s; cin >> s;
+        while (s--) {
+            ll y; cin >> y;
+            x.push_back(y);
+        }
+    }
+    cout << smart(s, v) << '\n';
+}
+
+int main() {
+    #ifdef galen_colin_local
+        auto begin = std::chrono::high_resolution_clock::now();
+    #endif
+    
+    send help
+
+    #ifndef galen_colin_local
+        // usaco("cbs");
+    #endif
+    
+    // usaco("cowland");
+    
+    // freopen("tc.txt", "r", stdin);
+    // freopen("tc.txt", "w", stdout);
+    // freopen("tc2.cpp", "w", stdout);
+    // freopen("in.txt", "r", stdin);
+    // freopen("out.txt", "w", stdout);
+        
+    cout << setprecision(15) << fixed;
+    cerr << setprecision(4) << fixed;
+
+
+            
+    int tc = 1;
+    // if (local_)
+    // if (run)
+    // cin >> tc;
+    for (int t = 0; t < tc; t++) {
+        pr(t); prs(string(50, '-'));
+        solve(t);
+        prs(string(50, '-') + "\n");
+    }
+    
+    #ifdef galen_colin_local
+        auto end = std::chrono::high_resolution_clock::now();
+        cerr << setprecision(4) << fixed;
+        cerr << "Execution time: " << std::chrono::duration_cast<std::chrono::duration<double>>(end - begin).count() << " seconds" << endl;
+    #endif
+}

@@ -1,0 +1,207 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define rep(i,j,k) for(int i=(j);i<=(k);i++)
+#define per(i,j,k) for(int i=(j);i>=(k);i--)
+#define pb emplace_back
+#define fi first
+#define se second
+using vi=vector<int>;
+using pi=pair<int,int>;
+
+template<typename T0, typename T1> bool chmin(T0 &x,const T1 &y){
+	if(y<x){x=y; return true;} return false;
+}
+template<typename T0, typename T1> bool chmax(T0 &x,const T1 &y){
+	if(y>x){x=y; return true;} return false;
+}
+
+namespace Debug{
+	template<typename T> void _debug(char *s, T x){
+		cerr<< s <<" = "<< x <<endl;
+	}
+	template<typename T, typename ...Ar> void _debug(char *s, T x, Ar... y){
+		while(*s != ',') cerr<< *s++;
+		cerr<< " = "<< x <<",";
+		_debug(s+1, y...);
+	}
+}
+using namespace Debug;
+#define gdb(...) _debug((char*)#__VA_ARGS__, __VA_ARGS__)
+
+using db = __float128;
+namespace simplex{
+	// \sum aij * xj <= bi
+	// maximize \sum cjxj
+	// using db = double;
+	constexpr db inf = 1e5, eps = 1e-16;
+
+	int sgn(db x){
+		return x > eps? 1: x < -eps? -1: 0;
+	}
+	int n,m;
+	int id[2500];
+	db a[2500][2500];
+
+	void pivot(int x, int y){
+		swap(id[n+x], id[y]);
+		db k = -a[x][y];
+		rep(i,0,n){
+			a[x][i] /= k;
+		}
+		a[x][y] = -1 / k;
+		rep(i,0,m){
+			if(i == x || sgn(a[i][y]) == 0) continue;
+			db z = exchange(a[i][y], 0);
+			rep(j,0,n){
+				a[i][j] += z * a[x][j];
+			}
+		}
+	}
+	bool init(){
+		while(1){
+			int x = 1, y = 0;
+			rep(i,1,m){
+				if(a[i][0] < a[x][0]) x = i;
+			}
+			if(sgn(a[x][0]) >= 0) break;
+			rep(j,1,n){
+				if(sgn(a[x][j]) > 0){
+					if(!y || id[j] > id[y]) y = j;
+				}
+			}
+			if(!y){
+				return false;
+			}
+			pivot(x, y);
+		}
+		return true;
+	}
+	db solve(const vector< vector<db> > &_a){
+		m = _a.size() - 1, n = _a[0].size() - 1;
+		rep(i,0,m){
+			rep(j,0,n){
+				a[i][j] = _a[i][j];
+			}
+		}
+		a[0][0] = 0;
+		rep(i,1,m){
+			rep(j,1,n){
+				a[i][j] = -a[i][j];
+			}
+		}
+		iota(id, id+n+m+1, 0);
+		if(!init()){
+			return NAN;
+		}
+		while(1){
+			int x = 0, y = 1;
+			rep(i,1,n){
+				if(a[0][i] > a[0][y]) y = i;
+			}
+			if(sgn(a[0][y]) <= 0) break;
+			rep(i,1,m){
+				if(sgn(a[i][y]) >= 0) continue;
+				if(x == 0) x = i;
+				else{
+					db dlt = a[i][0] / (-a[i][y]) - a[x][0] / (-a[x][y]);
+					if(sgn(dlt) < 0 || (sgn(dlt) == 0 && id[i] > id[x])) x = i;
+				}
+			}
+			if(x == 0) return inf;
+			pivot(x, y);
+		}
+		return a[0][0];
+	}
+	vector<db> solvex(){// 1 indexed
+		vector<db> res(n+m+1);
+		rep(i,1,m){
+			res[ id[i+n] ] = a[i][0];
+		}
+		return res;
+	}
+}
+
+db input(){
+	long double x; cin>>x;
+	return x;
+}
+void output(db x){
+	cout<< setprecision(20) << fixed << (long double)x <<' ';
+}
+
+signed main(){
+	#ifndef ONLINE_JUDGE
+	freopen(".in","r",stdin);
+	freopen(".out","w",stdout);
+	#endif
+	ios::sync_with_stdio(0);cin.tie(0);
+	
+	int n,P,Q; cin>>n>>P>>Q;
+	vector<vi> a(n, vi(n));
+	rep(i,0,n-1){
+		rep(j,0,n-1){
+			cin>>a[i][j];
+		}
+	}
+
+	// [0,n^2) positive delta
+	// [n^2, 2n^2) negative delta
+	// [2n^2, 2n^2 + n(n-1)) anssum 0
+	// [2n^2 + n(n-1), 2n^2 + 2n(n-1)) anssum 1
+
+	int N = n*n, M = n*(n-1)*2, S = N*2 + M*2;
+	auto id=[&](int x, int y){
+		return x * n + y;
+	};
+
+	vector< vector<db> > table;
+	table.pb((vector<db>)(S + 1));
+	rep(i,N*2+1,N*2+M*2){
+		table[0][i] = -1;
+	}
+	table.pb((vector<db>)(S+1));
+	table[1][0] = (db)P/Q;
+	rep(i,1,N*2){
+		table[1][i] = 1;
+	}
+
+	auto addedge=[&](int u, int v, int e, db w){// (d0u - d1u) - (d0v - d1v) <= ae + w
+		table.pb((vector<db>)(S+1));
+		table.back()[u] = 1;
+		table.back()[u + N] = -1;
+		table.back()[v] = -1;
+		table.back()[v + N] = 1;
+		table.back()[e] = -1;
+		table.back()[0] = w;
+	};
+
+	int ctot = N*2;
+	rep(i,0,n-1){
+		rep(j,0,n-2){
+			// (x + au) - (y + av) <= ae
+			db x = a[i][j], y = a[i][j+1];
+			addedge(id(i, j) + 1, id(i, j+1) + 1, ++ctot, y - x);
+			addedge(id(i, j+1) + 1, id(i, j) + 1, ++ctot, x - y);
+		}
+	}
+	rep(i,0,n-2){
+		rep(j,0,n-1){
+			// (x + au) - (y + av) <= ae
+			db x = a[i][j], y = a[i+1][j];
+			addedge(id(i, j) + 1, id(i+1, j) + 1, ++ctot, y - x);
+			addedge(id(i+1, j) + 1, id(i, j) + 1, ++ctot, x - y);
+		}
+	}
+
+	db ans = -simplex::solve(table);
+	vector<db> ansx = simplex::solvex();
+	output(ans);
+	cout<<'\n';
+	rep(i,0,n-1){
+		rep(j,0,n-1){
+			output(a[i][j] + ansx[id(i, j) + 1] - ansx[id(i, j) + N + 1]);
+		}
+		cout<<'\n';
+	}
+}

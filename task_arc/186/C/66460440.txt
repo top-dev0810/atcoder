@@ -1,0 +1,113 @@
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int MOD = 998244353;
+#ifdef int
+#define inf 0x3f3f3f3f3f3f3f3f
+#else
+#define inf 0x3f3f3f3f
+#endif
+const long long infll = 0x3f3f3f3f3f3f3f3f;
+#define pii pair<int, int>
+#define mkp(x,y) make_pair(x,y)
+
+#ifndef LOCAL
+#define SUBMIT
+#endif
+
+#ifdef SUBMIT
+#define endl '\n'
+//#define cin Fastio ::cin
+//#define cout Fastio ::cout
+#endif
+
+template<typename T>
+void read(vector<T> &vec)
+{
+    for(auto &x:vec)
+    {
+        cin>>x;
+    }
+}
+
+int qpow(int n,int k)
+{
+    int res=1;
+    while(k)
+    {
+        if(k&1)(res*=n)%=MOD;
+        (n*=n)%=MOD;
+        k>>=1;
+    }
+    return res;
+}
+
+
+
+void work()
+{
+    int n,m;
+    cin>>n>>m;
+    vector<pii>vec(n);
+    for(auto &x:vec)cin>>x.first>>x.second;
+    if(m==1)
+    {
+        int ans=0;
+        for(auto x:vec)ans+=max(x.first-x.second,0ll);
+        cout<<ans<<endl;
+        return ;
+    }
+    sort(vec.begin(),vec.end());
+    vector<int>presum(n);
+    presum[0]=max(vec[0].first-vec[0].second,0ll);
+    for(int i=1;i<n;i++)
+    {
+        presum[i]=presum[i-1]+max(vec[i].first-vec[i].second,0ll);
+    }
+    vector<int>sufmin(n,inf);
+    priority_queue<int>que;
+    int sum=0;
+    m--;
+    for(int i=n-1;i>=0;i--)
+    {
+        if(que.size()<m)
+        {
+            sum+=vec[i].second;
+            que.push(vec[i].second);
+        }
+        else
+        {
+            if(que.top()>vec[i].second);
+            sum-=que.top();
+            que.pop();
+            sum+=vec[i].second;
+            que.push(vec[i].second);
+        }
+        if(que.size()==m)
+        {
+            sufmin[i]=sum;
+        }
+    }
+    int ans=0;
+    for(int i=1;i<n;i++)
+    {
+        ans=max(ans,presum[i-1]-sufmin[i]+m);
+    }
+    cout<<ans<<endl;
+}
+
+signed main()
+{
+#ifndef cin
+#ifdef SUBMIT
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#endif
+#endif
+    int t=1;
+    cin>>t;
+    while(t--)
+    {
+        work();
+    }
+}

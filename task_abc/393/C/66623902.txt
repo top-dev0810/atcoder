@@ -1,0 +1,35 @@
+#define _GLIBCXX_DEBUG
+#include <bits/stdc++.h>
+#define rep(i, n) for (int i = 0; i < (int)(n); i++)
+#define Yes cout << "Yes" << endl
+#define No cout << "No" << endl
+#define YES cout << "YES" << endl
+#define NO cout << "NO" << endl
+using ll = long long;
+/*
+sort(.begin(), .end());
+reverse(.begin(), .end());
+vector<vector<型>> 名前(h, vector<型>(w));
+transform(s.begin(), s.end(), s.begin(), ::toupper ::tolower);
+<><><<>><><><<>><><><<>><><><<>><><><<>><><><<>>*/
+
+using namespace std;
+   
+int main(void){ 
+   ll n,m;
+   ll ans =0;
+   set<pair<int,int>>a;
+   cin >> n >> m;
+   for(int i=0;i<m;i++){
+       ll u , v;
+       cin >> u >> v;
+       if(a.count({u,v})||a.count({v,u})||u==v){
+           ans++;
+       }else{
+
+           a.insert(make_pair(u,v));
+           a.insert(make_pair(v,u));
+       }
+   }
+   cout << ans << endl;
+}

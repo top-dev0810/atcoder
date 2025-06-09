@@ -1,0 +1,25 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+using ll = long long;
+using ld = long double;
+#define rep(i,l,r) for(ll i=l;i<r;++i)
+#define all(x) x.begin(), x.end()
+#define yes cout << "Yes\n"
+#define no cout << "No\n"
+
+int main(){
+    int n;
+    cin >> n;
+    vector<ll> a(n);
+    rep(i,0,n) cin >> a[i];
+
+    bool isOK = true;
+    rep(i,0,n-2){
+        if(a[i]*a[i+2]!=a[i+1]*a[i+1]){
+            isOK = false;
+        }
+    }
+    if(isOK) yes;
+    else no;
+}

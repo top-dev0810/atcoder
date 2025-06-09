@@ -1,0 +1,47 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define rep(i, n) for (int i = 0; i < (int)(n); i++)
+#define rrep(i, n) for (int i = (int)(n) - 1; i >= 0; i--)
+#define rep2(i, s, n) for (int i = (s); i < (int)(n); i++)
+#define sz(x) (x).size()
+#define ALL(x) (x).begin(), (x).end()
+using ll = long long;
+using vi = vector<int>;
+using vvi = vector<vi>;
+using vl = vector<long long>;
+using vvl = vector<vl>;
+using vs = vector<string>;
+const int inf = 1073741823;
+const ll infl = 1LL << 60;
+
+// clang-format off
+
+//bool型の入力でYesとNoを出力する
+void ansYN(bool bool_) { if (bool_) { cout << "Yes" << endl; } else { cout << "No" << endl; } }
+//回文かどうかを判定する
+bool isKaibun(string str) { string str2 = str;reverse(str.begin(), str.end());return str == str2; }
+//配列を入れると出力する
+void vecout(vector<int> vec) { rep(i, vec.size()) { cout << vec.at(i);if (i == vec.size() - 1) { cout << endl; } else { cout << " "; } } }
+//配列を入れると入力する
+void vecin(vector<int>& vec) { rep(i, vec.size()) { cin >> vec.at(i); } }
+//ユークリッド距離  memo : printf("%.10f",ans);
+long double dist(int x1, int y1, int x2, int y2) { ll dx = x1 - x2;ll dy = y1 - y2;long double ans = sqrtl(dx * dx + dy * dy);return ans; }
+
+// clang-format on
+
+int main() {
+  int N,D;
+  cin >> N >> D;
+  string S;
+  cin >> S;
+  
+  int c =0;
+  rep(i,N){
+    if(S[i] == '@')c++;
+  }
+  
+  cout << N - (c-D);
+
+    
+    return 0;
+}

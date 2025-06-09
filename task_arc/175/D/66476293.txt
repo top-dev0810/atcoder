@@ -1,0 +1,308 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll=long long;
+using ull=unsigned long long;
+using P=pair<ll,ll>;
+template<typename T>using minque=priority_queue<T,vector<T>,greater<T>>;
+template<typename T>bool chmax(T &a,const T &b){return (a<b?(a=b,true):false);}
+template<typename T>bool chmin(T &a,const T &b){return (a>b?(a=b,true):false);}
+template<typename T1,typename T2>istream &operator>>(istream &is,pair<T1,T2>&p){is>>p.first>>p.second;return is;}
+template<typename T1,typename T2,typename T3>istream &operator>>(istream &is,tuple<T1,T2,T3>&a){is>>std::get<0>(a)>>std::get<1>(a)>>std::get<2>(a);return is;}
+template<typename T,size_t n>istream &operator>>(istream &is,array<T,n>&a){for(auto&i:a)is>>i;return is;}
+template<typename T>istream &operator>>(istream &is,vector<T> &a){for(auto &i:a)is>>i;return is;}
+template<typename T1,typename T2>void operator++(pair<T1,T2>&a,int n){a.first++,a.second++;}
+template<typename T1,typename T2>void operator--(pair<T1,T2>&a,int n){a.first--,a.second--;}
+template<typename T>void operator++(vector<T>&a,int n){for(auto &i:a)i++;}
+template<typename T>void operator--(vector<T>&a,int n){for(auto &i:a)i--;}
+#define overload3(_1,_2,_3,name,...) name
+#define rep1(i,n) for(int i=0;i<(int)(n);i++)
+#define rep2(i,l,r) for(int i=(int)(l);i<(int)(r);i++)
+#define rep(...) overload3(__VA_ARGS__,rep2,rep1)(__VA_ARGS__)
+#define reps(i,l,r) rep2(i,l,r)
+#define all(x) x.begin(),x.end()
+#define pcnt(x) __builtin_popcountll(x)
+#define fin(x) return cout<<(x)<<'\n',static_cast<void>(0)
+#define yn(x) cout<<((x)?"Yes\n":"No\n")
+#define uniq(x) sort(all(x)),x.erase(unique(all(x)),x.end())
+template<typename T>
+inline int fkey(vector<T>&z,T key){return lower_bound(z.begin(),z.end(),key)-z.begin();}
+ll myceil(ll a,ll b){return (a+b-1)/b;}
+template<typename T,size_t n,size_t id=0>
+auto vec(const int (&d)[n],const T &init=T()){
+  if constexpr (id<n)return vector(d[id],vec<T,n,id+1>(d,init));
+  else return init;
+}
+#ifdef LOCAL
+#include<debug.h>
+#define SWITCH(a,b) (a)
+#else
+#define debug(...) static_cast<void>(0)
+#define debugg(...) static_cast<void>(0)
+#define SWITCH(a,b) (b)
+template<typename T1,typename T2>ostream &operator<<(ostream &os,const pair<T1,T2>&p){os<<p.first<<' '<<p.second;return os;}
+#endif
+struct Timer{
+  clock_t start;
+  Timer(){
+    start=clock();
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cout<<fixed<<setprecision(16);
+  }
+  inline double now(){return (double)(clock()-start)/1000;}
+  #ifdef LOCAL
+  ~Timer(){
+    cerr<<"time:";
+    cerr<<now();
+    cerr<<"ms\n";
+  }
+  #endif
+}timer;
+void SOLVE();
+int main(){
+  int testcase=1;
+  //cin>>testcase;
+  for(int i=0;i<testcase;i++){
+    SOLVE();
+  }
+}
+template<typename T=int>
+struct Edge{
+  int from,to;
+  T weight;
+  int index;
+  Edge(int from_,int to_,T weight_=T(),int index_=-1):from(from_),to(to_),weight(weight_),index(index_){}
+  Edge():from(-1),to(-1),weight(),index(-1){}
+  friend std::ostream &operator<<(std::ostream &os,const Edge&e){
+    os<<'[';
+    os<<"from:"<<e.from;
+    os<<"to:"<<e.to;
+    os<<"weight:"<<e.weight;
+    os<<"index:"<<e.index;
+    os<<']';
+    return os;
+  }
+};
+template<typename T=int>
+struct Tree{
+private:
+  int n;
+  std::vector<int>par;
+  std::vector<Edge<T>>edge;
+  std::vector<Edge<T>>g;
+  std::vector<int>ptr;
+  struct tree_range{
+    using iterator=typename std::vector<Edge<T>>::iterator;
+    iterator l,r;
+    iterator begin()const{return l;}
+    iterator end()const{return r;}
+    int size()const{return r-l;}
+    bool empty()const{return !size();}
+    Edge<T> &operator[](int i)const{return l[i];}
+  };
+  struct const_tree_range{
+    using iterator=typename std::vector<Edge<T>>::const_iterator;
+    iterator l,r;
+    iterator begin()const{return l;}
+    iterator end()const{return r;}
+    int size()const{return r-l;}
+    bool empty()const{return !size();}
+    const Edge<T> &operator[](int i)const{return l[i];}
+  };
+public:
+  explicit Tree(int n_):n(n_){
+    edge.reserve(n-1);
+  }
+  Tree():n(0){}
+  Tree(int n_,const std::vector<Edge<T>>&e,bool dir=false):n(n_),edge(e){
+    if(!dir)build();
+    else{
+      par.resize(n,-1);
+      ptr.resize(n+1);
+      for(const Edge<T>&i:edge)ptr[i.from]++,par[i.to]=i.from;
+      for(int i=1;i<=n;i++)ptr[i]+=ptr[i-1];
+      assert(ptr[n]==n-1);
+      g.resize(n-1);
+      for(const Edge<T>&i:edge)g[--ptr[i.from]]=i;
+    }
+  }
+  template<bool weighted=false,bool index=1>
+  void read(){
+    for(int i=0;i<n-1;i++){
+      int u,v;
+      T w=T();
+      std::cin>>u>>v;
+      if constexpr(index)u--,v--;
+      if constexpr(weighted)std::cin>>w;
+      else w=1;
+      edge.emplace_back(u,v,w,i);
+    }
+    build();
+  }
+  template<bool index=1>
+  void readp(){
+    par.resize(n);
+    par[0]=-1;
+    ptr.resize(n+1);
+    for(int i=1;i<n;i++){
+      int p;
+      std::cin>>p;
+      if constexpr(index)p--;
+      edge.emplace_back(p,i,1,i-1);
+      par[i]=p;
+      ptr[p]++;
+    }
+    for(int i=1;i<=n;i++)ptr[i]+=ptr[i-1];
+    g.resize(n-1);
+    for(int i=0;i<n-1;i++){
+      g[--ptr[edge[i].from]]=edge[i];
+    }
+  }
+  void add_edge(int u,int v){edge.emplace_back(u,v,1,edge.size());}
+  void add_edge(int u,int v,T w){edge.emplace_back(u,v,w,edge.size());}
+  void add_edge(int u,int v,T w,int idx){edge.emplace_back(u,v,w,idx);}
+  inline bool is_directed()const{return !par.empty();}
+  void build(){
+    ptr.resize(n+1,0);
+    for(auto&&[u,v,w,i]:edge)ptr[u]++,ptr[v]++;
+    for(int i=1;i<=n;i++)ptr[i]+=ptr[i-1];
+    assert(ptr[n]==n*2-2);
+    g.resize(n*2-2);
+    par.clear();
+    for(auto&&[u,v,w,i]:edge){
+      g[--ptr[u]]=Edge(u,v,w,i);
+      g[--ptr[v]]=Edge(v,u,w,i);
+    }
+  }
+  void remove_parent(int root=0){
+    edge.resize(n-1);
+    par.resize(n);
+    par[root]=-1;
+    std::queue<int>que;
+    que.push(root);
+    while(!que.empty()){
+      int x=que.front();
+      que.pop();
+      for(const Edge<T>&e:(*this)[x])if(e.to!=par[x]){
+        par[e.to]=x;
+        edge[e.index]=e;
+        que.push(e.to);
+      }
+    }
+    ptr.resize(n+1);
+    std::fill(ptr.begin(),ptr.end(),0);
+    for(int i=0;i<n-1;i++)ptr[edge[i].from]++;
+    for(int i=1;i<=n;i++)ptr[i]+=ptr[i-1];
+    g.resize(ptr[n]);
+    for(const Edge<T>&e:edge)g[--ptr[e.from]]=e;
+  }
+  std::vector<int>bfs_order()const{
+    assert(is_directed());
+    std::vector<int>bfs(n);
+    int p=0,q=0;
+    bfs[q++]=root();
+    while(p<q){
+      int x=bfs[p++];
+      for(const Edge<T>&e:(*this)[x])bfs[q++]=e.to;
+    }
+    return bfs;
+  }
+  std::vector<int>dfs_order()const{
+    assert(is_directed());
+    std::vector<int>res;
+    res.reserve(n);
+    std::vector<int>st(n);
+    int p=0;
+    st[p++]=root();
+    while(p){
+      int x=st[--p];
+      res.push_back(x);
+      p+=(*this)[x].size();
+      for(const Edge<T>&e:(*this)[x])st[--p]=e.to;
+      p+=(*this)[x].size();
+    }
+    return res;
+  }
+  std::vector<int>rbfs_order()const{
+    std::vector<int>bfs=bfs_order();
+    std::reverse(bfs.begin(),bfs.end());
+    return bfs;
+  }
+  void hld(){
+    assert(is_directed());
+    std::vector<int>sub(n);
+    for(int x:rbfs_order()){
+      sub[x]=1;
+      int mx=-1;
+      for(Edge<T>&e:(*this)[x]){
+        sub[x]+=sub[e.to];
+        if(mx<sub[e.to]){
+          mx=sub[e.to];
+          std::swap((*this)[x][0],e);
+        }
+      }
+    }
+  }
+  std::pair<std::vector<int>,std::vector<int>>in_out_order(){
+    assert(is_directed());
+    std::vector<int>in(n),out(n);
+    int p=0;
+    auto dfs=[&](auto self,int x)->void {
+      in[x]=p++;
+      for(const Edge<T>&e:(*this)[x]){
+        self(self,e.to);
+      }
+      out[x]=p;
+    };
+    dfs(dfs,root());
+    return std::make_pair(in,out);
+  }
+  int size()const{return n;}
+  tree_range operator[](int i){return tree_range{g.begin()+ptr[i],g.begin()+ptr[i+1]};}
+  const_tree_range operator[](int i)const{return const_tree_range{g.begin()+ptr[i],g.begin()+ptr[i+1]};}
+  const Edge<T>& get_edge(int i)const{return edge[i];}
+  inline int parent(int i)const{return par[i];}
+  inline int root()const{return std::find(par.begin(),par.end(),-1)-par.begin();}
+  typename std::vector<Edge<T>>::iterator begin(){return edge.begin();}
+  typename std::vector<Edge<T>>::iterator end(){return edge.end();}
+  typename std::vector<Edge<T>>::const_iterator begin()const{return edge.begin();}
+  typename std::vector<Edge<T>>::const_iterator end()const{return edge.end();}
+};
+void SOLVE(){
+  int n;
+  ll k;
+  cin>>n>>k;
+  Tree t(n);
+  t.read();
+  t.remove_parent();
+  vector<int>bfs=t.rbfs_order();
+  vector<int>sz(n);
+  for(int x:bfs){
+    sz[x]=1;
+    for(auto e:t[x])sz[x]+=sz[e.to];
+  }
+  vector<int>ans(n);
+  reverse(all(bfs));
+  vector<int>check(n);
+  for(int x:bfs){
+    if(x==0||sz[x]<=k){
+      k-=sz[x];
+      check[x]=true;
+    }
+    else check[x]=false;
+  }
+  reverse(all(bfs));
+  int p=1;
+  for(int x:bfs){
+    if(!check[x])ans[x]=p++;
+  }
+  reverse(all(bfs));
+  for(int x:bfs){
+    if(check[x])ans[x]=p++;
+  }
+  if(k==0){
+    cout<<"Yes\n";
+    rep(i,n)cout<<ans[i]<<" \n"[i+1==n];
+  }
+  else cout<<"No\n";
+}

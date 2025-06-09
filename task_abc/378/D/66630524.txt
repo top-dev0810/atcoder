@@ -1,0 +1,39 @@
+#include <bits/stdc++.h>
+using namespace std;
+// #include <atcoder/all>
+// using namespace atcoder;
+
+int main() {
+  int H, W, K;
+  cin >> H >> W >> K;
+  vector<string> S(H);
+  for (int i = 0; i < H; i++) cin >> S[i];
+  vector visited(H, vector<bool>(W));
+  int di[] = {0, 1, 0, -1};
+  int dj[] = {1, 0, -1, 0};
+  auto dfs = [&](auto dfs, int i, int j, int d) -> int {
+    if (d == K) return 1;
+    visited[i][j] = true;
+    int ret = 0;
+    for (int r = 0; r < 4; r++) {
+      int ni = i + di[r];
+      int nj = j + dj[r];
+      if (ni < 0 || ni >= H || nj < 0 || nj >= W) continue;
+      if (S[ni][nj] == '#') continue;
+      if (visited[ni][nj]) continue;  // 修正
+      ret += dfs(dfs, ni, nj, d + 1);
+    }
+    visited[i][j] = false;
+    return ret;
+  };
+  int ans = 0;
+  for (int i = 0; i < H; i++) {
+    for (int j = 0; j < W; j++) {
+      if (S[i][j] == '#') continue;
+      ans += dfs(dfs, i, j, 0);
+    }
+  }
+  cout << ans << endl;
+  return 0;
+}
+// 2025-06-09

@@ -1,0 +1,196 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+namespace poly {
+    #define FP(body) [&](Poly a, Poly b){ return (body); }
+    #define FI(body) [&](int a, int b){ return (body); }
+    #define F_1 [&](int a [[maybe_unused]]){ return 1; }
+
+    const int mod = 998244353, g = 3, ginv = 332748118, inv2 = 499122177, imagunit = 86583718, imagunitinv = 911660635;
+    const int N = 1e6 + 5;
+
+    int Add(int x, int y){ return (x + y) >= mod ? (x + y - mod) : (x + y); }
+    int Sub(int x, int y){ return (x - y) < 0 ? (x - y + mod) : (x - y); }
+    int Mul(int x, int y){ return 1ll * x * y % mod; }
+
+    int fastpow(int x, int y){
+        int ret = 1;
+        for(;y;y>>=1,x=Mul(x,x)){
+            if(y & 1) ret = Mul(ret, x);
+        }
+        return ret;
+    }
+
+    int Inv(int x){ return fastpow(x, mod-2); }
+
+    struct Poly{
+        vector<int> a;
+        Poly(){}
+        Poly(vector<int> _a):a(_a){}
+        Poly(int siz){ a.resize(siz); }
+        static Poly cst(int x){ return Poly(vector<int>(1, x)); }
+        int& operator[](int x){ return a[x]; }
+        int size(){ return a.size(); }
+        Poly resize(int siz){ a.resize(siz, 0); return *this; }
+        Poly deri(); Poly inte();
+        void ntt(bool flag = 1);
+        static int init_ntt(int n, int m);
+        static Poly conv(Poly a, Poly b, function<int(int, int)> f);
+        Poly ite(function<Poly(Poly, Poly)> f, function<int(int)> first);
+        Poly sqrt(); Poly ln(); Poly exp(); Poly pow(int k);
+        Poly sin(); Poly cos(); Poly tan(); Poly asin(); Poly acos(); Poly atan();
+    };
+
+    ostream& operator<<(ostream &out, Poly a){
+        for(int i=0;i<a.size();i++){
+            out << a[i];
+            if(i != a.size() - 1) out << " ";
+        }
+        return out;
+    }
+
+    istream& operator>>(istream &in, Poly &a){
+        for(int i=0;i<a.size();i++) in >> a[i];
+        return in;
+    }
+
+    Poly operator+(Poly a, Poly b){
+        int n = max(a.size(), b.size());
+        a.resize(n), b.resize(n);
+        for(int i=0;i<n;i++) a[i] = Add(a[i], b[i]);
+        return a;
+    }
+
+    Poly operator-(Poly a){
+        for(int i=0;i<a.size();i++) a[i] = Sub(0, a[i]);
+        return a;
+    }
+
+    Poly operator-(Poly a, Poly b){ return a + (-b); }
+    Poly operator+(Poly a, int b){ a[0] = Add(a[0], b); return a; }
+    Poly operator-(Poly a, int b){ return a + (-b); }
+    Poly operator+(int a, Poly b){ return b + a; }
+    Poly operator-(int a, Poly b){ return a + (-b); }
+
+    Poly operator*(Poly a, int b){
+        for(int i=0;i<a.size();i++) a[i] = Mul(a[i], b);
+        return a;
+    }
+
+    Poly operator*(int a, Poly b){ return b * a; }
+
+    Poly Poly::deri(){
+        vector<int> ret(size() - 1);
+        for(int i=1;i<size();i++) ret[i-1] = Mul(a[i], i);
+        return Poly(ret);
+    }
+
+    Poly Poly::inte(){
+        vector<int> ret(size() + 1);
+        for(int i=1;i<=size();i++) ret[i] = Mul(a[i-1], Inv(i));
+        return Poly(ret);
+    }
+
+    int r[N], wt[N];
+
+    void Poly::ntt(bool flag){
+        int n = size();
+        for(int i=0;i<n;i++){
+            if(i < r[i]) swap(a[i], a[r[i]]);
+        }
+        for(int i=2;i<(n<<1);i<<=1){
+            int w1 = fastpow(flag ? g : ginv, (mod - 1) / i);
+            for(int j=0;j<n;j+=i){
+                int w = 1;
+                for(int k=0;k<(i>>1);k++,w=Mul(w,w1)){
+                    int x = a[j + k], y = Mul(w, a[(i >> 1) + j + k]);
+                    a[j + k] = Add(x, y), a[(i >> 1) + j + k] = Sub(x, y);
+                }
+            }
+        }
+        if(!flag){
+            int inv = Inv(n);
+            for(int i=0;i<n;i++) a[i] = Mul(a[i], inv);
+        }
+    }
+
+    int Poly::init_ntt(int n, int m){
+        int c = 1, l = 0;
+        while(c < (n + m)) c <<= 1, l++;
+        for(int i=0;i<=c;i++) r[i] = (r[i >> 1] >> 1) | ((i & 1) << (l - 1));
+        return c;
+    }
+
+    Poly Poly::conv(Poly a, Poly b, function<int(int, int)> f){
+        int n = a.size(), m = b.size();
+        int c = Poly::init_ntt(n, m);
+        a.resize(c), b.resize(c);
+        a.ntt(), b.ntt();
+        for(int i=0;i<c;i++) a[i] = f(a[i], b[i]);
+        a.ntt(0), a.resize(n + m + 1);
+        return a;
+    }
+
+    Poly Poly::ite(function<Poly(Poly, Poly)> f, function<int(int)> first){
+        if(a.size() == 1) return Poly::cst(first(a[0]));
+        Poly ta = (*this); ta.resize((a.size() + 1) >> 1);
+        Poly tb = ta.ite(f, first); tb.resize(a.size());
+        return f(a, tb).resize(a.size());
+    }
+
+    Poly operator*(Poly a, Poly b){ return Poly::conv(a, b, Mul); }
+    Poly operator~(Poly a){ return a.ite(FP(Poly::conv(a, b, FI(Mul(Sub(2, Mul(a, b)), b)))), Inv); }
+    Poly Poly::sqrt(){ return ite(FP((a * (~b) + b) * inv2), F_1); }
+    Poly Poly::ln(){ return ((*this).deri() * ~(*this)).inte().resize(size()); }
+    Poly Poly::exp(){ return ite(FP((1 - b.ln() + a) * b), F_1); }
+    Poly Poly::pow(int k){ return (ln() * k).exp(); }
+    Poly Poly::sin(){ Poly tmp = ((*this) * imagunit).exp(); return (tmp - ~tmp) * inv2 * imagunitinv; }
+    Poly Poly::cos(){ Poly tmp = ((*this) * imagunit).exp(); return (tmp + ~tmp) * inv2; }
+    Poly Poly::tan(){ return sin() * ~cos(); }
+    Poly Poly::asin(){ return (deri() * ~(1 - (*this) * (*this)).sqrt()).inte().resize(size()); }
+    Poly Poly::acos(){ return -asin(); }
+    Poly Poly::atan(){ return (deri() * ~(1 + (*this) * (*this))).inte().resize(size()); }
+}
+
+using poly::Poly;
+
+constexpr int mod = 998244353, inv2 = (mod + 1) >> 1;
+int Add(int x, int y){ return (x + y) >= mod ? (x + y - mod) : (x + y); }
+int Sub(int x, int y){ return (x - y) < 0 ? (x - y + mod) : (x - y); }
+int Mul(int x, int y){ return 1ll * x * y % mod; }
+
+int fastpow(int x, int y){
+    int ret = 1;
+    for(;y;y>>=1,x=Mul(x, x)){ if(y & 1) ret = Mul(ret, x); }
+    return ret;
+}
+
+const int N = 2.5e5 + 5;
+
+Poly f;
+int n, fact[N], pri[N], tot;
+bool vis[N];
+
+void sieve(int n){
+    for(int i=2;i<=n;i++){
+        if(!vis[i]) pri[++tot] = i;
+        for(int j=1;j<=tot&&1ll*i*pri[j]<=n;j++){
+            vis[i * pri[j]] = 1;
+            if(!(i % pri[j])) break;
+        }
+    }
+    fact[0] = 1;
+    for(int i=1;i<=n;i++) fact[i] = Mul(fact[i - 1], i);
+}
+
+signed main(){
+    ios::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    cin >> n, sieve(n), f.resize(n + 1);
+    f[1] = n;
+    for(int i=3;i<=n;i++) f[i] = vis[i] ? 0 : Mul(n, inv2);
+    cout << Mul(Mul(f.exp()[n], fact[n]), fastpow(Mul(n, n), mod - 2)) << '\n';
+    return 0;
+}
+
+// Written by xiezheyuan

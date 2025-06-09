@@ -1,0 +1,29 @@
+#include<bits/stdc++.h>
+#define int long long
+#define inf 0x3f3f3f3f3f3f3f3f
+#define N 300005
+using namespace std;
+int num[N],n;
+signed main()
+{
+	scanf("%lld",&n);
+	for(int i=1;i<=n;i++)scanf("%lld",&num[i]);
+	for(int i=1;i<=n;i++)
+	{
+		int l=i,r=i,ans=3;
+		while(l>=1||r<=n)
+		{
+			if(l>1&&r<n&&(num[l-1]-num[i])*(num[r+1]-num[i])>0)break;
+			if(l>2&&(num[l-1]-num[i])*(num[l-2]-num[i])>0)break;
+			if(r<n-1&&(num[r+1]-num[i])*(num[r+2]-num[i])>0)break;
+			if(i>1&&r<n&&(num[r]-num[i])*(num[r+1]-num[i])>0)break; 
+			if(i<n&&l>1&&(num[l]-num[i])*(num[l-1]-num[i])>0)break;
+			ans+=2;
+			l-=2;
+			r+=2;
+		}
+		if(l>=1||r<=n)printf("%lld ",ans);
+		else printf("-1 ");
+	}
+	return 0;
+}

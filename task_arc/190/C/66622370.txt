@@ -1,0 +1,156 @@
+#include <bits/stdc++.h>
+#define pii pair<int,int>
+#define pb emplace_back
+#define ll long long
+#define mk make_pair
+#define se second
+#define fi first
+//#define mid ((l+r)>>1)
+//#define rs now<<1|1
+//#define ls now<<1
+using namespace std;
+bool Mst;
+const int Max=2e5+10;
+const int mod=998244353;
+const int inf=1e9+10;
+
+inline int read(){
+   int res=0,v=1;
+   char c=getchar();
+   while(c<'0'||c>'9'){v=(c=='-'?-1:1);c=getchar();}
+   while(c>='0'&&c<='9'){res=(res<<3)+(res<<1)+(c^48);c=getchar();}
+   return res*v;
+}
+
+template <int mod>
+struct modint{
+
+    int val;
+
+    static int norm(const int &x){return x<0?x+mod:x;}
+    static int Norm(const int &x){return x>=mod?x%mod:x;}
+
+    modint inv()const{
+        int a=val,b=mod,u=1,v=0,t;
+        while(b>0)t=a/b,swap(a-=t*b,b),swap(u-=t*v,v);
+        return modint(u);
+    }
+
+
+    modint():val(0){}
+    modint(const int &m):val(norm(m)){}
+    modint(const long long &m):val(norm(m%mod)){}
+    modint operator -()const{return modint(norm(-val));}
+    bool operator ==(const modint &x){return val==x.val;}
+    bool operator !=(const modint &x){return val!=x.val;}
+    bool operator <=(const modint &x){return val<=x.val;}
+    bool operator >=(const modint &x){return val>=x.val;}
+    bool operator >(const modint &x){return val>x.val;}
+    bool operator <(const modint &x){return val<x.val;}
+    modint& operator *=(const modint &x){return val=static_cast<int>(1ll*val*x.val%mod),*this;}
+    modint& operator <<=(const modint &x){return val=(1ll*val<<x.val)%mod,*this;}
+    modint& operator +=(const modint &x){return val=Norm(1ll*val+x.val),*this;}
+    modint& operator -=(const modint &x){return val=norm(1ll*val-x.val),*this;}
+    modint& operator >>=(const modint &x){return val>>=x.val,*this;}
+    modint& operator ^=(const modint &x){return val^=x.val,*this;}
+    modint operator >>(const modint &x)const{return modint(*this)>>=x;}
+    modint operator <<(const modint &x)const{return modint(*this)<<=x;}
+    modint& operator /=(const modint &x){return *this*=x.inv();}
+    modint operator +(const modint &x)const{return modint(*this)+=x;}
+    modint operator -(const modint &x)const{return modint(*this)-=x;}
+    modint operator *(const modint &x)const{return modint(*this)*=x;}
+    modint operator /(const modint &x)const{return modint(*this)/=x;}
+    modint operator ^(const modint &x)const{return modint(*this)^=x;}
+    friend std::ostream& operator<<(std::ostream& os,const modint &a){return os<<a.val;}
+    friend std::istream& operator>>(std::istream& is,modint &a){return is>>a.val;}
+};
+typedef modint<998244353>m98;
+typedef modint<1000000007>m17;
+
+
+
+
+vector<m98>f[Max],g[Max];
+vector<int>a[Max];m98 ans=0;
+int n,m;
+
+void UpdateF(int i,int j){
+    if(i==1&&j==1)f[i][j]=1;
+    else f[i][j]=f[i-1][j]*a[i-1][j]+f[i][j-1]*a[i][j-1];
+}
+void UpdateG(int i,int j){
+    if(i==n&&j==m)g[i][j]=1;
+    else g[i][j]=g[i+1][j]*a[i+1][j]+g[i][j+1]*a[i][j+1];
+}
+
+
+void pre(){
+    for(int i=1;i<=n;++i){
+        for(int j=1;j<=m;++j){
+            UpdateF(i,j);
+        }
+    }
+    for(int i=n;i>=1;--i){
+        for(int j=m;j>=1;--j){
+            UpdateG(i,j);
+        }
+    }
+}
+
+void Update(int x,int y){
+    if(n<m){
+        for(int j=1;j<=n;++j)UpdateF(j,y);
+        for(int j=n;j>=1;--j)UpdateG(j,y);
+    }else{
+        for(int i=1;i<=m;++i)UpdateF(x,i);
+        for(int i=m;i>=1;--i)UpdateG(x,i);
+    }
+}
+
+bool Med;
+signed main(){
+    n=read();m=read();
+    // cout << n << ' ' << m << "--------\n";
+    f[0].resize(m+10);
+    g[0].resize(m+10);
+    a[0].resize(m+10);
+    for(int i=1;i<=n;++i){
+        f[i].resize(m+10);
+        g[i].resize(m+10);
+        a[i].resize(m+10);
+        for(int j=1;j<=m;++j){
+            // int x=read();
+            a[i][j]=read();
+        }
+        // cout << "----------\n";
+    }
+    f[n+1].resize(m+10);
+    g[n+1].resize(m+10);
+    a[n+1].resize(m+10);
+    // cout << "aksfgduaiousgd\n";/
+    // exit(0);
+    pre();ans=f[n][m]*a[n][m];
+    int x,y,q;q=read();x=read();y=read();
+    for(int i=1;i<=q;++i){
+        char c;int val;
+        cin>>c>>val;
+        if(c=='U')--x;
+        if(c=='D')++x;
+        if(c=='L')--y;
+        if(c=='R')++y;
+        swap(a[x][y],val);Update(x,y);
+        ans+=f[x][y]*g[x][y]*(a[x][y]-val);
+        cout << ans << "\n";
+    }
+
+
+
+
+
+    cerr<< "Time: "<<clock()/1000.0 << "s\n";
+    cerr<< "Memory: " << (&Mst-&Med)/1000000.0 << "MB\n";
+    return 0;
+}
+/*
+
+*/

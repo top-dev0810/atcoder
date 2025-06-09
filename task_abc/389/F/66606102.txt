@@ -1,0 +1,88 @@
+#include <bits/stdc++.h>
+
+#define LL long long
+
+#define ls id << 1
+#define rs id << 1 | 1
+using namespace std;
+const int N = 1e6 + 10 , INF = 0x3f3f3f3f;
+struct tree{
+	int l, r, minn, maxn, tag;
+}tr[N<<2];
+int tran[N];
+void pu(int id){
+	tr[id].minn = min(tr[ls].minn, tr[rs].minn);
+	tr[id].maxn = max(tr[ls].maxn, tr[rs].maxn);
+}
+void pd(int id){
+	if(!tr[id].tag) return ;
+	tr[ls].minn += tr[id].tag;
+	tr[rs].minn += tr[id].tag;
+	tr[ls].maxn += tr[id].tag;
+	tr[rs].maxn += tr[id].tag;
+	tr[ls].tag += tr[id].tag;
+	tr[rs].tag += tr[id].tag;
+	tr[id].tag = 0;
+}
+void build(int id, int l, int r){
+	tr[id].l = l, tr[id].r = r;
+	if(l == r){
+		tr[id].minn = l;
+		tr[id].maxn = l;
+		return ;
+	}
+	int mid = l + r >> 1;
+	build(ls, l, mid);
+	build(rs, mid + 1, r);
+	pu(id);
+}
+int fl(int id, int x){
+	if(tr[id].l == tr[id].r) return tr[id].l;
+	pd(id);
+	if(x <= tr[ls].maxn) return fl(ls, x);
+	else return fl(rs, x);
+}
+int fr(int id, int x){
+	if(tr[id].l == tr[id].r) return tr[id].l;
+	pd(id);
+	if(x >= tr[rs].minn) return fr(rs, x);
+	else return fr(ls, x);
+}
+void add(int id, int l, int r){
+	if(tr[id].r < l || tr[id].l > r) return ;
+	if(l <= tr[id].l && tr[id].r <= r){
+		tr[id].minn++;
+		tr[id].maxn++;
+		tr[id].tag++;
+		return ;
+	}
+	pd(id);
+	add(ls, l, r); add(rs, l, r);
+	pu(id);
+}
+int find(int id, int x){
+	if(tr[id].r < x || tr[id].l > x) return 0;
+	if(tr[id].l == tr[id].r && tr[id].l == x) return tr[id].maxn;
+	pd(id);
+	return find(ls, x) + find(rs, x);
+}
+signed main(){
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+	int q, T;
+	cin >> q;
+	int n = 1e6;
+	build(1, 1, n);
+	for(int l, r, i = 1;i <= q;i ++){
+		cin >> l >> r;
+		int L = fl(1, l), R = fr(1, r);
+		add(1, L, R);
+	}	
+	cin >> T;
+	while(T--){
+		int x;
+		cin >> x;
+		cout << find(1, x) << '\n';
+	}
+	return 0;
+}

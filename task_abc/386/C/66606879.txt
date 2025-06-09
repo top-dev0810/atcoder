@@ -1,0 +1,104 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+  
+  int K;
+  cin >> K;
+  
+  string S,T;
+  cin >> S >> T;
+  
+  if(S == T){
+    cout << "Yes" << endl;
+    return 0;
+  }
+  
+  if(S.size() == T.size()){
+    
+    int Count=0;
+    
+    for(int i = 0 ; i < S.size() ; i++){
+      
+      if(S[i] == T[i]){
+        Count++;
+      }
+      
+    }
+    
+    if(Count+1 == S.size()){
+      cout << "Yes" << endl;
+    }
+    
+    else{
+      cout << "No" << endl;
+    }
+    
+    return 0;
+    
+  }
+  
+  if(abs((int)S.size()-(int)T.size()) != 1){
+    cout << "No" << endl;
+    return 0;
+  }
+  
+  if(S.size() > T.size()){
+    
+    int Count = 0;
+    for(int i = 0 ; i < T.size() ; i++){
+      
+      if(Count == 0){
+        
+        if(S[i] != T[i]){
+          Count++;
+        }
+        
+      }
+      
+      else{
+        
+        if(S[i+1] != T[i]){
+          cout << "No" << endl;
+          return 0;
+        }
+        
+      }
+      
+    }
+    
+    cout << "Yes" << endl;
+    return 0;
+  }
+  
+  else{
+    
+    int Count = 0;
+    for(int i = 0 ; i < S.size() ; i++){
+      
+      if(Count == 0){
+        
+        if(S[i] != T[i]){
+          Count++;
+        }
+        
+      }
+      
+      else{
+        
+        if(S[i] != T[i+1]){
+          cout << "No" << endl;
+          return 0;
+        }
+        
+      }
+      
+    }
+    
+    cout << "Yes" << endl;
+    return 0;
+  }
+  
+  cout << "No" << endl;
+  return 0;
+}

@@ -1,0 +1,63 @@
+#include<bits/stdc++.h>
+using namespace std;
+const int mxN = 2e5 + 5;
+const int LOG = 30;
+vector<pair<int, int>> G[mxN];
+int color[mxN], cnt[3], res[mxN];
+bool f = true;
+vector<int>C;
+void dfs(int node, int k){
+    C.push_back(node);
+    cnt[color[node]]++;
+    for(auto t : G[node]){
+        int v = t.first, w = (t.second & (1 << k)) > 0;
+        if(color[v]){
+            if(w && color[v] != 3 - color[node])f = false;
+            else if(!w && color[v] != color[node])f = false;
+            continue;
+        }
+        if(w)color[v] = 3 - color[node];
+        else color[v] = color[node];
+        dfs(v, k);
+    }
+}
+int main(){
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    int n, m;
+    cin >> n >> m;
+    for(int i = 0;i < m;++i){
+        int u, v, w;
+        cin >> u >> v >> w;
+        G[u].push_back({v, w});
+        G[v].push_back({u, w});
+    }    
+    for(int k = 0;k < LOG;++k){
+        for(int i = 1;i <= n;++i){
+            color[i] = 0;
+        }
+        for(int i = 1;i <= n;++i){
+            if(!color[i]){
+                cnt[1] = cnt[2] = 0;
+                color[i] = 1;
+                C.clear();
+                dfs(i, k);
+                if(cnt[1] > cnt[2]){
+                    for(int j : C){
+                        color[j] = 3 - color[j];
+                    }
+                }
+                for(int j : C){
+                    if(color[j] == 1)res[j] |= (1 << k);
+                }
+            }
+        }
+    }
+    if(!f)cout << "-1\n";
+    else{
+        for(int i = 1;i <= n;++i){
+            cout << res[i] << ' ';
+        }
+        cout << '\n';
+    }
+}

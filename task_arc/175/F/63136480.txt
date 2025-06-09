@@ -1,0 +1,142 @@
+// LUOGU_RID: 204597398
+#include<bits/stdc++.h>
+#define file(x) freopen(x".in","r",stdin);freopen(x".out","w",stdout);
+using namespace std;
+typedef unsigned long long ull;
+typedef long long ll;
+mt19937 rnd(time(0));
+const int maxn=3e5+5;
+const int base=177731;
+struct node{
+	int i,x,len;
+};
+int ch[maxn][26],f[maxn],len[maxn],dep[maxn],tot=1;
+ull pw[maxn];
+string s[maxn];
+vector<int>E[maxn],fa;
+vector<node>v;
+vector<ull>Hash[maxn];
+vector<ll>con[maxn];
+struct Inversion{
+	int id[maxn],p[maxn];
+	bool cmp(int i,int j){
+		int l=1,r=min(len[i],len[j])+1;
+		while(l<r){
+			int mid=l+r>>1;
+			ull va=Hash[i][mid],vb=Hash[j][mid];
+			if(va==vb) l=mid+1;
+			else r=mid;
+		}
+		if(l<=min(len[i],len[j])&&s[i][l]<s[j][l]) return true;
+		if(len[i]<=len[j]&&l==len[i]+1) return true;
+		return false;
+	}
+	ll Sort(int l,int r){
+		if(l==r) return 0;
+		int mid=l+r>>1,i=l,j=mid+1;
+		ll ret=0;
+		ret+=Sort(l,mid),ret+=Sort(mid+1,r);
+		for(int pos=l;pos<=r;pos++){
+			if(i<=mid&&j<=r){
+				if(cmp(id[i],id[j])) p[pos]=id[i++];
+				else p[pos]=id[j++],ret+=(mid-i+1);
+			}
+			else if(i<=mid) p[pos]=id[i++];
+			else p[pos]=id[j++];
+		}
+		for(int i=l;i<=r;i++) id[i]=p[i];
+		return ret;
+	}
+}Q;
+void insert(string S,int id){
+	int p=1;
+	for(char c:S){
+		int z=c-'a';
+		if(!ch[p][z]) ch[p][z]=++tot;
+		p=ch[p][z];
+	}
+	E[p].push_back(id);
+}
+void dfs(int x){
+	if(!E[x].empty()){
+		for(int i:E[x]) for(int j:fa){
+			int pos=upper_bound(E[j].begin(),E[j].end(),i)-E[j].begin();
+			con[i][dep[j]+1]+=pos;
+			con[i][dep[j]+1]-=(E[j].size()-pos);
+		}
+		fa.push_back(x);
+	}
+	for(int i=0;i<26;i++){
+		if(!ch[x][i]) continue;
+		dep[ch[x][i]]=dep[x]+1;
+		dfs(ch[x][i]);
+	}
+	if(!E[x].empty()) fa.pop_back();
+}
+ull Get(int i,int l,int r){
+	return Hash[i][r]-Hash[i][l-1]*pw[r-l+1];
+}
+ull GetHash(node A,node B,int l){
+	if(l<=A.len) return Get(A.i,A.x,A.x+l-1);
+	ll pre=Get(A.i,A.x,len[A.i])*pw[l-A.len];
+	l-=A.len;
+	return pre+Get(B.i,B.x,B.x+l-1);
+}
+char Find(node A,node B,int l){
+	if(l<=A.len) return s[A.i][A.x+l-1];
+	l-=A.len;
+	return s[B.i][B.x+l-1];
+}
+int lcp(node A,node B){
+	int l=1,r=A.len+B.len+1;
+	while(l<r){
+		int mid=l+r>>1;
+		ll va=GetHash(A,B,mid),vb=GetHash(B,A,mid);
+		if(va==vb) l=mid+1;
+		else r=mid;
+	}
+	return l-1;
+}
+void Yorushika(){
+	int n;cin>>n;
+	for(int i=1;i<=n;i++){
+		cin>>s[i];len[i]=s[i].size();
+		insert(s[i],i),s[i]=' '+s[i];
+		Hash[i].resize(len[i]+1);
+		for(int j=1;j<=len[i];j++)
+			Hash[i][j]=Hash[i][j-1]*base+(s[i][j]-'a');
+		con[i].resize(len[i]+1);
+		for(int j=1;j<=len[i];j++) v.push_back((node){i,j,len[i]-j+1});
+	}
+	for(int i=1;i<=tot;i++) sort(E[i].begin(),E[i].end());
+	dfs(1);
+	for(int i=1;i<=n;i++) Q.id[i]=i;
+	ll ans=Q.Sort(1,n),now=ans;
+	pw[0]=1;
+	for(int i=1;i<maxn;i++) pw[i]=pw[i-1]*base;
+	sort(v.begin(),v.end(),[](node A,node B){
+		int LCP=lcp(A,B);
+		if(LCP<A.len+B.len) return Find(A,B,LCP+1)<Find(B,A,LCP+1);	
+		return false;
+	});
+	for(int i=0;i<v.size()-1;i++){
+		now+=con[v[i].i][v[i].x];
+		int lenx=lcp(v[i],v[i+1])+1;
+		if(lenx>v[i].len+v[i+1].len) continue;
+		ans=min(ans,now+lenx);
+	}
+	int i=v.back().i,x=v.back().x,L=0;
+	now+=con[i][x];
+	for(int j=x;j<=len[i];j++){
+		if(s[i][j]!='z') break;
+		L++;
+	}
+	if(L<v.back().len) ans=min(ans,now+L+1);
+	cout<<ans;
+}
+int main(){
+	ios::sync_with_stdio(false),cin.tie(0),cout.tie(0);
+	int t=1;
+	while(t--) Yorushika();
+    return 0;
+}

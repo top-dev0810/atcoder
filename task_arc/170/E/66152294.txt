@@ -1,0 +1,133 @@
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int MOD = 998244353;
+#ifdef int
+#define inf 0x3f3f3f3f3f3f3f3f
+#else
+#define inf 0x3f3f3f3f
+#endif
+const long long infll = 0x3f3f3f3f3f3f3f3f;
+#define pii pair<int, int>
+#define mkp(x, y) make_pair(x, y)
+
+#ifndef LOCAL
+#define SUBMIT
+#endif
+
+#ifdef SUBMIT
+#define endl '\n'
+// #define cin Fastio ::cin
+// #define cout Fastio ::cout
+#endif
+
+template <typename T>
+void read(vector<T> &vec)
+{
+    for (auto &x : vec)
+    {
+        cin >> x;
+    }
+}
+
+int qpow(int n, int k)
+{
+    int res = 1;
+    while (k)
+    {
+        if (k & 1)
+            (res *= n) %= MOD;
+        (n *= n) %= MOD;
+        k >>= 1;
+    }
+    return res;
+}
+
+struct Matrix
+{
+#define SIZ 4
+    int a[SIZ][SIZ];
+    Matrix()
+    {
+        memset(a, 0, sizeof a);
+    }
+    Matrix operator*(const Matrix &b)
+    {
+        Matrix c;
+        for (int i = 0; i < SIZ; i++)
+        {
+            for (int j = 0; j < SIZ; j++)
+            {
+                for (int k = 0; k < SIZ; k++)
+                {
+                    c.a[i][j] += a[i][k] * b.a[k][j] % MOD;
+                    c.a[i][j] %= MOD;
+                }
+            }
+        }
+        return c;
+    }
+    int *operator[](int x)
+    {
+        return a[x];
+    }
+    void print()
+    {
+        for (int i = 0; i < SIZ; i++)
+        {
+            for (int j = 0; j < SIZ; j++)
+            {
+                cerr << a[i][j] << ' ';
+            }
+            cerr << endl;
+        }
+        cerr << endl;
+    }
+};
+
+void work()
+{
+    int n, p;
+    cin >> n >> p;
+    n--;
+    p *= qpow(100, MOD - 2);
+    p %= MOD;
+    Matrix res, trans;
+    trans[0][0] = p;
+    trans[0][1] = (1 - p + MOD) % MOD;
+    trans[0][3] = 1;
+    trans[1][0] = (1 - p + MOD) % MOD;
+    trans[1][1] = p;
+    trans[2][0] = p;
+    trans[2][1] = (1 - p + MOD) % MOD;
+    trans[2][2] = 1;
+    trans[2][3] = 1;
+    trans[3][3] = 1;
+    res[0][2] = 1;
+    trans.print();
+    res.print();
+    while (n)
+    {
+        if (n & 1)
+            (res = res * trans);
+        trans = trans * trans;
+        n >>= 1;
+    }
+    cout << res[0][3] << endl;
+}
+
+signed main()
+{
+#ifndef cin
+#ifdef SUBMIT
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#endif
+#endif
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        work();
+    }
+}

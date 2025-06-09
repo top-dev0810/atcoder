@@ -1,0 +1,47 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+void print_vector1i(const vector<int>& x){
+    cout << "[";
+    for (int i=0; i<x.size(); i++){
+        cout << x[i];
+        if (i != x.size() - 1) cout << " ";
+    }
+    cout << "]" << endl;
+}
+//整数の2次元配列を受け取り、出力する
+void print_vector2i(const vector<vector<int>>& x) {
+    for(int i = 0; i < x.size(); i++) {
+        cout << "[";
+        for(int j = 0; j < x[i].size(); j++) {
+            cout << x[i][j];
+            if (j != x[i].size() - 1) cout << " ";
+        }
+        cout << "]" << endl;
+    }
+}
+
+int main() {
+    int N; cin >> N;
+    vector<int> P(N);
+    for(int i=0; i<N; i++) cin >> P[i];
+    vector<int> Q(N);
+    for(int i=0; i<N; i++) cin >> Q[i];
+    vector<vector<int>> Q_P(N,vector<int>(2));
+    for(int i=0; i<N; i++){
+        Q_P[i][0] = Q[i];
+        Q_P[i][1] = P[i];
+    }
+    vector<vector<int>> P_Q(N,vector<int>(2));
+    for(int i=0; i<N; i++){
+        P_Q[i][0] = i+1;
+        P_Q[i][1] = Q[i];
+    }
+   // print_vector2i(Q_P);
+    sort(Q_P.begin(), Q_P.end());
+    //print_vector2i(Q_P);
+    //print_vector2i(P_Q);
+    for(int i=0; i<N; i++){
+        cout << P_Q[Q_P[i][1]-1][1] << " ";
+    }
+}

@@ -1,0 +1,99 @@
+#include <bits/stdc++.h>
+using namespace std;
+using i64 = long long;
+using i128 = __int128;
+#define sz(x) (int)x.size()
+#define all(v) v.begin(), v.end()
+#define ps(y) cout << fixed << setprecision(y)
+/*
+ /\_/\              
+( o.o )     /\_/\   
+ > ^ <     ( o.o )    
+            > ^ <   
+
+ /\_/\      /\_/\  
+( o.o )    ( o.o )  
+ > ^ <      > ^ <       
+*/
+std::vector<i64> operator*(const std::vector<i64> &a, const std::vector<i64> &b) {
+	if (a.empty() || b.empty()) {
+		return {};
+	}
+	std::vector<i64> c(a.size() + b.size() - 1);
+	int i = 0, j = 0;
+	c[0] = a[0] + b[0];
+	while (i + j + 1 < c.size()) {
+		if (i + 1 < a.size() && (j + 1 == b.size() || a[i + 1] - a[i] > b[j + 1] - b[j])) {
+			i++;
+		} else {
+			j++;
+		}
+		c[i + j] = a[i] + b[j];
+	}
+	return c;
+}
+constexpr i64 inf = 1E18;
+
+void chmax(i64 &a, i64 b) {
+	if (a < b) {
+		a = b;
+	}
+}
+void solve()
+{
+	int n,k;
+	cin>>n>>k;
+	vector<int>x(n),y(n),z(n);
+	for(int i=0;i<n;i++)
+	{
+		cin>>x[i]>>y[i]>>z[i];
+	}
+	auto sol=[&](auto &&self,int l,int r)->array<vector<i64>,8>{
+		array<vector<i64>, 8> A;
+		if(r-l==1)
+		{
+			A[0]={0};
+			A[1]={x[l]};
+			A[2]={y[l]};
+			A[4]={z[l]};
+			return A;
+		}
+		int m=l+r>>1;
+		auto L=self(self,l,m);
+		auto R=self(self,m,r);
+		for(int x=0;x<8;x++)
+		{
+			for(int y=0;y<8;y++)
+			{
+				int z=x^y;
+				auto c=L[x]*R[y];
+				if(!sz(c))
+				{
+					continue;
+				}
+				int off = __builtin_popcount(x & y);
+				if (A[z].size() < c.size() + off) {
+					A[z].resize(c.size() + off, -inf);
+				}
+				for (int i = 0; i < c.size(); i++) {
+					chmax(A[z][i + off], c[i]);
+				}
+			}
+		}
+		return A;
+	};
+	auto A = sol(sol, 0, n);
+	cout << A[0][k] << "\n";
+}
+int main()
+{
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+	int T=1;
+	cin >> T;
+	while (T--)
+	{
+		solve();
+	}
+	return 0;
+}

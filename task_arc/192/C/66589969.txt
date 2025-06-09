@@ -1,0 +1,68 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+typedef long long ll;
+typedef pair<ll,ll> pll;
+typedef pair<int,int> pii;
+typedef pair<int,string> pis;
+
+#define lc id<<1
+#define rc id<<1|1
+#define mid (r+l)/2
+#define F first
+#define S second
+#define pb push_back
+
+const ll N= 1e5+5,M = 3e5+10,A= 30,B=1e6+7, inf = 1e17+5,mod = 1e9+7;
+ll x,p[N],ans[N],res[N];
+vector<pll> a;
+int main(){
+    ios::sync_with_stdio(false),cin.tie(0),cout.tie(0);
+    int n;
+    cin >> n;
+    for(int i = 2; i <= n; i++){
+        cout << "? " << 1 << " " << i <<endl;
+        cin >> x;
+        a.pb({x,i});
+    }
+    sort(a.begin(),a.end());
+    p[n] = a.back().S;
+    a.clear();
+    for(int i = 1; i <= n; i++){
+        if(i != p[n]){
+        cout << "? " << p[n] << " " << i <<endl;
+        cin >> x;
+        a.pb({x,i});}
+    }
+    res[p[n]] = n;
+
+    sort(a.begin(),a.end());
+    for(int i = 0; i < n-1; i++){
+        p[n-i-1] = a[i].S;
+        res[a[i].S] = n-i-1;
+        ans[n-i-1] = a[i].F;
+    }
+    cout << "? " << p[1]<< " " << p[n-1] <<endl;
+    cin >> x;
+    ans[n] = ans[1] - x;
+    for(int i = 1; i < n; i++)
+        ans[i] -= ans[i+1];
+
+
+    if(res[1] > res[2]){
+        for(int i = 1; i <= n; i++)
+            res[i] = n+1-res[i];
+        reverse(ans+1, ans+n+1);
+    }
+   cout << "! " ;
+    for(int i = 1; i <= n; i++)
+        cout << res[i] << " ";
+
+    //reverse(ans+1, ans+n+1);
+
+    for(int i = 1; i <= n; i++)
+        cout << ans[i] << " ";
+    cout << endl;
+
+    return 0;
+}

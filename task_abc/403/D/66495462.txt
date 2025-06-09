@@ -1,0 +1,62 @@
+#include <bits/stdc++.h>
+//#include <atcoder/all>
+using namespace std;
+#define rep(i,n) for(ll i=0; i<n; i++)
+#define REP(i,m,n) for(ll i=(ll)(m);i<(ll)(n);i++)
+#define rrep(i,n) for(ll i=n-1; i>=0; i--)
+#define fi first
+#define se second
+#define pcnt __builtin_popcountll
+typedef long long ll;
+typedef unsigned long long ull;
+typedef long double ld;
+typedef pair<int,int> Pii;
+typedef pair<ll,ll> Pll;
+typedef pair<ll,Pll> PlP;
+template<class T, class S> void cmin(T &a, const S &b) { if (a > b)a = b; }
+template<class T, class S> void cmax(T &a, const S &b) { if (a < b)a = b; }
+template<class A>void PR(A a,ll n){rep(i,n){if(i)cout<<' ';cout<<a[i];}cout << "\n";}
+template<typename T> void drop(const T &x){cout<<x<<endl;exit(0);}
+string zero_padding(int val, int nf){ ostringstream sout;sout << setfill('0') << setw(nf) << val; return sout.str();};
+const ld eps = 1e-10;
+const ll INF = 1e18; 
+ull mo = 1000000007;
+ld PI=asin(1)*2;
+//using namespace atcoder;
+
+int main(){
+    ll N,D;
+    cin >> N >> D;
+	vector<ll> A(N);
+	rep(i,N) cin >> A[i];
+	vector<ll> cnt(1000001);
+	rep(i,N) cnt[A[i]]++;
+	if(D == 0){
+		ll ans = 0;
+		rep(i,1000001){
+			if(cnt[i]){
+				ans += cnt[i] - 1;
+			}
+		}
+		drop(ans);
+	}
+	ll ans = 0;
+	rep(i,D){
+		vector<ll> v;
+		for(ll j=i; j < 1000001; j+=D){
+			v.push_back(cnt[j]);
+		}
+		ll n = v.size();
+		vector<vector<ll>> dp(n+1, vector<ll>(2,1e18));
+		dp[0][0] = 0;
+		dp[0][1] = 0;
+		rep(i,n){
+			ll a = v[i];
+			cmin(dp[i+1][0], dp[i][0] + a); 
+			cmin(dp[i+1][0], dp[i][1] + a);
+			cmin(dp[i+1][1], dp[i][0]);
+		}
+		ans += min(dp[n][0], dp[n][1]);
+	}
+	cout << ans << endl;
+}	

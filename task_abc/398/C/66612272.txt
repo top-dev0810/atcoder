@@ -1,0 +1,109 @@
+#include<bits/stdc++.h>
+//入力系
+#define cinll(...) ll __VA_ARGS__; input(__VA_ARGS__);
+#define cinint(...) int __VA_ARGS__; input(__VA_ARGS__);
+#define cinstr(...) string __VA_ARGS__; input(__VA_ARGS__);
+#define cinchar(...) char __VA_ARGS__; input(__VA_ARGS__);
+#define cindouble(...) double __VA_ARGS__; input(__VA_ARGS__);
+#define cinvll(a,n) vll a(n); rep(i,n) cin>>a[i];
+#define cinvvll(a,n,m) vvll a(n,vll(m)); rep(i,n) rep(j,m) cin>>a[i][j];
+#define cinvs(a,n) vs a(n); rep(i,n) cin>>a[i];
+//繰り返し系
+#define rep1(n) for(ll i=0;i<n;i++)
+#define rep2(i,n) for(ll i=0;i<n;i++)
+#define rep3(i,a,n) for(ll i=a;i<n;i++)
+#define rep4(i,a,n,b) for(ll i=a;i<n;i+=b)
+#define overload4(a,b,c,d,e,...) e
+#define rep(...) overload4(__VA_ARGS__,rep4,rep3,rep2,rep1)(__VA_ARGS__)
+#define mrep1(n) for(ll i=n;i>=0;i--)
+#define mrep2(i,n) for(ll i=n;i>=0;i--)
+#define mrep3(i,n,a) for(ll i=n;i>=a;i--)
+#define mrep4(i,n,a,b) for(ll i=n;i>=a;i-=b)
+#define mrep(...) overload4(__VA_ARGS__,mrep4,mrep3,mrep2,mrep1)(__VA_ARGS__)
+//iterator系
+#define all(a) a.begin(),a.end()
+#define rall(a) a.rbegin(),a.rend()
+//書くのが長いやつ
+#define fst first
+#define snd second
+using namespace std;
+//型系
+using ll = long long;
+using vll = vector<long long>;
+using vvll = vector<vector<long long>>;
+using vi = vector<int>;
+using vvi = vector<vector<int>>;
+using vb = vector<bool>;
+using vvb = vector<vector<bool>>;
+using vd = vector<double>;
+using vvd = vector<vector<double>>;
+using vc = vector<char>;
+using vvc = vector<vector<char>>;
+using vs = vector<string>;
+using pll = pair<long long,long long>;
+using pd = pair<double,double>;
+using sll = set<long long>;
+using vsll = vector<set<long long>>;
+using vpll = vector<pair<long long,long long>>;
+using vpd = vector<pair<double, double>>;
+using vvpll  = vector<vector<pair<long long, long long>>>;
+#define vmll vector<mll>
+#define vvmll vector<vector<mll>>
+
+const ll mod = 998244353LL;
+//const ll mod = 1000000007LL;
+const ll inf = 1301001001001001000LL;
+const double PI=3.1415926535897932384626433832795028841971;
+
+//表示
+#define overload1(a,b,NAME,...) NAME
+#define coutYesReturn() do {coutYes(); return 0; } while(0)
+#define coutYesReturnIf(a) do { if(a){ coutYesReturn(); }} while(0)
+#define coutNoReturn() do {coutNo(); return 0;} while(0)
+#define coutNoReturnIf(a) do {if(a){ coutNoReturn(); }} while(0)
+#define coutReturnIf(a,s) do{if(a){cout<<s<<endl; return 0;}}while(0)
+template<typename... T>
+void coutll(T... a){ ((cout << a <<" "),...) << endl; }
+void coutvll(vll &a){ rep(i,a.size()) cout<<a[i]<<" "; cout<<endl; }
+void coutvll(string name, vll &a){ cout<<name<<":"; coutvll(a); }
+void coutvlln(vll &a){ rep(i,a.size()) cout<<a[i]<<endl; }
+void coutYes(){ cout<<"Yes"<<endl; }
+void coutNo(){ cout<<"No"<<endl; }
+void coutYesNo(bool a){ cout<<(a?"Yes":"No")<<endl; }
+void coutIf(bool a, string s, string t){ cout<<(a?s:t)<<endl; }
+//入力
+template<class... T>
+void input(T&... a){
+    (cin >> ... >> a);
+}
+//複数ソート
+template<class... T>
+void sorts(vector<T>&... a){
+    (sort(all(a)),...);
+}
+template<typename T>
+T chmax(T &a, T b){ if(a < b) a = b; return a; }
+template<typename T>
+T chmin(T &a, T b){ if(a > b) a = b; return a; }
+
+//i番目まで考えた時、「それより左で」長さjの回文が存在するような組み合わせの個数とかで行けると思ったけどだめそう
+//
+
+int main(){
+    cinll(n);
+    cinvll(a,n);
+    map<ll,ll> cnt;
+    rep(i,n){
+        cnt[a[i]]++;
+    }
+    ll ma = -inf;
+    ll mai = -1;
+    rep(i,n) if(cnt[a[i]] == 1){
+        if(ma < a[i]){
+            ma = a[i];
+            mai = i+1;
+        }
+    }
+    cout<<mai<<endl;
+    return 0;
+}

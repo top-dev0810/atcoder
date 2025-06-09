@@ -1,0 +1,98 @@
+#include<bits/stdc++.h>
+using namespace std;
+int x[10];
+map<vector<int>,bool> vis;
+void dfs(int now)
+{
+	if(now==6)
+	{
+		vector<pair<int,int>> px;
+		for(int i=0; i<32; ++i)
+		{
+			int sum=0;
+			for(int j=1; j<=5; ++j) sum+=x[j]*(i>>j-1&1);
+			px.push_back({sum,i});
+		}
+		sort(px.begin(),px.end(),greater<pair<int,int>>());
+		vector<int> vec; vec.resize(32);
+		int rk=0;
+		for(int i=0; i<px.size(); ++i)
+		{
+			int now=i;
+			while(now<px.size() && px[now].first==px[i].first) ++now;
+			--now;
+			for(int j=i; j<=now; ++j) vec[px[j].second]=rk;
+			++rk,i=now;
+		}
+		vis[vec]=1;
+		return;
+	}
+	for(int i=(now==1?1:x[now-1]); i<=30; ++i)
+	{
+		x[now]=i,dfs(now+1);
+	}
+}
+int tot=0; vector<int> vec[5010]; int ax[5010];
+int n;
+int a[300010],r[300010];
+pair<int,int> px[300010];
+int cnt[40];
+int main()
+{
+	dfs(1);
+	for(pair<vector<int>,int> i:vis)
+	{
+		bool flag=1;
+		for(int j=1; j<=32; ++j)
+		{
+			bool ok=0; vector<int> gt;
+			for(int k:i.first) ok|=(k==j),gt.push_back(k-(k>=j));
+			if(ok && vis[gt]) { flag=0; break; }
+		}
+		if(flag)
+		{
+			vec[++tot]=i.first;
+			for(int j:vec[tot]) ax[tot]=max(ax[tot],j);
+		}
+	}
+	ios::sync_with_stdio(false),cin.tie(0);
+	int t; cin>>t; while(t--)
+	{
+		cin>>n;
+		for(int i=1; i<=n; ++i)
+		{
+			a[i]=0;
+			for(int j=1; j<=5; ++j)
+			{
+				int x; cin>>x;
+				a[i]+=x*(1<<j-1);
+			}
+		}
+		for(int i=1; i<=n; ++i) cin>>r[i],px[i]={r[i],a[i]};
+		sort(px+1,px+n+1);
+		long long ans=1e18;
+		for(int i=1; i<=tot; ++i)
+		{
+			memset(cnt,0,sizeof(cnt));
+			for(int j=1; j<=n; ++j) ++cnt[vec[i][px[j].second]];
+			int j;
+			for(j=1; j<=ax[i]-3; j+=4)
+			{
+				cnt[j]+=cnt[j-1];
+				cnt[j+1]+=cnt[j];
+				cnt[j+2]+=cnt[j+1];
+				cnt[j+3]+=cnt[j+2];
+			}
+			while(j<=ax[i]) cnt[j]+=cnt[j-1],++j;
+			int rrk=0; long long nowans=0;
+			for(int j=n; j>=1 && nowans<ans; --j)
+			{
+				nowans+=1ll*(j-cnt[vec[i][px[j].second]])*(j-cnt[vec[i][px[j].second]]);
+				--cnt[vec[i][px[j].second]]; 
+			}
+			ans=min(ans,nowans);
+		}
+		cout<<ans<<'\n';
+	}
+	return 0;
+}

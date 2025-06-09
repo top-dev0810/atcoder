@@ -1,0 +1,32 @@
+#include<bits/stdc++.h>
+using namespace std;const int N=2e4+5,M=N<<3;
+int n,m,a[N],b[N],d[N],s,t,cnt=1,ans;queue<int>q;
+struct edge{int to,ne,v;}g[M];
+void adeg(int x,int y,int z){
+	g[++cnt]={y,a[x],z},a[x]=cnt,g[++cnt]={x,a[y],0},a[y]=cnt;
+}
+bool bfs(){memset(d,0,sizeof(d)),d[s]=1,q.push(s);
+	while(!q.empty()){int u=q.front();q.pop();
+		for(int j,i=a[u];i;i=g[i].ne)
+			if(g[i].v&&!d[j=g[i].to])d[j]=d[u]+1,q.push(j);
+	}return d[t];
+}
+int dfs(int u,int v){if(u==t)return v;int V=v;
+	for(int j,&i=b[u];i;i=g[i].ne)if(g[i].v&&d[j=g[i].to]==d[u]+1){
+		int k=dfs(j,min(v,g[i].v));g[i].v-=k,g[i^1].v+=k;if(!(v-=k))return V;
+	}return V-v;
+}
+int main(){ios::sync_with_stdio(0),cin.tie(0),cout.tie(0);
+	cin>>n>>m,t=n*1000+1;
+	for(int x,i=0;i<n;i++){cin>>x,adeg(i*500+x,t,1e9),adeg(s,i*500+500,500);
+		for(int j=1;j<500;j++)adeg(i*500+j+1,i*500+j,j);
+	}
+	for(int x,i=0;i<n;i++){cin>>x,adeg(s,(n+i)*500+x,1e9),adeg((n+i)*500+500,t,500);
+		for(int j=1;j<500;j++)adeg((n+i)*500+j,(n+i)*500+j+1,j);
+	}
+	for(int k=1;k<=m;k++){
+		for(int x,i=0;i<n;i++){cin>>x;
+			adeg(i*500+x,t+k,1e9),adeg(t+k,(n+i)*500+x,1e9);
+		}
+	}while(bfs())memcpy(b,a,sizeof(a)),ans+=dfs(s,1e9);cout<<ans;
+}

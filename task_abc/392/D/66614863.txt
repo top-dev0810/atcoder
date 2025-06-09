@@ -1,0 +1,42 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+#define ld long double
+
+int main(){
+    ll N;
+    cin >> N;
+    vector<pair<ll,map<ll,ll>>> A(N);
+    for (ll i = 0; i < N; i++){
+        ll K;
+        cin >> K;
+        A[i].first = K;
+        for (ll j = 0; j < K; j++){
+            ll Ki;
+            cin >> Ki;
+            if (A[i].second.count(Ki)){
+                A[i].second[Ki]++;
+            }
+            else{
+                A[i].second[Ki] = 1;
+            }
+        }
+    }
+    ld max = 0;
+    for (ll i = 0; i < N-1; i++){
+        for (ll j = i+1; j < N; j++){
+            ll ALL = A[i].first * A[j].first;
+            ll part = 0;
+            for (auto x : A[i].second){
+                if (A[j].second.count(x.first)){
+                    part += x.second * A[j].second[x.first];
+                }
+            }
+            if (max < (ld)part / (ld)ALL){
+                max = (ld)part / (ld)ALL;
+            }
+        }
+    }
+    cout << fixed << setprecision(16);
+    cout << max << endl;
+}

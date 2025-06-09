@@ -1,0 +1,31 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+using ll = long long;
+using ld = long double;
+#define rep(i,l,r) for(ll i=l;i<r;++i)
+#define all(x) x.begin(), x.end()
+#define yes cout << "Yes\n"
+#define no cout << "No\n"
+
+int main(){
+    int n,m;
+    cin >> n >> m;
+    vector<int> a(m);
+    rep(i,0,m) cin >> a[i];
+    sort(all(a));
+
+    int idx = 0;
+    int c = 0;
+    vector<int> ans(0);
+    rep(i,1,n+1){
+        if(i!=a[idx]) {ans.emplace_back(i); c++;}
+        else idx++;
+    }
+
+    cout << c << endl;
+    rep(i,0,ans.size()){
+        cout << ans[i] << ' ';
+    }
+    cout << endl;
+}

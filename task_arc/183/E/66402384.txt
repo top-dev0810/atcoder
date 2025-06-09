@@ -1,0 +1,106 @@
+#include<bits/stdc++.h>
+#define endl '\n'
+
+using namespace std;
+
+const int B=20;
+const int N=3e5+10;
+const int mod=998244353;
+struct modint {
+    int val;
+    static int norm(const int& x) { return x < 0 ? x + mod : x; }
+    modint inv() const {
+        int a = val, b = mod, u = 1, v = 0, t;
+        while (b > 0) t = a / b, swap(a -= t * b, b), swap(u -= t * v, v);
+        return modint(u);
+    }
+    modint() : val(0) {}
+    modint(const int& m) : val(norm(m)) {}
+    modint(const long long& m) : val(norm(m % mod)) {}
+    modint operator-() const { return modint(norm(-val)); }
+    modint& operator+=(const modint& o) { return val = (1ll * val + o.val) % mod, *this; }
+    modint& operator-=(const modint& o) { return val = norm(1ll * val - o.val), *this; }
+    modint& operator*=(const modint& o) { return val = static_cast<int>(1ll * val * o.val % mod), *this; }
+    modint operator-(const modint& o) const { return modint(*this) -= o; }
+    modint operator+(const modint& o) const { return modint(*this) += o; }
+    modint operator*(const modint& o) const { return modint(*this) *= o; }
+	friend std::ostream& operator<<(std::ostream& os, const modint a) { return os << a.val; }
+}ans;
+template < int Max >
+struct Choose{
+	modint frac[Max+10],inv[Max+10];
+	Choose(){
+		frac[0]=inv[0]=1;for(int i=1;i<=Max;++i) frac[i]=frac[i-1]*i;
+		inv[Max]=frac[Max].inv();for(int i=Max-1;i;--i) inv[i]=inv[i+1]*(i+1);
+	}
+	modint* operator [](const int x){return x?frac:inv;}
+	modint operator ()(const int x,const int y){return x<y||y<0?0:frac[x]*inv[y]*inv[x-y];}
+};
+int n,m,a[N],father[N],dep[N],siz[N],top[N],son[N],f[B+1][N],id[N],idx,b[N];
+Choose < N > C;vector < int > v[N];
+
+struct node{//set 用的 
+	int l,r,v;
+	node(int l=0,int r=0,int v=0):l(l),r(r),v(v){;}
+	bool operator <(const node t)const{return l<t.l;}
+};
+struct Range{//支配区间 
+	int l,r,id;
+	Range(int l=0,int r=0,int id=0):l(l),r(r),id(id){;}
+	bool operator <(const Range t)const{return (r-l==t.r-t.l)?(l==t.l?id<t.id:l<t.l):(r-l<t.r-t.l);}
+}c[N];
+typedef set<node>::iterator point;
+set < node > s;map < Range , int > p;
+
+inline bool In(int x,int y){return id[x]<=id[y]&&id[y]<=id[x]+siz[x]-1;}//y 是否在 x 子树内 
+void dfs1(int x,int y){
+	dep[x]=dep[y]+1;siz[x]=1;id[x]=++idx;
+	for(int i:v[x]){dfs1(i,x);siz[x]+=siz[i];(siz[son[x]]<siz[i])&&(son[x]=i);}
+}
+void dfs2(int x,int topf){
+	top[x]=topf;if(son[x]) dfs2(son[x],topf);
+	for(int i:v[x]) if(i!=son[x]) dfs2(i,i);
+}
+inline int LCA(int x,int y){
+	while(top[x]!=top[y]) dep[top[x]]>dep[top[y]]?x=father[top[x]]:y=father[top[y]];
+	return dep[x]<dep[y]?x:y;
+}
+inline void init(){//预处理倍增数组。 
+	for(int i=1;i<=m;++i) f[0][i]=b[i];
+	for(int j=1;j<=B;++j) for(int k=1;k<=m-(1<<j)+1;++k) f[j][k]=LCA(f[j-1][k],f[j-1][k+(1<<(j-1))]);
+}
+inline Range Ask(int i){//求解 i 的支配区间 
+	int l=i-1,r=i+1;
+	for(int j=B;~j;--j) if(l>=(1<<j)&&In(a[i],f[j][l-(1<<j)+1])) l-=(1<<j);
+	for(int j=B;~j;--j) if(r+(1<<j)<=m+1&&In(a[i],f[j][r])) r+=(1<<j);
+	return Range(l+1,r-1,i);
+}
+inline point Get(int id){//取出带有 id 的段 
+	auto it=s.lower_bound(node(id));
+	if(it==s.end()||it->l!=id) --it;
+	return it;
+}
+
+int main(){
+	ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+	cin>>n>>m;for(int i=2;i<=n;++i){cin>>father[i];v[father[i]].emplace_back(i);}
+	for(int i=1;i<=m;++i) cin>>a[i];
+	for(int i=1;i<=m;++i) cin>>b[i];
+	dfs1(1,0);dfs2(1,1);init();ans=1;
+	for(int i=1;i<=m;++i) c[i]=Ask(i);
+	sort(c+1,c+1+m);
+	for(int i=1;i<=m;++i) s.emplace(i,i,1);
+	for(int i=1;i<=m;++i){
+		int id=c[i].id,L=c[i].l,R=c[i].r;
+		auto it=Get(id);
+		int l=it->l,r=it->r,v=it->v;
+		it=s.erase(it);
+		//拓展左右端点 
+		while(it!=s.end()&&it->r<=R&&it->v) r=it->r,v+=it->v,it=s.erase(it);
+		while(it!=s.begin()&&(--it)->l>=L&&it->v) l=it->l,v+=it->v,it=s.erase(it);
+		ans*=v;s.emplace(l,r,v-1);++p[Range(l,r,a[id])];
+	}
+	for(auto i:p) ans*=C[0][i.second];
+	cout<<ans<<endl;
+	return 0;
+}

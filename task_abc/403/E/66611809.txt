@@ -1,0 +1,105 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Trie {
+    
+    struct Node {
+        int values[26];
+        Node *children[26];
+        bool isEnd[26];
+        Node() {
+            memset(values, 0, sizeof(values));
+            memset(children, 0, sizeof(children));
+            memset(isEnd, 0, sizeof(isEnd));
+        };
+    };
+    
+    Node *root;
+    int cntX;
+    
+    Trie() {
+        root = new Node();
+        cntX = 0;
+    }
+
+    int getAns(){
+        int ret = 0;
+        for (int i = 0; i < 26; i++){
+            ret += root->values[i];
+        }
+        return ret;
+    }
+
+    int toIdx(char& c){
+        return c - 'a';
+    }
+
+    void addX(string& str){
+        Node *cur = root;
+        Node *par;
+        for (char c : str){
+            int pos = toIdx(c);
+            if (cur->isEnd[pos]){
+                return;
+            }
+            if (cur->children[pos] == nullptr) {
+                cur->children[pos] = new Node();
+            }
+            par = cur;
+            cur = cur->children[pos];
+        }
+        par->isEnd[toIdx(str.back())] = 1;
+        int toRemove = par->values[toIdx(str.back())];
+
+        if (toRemove == 0) return;
+
+        cur = root;
+        for (char c : str){
+            int pos = toIdx(c);
+            cur->values[pos] -= toRemove;
+            cur = cur->children[pos];
+        }
+    }
+
+    void addY(string& str){
+        Node *cur = root;
+        for (char c : str){
+            int pos = toIdx(c);
+            if (cur->children[pos] == nullptr){
+                break;
+            } else if (cur->isEnd[pos] == 1){
+                return;
+            }
+            cur = cur->children[pos];
+        }
+
+        cur = root;
+        for (char c : str){
+            int pos = toIdx(c);
+            if (cur->children[pos] == nullptr) {
+                cur->children[pos] = new Node();
+            }
+            cur->values[pos]++;
+            cur = cur->children[pos];
+        }
+    }
+};
+
+int main(){
+    int q;
+    cin >> q;
+    Trie trie = Trie();
+    while (q--){
+        int t;
+        cin >> t;
+        string str;
+        cin >> str;
+        if (t == 1){
+            trie.addX(str);
+        } else {
+            trie.addY(str);
+        }
+        cout << trie.getAns() << endl;
+    }
+    return 0;
+}

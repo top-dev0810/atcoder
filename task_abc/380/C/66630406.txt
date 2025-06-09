@@ -1,0 +1,34 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+  int n, k;
+  cin >> n >> k;
+  string s;
+  cin >> s;
+  
+  vector<pair<char, int>> rle;
+  for(char c : s) {
+    if(rle.size() && rle.back().first == c) {
+      rle.back().second++;
+    }
+    else {
+      rle.emplace_back(c, 1);
+    }
+  }
+  
+  int one = 0;
+  for(int i = 0; i < rle.size(); i++) {
+      if(rle[i].first == '1') {
+        one++;
+        if(one == k) { 
+          swap(rle[i-1], rle[i]);
+      }
+    }
+  }
+  for(auto [c, len] : rle) {
+    for(int i = 0; i < len; i++) {
+      cout << c;
+    }
+  }
+}

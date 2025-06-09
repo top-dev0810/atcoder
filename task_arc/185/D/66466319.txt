@@ -1,0 +1,95 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define int ll
+typedef long long ll;
+typedef unsigned long long ull;
+
+#define mk make_pair
+#define fi first
+#define se second
+typedef pair<int,int> pii;
+
+#define sz(x) (int)(x.size())
+#define eb emplace_back
+#define btps(x) __builtin_popcount(x)
+#define btpcll(x) __builtin_popcountll(x)
+
+#define ReadIn(s) freopen(s,"r",stdin);
+#define OutPut(s) freopen(s,"w",stdout);
+
+inline void read (int &x) {
+	x=0;int sgn=0;
+	char ch=getchar();
+	while(!isdigit(ch)) sgn|=(ch=='-'),ch=getchar();
+	while(isdigit(ch)) x=x*10+ch-'0',ch=getchar();
+	sgn?x=-x:1;
+}
+
+template <typename ...Args>
+inline void read(int &x,Args &...args) {
+	read(x);read(args...);
+}
+
+const int M=3e5+10;
+const int inf=0x3f3f3f3f3f3f3f3f;
+const double eps=1e-10;
+const int p=998244353;
+
+bool Mst;
+//in this
+
+int fr[M];
+int ifr[M];
+int inv[M];
+
+int ksm(int x,int y) {
+	int res=1;
+	for(;y;y>>=1,x=x*x%p) if(y&1) res=res*x%p;
+	return res;
+}
+inline int INV(int x) {
+	return ksm(x,p-2);
+}
+
+void Init(int M=M-1) {
+	fr[0]=ifr[0]=1;inv[1]=1;
+	for(int i=1;i<=M;i++) fr[i]=fr[i-1]*i%p;
+	ifr[M]=INV(fr[M]);
+	for(int i=M-1;i;i--) ifr[i]=ifr[i+1]*(i+1)%p,inv[i+1]=ifr[i+1]*fr[i]%p;
+}
+
+int n,m; 
+
+void solve() {
+	read(n,m);
+	
+	int ans=(p-m*m%p+p)%p;
+	
+	int p1=1+2*(m-1);
+	
+	for(int k=0;k<n;k++) {
+		int t=k*inv[n]%p;
+		int f0=(t*p1+1)%p*INV(1-t+p)%p;
+		
+//		cout<<t<<" "<<f0<<" "<<p1<<"\n";
+			
+		(ans+=f0*m+m*(m-1))%=p;
+		(ans+=m*m)%=p;
+	}
+	
+	cout<<ans<<"\n";
+	
+}
+
+//
+bool Med;
+
+signed main() {
+	
+	Init();
+	
+	solve();
+	
+	return 0;
+}

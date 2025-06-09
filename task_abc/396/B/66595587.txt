@@ -1,0 +1,24 @@
+# include<bits/stdc++.h>
+// # include<atcoder/all>
+// using namespace atcoder;
+using namespace std;
+# define rep(i,n) for (int i = 0; i < (n); i++)
+// const int inf = 1073741823;
+// const long long INF = 1LL<<60;
+int main() {
+    int q;
+    cin>>q;
+    stack<int> deck;
+    rep(i,100){deck.push(0);}
+    rep(i,q){
+        int x;cin>>x;
+        if(x==1){
+            int y;cin>>y;
+            deck.push(y);
+        }else{
+            cout<<deck.top()<<endl;
+            deck.pop();
+        }
+    }
+	return 0;
+}

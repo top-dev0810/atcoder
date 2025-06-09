@@ -1,0 +1,61 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+typedef long double ld;
+int N = 998244353;
+
+void solve() 
+{
+    int n,m; cin >> n >> m;
+    vector<pair<pair<int,int>,char>> arr(m);
+    for(int i=0;i<m;i++)
+    {
+        cin >> arr[i].first.first >> arr[i].first.second >> ws >> arr[i].second;
+    }
+    sort(arr.begin(),arr.end(),[](pair<pair<int,int>,char> &a , pair<pair<int,int>,char> &b)
+    {
+        if(a.first.first != b.first.first)
+        {
+            return a.first.first < b.first.first;
+        }
+        else
+        {
+            return a.first.second < b.first.second;
+        }
+    });
+    int min_y_white = 1e9+1;
+    for(int i=0;i<m;i++)
+    {
+        int y = arr[i].first.second;
+        char c = arr[i].second;
+        if(c == 'W')
+        {
+            min_y_white = min(min_y_white,y);
+        }
+        else if(c == 'B')
+        {
+            if(y >= min_y_white)
+            {
+                cout << "No" << endl;return;
+            }
+        }
+    }
+    cout << "Yes" << endl;
+}
+
+int main() 
+{
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+    int t = 1; 
+    //cin >> t;
+    while (t--) 
+    {
+        solve();
+    }
+    return 0;
+}
+/*
+
+*/

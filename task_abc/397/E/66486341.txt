@@ -1,0 +1,30 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+int main(){
+    int M, K; cin >> M >> K;
+    int N = M*K;
+    vector G(N, vector(0, 0));
+    for(int i = 1 ; i < N ; i++){
+        int u, v; cin >> u >> v; u--, v--;
+        G[u].push_back(v);
+        G[v].push_back(u);
+    }
+
+    bool ok = true;
+    function<int(int, int)> f = [&](int now, int prv) -> int {
+        long S = 1, D = 0;
+        for(int nxt : G[now])if(nxt != prv){
+            int T = f(nxt, now);
+            if(T%K){
+                S += T;
+                D += 1;
+            }
+        }
+        if(S%K)D++;
+        if(D > 2)ok = false;
+        return S;
+    };
+    f(0, -1);
+    cout << (ok ? "Yes" : "No") << endl;
+}

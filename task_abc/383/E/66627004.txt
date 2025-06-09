@@ -1,0 +1,95 @@
+#include<bits/stdc++.h>
+using i64 = long long;
+
+int main(){
+    std::ios::sync_with_stdio(0);
+    std::cin.tie(nullptr);
+
+    int N , M , K;
+    std::cin >> N >> M >> K;
+
+    std::vector<std::tuple<int , int , int>> e(M);
+    for(int i = 0; i < M; i++){
+        auto& [w , u , v] = e[i];
+        std::cin >> u >> v >> w;
+        u--;
+        v--;
+    }
+
+    std::sort(e.begin() , e.end());
+    std::vector<int> A(N) , B(N);
+    for(int i = 0; i < K; i++){
+        int x;
+        std::cin >> x;
+        x--;
+        A[x]++;
+    }
+
+    for(int i = 0; i < K; i++){
+        int x;
+        std::cin >> x;
+        x--;
+        B[x]++;
+    }
+
+    struct DSU{
+        std::vector<int> fa , sz , a , b;
+        i64 ans;
+        
+        DSU(int n) : fa(n) , sz(n) {}
+
+        void init(std::vector<int>& A , std::vector<int>& B){
+            std::iota(fa.begin() , fa.end() , 0);
+            std::fill(sz.begin() , sz.end() , 1);
+            a = A , b = B;
+            ans = 0;
+        }
+
+        int find(int x){
+            while(x != fa[x]){
+                x = fa[x] = fa[fa[x]];
+            }
+            return x;
+        }
+
+        void merge(int x , int y , int w){
+            x = find(x) , y = find(y);
+            if(x == y){
+                return ;
+            }
+
+            if(sz[x] > sz[y]){
+                std::swap(x , y);
+            }
+
+            sz[y] += sz[x];
+            fa[x] = y;
+
+            int u = find(x);
+            a[u] = a[x] + a[y];
+            b[u] = b[x] + b[y];
+
+            int e = std::min(a[u] , b[u]);
+            ans += 1LL * e * w;
+
+            a[u] -= e;
+            b[u] -= e;
+        }
+
+        i64 get(){
+            return ans;
+        }
+
+    };
+
+    DSU dsu(N);
+    dsu.init(A , B);
+
+    for(int i = 0; i < M; i++){
+        auto& [w , u , v] = e[i];
+        dsu.merge(u , v , w);
+    }
+
+    std::cout << dsu.get() << '\n';
+    return 0;
+}

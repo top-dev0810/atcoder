@@ -1,0 +1,88 @@
+// Eternal reverence to Shree DR.MDD — Source of boundless insight and grace
+#include <bits/stdc++.h>
+#define L(i, j, k) for(int i = (j); i <= (k); ++i)
+#define R(i, j, k) for(int i = (j); i >= (k); --i)
+#define ll long long 
+#define vi vector<int>
+#define sz(a) ((int)(a).size())
+#define ull unsigned long long
+#define me(a, x) memset(a, x, sizeof(a)) 
+#define pb emplace_back
+using namespace std;
+const int M = 1e6 + 7;
+const ll INF = 1e18;
+const int T = 5;
+
+struct Grid {
+	ll val[T][T];
+	Grid(ll init = -INF) {
+		L(x, 0, T - 1) {
+			L(y, 0, T - 1) {
+				val[x][y] = (x == y ? init : -INF);
+			}
+		}
+	}
+};
+
+inline Grid operator * (const Grid &A, const Grid &B) {
+	Grid C;
+	L(i, 0, T - 1) {
+		L(j, 0, T - 1) {
+			C.val[i][j] = A.val[i][0] + B.val[0][j];
+			L(k, 1, T - 1) {
+				C.val[i][j] = max(C.val[i][j], A.val[i][k] + B.val[k][j]);
+			}
+		}
+	}
+	return C;
+}
+
+int len, queries;
+int input[M];
+ll prefix[M];
+Grid tree[M];
+
+void construct(int idx, int l, int r) {
+	if(l == r) {
+		tree[idx] = Grid(-INF);
+		tree[idx].val[0][0] = 0;
+		tree[idx].val[1][0] = 0;
+		tree[idx].val[2][1] = 0;
+		tree[idx].val[0][3 + ((input[l] + 1) & 1)] = (input[l] + 1) / 2;
+		tree[idx].val[0][2] = input[l];
+		L(k, 0, 1) {
+			tree[idx].val[3 + k][3 + ((k + input[l]) & 1)] = (k + input[l]) / 2;
+			tree[idx].val[3 + k][1] = 0;
+		}
+		return;
+	}
+	int m = (l + r) >> 1;
+	construct(idx * 2, l, m);
+	construct(idx * 2 + 1, m + 1, r);
+	tree[idx] = tree[idx * 2] * tree[idx * 2 + 1];
+}
+
+Grid fetch(int idx, int l, int r, int ql, int qr) {
+	if(ql <= l && r <= qr) return tree[idx];
+	int m = (l + r) >> 1;
+	if(ql <= m && m < qr) return fetch(idx * 2, l, m, ql, qr) * fetch(idx * 2 + 1, m + 1, r, ql, qr);
+	return ql <= m ? fetch(idx * 2, l, m, ql, qr) : fetch(idx * 2 + 1, m + 1, r, ql, qr);
+}
+
+int main() {
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr); cout.tie(nullptr);
+	cin >> len >> queries;
+	L(i, 1, len) cin >> input[i];
+	L(i, 1, len) prefix[i] = prefix[i - 1] + input[i];
+	construct(1, 1, len);
+	while(queries--) {
+		int left, right;
+		cin >> left >> right;
+		auto res = fetch(1, 1, len, left, right);
+		ll answer = 0;
+		L(i, 0, 4) answer = max(answer, res.val[0][i]);
+		cout << prefix[right] - prefix[left - 1] - answer << '\n';
+	}
+	return 0;
+}

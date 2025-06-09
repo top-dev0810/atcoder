@@ -1,0 +1,47 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define MAXN 200010
+#define ll long long
+
+int n;
+int a[MAXN];
+
+ll get_d(int k) {
+    if (k >= 28) return 0;
+    int pow2k = 1 << k;
+    ll ans = 0;
+    unordered_map<int, ll> group_size;
+    unordered_map<int, ll> group_sum;
+    for (int i = n; i >= 1; --i) {
+        if ((2 * a[i]) % pow2k == 0) {
+            ans += 2 * a[i];
+        }
+        int ai_mod = a[i] % pow2k;
+        int aj_mod = (pow2k - ai_mod) % pow2k;
+        ans += group_sum[aj_mod] + (ll)a[i] * group_size[aj_mod];
+        group_sum[ai_mod] += a[i];
+        group_size[ai_mod]++;
+    }
+    return ans;
+}
+
+ll d[28];
+
+int main() {
+    cin >> n;
+    for (int i = 1; i <= n; ++i)
+        cin >> a[i];
+
+    for (int k = 0; k < 28; ++k)
+        d[k] = get_d(k);
+
+    ll ans = 0;
+    for (int k = 0; k < 27; ++k) {
+        ll diff = d[k] - d[k+1];
+        ans += diff >> k;
+    }
+    cout << ans << endl;
+
+    return 0;
+}

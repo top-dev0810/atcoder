@@ -1,0 +1,38 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+
+const int N=5e5+5,vv=25;
+
+long long n,m,k,f[N][60];
+string s,t;
+
+int main(){
+//	freopen(".in","r",stdin);
+//	freopen(".out","w",stdout);
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+	cin>>k>>s>>t;
+	n=s.size(),m=t.size();
+	if(abs(n-m)>k) cout<<"No",exit(0);
+	s=" "+s,t=" "+t;
+	for(int i=0;i<=n;i++) for(int j=0;j<=50;j++) f[i][j]=1e9;
+	for(int i=0;i<=k;i++) f[0][i+vv]=i,f[i][0+vv]=i;
+	for(int i=1;i<=n;i++){
+		for(int j=-k;j<=k;j++){
+			int p=i+j;
+			if(p<0||p>m) continue;
+			if(s[i]==t[p]) f[i][j+vv]=f[i-1][j+vv];
+			f[i][j+vv]=min(f[i][j+vv],min(f[i-1][j+vv+1]+1,f[i-1][j+vv]+1));
+		}
+		for(int j=-k;j<=k;j++){
+			int p=i+j;
+			if(p<0||p>m) continue;
+			f[i][j+vv]=min(f[i][j+vv],f[i][j+vv-1]+1);
+//			cout<<i<<" "<<i+j<<" "<<f[i][j+vv]<<"\n";
+		}
+	}
+	cout<<((f[n][m-n+vv]<=k)?"Yes":"No");
+}
+

@@ -1,0 +1,100 @@
+// LUOGU_RID: 185936918
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+typedef unsigned long long ull;
+#define rep(i,l,r) for(int i(l);i<=(r);++i)
+#define per(i,r,l) for(int i(r);i>=(l);--i)
+#define eb emplace_back
+#define Debug(...) fprintf(stderr,__VA_ARGS__)
+#define Exit(p) fprintf(stderr,"[exit]: at breakpoint %d\n",p),exit(0);
+#define File(filename) freopen(filename ".in","r",stdin),freopen(filename ".out","w",stdout)
+template<typename T>void read(T &x){x=0;T flg=1;char ch=getchar();while(!isdigit(ch)){if(ch=='-')flg=-1;ch=getchar();}while(isdigit(ch))x=(x<<3)+(x<<1)+(ch^48),ch=getchar();x*=flg;}
+template<typename T,typename... Args>void read(T &x,Args &...args){read(x),read(args...);}
+template<typename T>void cmax(T& x,T y){x=max(x,y);}
+template<typename T,typename... Args>void cmax(T& x,T y,Args ...args){cmax(x,y);cmax(x,args...);}
+template<typename T>void cmin(T& x,T y){x=min(x,y);}
+template<typename T,typename... Args>void cmin(T& x,T y,Args ...args){cmin(x,y);cmin(x,args...);}
+template<typename T,typename U>ostream &operator<<(ostream &os,const pair<T,U>&x){return os<<"("<<x.first<<","<<x.second<< ")"; };
+template<typename T>ostream &operator<<(ostream &os,const vector<T> &as){const int sz=as.size();os<<"[";for(int i=0;i<sz;++i){if(i>=256){os<<",...";break;}if(i>0){os<<",";}os<<as[i];}return os<<"]";}
+bool membg=0;
+
+constexpr int N=1e6+7;
+int n,ans[N],lis[N],cnt,col[N],p[N];
+set<int>g[N],scol[N];
+
+bool memed=0;
+void cut(int u,int v);
+void add(int u,int v);
+void check(int u);
+void cut(int u,int v){
+	g[u].erase(v),g[v].erase(u),scol[u].erase(col[v]),scol[v].erase(col[u]),check(u),check(v);
+}
+void add(int u,int v){
+	for(int w:g[u])
+		scol[w].erase(col[u]);
+	p[v]=col[u];
+	col[u]=0;
+	cut(u,v);
+}
+void check(int u){
+	if(col[u]&&g[u].size()==1)
+		add(u,*g[u].begin());
+}
+
+void solve(){
+	read(n);
+	cnt=0;
+	for(int i=1;i<=n;i++)
+		g[i].clear(),scol[i].clear(),p[i]=col[i]=lis[i]=0;
+	for(int i=1,u,v;i<n;i++)
+		read(u,v),g[u].emplace(v),g[v].emplace(u);
+	for(int i=1;i<=n;i++){
+		if(g[i].empty()){
+			ans[i]=0;
+			continue;
+		}
+		if((int)g[i].size()==1&&!scol[i].empty()){
+			ans[i]=0,add(*g[i].begin(),i);
+			continue;
+		}
+		int tmp=n+1;
+		for(int j:g[i]){
+			if(p[j])tmp=min(tmp,p[j]);
+			else if(!scol[j].empty()){
+				if(!(col[j]&&(int)g[j].size()==2))
+					tmp=min(tmp,*scol[j].begin());
+			}
+		}
+		if(tmp>n){
+			lis[++cnt]=i,col[i]=ans[i]=cnt;
+			for(int j:g[i])scol[j].emplace(cnt);
+			check(i);
+		}else{
+			ans[i]=tmp;
+			for(int j:g[i])
+				if(p[j]==tmp){
+					cut(i,j);
+					break;
+				}
+				else if(g[j].count(lis[tmp])){
+					add(lis[tmp],j),cut(i,j);
+					break;
+				}
+		}
+	}
+	for(int i=1;i<=n;i++)
+		printf("%d ",ans[i]);
+	printf("\n");
+	return;
+}
+int main(){
+	Debug("%.3lfMB\n",fabs(&memed-&membg)/1024.0/1024.0);
+	int timbg=clock();
+	int T=1;read(T);
+	while(T--)solve();
+	int timed=clock();
+	Debug("%.3lfs\n",1.0*(timed-timbg)/CLOCKS_PER_SEC);
+	fflush(stdout);
+	return 0;
+}

@@ -1,0 +1,35 @@
+#include <bits/stdc++.h>
+using namespace std;
+#include <bits/stdc++.h>
+typedef long long ll;
+
+int main() {
+  int n = 0;
+  char a, b;
+  string s;
+  cin >> n >> a >> b >> s;
+  
+  for (int i = 0; i < n; i++) {
+    if (s[i] != a) {
+      cout << b;
+    }
+    else {
+      cout << s[i];
+    }
+  }
+  cout << endl;
+}
+
+/*memo*/
+//シグマfomula
+//https://hiraocafe.com/note/sigmaformula.html
+//数値型をstring型にしたいときに使う
+//to_string()
+//要素を逆並びにする
+//reverse(vec.begin(), vec.end())
+//N個の整数から続いたK個の整数を選ぶ
+//N-K+1
+//要素を小さい順にする
+//sort(vec.begin(), vec.end())
+//replace（aをbに置き換える）
+// replace(v.begin(), v.end(), a, b)

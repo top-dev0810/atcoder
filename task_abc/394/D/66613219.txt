@@ -1,0 +1,48 @@
+#include<bits/stdc++.h>
+#define ll long long
+#define vll vector<ll>
+#define vvll vector<vector<ll>>
+using namespace std;
+int main(){
+    string S;
+    cin >> S;
+    stack<char> st;
+    for(ll i=0;i<(ll)(S.size());i++){
+        if(S[i]=='(' || S[i]=='[' || S[i]=='<'){
+            st.push(S[i]);
+        }
+        else{
+            if(st.empty()){
+                cout << "No" << endl;
+                return 0;
+            }
+            char s=st.top();
+            st.pop();
+            if(s=='('){
+                if(S[i]!=')'){
+                    cout << "No" << endl;
+                    return 0;
+                }
+            }
+            if(s=='['){
+                if(S[i]!=']'){
+                    cout << "No" << endl;
+                    return 0;
+                }
+            }
+            if(s=='<'){
+                if(S[i]!='>'){
+                    cout << "No" << endl;
+                    return 0;
+                }
+            }
+        }
+    }
+    if(st.empty()){
+        cout << "Yes" << endl;
+    }
+    else{
+        cout << "No" << endl;
+    }
+    return 0;
+}

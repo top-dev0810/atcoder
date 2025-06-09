@@ -1,0 +1,47 @@
+//テンプレート
+#include <bits/stdc++.h>
+using namespace std;
+using LL=long long;
+#define rep(i, n) for (int i = 0; i < (n); i++)
+#define repLL(i, n) for (LL i = 0; i < (n); i++)
+using vint=vector<int>;using vvint=vector<vector<int>>;using vvvint=vector<vector<vector<int>>>;
+using vLL=vector<LL>;using vvLL=vector<vector<LL>>;using vvvLL=vector<vector<vector<LL>>>;
+using pint=pair<int,int>;using pLL=pair<LL,LL>;
+//テンプレートここまで
+
+using Graph=vector<vector<pair<int,LL>>>;
+
+int N;
+LL ans=(1LL<<61);
+void dfs(Graph& G, vint& seen, int now, LL score){
+  if(now==N-1){
+    ans=min(ans,score);
+    return;
+  }
+  
+  for(pair<int,LL> p : G[now]){
+    int next; LL cost; tie(next,cost)=p;
+    if(seen[next]==0){
+      seen[next]=1;
+      LL nscore=score^cost;
+      dfs(G,seen,next,nscore);
+      seen[next]=0;
+    }
+  }
+  return;
+}
+
+int main(){
+  cin >> N;
+  int M; cin >> M;
+  Graph G(N);
+  rep(i,M){
+    int u,v; LL w; cin >> u >> v >> w;
+    u--; v--;
+    G[u].push_back({v,w});
+    G[v].push_back({u,w});
+  }
+  vint seen(N,0); seen[0]=1;
+  dfs(G,seen,0,0LL);
+  cout << ans << endl;
+}

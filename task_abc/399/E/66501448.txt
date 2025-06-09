@@ -1,0 +1,116 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define rep(i, l, r) for (int i = l; i < (int)(r); i++)
+
+using vi = vector<int>; using vvi = vector<vi>; using vvvi = vector<vvi>;
+using vs = vector<string>;
+using vc = vector<char>;
+using vvc = vector<vector<char>>;
+using ll = long long;
+using vl = vector<ll>; using vvl = vector<vl>; using vvvl = vector<vvl>;
+using pii = pair<int, int>;
+using pll = pair<ll, ll>;
+
+template<typename T>
+void v_cout(T &vec) {
+    for (auto k : vec) cout << k << ' ';
+    cout << endl;
+    return;
+}
+
+template<typename S>
+void vv_cout(S &vec) {
+    for (auto v : vec) {
+        for (auto k : v) cout << k << ' ';
+        cout << endl;
+    }
+    return;
+}
+template<typename T>
+void chmax(T &a, T b) { a = max(a, b);}
+template<typename T>
+void chmin(T &a, T b) { a = min(a, b);}
+//getlineの使い方： getline(cin, (stringの変数名))
+//#pragma GCC optimize("Ofast")
+//--------------------------------------------------
+
+int main() {
+    //ans == -1とならないようなコーナーケースを見逃していた。
+    int N;
+    cin >> N;
+    string S, T;
+    cin >> S >> T;
+    map<char, set<char>> dd;
+    rep(i, 0, N) {
+        dd[S[i]].insert(T[i]);
+    }
+    vi edge(26, -1);
+    int ans = 0;
+    vi in(26, 0);
+    for(auto [c, s] : dd) {
+        if(s.size() > 1) {
+            cout << -1 << endl;
+            //assert(0 > 1);
+            return 0;
+        }
+        int nc = *s.begin();
+        int a = c - 'a';
+        int na = nc - 'a';
+        edge[a] = na;
+        in[na]++;
+        if(a != na) ans++;
+    }
+    int cnt = 0;
+    rep(i, 0, 26) {
+        if(edge[i] == -1) cnt++;
+    }
+    set<set<int>> seen;
+    rep(i, 0, 26) {
+        vi tmp(26, 0);
+        vi ord;
+        int now = i;
+        while(true) {
+            ord.push_back(now);
+            tmp[now] = 1;
+            now = edge[now];
+            if(now == -1) break;
+            if(tmp[now] == 1) break;
+        }
+        if(now != -1) {
+            set<int> c;
+            c.insert(now);
+            int tt = edge[now];
+            while(tt != now) {
+                c.insert(tt);
+                tt = edge[tt];
+            } 
+            if(c.size() == 1) {
+                //ans == -1とならないケースを見逃していた。
+                if(in[*c.begin()] >= 2) cnt++;
+                continue;
+            }
+            else {
+                bool judge = false;
+                //ループしている頂点のうち入次数が２以上であるものが存在するケースは場合分け
+                for(auto v : c) {
+                    if(in[v] >= 2) {
+                        judge = true;
+                        cnt++;
+                        //ans == -1とならないケースを見逃していた。
+                    }
+                }
+                if(judge) continue;
+                seen.insert(c);
+            }
+        }
+    }
+    if(cnt > 0) {
+        int n = seen.size();
+        ans += n;
+    }
+    if(cnt == 0) {
+        if(!seen.empty()) ans = -1;
+    }
+    //assert(ans != -1);
+    cout << ans << endl;
+}

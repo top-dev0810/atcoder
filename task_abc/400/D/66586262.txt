@@ -1,0 +1,82 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define int long long
+#define mod 1000000000
+
+void solve(){
+    int n , m;
+    cin >> n >> m;
+    vector<string> grid(n);
+    
+    for(int i = 0 ; i < n ; i++)cin >> grid[i];
+    int stx , sty , endx , endy;
+    cin >> stx >> sty >> endx >> endy;
+    stx--;sty--;endx--;endy--;
+    
+    set<pair<int,pair<int,int>>> s;
+    vector<int> dx = {0,0,1,-1};
+    vector<int> dy = {1,-1,0,0};
+    vector<vector<int>> dist(n , vector<int>(m , LLONG_MAX));
+    dist[stx][sty] = 0;
+    s.insert({0,{stx,sty}});
+    
+    while(!s.empty()){
+        pair<int,pair<int,int>> node = *s.begin();
+        int curdis = node.first;
+        int x = node.second.first;
+        int y = node.second.second;
+        s.erase(*s.begin());
+        
+        if(x == endx && y == endy)break;
+    
+        for(int i = 0 ; i < 4 ; i++ ){
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            
+            if(nx < n && nx >= 0 && ny < m && ny >= 0 ){
+                if(grid[nx][ny] == '.' && dist[nx][ny] > curdis){
+                    s.erase({dist[nx][ny],{nx,ny}});
+                    dist[nx][ny] = curdis;
+                    s.insert({curdis,{nx,ny}});
+                }else if(grid[nx][ny] == '#'){
+                    int nx1 = x + 2*dx[i];
+                    int ny1 = y + 2*dy[i];
+                    
+                    if(dist[nx][ny] > curdis + 2){
+                        s.erase({dist[nx][ny],{nx,ny}});
+                        dist[nx][ny] = curdis + 2;
+                        s.insert({curdis + 2,{nx,ny}});
+                    }
+                    
+                    if(nx1 < n && nx1 >= 0 && ny1 < m && ny1 >= 0 && dist[nx1][ny1] > curdis + 2){
+                        s.erase({dist[nx1][ny1],{nx1,ny1}});
+                        dist[nx1][ny1] = curdis + 2;
+                        s.insert({curdis + 2,{nx1,ny1}});
+                    }
+                }
+            }
+        }
+    }
+    
+    // for(int i = 0 ; i < n ; i++){
+    //     for(int j = 0 ; j < m ; j++){
+    //         cout<<dist[i][j]<<" ";
+    //     }
+    //     cout<<endl;
+    // }
+    
+    cout<<dist[endx][endy] / 2 <<endl;
+    return ;
+}
+
+
+signed main() {
+	
+// 	int t;
+// 	cin >> t;
+// 	while(t--){
+	    solve();
+// 	}
+    return 0;
+}

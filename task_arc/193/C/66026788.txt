@@ -1,0 +1,93 @@
+#include<bits/stdc++.h>
+using namespace std;
+//#pragma GCC optimize(2)
+#define fi first
+#define se second
+#define ll long long
+#define ull unsigned ll
+#define str string
+#define db double
+#define pii pair<int,int>
+#define pll pair<ll,ll>
+#define pq priority_queue
+#define pqMax(x) pq< x >
+#define pqMin(x) pq< x ,vector< x >,greater< x > >
+#define MP make_pair
+#define pb push_back
+#define all(x) (x).begin(),(x).end()
+#define lowbit(x) ((x)&(-(x)))
+#define sz(x) ((int) (x).size())
+#define ms(a,t) memset(a,t,sizeof(a))
+#define FORe(i, u, v) for (int i = h[u], v; v = e[i].to, i; i = e[i].nxt)
+const ll INF = 0x3f3f3f3f;
+const int maxn = 400+10;
+const int maxm = 2e5+10;
+const ll mod = 998244353;
+const db eps = 1e-6;
+//ll read() {
+//	ll x=0,f=1;char ch=getchar();
+//	while (ch<'0'||ch>'9'){if (ch=='-') f=-1;ch=getchar();}
+//	while (ch>='0'&&ch<='9'){x=x*10+ch-48;ch=getchar();}
+//	return x*f;
+//}
+int H,W,C;
+int f[maxn][maxn];
+int g[maxn][maxn];
+int p[maxn*2];
+int c[maxn][maxn];
+const ll v[2] = {mod-1,1};
+void Solve() {
+	cin >> H >> W >> C;
+	for(int i = 0; i <= max(H,W); i++) {
+		for(int j = 0; j <= i; j++) {
+			if(!j) c[i][j] = 1;
+			else c[i][j] = (c[i-1][j-1] + c[i-1][j]) % mod;
+		}
+	}
+	p[0] = 1; for(int i = 1; i <= H+W+1; i++) p[i] = 1ll * p[i-1] * C % mod;
+	ll ans = 0;
+	for(int i=0;i<=H;i++) {
+		for(int j=0;j<=W;j++) {
+			if(i == 0 || j == 0) {
+				f[i][j] = 1; g[i][j] = 1;
+				continue;
+			}
+			for(int k = 1; k <= i; k++) {
+				f[i][j] = (f[i][j] + v[k&1] * f[i-k][j] % mod * c[i][k] % mod * p[k] % mod) % mod;
+			}
+			for(int k = 1; k <= j; k++) {
+				f[i][j] = (f[i][j] + v[k&1] * f[i][j-k] % mod * c[j][k] % mod * p[k] % mod) % mod;
+			}
+			for(int k = 1; k <= i; k++) {
+				f[i][j] = (f[i][j] + v[(k+1)&1] * g[i-k][j] % mod * c[i][k] % mod * C % mod) % mod;
+			}
+			for(int k = 1; k <= j; k++) {
+				g[i][j] = (g[i][j] + v[k&1] * f[i][j-k] % mod * c[j][k] % mod) % mod;
+			}
+		}
+	}
+	for(int i=1;i<=H;i++) {
+		for(int j=1;j<=W;j++) {
+			ans = (ans + v[(i+j+1)&1] * f[H-i][W-j] % mod * c[H][i] % mod * c[W][j] % mod * C % mod) % mod;
+//			cerr<<f[i][j]<<' ';
+//			cerr<<g[i][j]<<' ';
+		}
+//		cerr<<'\n';
+	}
+	cout<<ans<<'\n';
+}
+int main() {
+//	freopen(".in","r",stdin); freopen(".out","w",stdout);
+//	ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+//	int tt; cin >> tt ; while(tt--)
+	Solve();
+	return 0;
+}
+/*
+调试先查四件事
+1. 数组开够没
+2. ijk写错没
+3. int爆了没
+4. double取等了没
+*/
+

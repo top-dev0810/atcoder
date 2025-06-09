@@ -1,0 +1,13 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+  double a;
+  cin >>a;
+  double v=round(400/a);
+  if ((400/a)-v == 0){
+  cout <<400/a<< endl;
+  }else{
+    cout <<-1<< endl;
+  }
+}

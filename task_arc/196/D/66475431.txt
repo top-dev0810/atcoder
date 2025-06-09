@@ -1,0 +1,85 @@
+#include <bits/stdc++.h>
+using namespace std;
+const int N = 400400;
+struct node { int l, r; } a[N];
+int sl[N], sr[N], n, m, q;
+bool ck1(node a)
+{
+    if (a.l > a.r)swap(a.l, a.r);
+    if (sl[a.l])return false;
+    if (sr[a.r])return false;
+    return true;
+}
+void add1(node a) { if (a.l > a.r)swap(a.l, a.r); sl[a.l]++; sr[a.r]++; }
+void del1(node a) { if (a.l > a.r)swap(a.l, a.r); sl[a.l]--; sr[a.r]--; }
+struct seg
+{
+    int mi[N << 2], ma[N << 2];
+#define ls (x<<1)
+#define rs (x<<1|1)
+    void up(int x) { mi[x] = min(mi[ls], mi[rs]), ma[x] = max(ma[ls], ma[rs]); }
+    void build(int x, int l, int r)
+    {
+        if (l == r)return mi[x] = 0x3f3f3f3f, ma[x] = -0x3f3f3f3f, void();
+        int m = l + r >> 1; build(ls, l, m); build(rs, m + 1, r); up(x);
+    }
+    void updmi(int x, int l, int r, int p, int v)
+    {
+        if (l == r) return mi[x] = v, void();
+        int m = l + r >> 1;
+        if (p <= m) updmi(ls, l, m, p, v);
+        else updmi(rs, m + 1, r, p, v); up(x);
+    }
+    void updma(int x, int l, int r, int p, int v)
+    {
+        if (l == r) return ma[x] = v, void();
+        int m = l + r >> 1;
+        if (p <= m) updma(ls, l, m, p, v);
+        else updma(rs, m + 1, r, p, v); up(x);
+    }
+    struct mima { int mi, ma; };
+    mima merge(const mima& a, const mima& b)
+    {
+        return { min(a.mi, b.mi), max(a.ma, b.ma) };
+    }
+    mima ask(int x, int l, int r, int L, int R)
+    {
+        if (L <= l && r <= R)return { mi[x], ma[x] };
+        int m = l + r >> 1;
+        if (R <= m) return ask(ls, l, m, L, R);
+        if (m < L) return ask(rs, m + 1, r, L, R);
+        return merge(ask(ls, l, m, L, R), ask(rs, m + 1, r, L, R));
+    }
+}t1, t2;
+bool ck2(node a)
+{
+    auto& t = a.l < a.r ? t1 : t2; if (a.l > a.r)swap(a.l, a.r);
+    if (a.r - a.l <= 1)return true;
+    auto [mi, ma] = t.ask(1, 1, n, a.l + 1, a.r - 1);
+    if (mi<a.l || ma>a.r)return false; return true;
+}
+void add2(node a) { auto& t = a.l < a.r ? t1 : t2; if (a.l > a.r)swap(a.l, a.r); t.updma(1, 1, n, a.l, a.r); t.updmi(1, 1, n, a.r, a.l); }
+void del2(node a) { auto& t = a.l < a.r ? t1 : t2; if (a.l > a.r)swap(a.l, a.r); t.updma(1, 1, n, a.l, -0x3f3f3f3f); t.updmi(1, 1, n, a.r, 0x3f3f3f3f); }
+int R[N];
+int main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr); cout.tie(nullptr);
+    cin >> n >> m >> q;
+    for (int i = 1;i <= m;i++)
+        cin >> a[i].l >> a[i].r;
+    t1.build(1, 1, n); t2.build(1, 1, n);
+    for (int i = 1;i <= m;i++)
+    {
+        R[i] = R[i - 1];
+        while (R[i] < m && ck1(a[R[i] + 1]) && ck2(a[R[i] + 1]))add1(a[R[i] + 1]), add2(a[R[i] + 1]), R[i]++;
+        del1(a[i]); del2(a[i]);
+    }
+    for (int i = 1;i <= q;i++)
+    {
+        int l, r; cin >> l >> r;
+        if (r <= R[l])cout << "Yes\n";
+        else cout << "No\n";
+    }
+    return 0;
+}

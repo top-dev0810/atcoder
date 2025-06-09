@@ -1,0 +1,81 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+using i64 = long long int;
+#define deb(...) debug(#__VA_ARGS__, __VA_ARGS__)
+template<typename T>
+void debug(const char* t, T&& v) {cout << t << " = " << v << '\n';}
+template<typename T, typename... Args>
+void debug(const char* n, T&& v, Args&&... args) {
+    const char* c = strchr(n, ','); cout.write(n, c - n) << " = " << v << " |";
+    debug(c + 1, std::forward<Args>(args)...);
+}
+
+constexpr int mod = 1'000'000'007;
+// constexpr int mod = 998244353;
+
+void solve() {
+    int h, w;
+    cin >> h >> w;
+    vector<string> v(h);
+    for(auto& s : v) cin >> s;
+
+    vector<vector<int>> dis(h, vector<int>(w, mod));
+
+    int x1, y1, x2, y2;
+    cin >> x1 >> y1 >> x2 >> y2;
+    x1--, x2--, y1--, y2--;
+
+    vector<int> dx = {1, 0, -1, 0}, dy = {0, 1, 0, -1};
+
+    auto check = [&](int x, int y) -> bool {
+        return (x >= 0 && y >= 0 && x < h && y < w);
+    };
+
+    deque<pair<int, int>> q;
+    q.push_back({x1, y1});
+    dis[x1][y1] = 0;
+    while(!q.empty()) {
+        auto [x, y] = q.front();
+        q.pop_front();
+        
+        for(int i = 0; i < 4; i++) {
+            int nx = x + dx[i], ny = y + dy[i];
+            int nx2 = x + 2 * dx[i], ny2 = y + 2 * dy[i];
+
+            if(check(nx, ny) && dis[nx][ny] > dis[x][y] + (v[nx][ny] == '#')) {
+                dis[nx][ny] = dis[x][y] + (v[nx][ny] == '#');
+                if(dis[x][y] == dis[nx][ny]) q.push_front({nx, ny});
+                else q.push_back({nx, ny});
+            }
+            if(check(nx2, ny2) && dis[nx2][ny2] > dis[x][y] + (v[nx2][ny2] == '#' || (v[nx][ny] == '#'))) {
+                dis[nx2][ny2] = dis[x][y] + (v[nx2][ny2] == '#' || (v[nx][ny] == '#'));
+                if(dis[x][y] == dis[nx2][ny2]) q.push_front({nx2, ny2});
+                else q.push_back({nx2, ny2});
+
+            }
+        }
+    }
+
+    cout << dis[x2][y2];
+}
+
+
+int main() {
+    #ifndef ONLINE_JUDGE
+        freopen("input.txt","r",stdin);
+        freopen("output.txt","w",stdout);
+    #endif
+
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t = 1;
+    // cin >> t;
+    for(int i = 1; i <= t; i++) {
+        // cout << "\nCase #" << i << ":\n";
+        solve();
+    }
+
+    return 0;
+}

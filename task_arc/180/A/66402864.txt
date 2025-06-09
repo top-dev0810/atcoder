@@ -1,0 +1,49 @@
+#include <bits/stdc++.h>
+#define ll long long
+#define endl putchar(10)
+#define spc putchar(32)
+#define R register
+using namespace std;
+#ifndef ONLINE_JUDGE
+#define debug(x) cerr << #x << " = " << x, endl
+#endif
+
+inline ll read()
+{
+    ll x=0,f=1; char c=getchar();
+
+    while(c<48 || c>57)
+    {
+        if(c=='-') f=-1;
+        c=getchar();
+    }
+
+    while(c>47 && c<58)
+    x=(x<<1)+(x<<3)+c-48, c=getchar();
+    return x*f;
+}
+
+inline void write(ll x)
+{
+    static ll sta[41]; ll top=0;
+    if(x<0) putchar('-'), x=-x;
+    do sta[top++]=x%10, x/=10; while(x);
+    while(top) putchar(sta[--top]+48);
+}
+
+ll n,cnt=1,ans=1; char s[250001];
+const ll mod=1e9+7;
+
+int main()
+{
+	n=read(); scanf("%s",s);
+	
+	for(R int i=1; i<n; ++i)
+	{
+		if(s[i]!=s[i-1]) ++cnt;
+		else ans=ans*(cnt+1>>1)%mod, cnt=1;
+	}
+
+	write(ans*(cnt+1>>1)%mod);
+    return 0;
+}

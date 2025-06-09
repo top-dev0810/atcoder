@@ -1,0 +1,45 @@
+#include <bits/stdc++.h> 
+using namespace std;
+using ll =long long;
+#define all(v) v.begin(),v.end()
+ #define rep(i,a,b) for(int i=a;i<b;i++)
+#define rrep(i,a,b) for(int i=a;i>=b;i--)
+
+ll INF=2e18;
+
+
+int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(0);
+
+
+ll N,M;cin>>N>>M;
+vector<ll> L(M),R(M),S(M);
+for(ll i=0;i<M;i++) cin>>L[i]>>R[i]>>S[i];
+
+vector<tuple<ll,ll,ll>> e(0);
+for(ll i=1;i<=N;i++) e.push_back(make_tuple(i,i-1,-1));
+for(ll i=0;i<M;i++) {
+  e.push_back(make_tuple(L[i]-1,R[i],S[i]));
+  e.push_back(make_tuple(R[i],L[i]-1,-S[i]));
+}
+
+
+vector<ll> d(N+1,INF);
+d[N]=0;
+bool upd=false;
+for(ll i=0;i<2*(N+M)+5;i++) {
+  upd=false;
+for(auto x:e) {
+  ll nd=d[get<0>(x)]+get<2>(x);
+  if(d[get<1>(x)]>nd) {
+    d[get<1>(x)]=nd;
+    upd=true;
+  }
+}
+}
+
+if(upd) cout<<-1<<endl;
+else cout<<-d[0]<<endl;
+}
+

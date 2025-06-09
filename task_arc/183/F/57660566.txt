@@ -1,0 +1,434 @@
+#pragma GCC optimize("Ofast")
+
+#include "bits/stdc++.h"
+
+#define rep(i, n) for (int i = 0; i < (n); ++i)
+#define rep1(i, n) for (int i = 1; i < (n); ++i)
+#define rep1n(i, n) for (int i = 1; i <= (n); ++i)
+#define repr(i, n) for (int i = (n) - 1; i >= 0; --i)
+#define pb push_back
+#define eb emplace_back
+#define all(a) (a).begin(), (a).end()
+#define rall(a) (a).rbegin(), (a).rend()
+#define each(x, a) for (auto &x : a)
+#define ar array
+#define vec vector
+#define range(i, n) rep(i, n)
+
+using namespace std;
+
+using ll = long long;
+using ull = unsigned long long;
+using ld = long double;
+using str = string;
+using pi = pair<int, int>;
+using pl = pair<ll, ll>;
+
+using vi = vector<int>;
+using vl = vector<ll>;
+using vpi = vector<pair<int, int>>;
+using vvi = vector<vi>;
+
+int Bit(int mask, int b) { return (mask >> b) & 1; }
+
+template<class T>
+bool ckmin(T &a, const T &b) {
+    if (b < a) {
+        a = b;
+        return true;
+    }
+    return false;
+}
+
+template<class T>
+bool ckmax(T &a, const T &b) {
+    if (b > a) {
+        a = b;
+        return true;
+    }
+    return false;
+}
+
+// [l, r)
+template<typename T, typename F>
+T FindFirstTrue(T l, T r, const F &predicat) {
+    --l;
+    while (r - l > 1) {
+        T mid = l + (r - l) / 2;
+        if (predicat(mid)) {
+            r = mid;
+        } else {
+            l = mid;
+        }
+    }
+    return r;
+}
+
+
+template<typename T, typename F>
+T FindLastFalse(T l, T r, const F &predicat) {
+    return FindFirstTrue(l, r, predicat) - 1;
+}
+
+const ll INF = 2e18;
+const int INFi = 1e9;
+const int LG = 49;
+
+template<typename T>
+int normalize(T value, int mod) {
+    if (value < -mod || value >= 2 * mod) value %= mod;
+    if (value < 0) value += mod;
+    if (value >= mod) value -= mod;
+    return value;
+}
+
+template<int mod>
+struct static_modular_int {
+    using mint = static_modular_int<mod>;
+
+    int value;
+
+    static_modular_int() : value(0) {}
+
+    static_modular_int(const mint &x) : value(x.value) {}
+
+    template<typename T, typename U = std::enable_if_t<std::is_integral<T>::value>>
+    static_modular_int(T value) : value(normalize(value, mod)) {}
+
+    template<typename T>
+    mint power(T degree) const {
+        degree = normalize(degree, mod - 1);
+        mint prod = 1, a = *this;
+        for (; degree > 0; degree >>= 1, a *= a)
+            if (degree & 1)
+                prod *= a;
+
+        return prod;
+    }
+
+    mint inv() const {
+        return power(-1);
+    }
+
+    mint &operator=(const mint &x) {
+        value = x.value;
+        return *this;
+    }
+
+    mint &operator+=(const mint &x) {
+        value += x.value;
+        if (value >= mod) value -= mod;
+        return *this;
+    }
+
+    mint &operator-=(const mint &x) {
+        value -= x.value;
+        if (value < 0) value += mod;
+        return *this;
+    }
+
+    mint &operator*=(const mint &x) {
+        value = int64_t(value) * x.value % mod;
+        return *this;
+    }
+
+    mint &operator/=(const mint &x) {
+        return *this *= x.inv();
+    }
+
+    friend mint operator+(const mint &x, const mint &y) {
+        return mint(x) += y;
+    }
+
+    friend mint operator-(const mint &x, const mint &y) {
+        return mint(x) -= y;
+    }
+
+    friend mint operator*(const mint &x, const mint &y) {
+        return mint(x) *= y;
+    }
+
+    friend mint operator/(const mint &x, const mint &y) {
+        return mint(x) /= y;
+    }
+
+    mint &operator++() {
+        ++value;
+        if (value == mod) value = 0;
+        return *this;
+    }
+
+    mint &operator--() {
+        --value;
+        if (value == -1) value = mod - 1;
+        return *this;
+    }
+
+    mint operator++(int) {
+        mint prev = *this;
+        value++;
+        if (value == mod) value = 0;
+        return prev;
+    }
+
+    mint operator--(int) {
+        mint prev = *this;
+        value--;
+        if (value == -1) value = mod - 1;
+        return prev;
+    }
+
+    mint operator-() const {
+        return mint(0) - *this;
+    }
+
+    bool operator==(const mint &x) const {
+        return value == x.value;
+    }
+
+    bool operator!=(const mint &x) const {
+        return value != x.value;
+    }
+
+    bool operator<(const mint &x) const {
+        return value < x.value;
+    }
+
+    template<typename T>
+    explicit operator T() {
+        return value;
+    }
+
+    friend std::istream &operator>>(std::istream &in, mint &x) {
+        std::string s;
+        in >> s;
+        x = 0;
+        for (const auto c: s)
+            x = x * 10 + (c - '0');
+
+        return in;
+    }
+
+    friend std::ostream &operator<<(std::ostream &out, const mint &x) {
+        return out << x.value;
+    }
+
+    static int primitive_root() {
+        if constexpr (mod == 1'000'000'007) return 5;
+        if constexpr (mod == 998'244'353) return 3;
+        if constexpr (mod == 786433) return 10;
+
+        static int root = -1;
+        if (root != -1)
+            return root;
+
+        std::vector<int> primes;
+        int value = mod - 1;
+        for (int i = 2; i * i <= value; i++)
+            if (value % i == 0) {
+                primes.push_back(i);
+                while (value % i == 0)
+                    value /= i;
+            }
+
+        if (value != 1) primes.push_back(value);
+        for (int r = 2;; r++) {
+            bool ok = true;
+            for (auto p: primes) {
+                if ((mint(r).power((mod - 1) / p)).value == 1) {
+                    ok = false;
+                    break;
+                }
+            }
+            if (ok) return root = r;
+        }
+    }
+};
+
+// constexpr int MOD = 1'000'000'007;
+constexpr int MOD = 998'244'353;
+using mint = static_modular_int<MOD>;
+
+namespace combinatorics {
+    std::vector<mint> fact_, ifact_, inv_;
+
+    void reserve(int size) {
+        fact_.reserve(size + 1);
+        ifact_.reserve(size + 1);
+        inv_.reserve(size + 1);
+    }
+
+    void resize(int size) {
+        if (fact_.empty()) {
+            fact_ = {mint(1), mint(1)};
+            ifact_ = {mint(1), mint(1)};
+            inv_ = {mint(0), mint(1)};
+        }
+        for (int pos = fact_.size(); pos <= size; pos++) {
+            fact_.push_back(fact_.back() * mint(pos));
+            inv_.push_back(-inv_[MOD % pos] * mint(MOD / pos));
+            ifact_.push_back(ifact_.back() * inv_[pos]);
+        }
+    }
+
+    struct combinatorics_info {
+        std::vector<mint> &data;
+
+        combinatorics_info(std::vector<mint> &data) : data(data) {}
+
+        mint operator[](int pos) {
+            if (pos >= int(data.size()))
+                resize(pos);
+
+            return data[pos];
+        }
+    } fact(fact_), ifact(ifact_), inv(inv_);
+
+    mint choose(int n, int k) {
+        if (n < k || k < 0 || n < 0)
+            return mint(0);
+
+        return fact[n] * ifact[k] * ifact[n - k];
+    }
+}
+
+using combinatorics::fact;
+using combinatorics::ifact;
+using combinatorics::inv;
+using combinatorics::choose;
+
+
+struct dat {
+    mint f, g, h;
+
+    dat(mint f = 0, mint g = 0, mint h = 0) : f(f), g(g), h(h) {};
+};
+
+
+bool operator==(const dat &a, const dat &b) {
+    return a.f == b.f && a.g == b.g && a.h == b.h;
+}
+
+dat query(long long a, long long b, long long c, long long n) {
+    if (n < 0) return {0, 0, 0};
+    if (!a) return {mint(n + 1) * (b / c), mint(b / c) * n * (n + 1) * inv[2], mint(b / c).power(2) * (n + 1)};
+
+    mint f, g, h;
+    dat nxt;
+    if (a >= c or b >= c) {
+        nxt = query(a % c, b % c, c, n);
+        f = nxt.f + mint(a / c) * n * (n + 1) * inv[2] + mint(b / c) * (n + 1);
+        g = nxt.g + mint(a / c) * n * (n + 1) * (2 * n + 1) * inv[6] + mint(b / c) * n * (n + 1) * inv[2];
+        h = nxt.h + 2 * mint(b / c) * nxt.f + 2 * mint(a / c) * nxt.g +
+            mint(a / c).power(2) * n * (n + 1) * (2 * n + 1) * inv[6] + mint(b / c).power(2) * (n + 1) +
+            mint(a / c) * (b / c) * n * (n + 1);
+        return {f, g, h};
+    }
+    long long m = (a * n + b) / c;
+    nxt = query(c, c - b - 1, a, m - 1);
+    f = mint(m) * n - nxt.f;
+    g = (mint(m) * n * (n + 1) - nxt.h - nxt.f) * inv[2];
+    h = mint(n) * m * (m + 1) - 2 * nxt.g - 2 * nxt.f - f;
+    return {f, g, h};
+}
+
+void solve() {
+    ll A, B, X, Y;
+    ll N;
+    cin >> A >> B >> X >> Y >> N;
+    const ll MaxValue = A * Y + B * X;
+
+    mint ans = 0;
+    rep(_, 2) {
+        ll maxB = FindLastFalse<ll>(0, A + 1, [&](const ll &cnt_b) {
+            ll need = 1ll * B * cnt_b - (A + B - 1);
+            need = max(need, 0ll);
+            ll minA = (need + A - 1) / A;
+            if ((minA * X + cnt_b * Y) * 2 > MaxValue) {
+                return true;
+            } else {
+                return false;
+            }
+        });
+        assert(0 <= maxB && maxB <= A);
+        // sum_{k = 1..maxB - 1} = (floor(k * b / a) - floor((k * b - N) / a) * k * Y
+        // sum_{k = maxB + 1 .. A} = (floor(k * b / a) - floor((k * b - N) / a) * (A - k) * Y
+
+        auto solveOneB = [&](ll cnt_b) {
+            if (!cnt_b) return;
+            ll minA, maxA;
+            ll midA;
+            {
+                ll need = 1ll * B * cnt_b - N;
+                need = max(need, 0ll);
+                minA = (need + A - 1) / A;
+            }
+            {
+                maxA = (B * cnt_b) / A;
+            }
+            if (minA > maxA) return;
+            assert(minA <= maxA);
+            midA = FindFirstTrue<ll>(minA, maxA + 1, [&](const ll &cnt_a) {
+                if ((cnt_a * X + cnt_b * Y) * 2 > MaxValue) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+            // [minA, midA) -> usual
+            // [midA, maxA] -> reverse
+            ans += mint(midA - minA) * cnt_b * Y;
+            ans += mint(maxA - midA + 1) * (A - cnt_b) * Y;
+        };
+        ll add = ((N + A) / A) * A;
+
+        auto solvePref = [&](ll R) {
+            auto res1 = query(B, add, A, R);
+            auto res2 = query(B, add - (N + 1), A, R);
+            res1.g -= res2.g;
+            res1.f -= res2.f;
+            res1.h -= res2.h;
+            return res1;
+        };
+
+        auto solveSeg = [&](ll L, ll R, bool rv) {
+            if (L > R) return;
+            auto res1 = solvePref(R);
+            auto res2 = solvePref(L - 1);
+            res1.g -= res2.g;
+            res1.f -= res2.f;
+            res1.h -= res2.h;
+
+            if (!rv) {
+                ans += res1.g * Y;
+            } else {
+                ans += (res1.f * A - res1.g) * Y;
+            }
+        };
+        assert(add > N);
+
+        solveSeg(1, maxB - 1, false);
+        solveOneB(maxB);
+        solveSeg(maxB + 1, A - 1, true);
+        if (maxB < A) {
+            solveOneB(A);
+        }
+
+        swap(A, B);
+        swap(X, Y);
+    }
+
+    cout << ans << '\n';
+}
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(0);
+    cout << setprecision(12) << fixed;
+    int t = 1;
+    cin >> t;
+    rep(i, t) {
+        solve();
+    }
+    return 0;
+}

@@ -1,0 +1,345 @@
+#include <bits/stdc++.h>
+// #include <bits/extc++.h>
+using namespace std;
+
+#define ll long long
+#define ul unsigned ll
+#define LL __int128_t
+#define UL __uint128_t
+#define db double
+#define DB long db
+#define pii pair<int, int>
+#define fi first
+#define se second
+#define mkpr make_pair
+#define vi vector<int>
+#define vmi vector<mint>
+#define vii vector<pii>
+#define rsz resize
+#define ep emplace
+#define pb pop_back
+#define eb emplace_back
+#define all(c) (c).begin(), (c).end()
+#define disc(c) (sort(all(c)), (c).rsz(unique(all(c)) - (c).begin()))
+#define ers(S, x) ((S).erase((S).find(x)))
+#define bit(k) (1 << (k))
+#define Bit(k) (1ll << (k))
+#define BIT(k) ((LL)1 << (k))
+#define lowbit(x) ((x) & -(x))
+#define bin(s, k) ((s) >> (k) & 1)
+#define lg2(x) (31 - __builtin_clz(x))
+#define LG2(x) (63 - __builtin_clzll(x))
+#define highbit(x) bit(lg2(x))
+#define highbitll(x) Bit(LG2(x))
+#define popcnt(x) __builtin_popcount(x)
+#define popcntll(x) __builtin_popcountll(x)
+#define mem(a, x) memset(a, x, sizeof(a))
+#define req(i, l, r) for (int i(l), i##End(r); i < i##End; i = -~i)
+#define qer(i, r, l) for (int i(r), i##End(l); i > i##End; i = ~-i)
+#define rep(i, l, r) for (int i(l), i##End(r); i <= i##End; i = -~i)
+#define per(i, r, l) for (int i(r), i##End(l); i >= i##End; i = ~-i)
+
+// #define FILERR
+
+#ifdef JYR
+#include "debug.h"
+#define errm(x, ...) fprintf(stderr, x, ##__VA_ARGS__)
+#define errs(x, ...) errm(x "\n", ##__VA_ARGS__)
+#else
+#define dbg(...) (__VA_ARGS__)
+#define dbgArr(...) (__VA_ARGS__)
+#define errm(x, ...) (x, ##__VA_ARGS__)
+#define errs(x, ...) (x, ##__VA_ARGS__)
+#endif
+
+#define __
+
+template<typename T, typename U> void chkmx(T &_a, U _b) { if (_a < _b) _a = _b; }
+template<typename T, typename U> void chkmn(T &_a, U _b) { if (_b < _a) _a = _b; }
+template<typename T, typename U> T OxO(T _a, U _b) { return _a >= _b ? -1 : _a; }
+
+bool Mbe;
+
+template <int MOD> struct modint {
+    int num;
+    const static __uint128_t brt = ((__uint128_t)(1) << (64)) / MOD;
+    modint() { num = 0; }
+    modint(int x) { num = x % MOD; }
+    modint(ll x) { num = x % MOD; }
+    modint<MOD> operator=(int x) {
+        num = x % MOD;
+        return (*this);
+    }
+    modint<MOD> operator=(ll x) {
+        num = x % MOD;
+        return (*this);
+    }
+    modint<MOD> operator+(modint<MOD> c) const {
+        ll x = num + c.num;
+        return x >= MOD ? x - MOD : x;
+    }
+    template <typename T> modint<MOD> operator+(T c) const {
+        return (*this) + modint<MOD>(c);
+    }
+    modint<MOD> operator-(modint<MOD> c) const {
+        ll x = num - c.num;
+        return x < 0 ? x + MOD : x;
+    }
+    template <typename T> modint<MOD> operator-(T c) const {
+        return (*this) - modint<MOD>(c);
+    }
+    modint<MOD> operator*(modint<MOD> c) const {
+        ll x = (ll)num * c.num% MOD;
+        // x = x - MOD * (brt * x >> 64);
+        // while (x >= MOD) x -= MOD;
+        return x;
+    }
+    template <typename T> modint<MOD> operator*(T c) const {
+        return (*this) * modint<MOD>(c);
+    }
+    
+    modint<MOD> qpow(ll b) const {
+        modint<MOD> ml = 1, bs = *this;
+        while (b) {
+            if (b & 1) ml *= bs;
+            bs *= bs, b >>= 1;
+        } return ml;
+    }
+    modint<MOD> inv() const { return qpow(MOD - 2); }
+    modint<MOD> operator/(modint<MOD> c) const { return (*this) * c.inv(); }
+    template <typename T> modint<MOD> operator/(T c) const {
+        return (*this) / modint<MOD>(c);
+    }
+    // operator int() { return num; }
+
+    modint<MOD> operator+=(modint<MOD> c) { return (*this) = (*this) + c; }
+    modint<MOD> operator-=(modint<MOD> c) { return (*this) = (*this) - c; }
+    template <typename T> modint<MOD> operator*=(T c) {
+        return (*this) = (*this) * c;
+    }
+    modint<MOD> operator/=(modint<MOD> c) { return (*this) = (*this) / c; }
+    modint<MOD> operator-() { return MOD - num; }
+    friend ostream& operator<<(ostream& w, modint<MOD> x) {
+        w << x.num;
+        return w;
+    }
+    friend istream& operator>>(istream& w, modint<MOD> x) {
+        w >> x.num;
+        x.num %= MOD;
+        return w;
+    }
+    bool operator==(modint<MOD> x) { return num == x.num; }
+};
+
+template <typename T, int MOD>
+modint<MOD> operator*(T a, modint<MOD> b) { return b * a; }
+template <typename T, int MOD>
+modint<MOD> operator/(T a, modint<MOD> b) { return b.inv() * a; }
+
+struct FastIO {
+    char buf[1 << 20], *p1, *p2;
+    char puf[1 << 20], *pf;
+    
+    FastIO() : p1(buf), p2(buf), pf(puf) {}
+    ~FastIO() { fwrite(puf, 1, pf - puf, stdout); }
+    
+    char gc() {
+        if (p1 == p2) p2 = (p1 = buf) + fread(buf, 1, 1 << 20, stdin);
+        return p1 == p2 ? EOF : *p1++;
+    }
+    
+    bool blank(char c) { return c == ' ' || c == '\r' || c == '\n' || c == '\t'; }
+    
+    char rd() {
+        char c = gc(); while (blank(c)) c = gc();
+        return c;
+    }
+    
+    template<typename T> T rd() {
+        T x = 0; int f = 0; char c = gc();
+        while (!isdigit(c)) f = (c == '-'), c = gc();
+        while (isdigit(c)) x = (x << 1) + (x << 3) + (c - '0'), c = gc();
+        return f ? -x : x;
+    }
+    
+    int rds(char *s) {
+        char c = gc(), *S = s;
+        while (blank(c)) c = gc();
+        while (!blank(c) && c != EOF) *s++ = c, c = gc();
+        return *s = 0, abs(s - S);
+    }
+    
+    int rdl(char *s) {
+        char c = gc(), *S = s;
+        while (c == '\r' || c == '\n') c = gc();
+        while (c != '\r' && c != '\n' && c != EOF) *s++ = c, c = gc();
+        return *s = 0, abs(s - S);
+    }
+    
+    void rd(char &c) { c = rd(); }
+    
+    void rd(char *s) {
+        char c = gc();
+        while (blank(c)) c = gc();
+        if (c == EOF) { *s = 0; return; }
+        while (!blank(c) && c != EOF) *s++ = c, c = gc();
+        *s = 0;
+    }
+    
+    template<int MOD> void rd(modint<MOD> &x) { x = rd<int>(); }
+    
+    template<typename T> void rd(T &x) {
+        x = 0; int f = 0; char c = gc();
+        while (!isdigit(c)) f = (c == '-'), c = gc();
+        while (isdigit(c)) x = (x << 1) + (x << 3) + (c - '0'), c = gc();
+        if (f) x = -x;
+    }
+    
+    template<typename T, typename... Ts>
+    void rd(T& x, Ts&... xs) { rd(x), rd(xs...); }
+    
+    template<typename T>
+    void rda(T* x, int l, int r) { rep(i, l, r) rd(x[i]); }
+    
+    template<typename T>
+    void rda(T* x, int n) { rep(i, 1, n) rd(x[i]); }
+    
+    void pc(const char &c) {
+        if (pf - puf == 1 << 20) fwrite(pf = puf, 1, 1 << 20, stdout);
+        *pf++ = c;
+    }
+    
+    void prt(char c) { pc(c); }
+    void prt(char* s) { while (*s) pc(*s++); }
+    void prt(const char* s) { while (*s) pc(*s++); }
+    void prt(bool b) { pc(b ? '1' : '0'); }
+    void prt(string s) { for (auto &&c : s) pc(c); }
+    
+    template<typename T> void prt(T x) {
+        static int st[41], tp = 0;
+        if (x == 0) { pc('0'); return; }
+        if (x < 0) x = -x, pc('-');
+        while (x) st[++tp] = x % 10, x /= 10;
+        while (tp) pc(st[tp--] + '0');
+    }
+    
+    template<int MOD> void prt(modint<MOD> x) { prt(x.num); }
+    
+    template<typename T> void prt(T *x) { while (*x) pc(*x++); }
+    
+    template<typename T, typename... Ts>
+    void prt(T x, Ts... xs) { prt(x), prt(xs...); }
+    
+    template<typename T> void prb(T x) { prt(x, ' '); }
+    
+    template<typename T> void prt(vector<T> vt) { for (auto x : vt) prb(x); }
+    
+    template<typename T, typename... Ts>
+    void prb(T x, Ts... xs) { prt(x, ' '), prb(xs...); }
+    
+    template<typename T> void prd(T x) { prt(x, '\n'); }
+    
+    template<typename T, typename... Ts>
+    void prd(T x, Ts... xs) { prt(x, ' '), prd(xs...); }
+} IO;
+
+#define rd IO.rd
+#define rda IO.rda
+#define rds IO.rds
+#define rdl IO.rdl
+#define ri rd<int>()
+#define rl rd<ll>()
+#define prt IO.prt
+#define prs(...) prt(__VA_ARGS__, '\n')
+#define prb IO.prb
+#define prd IO.prd
+#define edl IO.pc('\n')
+
+// #define MC
+
+#define N 250005
+#define mod 998244353
+#define inf 0x3f3f3f3f
+#define INF 0x3f3f3f3f3f3f3f3f
+
+using mint = modint<mod>;
+
+int n, m, B;
+int a[N];
+int bk[N], bl[N];
+struct Q { int l, r, x, i; } q[N];
+int ans[N];
+mint b[N], c[N];
+int t[N], s[N];
+mint fac[N], inv[N];
+
+void ins(int k) {
+    k = a[k];
+    t[k]++;
+    s[bk[k]]++;
+    b[k] *= inv[t[k]];
+    c[bk[k]] *= inv[t[k]];
+}
+
+void del(int k) {
+    k = a[k];
+    b[k] *= t[k];
+    c[bk[k]] *= t[k];
+    t[k]--;
+    s[bk[k]]--;
+}
+
+void mslv() {
+    rd(n, m), rda(a, n), B = 400;
+    rep(i, 1, m) rd(q[i].l, q[i].r, q[i].x), q[i].i = i;
+    rep(i, 1, n) bk[i] = (i - 1) / B + 1, b[i] = c[i] = 1;
+    per(i, n, 1) bl[bk[i]] = i;
+    sort(q + 1, q + m + 1, [](Q i, Q j) {
+        return bk[i.l] != bk[j.l] ? i.l < j.l
+             : (bk[i.l] & 1 ? i.r < j.r : i.r > j.r);
+    });
+    int L = 1, R = 0;
+    rep(j, 1, m) {
+        while (L > q[j].l) ins(--L);
+        while (R < q[j].r) ins(++R);
+        while (L < q[j].l) del(L++);
+        while (R > q[j].r) del(R--);
+        mint res = 1; int cnt = 0;
+        req(i, 1, bk[q[j].x]) res *= c[i], cnt += s[i];
+        req(i, bl[bk[q[j].x]], q[j].x) res *= b[i], cnt += t[i];
+        ans[q[j].i] = (res * fac[cnt]).num;
+    }
+    rep(i, 1, m) prs(ans[i]);
+}
+
+void mprw() {
+    n = N - 1, inv[0] = inv[1] = 1;
+    rep(i, 2, n) inv[i] = (mod - mod / i) * inv[mod % i];
+    fac[0] = 1; rep(i, 1, n) fac[i] = fac[i - 1] * i;
+}
+
+bool Med;
+
+int main() {
+    #ifdef JYR
+    errs("\033[1;34mRunning!\033[0;m");
+    freopen("Test.in", "r", stdin);
+    freopen("Test.out", "w", stdout);
+    #ifdef FILERR
+    freopen("Test.err", "w", stderr);
+    #endif
+    #endif
+    mprw();
+    #ifdef MC
+    int _ = ri;
+    while (_--) errs("------------------------------"), mslv();
+    errs("------------------------------");
+    #else
+    mslv();
+    #endif
+    #ifdef JYR
+    errm("%.3lfMB ", abs(&Med - &Mbe) / 1048576.);
+    errm("%.0lfms\n", clock() * 1000. / CLOCKS_PER_SEC);
+    #endif
+    return 0;
+}

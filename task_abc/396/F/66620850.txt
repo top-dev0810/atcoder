@@ -1,0 +1,41 @@
+#include<bits/stdc++.h>
+#define int long long
+#define N 200010
+using namespace std;
+int n,m,a[N],b[N],t[N];
+vector<int>v[N];
+#define lowbit(x) x&(-x)
+void add(int x,int y){
+	for(;x<=m;x+=lowbit(x)){
+		t[x]+=y;
+	}
+}
+int sum(int x){
+	int res=0;
+	for(;x;x-=lowbit(x)){
+		res+=t[x];
+	}
+	return res;
+}
+signed main(){
+	scanf("%lld%lld",&n,&m);
+	for(int i=1;i<=n;i++){
+		scanf("%lld",&a[i]);
+		a[i]%=m;
+		v[a[i]].push_back(i);
+		b[0]+=sum(m)-sum(a[i]+1);
+		add(a[i]+1,1);
+	}
+	for(int i=1;i<=n;i++){
+		if(!a[i])continue;
+		int p=lower_bound(v[a[i]].begin(),v[a[i]].end(),i)-v[a[i]].begin();
+		int bef=p,aft=v[a[i]].size()-p-1;
+		bef=i-1-bef,aft=n-i-aft;
+		b[m-a[i]]+=(bef-aft);
+	}
+	for(int i=0;i<m;i++){
+		if(i)b[i]+=b[i-1];
+		printf("%lld\n",b[i]);
+	}
+	return 0;
+}

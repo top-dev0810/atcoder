@@ -1,0 +1,25 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+using ll = long long;
+using ld = long double;
+#define rep(i,l,r) for(ll i=l;i<r;++i)
+#define all(x) x.begin(), x.end()
+#define yes cout << "Yes\n"
+#define no cout << "No\n"
+
+int main(){
+    int n;
+    cin >> n;
+    vector<pair<int,string>> s(n);
+    rep(i,0,n){
+        cin >> s[i].second;
+        s[i].first = s[i].second.size();
+    }
+    sort(all(s));
+    rep(i,0,n){
+        cout << s[i].second;
+    }
+    cout << endl;
+
+}

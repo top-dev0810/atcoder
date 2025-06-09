@@ -1,0 +1,125 @@
+/**
+ *  Dedicated to Shree DR.MDD
+ */
+
+#include "bits/stdc++.h"
+using namespace std;
+#define all(x) x.begin(),x.end()
+template<typename A, typename B> ostream& operator<<(ostream &os, const pair<A, B> &p) { return os << p.first << " " << p.second; }
+template<typename T_container, typename T = typename enable_if<!is_same<T_container, string>::value, typename T_container::value_type>::type> ostream& operator<<(ostream &os, const T_container &v) { string sep; for (const T &x : v) os << sep << x, sep = " "; return os; }
+#ifdef LOCAL
+#include "debug.h"
+#else
+#define debug(...) 42
+#define ASSERT(...) 42
+#endif
+typedef long long ll;
+typedef vector<int> vi;
+typedef vector<vi> vvi;
+typedef pair<int,int> pi;
+const int oo = 1e9;
+long long MOD = 1e9+7;
+struct modint {
+    int d;
+    modint () {d=0;}
+    modint (long long _d) : d(_d%MOD){
+        if(d<0) d+=MOD;
+    };
+    friend modint& operator+=(modint& a, const modint& o) {
+        a.d+=o.d; if(a.d>=MOD) a.d-=MOD;
+        return a;
+    }
+    friend modint& operator-=(modint& a, const modint& o) {
+        a.d-=o.d; if(a.d<0) a.d+=MOD;
+        return a;
+    }
+    friend modint& operator*=(modint& a, const modint& o) {
+        return a = modint((ll)a.d*o.d);
+    }
+    modint operator*(const modint& o) const {
+        modint res = *this;
+        res*=o;
+        return res;
+    }
+    modint operator+(const modint& o) const {
+        modint res = *this;
+        res+=o;
+        return res;
+    }
+    modint operator-(const modint& o) const {
+        modint res = *this;
+        res-=o;
+        return res;
+    }
+    modint operator^(long long b) const {
+        modint tmp = 1;
+        modint power = *this;
+        while(b) {
+            if(b&1) {
+                tmp = tmp*power;
+            }
+            power = power*power;
+            b/=2;
+        }
+        return tmp;
+    }
+    friend modint operator/=(modint& a, const modint& o) {
+        a *= (o^(MOD-2));
+        return a;
+    }
+    modint operator/(const modint& o) {
+        modint res = *this;
+        res/=o;
+        return res;
+    }
+    auto operator<=>(const modint& o) const { return d<=>o.d;}
+    friend istream& operator>>(istream& c, modint& a) {return c >> a.d;}
+    friend ostream& operator<<(ostream& c, const modint& a) {return c << a.d;}
+};
+using mint = modint;
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    int a,b; cin >> a >> b >> MOD;
+    unordered_map<string,mint> mp;
+    string done(a,b);
+    auto f = [&](auto&& self, string shape) -> mint {
+        if(mp.count(shape)) {
+            return mp[shape];
+        }
+        auto& res = mp[shape];
+        if(shape==done) {
+            return res=1;
+        }
+        for(int i=0;i<a;++i) {
+            if((i==0 or shape[i]<shape[i-1]) and shape[i]<b) {
+                shape[i]++;
+                res+=self(self,shape);
+                shape[i]--;
+            }
+        }
+        return res;
+    };
+    unordered_map<string,mint> mpg[2] = {};
+    auto g = [&](auto&& self, string shape, bool placed=0) -> mint {
+        if(mpg[placed].count(shape)) {
+            return mpg[placed][shape];
+        }
+        auto& res = mpg[placed][shape];
+        if(shape==done) {
+            return res=1;
+        }
+        for(int i=0;i<a;++i) {
+            if((i==0 or shape[i]<shape[i-1]) and shape[i]<b) {
+                if(placed and i!=a-1) continue;
+                shape[i]++;
+                res+=self(self,shape, i==a-1 and shape[i]==1);
+                shape[i]--;
+            }
+        }
+        return res;
+    };
+    auto ans = f(f,string(a,0));
+    auto ans2 = g(g,string(a,0));
+    cout << ans*ans2 << '\n';
+}

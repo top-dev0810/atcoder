@@ -1,0 +1,65 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+long sum=0;
+
+bool inc(const list<int>& l) { return l.front()<l.back(); }
+bool dec(const list<int>& l) { return l.front()>l.back(); }
+
+void compress(list<list<int>>& ll) {
+  for (auto it=next(ll.begin()); it!=ll.end(); ++it) {
+    if (prev(it)->empty())
+      ll.erase(prev(it));
+    if (prev(it)==ll.end())
+      continue;
+    if (prev(it)->back() <= it->front() && !dec(*prev(it)) && !dec(*it) ||
+        prev(it)->back() >= it->front() && !inc(*prev(it)) && !inc(*it)) {
+      prev(it)->splice(prev(it)->end(),*it);
+    } 
+  }
+  if (auto it=prev(ll.end()); it->empty())
+    ll.erase(it);
+}
+
+void compare(list<list<int>>& ll) {
+  for (auto it=next(ll.begin()); ; ++it) {
+    if (it!=ll.end()) {
+      if (prev(it)->back() < it->front()) {
+        sum+=it->front();
+        it->push_front(it->front());
+      } else {
+        sum+=prev(it)->back();
+        prev(it)->push_back(prev(it)->back());
+      }
+    }
+    if (prev(it)->front() < prev(it)->back()) {
+      sum-=prev(it)->front();
+      prev(it)->pop_front();
+    } else {
+      sum-=prev(it)->back();
+      prev(it)->pop_back();
+    }
+    if (it==ll.end())
+      break;
+  }
+}
+
+int main(int argc, char* argv[]) {
+  int N;
+  cin>>N;
+  list<list<int>> ll;
+  for (int i=0; i<N; ++i) {
+    int a;
+    cin>>a;
+    ll.push_back(list<int>{a});
+    sum+=a;
+  }
+  for (int k=1; k<N+1; ++k) {
+    compress(ll);
+    if (k>1)
+      compare(ll);
+    cout<<sum<<'\n';
+  }
+}
+
+

@@ -1,0 +1,128 @@
+#include <bits/stdc++.h>
+using namespace std;
+const int p = 998244353;
+inline char add(char x, char y) {
+    if (x == '!' || y == '!') return '!';
+    else if (x == '?') return y;
+    else if (y == '?') return x;
+    else if (x == y) return x;
+    else return '!';
+}
+inline int val(char x) {
+    if (x == '!') return 0;
+    else if (x == '?') return 26;
+    else return 1;
+}
+inline int cnt(string str) {
+    int len = str.length();
+    int ans = 1;
+    for (int i = 0; i < len; i++) {
+        ans = (long long) ans * val(str[i]) % p;
+    }
+    return ans;
+}
+inline int cntp(string str) {
+    int len = str.length();
+    int ans = 1;
+    for (int i = 0, j = len - 1; i <= j; i++, j--) {
+        ans = (long long) ans * val(add(str[i], str[j])) % p;
+    }
+    return ans;
+}
+inline string meg(string lhs, string rhs) {
+    int len = lhs.length();
+    string ans;
+    for (int i = 0; i < len; i++) {
+        ans += add(lhs[i], rhs[i]);
+    }
+    return ans;
+}
+inline string rev(string lhs) {
+    int len = lhs.length();
+    string ans;
+    for (int i = len - 1; i >= 0; i--) {
+        ans += lhs[i];
+    }
+    return ans;
+}
+int n, m, ans;
+string str, arr[50010], lef[50010], rig[50010];
+inline int μ(int x) {
+    int ans = 1;
+    for (int i = 2; i * i <= x; i++) {
+        if (!(x % i)) {
+            int c = 0;
+            while (!(x % i)) {
+                c++;
+                x /= i;
+            }
+            if (c >= 2) {
+                ans = 0;
+            } else {
+                ans = -ans;
+            }
+        }
+    }
+    if (x != 1) {
+        ans = -ans;
+    }
+    return ans;
+}
+inline void split(int x) {
+    m = n / x;
+    for (int i = 1; i <= m; i++) {
+        arr[i] = "";
+        for (int j = 1; j <= x; j++) {
+            arr[i] += str[(i-1)*x+j-1];
+        }
+    }
+    int M = μ(m);
+    if (M) {
+        string cur = arr[1];
+        for (int i = 2; i <= m; i++) {
+            cur = meg(cur, arr[i]);
+        }
+        int tmp = cntp(cur);
+        if (M == 1) {
+            ans = (ans + p - tmp) % p;
+        } else {
+            ans = (ans + tmp) % p;
+        }
+    }
+    if (!(m & 1)) {
+        lef[1] = arr[1];
+        for (int i = 2; i <= m; i++) {
+            if (i & 1) {
+                lef[i] = meg(lef[i-1], arr[i]);
+            } else {
+                lef[i] = meg(lef[i-1], rev(arr[i]));
+            }
+        }
+        rig[m] = arr[m];
+        for (int i = m - 1; i >= 1; i--) {
+            if (i & 1) {
+                rig[i] = meg(rig[i+1], rev(arr[i]));
+            } else {
+                rig[i] = meg(rig[i+1], arr[i]);
+            }
+        }
+        for (int i = 1; i <= m; i += 2) {
+            if (__gcd(i, m) == 1) {
+                string t = meg(lef[i], rig[i+1]);
+                ans = ((ans + cnt(t) - cntp(t)) % p + p) % p;
+            }
+        }
+    }
+}
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    cin >> n >> str;
+    for (int i = 1; i < n; i++) {
+        if (!(n % i)) {
+            split(i);
+        }
+    }
+    cout << ans << endl;
+    return 0;
+}

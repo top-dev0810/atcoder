@@ -1,0 +1,82 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define mid ((l+r)>>1)
+#define ls(p) (p<<1)
+#define rs(p) (p<<1|1)
+#define lowbit(i) ((i)&(-i))
+#define double long double
+const int inf=1e18;
+const int mod=998244353;
+int fast(int x,int k,int mod)
+{
+	int ret=1;
+	while(k)
+	{
+		if(k&1) ret=ret*x%mod;
+		x=x*x%mod;
+		k>>=1;
+	}
+	return ret;
+}
+void solve()
+{
+	int n;cin>>n;
+	vector<vector<int> > eg(n+1);
+	for(int i=1;i<n;++i)
+	{
+		int x,y;
+		cin>>x>>y;
+		eg[x].emplace_back(y);
+		eg[y].emplace_back(x);
+	}
+	vector dp(n+1,vector<int>(n+1));
+	vector g(n+1,vector<int>(2));
+	vector<int> fac(n+1);
+	fac[0]=1;
+	for(int i=1;i<=n;++i)
+	{
+		fac[i]=fac[i-1]*i%mod;
+	}
+	function<void(int,int)> dfs=[&](int now,int fa) -> void
+	{
+		// vector<int>
+		int tot=0;
+		dp[now][0]=1;
+		for(int t:eg[now])
+		{
+			if(t==fa) continue;
+			dfs(t,now);
+			++tot;
+			for(int j=tot;j>=0;--j)
+			{
+				dp[now][j]=dp[now][j]*g[t][0];
+				if(j>0) dp[now][j]+=dp[now][j-1]*g[t][1];
+				dp[now][j]%=mod;
+			}
+		}
+		for(int j=0;j<=tot;++j)
+		{
+			(g[now][1]+=dp[now][j]*fac[j+1])%=mod;
+			(g[now][0]+=dp[now][j]*fac[j])%=mod;
+		}
+		// if(now==2)
+		// {
+		// 	cout<<dp[now][0]<<' '<<dp[now][1]<<"!!!!!!!!"<<endl;
+		// }
+		// cout<<now<<' '<<g[now][0]<<' '<<g[now][1]<<endl;
+	};
+	dfs(1,0);
+	cout<<g[1][0]<<'\n';
+	// cout<<ans%mod<<'\n';
+
+}
+signed main()
+{
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	int T=1;
+	// cin>>T;
+	while(T--) solve();
+	return 0;
+}

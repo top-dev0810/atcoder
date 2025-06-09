@@ -1,0 +1,97 @@
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int MOD = 998244353;
+#ifdef int
+#define inf 0x3f3f3f3f3f3f3f3f
+#else
+#define inf 0x3f3f3f3f
+#endif
+const long long infll = 0x3f3f3f3f3f3f3f3f;
+#define pii pair<int, int>
+#define mkp(x, y) make_pair(x, y)
+
+#ifndef LOCAL
+#define SUBMIT
+#endif
+
+#ifdef SUBMIT
+#define endl '\n'
+// #define cin Fastio ::cin
+// #define cout Fastio ::cout
+#endif
+
+template <typename T>
+void read(vector<T> &vec)
+{
+    for (auto &x : vec)
+    {
+        cin >> x;
+    }
+}
+
+int qpow(int n, int k)
+{
+    int res = 1;
+    while (k)
+    {
+        if (k & 1)
+            (res *= n) %= MOD;
+        (n *= n) %= MOD;
+        k >>= 1;
+    }
+    return res;
+}
+
+map<array<int, 5>, int> dp[100];
+
+void work()
+{
+    int n, m;
+    cin >> n >> m;
+    string s;
+    cin >> s;
+    s = s;
+    dp[0][{0, 0, 0, 0, 0}] = 1;
+    for (int i = 0; i < n; i++)
+    {
+        for (auto x : dp[i])
+        {
+            if (s[i] != 'B' && s[i] != 'C')
+            {
+                (dp[i + 1][{x.first[3] + 1, x.first[2], x.first[1], x.first[0], x.first[4] + x.first[0]}] += x.second) %= MOD;
+            }
+            if (s[i] != 'A' && s[i] != 'C')
+            {
+                (dp[i + 1][{x.first[2], x.first[3] + 1, x.first[0], x.first[1], x.first[4] + x.first[1]}] += x.second) %= MOD;
+            }
+            if (s[i] != 'A' && s[i] != 'B')
+            {
+                (dp[i + 1][{x.first[1], x.first[0], x.first[3] + 1, x.first[2], x.first[4] + x.first[2]}] += x.second) %= MOD;
+            }
+        }
+    }
+    int ans = 0;
+    for (auto x : dp[n])
+    {
+        if (x.first[4] >= m)
+            ans += x.second;
+    }
+    cout << ans % MOD << endl;
+}
+
+signed main()
+{
+#ifndef cin
+#ifdef SUBMIT
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#endif
+#endif
+    int t = 1;
+    // cin>>t;
+    while (t--)
+    {
+        work();
+    }
+}

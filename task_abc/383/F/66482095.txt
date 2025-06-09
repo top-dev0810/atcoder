@@ -1,0 +1,40 @@
+/**
+ *    author:  wxhtzdy
+ *    created: 06.06.2025 11:00:01
+**/
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  int n, x, k;
+  cin >> n >> x >> k;
+  vector<int> p(n), u(n), c(n);
+  for (int i = 0; i < n; i++) {
+    cin >> p[i] >> u[i] >> c[i];
+    --c[i];
+  }
+  vector<vector<int>> at(n);
+  for (int i = 0; i < n; i++) {
+    at[c[i]].push_back(i);
+  }
+  const int64_t inf = 1e18;
+  vector<int64_t> dp(x + 1, -inf);
+  dp[0] = 0;
+  for (int col = 0; col < n; col++) {
+    vector<int64_t> new_dp(x + 1, -inf);
+    for (int i : at[col]) {
+      for (int s = x; s >= p[i]; s--) {
+        new_dp[s] = max(new_dp[s], dp[s - p[i]] + k + u[i]);
+        new_dp[s] = max(new_dp[s], new_dp[s - p[i]] + u[i]);
+      }
+    }
+    for (int s = 0; s <= x; s++) {
+      dp[s] = max(dp[s], new_dp[s]);
+    }
+  }
+  cout << *max_element(dp.begin(), dp.end()) << '\n';
+  return 0;
+}

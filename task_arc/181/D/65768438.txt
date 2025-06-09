@@ -1,0 +1,89 @@
+#include <bits/stdc++.h>
+
+#define i64 long long
+#define pii pair<int, int>
+#define pll pair<i64, i64>
+#define int128 __int128_t
+#define ull unsigned long long
+#define ld long double
+using namespace std;
+
+constexpr i64 mod = 998244353;
+
+struct BIT{
+    vector<int>a;int n;
+    BIT(){}
+    BIT (int n)
+    {
+        this->n=n;
+        init(n);
+    }
+    void init(int n)
+    {
+        a.resize(n+1,0);
+    }
+    void add(int x,int v)
+    {
+        for(int i=x;i<=n;i+=(i&(-i))) a[i]+=v;
+    }
+    int ask(int x)
+    {
+        int res=0;
+        for(int i=x;i>0;i-=(i&(-i))) res+=a[i];
+        return res;
+    }
+    int ask(int l,int r)
+    {
+        return ask(r)-ask(l-1);
+    }
+    int query(i64 x)//查询1...pos的和小于x的最大值
+    {
+        i64 h=ceil(log2(n)),pos=0,t=0;
+        for(int j=h;j>=0;j--)//从大到小
+        {
+            if(pos + (1<<j) <=n && t + a[pos+(1<<j)] <= x)
+            {
+                pos+=(1<<j);
+                t+=a[pos];
+            }
+        }
+        return pos;
+    }
+};
+int main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    cout << fixed << setprecision(15);
+
+    int n;cin>>n;
+    vector<int>a(n+1);
+    for(int i=1;i<=n;i++) cin>>a[i];
+    BIT bit(n);
+    vector<int>inv(n+1);
+    i64 ans=0;
+    for(int i=1;i<=n;i++)
+    {
+        inv[i]=bit.ask(a[i]+1,n);
+        bit.add(a[i],1);
+        ans+=inv[i];
+    }
+    int m;cin>>m;
+    vector<int>b(m+1),d(m+2);
+    for(int i=1;i<=m;i++) cin>>b[i];
+    for(int i=1;i<=n;i++)
+    {
+        auto it=lower_bound(b.begin()+1,b.end(),i)-b.begin();
+        d[it]++,d[min(m+1,(int)it+inv[i])]--;
+    }
+    for(int i=1;i<=m;i++)
+    {
+        d[i]+=d[i-1];
+        ans-=d[i];
+        cout<<ans<<"\n";
+    }
+    return 0;
+}
+/*
+
+*/

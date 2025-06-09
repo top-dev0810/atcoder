@@ -1,0 +1,27 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    int n;
+    vector <int> a(5);
+    for (auto& x : a) cin >> x;
+
+    int c = 0;
+    for (int i = 0; i < 5; i++) {
+        if (a[i] != i + 1) c++;
+    }
+    if (c != 2) {
+        cout << "No" << endl;
+        return 0; 
+    }
+
+
+    bool can = false;
+    for (int i = 0; i < 4; i++){
+        if(a[i] == i + 2)
+            if (a[i + 1] == i + 1) can = true;
+    }
+
+    cout << (can? "Yes": "No") << endl;
+    return 0;
+}

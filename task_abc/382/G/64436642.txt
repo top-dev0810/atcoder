@@ -1,0 +1,288 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define rep(i, l, r) for (int i = l; i < (int)(r); i++)
+
+using vi = vector<int>; using vvi = vector<vi>; using vvvi = vector<vvi>;
+using vs = vector<string>;
+using vc = vector<char>;
+using vvc = vector<vector<char>>;
+using ll = long long;
+using vl = vector<ll>; using vvl = vector<vl>; using vvvl = vector<vvl>;
+using pii = pair<int, int>;
+using pll = pair<ll, ll>;
+
+template<typename T>
+void v_cout(T &vec) {
+    for (auto k : vec) cout << k << ' ';
+    cout << endl;
+    return;
+}
+
+template<typename S>
+void vv_cout(S &vec) {
+    for (auto v : vec) {
+        for (auto k : v) cout << k << ' ';
+        cout << endl;
+    }
+    return;
+}
+template<typename T>
+void chmax(T &a, T b) { a = max(a, b);}
+template<typename T>
+void chmin(T &a, T b) { a = min(a, b);}
+//getlineの使い方： getline(cin, (stringの変数名))
+//#pragma GCC optimize("Ofast")
+//--------------------------------------------------
+ll solve(ll K, ll sx, ll sy, ll tx, ll ty) {
+    ll adjust = 10010010010010010;
+    adjust /= K; adjust++; adjust *= K;
+    sx += adjust;
+    sy += adjust;
+    tx += adjust;
+    ty += adjust;
+    //cout << sx << ' ' << sy << ' ' << tx << ' ' << ty << endl;
+    ll sa = sx / K; ll sb = sy / K;
+    ll ta = tx / K; ll tb = ty / K;
+    if(sa == ta && sb == tb) {
+        ll ans = 2;
+        if((sa + sb) % 2 == 0) chmin(ans, abs(sy - ty));
+        else chmin(ans, abs(sx - tx));
+        //cout << ans << endl;
+        return ans;
+    }
+    using tll = tuple<ll, ll, ll, ll>;
+    auto get = [&](ll x, ll y) -> vector<tll> {
+        vector<tll> res(4);
+        ll a = x / K; ll b = y / K;
+        if((a + b) % 2 == 0) {
+            res[0] = tll(a - 1, b, 1, 1);
+            res[1] = tll(a + 1, b, 0, 1);
+            res[2] = tll(a, b, 1, b * K + K - 1 - y);
+            res[3] = tll(a, b, 0, y - b * K);
+        } else {
+            res[0] = tll(a, b - 1, 1, 1);
+            res[1] = tll(a, b + 1, 0, 1);
+            res[2] = tll(a, b, 1, a * K + K - 1 - x);
+            res[3] = tll(a, b, 0, x - a * K);
+        }
+        return res;
+    };
+    auto sv = get(sx, sy);
+    auto tv = get(tx, ty);
+    auto f2 = [&](ll a1, ll b1, ll a2, ll b2) -> ll {
+        ll l1 = abs(a1 - a2);
+        ll l2 = abs(b1 - b2); //abs(a2 - b2) にしていた。
+        if(l1 > l2) swap(l1, l2);
+        ll ans = min<ll>(K + 1, 4);
+        ans *= l2 - l1; ans /= 2;
+        ans += l1 * 2;
+        return ans; 
+    };
+    auto f = [&](ll a1, ll b1, ll t1, ll a2, ll b2, ll t2) -> ll {
+        if(abs(a1 + b1) % 2 == 1 && t1 == 1) {
+            t1 = 0;
+            a2 = a1 * 2 - a2;
+            if(abs(a2 + b2) % 2 == 1) t2 = 1 - t2;
+        }
+        if(abs(a1 + b1) % 2 == 0 && t1 == 0) {
+            ll l1 = a2 - a1; ll l2 = b2 - b1;
+            a2 = a1 + l2; b2 = b1 - l1;
+            a1++; a2++;
+            if(abs(a2 + b2) % 2 == 0) t2 = 1 - t2;
+        }
+        if(abs(a1 + b1) % 2 == 0 && t1 == 1) {
+            t1 = 0;
+            ll l1 = a2 - a1; ll l2 = b2 - b1;
+            a2 = a1 - l2; b2 = b1 + l1;
+            a1++; a2++;
+            if(abs(a2 + b2) % 2 == 1) t2 = 1 - t2; //(a2 + b2) % 2 == 0 にしていた
+        }
+        //cout << a1 << ' ' << b1 << ' ' << t1 << endl;
+        //cout << a2 << ' ' << b2 << ' ' << t2 << endl;
+        vi dx1 = {-2, -1, -1, 0, 0, 0};
+        vi dy1 = {0, 1, -1, 2, 0, -2};
+        vi dx2 = {-1, 0, 0, 1};
+        vi dy2 = {0, 1, -1, 0};
+        if(abs(a2 + b2) % 2 == 1 && t2 == 0) { //t1 == 0 にしていた。
+            return f2(a1, b1, a2, b2);
+        }
+        if(abs(a2 + b2) % 2 == 1 && t2 == 1) {
+            ll res = 1001001001001001001;
+            vl cost = {2, 2, 2, 4, 2, 4};
+            if(K == 2) cost = {2, 2, 2, 3, 1, 3};
+            rep(i, 0, 6) {
+                ll na1 = a1 + dx1[i];
+                ll nb1 = b1 + dy1[i];
+                ll now = f2(na1, nb1, a2, b2);
+                now += cost[i];
+                chmin(res, now);
+            }
+            return res;
+        }
+        if(abs(a2 + b2) % 2 == 0 && t2 == 0) {
+            ll res = 1001001001001001001;
+            vl cost = {1, 1, 3, 3};
+            if(K == 2) cost = {1, 1, 2, 2};
+            rep(i, 0, 4) {
+                ll na1 = a1 + dx2[i];
+                ll nb1 = b1 + dy2[i];
+                ll now = f2(na1, nb1, a2, b2);
+                now += cost[i];
+                chmin(res, now);
+            }
+            return res;
+        }
+        if(abs(a2 + b2) % 2 == 0 && t2 == 1) {
+            ll res = 1001001001001001001;
+            vl cost = {1, 3, 1, 3};
+            if(K == 2) cost = {1, 2, 1, 2};
+            rep(i, 0, 4) {
+                ll na1 = a1 + dx2[i];
+                ll nb1 = b1 + dy2[i];
+                ll now = f2(na1, nb1, a2, b2);
+                now += cost[i];
+                //cout << now << endl;
+                chmin(res, now);
+            }
+            return res;
+        }
+        return 0;
+    };
+    auto tout = [](tll A) -> void {
+        auto [a, b, c, d] = A;
+        cout << a << ' ' << b << ' ' << c << ' ' << d << endl;
+    };
+    //for(auto a : sv) tout(a); for(auto b : tv) tout(b);
+    ll ans = 1001001001001001001;
+    for(auto [a1, b1, t1, d1] : sv) for(auto [a2, b2, t2, d2] : tv) {
+        ll now = d1 + d2;
+        now += f(a1, b1, t1, a2, b2, t2);
+        if(now == 3) {
+            //cout << a1 << ' ' << b1 << ' ' << t1 << endl;
+            //cout << a2 << ' ' << b2 << ' ' << t2 << endl;
+        }
+        chmin(ans, now);
+    }
+    //cout << ans << endl;
+    return ans;
+}
+ll solve2(ll k, ll sx, ll sy, ll tx, ll ty) {
+    if (sx > tx) {
+        sx = k-1-sx;
+        tx = k-1-tx;
+      }
+      if (sy > ty) {
+        sy = k-1-sy;
+        ty = k-1-ty;
+      }
+      ll sxr = sx%(k*2), syr = sy%(k*2);
+      if (sxr < 0) sxr += k*2;
+      if (syr < 0) syr += k*2;
+      tx += sxr-sx, ty += syr-sy, sx = sxr, sy = syr;
+      if (sx >= k && sy >= k) {
+        sx -= k, sy -= k, tx -= k, ty -= k;
+      } else if (sx >= k && sy < k) {
+        swap(sx, sy), swap(tx, ty);
+        sy -= k, ty -= k;
+      } else if (sx < k && sy >= k) {
+        swap(sx, sy), swap(tx, ty);
+        sx -= k, tx -= k;
+      }
+      assert(sx <= tx && sy <= ty);
+      // cout << sx << " " << sy << " " << tx << " " << ty << endl;
+      if (tx < k && ty < k) {
+        //cout << min(2LL, ty-sy) << endl;
+        return min(2LL, ty-sy);
+      }
+      ll x = tx/k, y = ty/k;
+      if (k == 2) {
+        if (x > y) {
+          if (x%2 == y%2) {
+            //cout << y*2 + ((x-y)/2)*3 << endl;
+            return y*2 + ((x-y)/2)*3;
+          } else {
+            ll val = y*2 + (((x-1)-y)/2)*3;
+            if (tx%2 == 1) val += 2;
+            else val += 1;
+            //cout << val << endl;
+            return val;
+          }
+        }
+        ll val = 0;
+        if (x%2 != y%2) {
+          val = (x+1)*2 + ((y-x-1)/2)*3;
+        } else {
+          val = (x+1)*2 + (((y+1)-x-1)/2)*3;
+          if (ty%2 == 1) val -= 1;
+          else val -= 2;
+        }
+        if (sy == 1 && (x < y || (x == y && (ty%2 == 1)))) {
+          val -= 1;
+        }
+        //cout << val << endl;
+        return val;
+      }
+      if (x > y) {
+        if (x%2 == y%2) {
+          //cout << x*2 << endl;
+          return x * 2;
+        } else {
+          ll val = (x+1)*2;
+          if (tx%k == 0) val -= 3;
+          else if (tx%k == 1) val -= 2;
+          else val -= 1;
+          //cout << val << endl;
+          return val;
+        }
+      }
+      ll val = 0;
+      if (x%2 != y%2) {
+        val = 2*y+1;
+      } else {
+        val = 2*(y+1)+1;
+        if (ty%k == 0) val -= 3;
+        else if (ty%k == 1) val -= 2;
+        else val -= 1;
+      }
+      if (sy >= k-2 && (x < y || (x == y && (ty%k >= 2)))) {
+        val -= 1;
+      }
+      if (sy >= k-1 && (x < y || (x == y && (ty%k >= 1)))) {
+        val -= 1;
+      }
+      //cout << val << endl;
+      return val;
+}
+
+ll mr() {
+    ll num_intervals = 100; // 区間の数
+    ll min_value = -10010010010010010;       // 区間の左端の最小値
+    ll max_value = 10010010010010010;     // 区間の右端の最大値
+    int res = min_value + std::rand() % (max_value - min_value + 1);
+    return res;
+}
+int main() {
+    int T;
+    cin >> T;
+    rep(ti, 0, T) {
+        ll K, sx, sy, tx, ty;
+        cin >> K >> sx >> sy >> tx >> ty;
+        ll ans1 = solve(K, sx, sy, tx, ty);
+        ll ans2 = solve2(K, sx, sy, tx, ty);
+        cout << ans1 << endl;
+        if(ans1 != ans2) {
+            //assert(K <= 10);
+            //return 0;
+        }
+    }
+    std::srand(static_cast<unsigned int>(std::time(0))); // 乱数のシードを設定
+    rep(i, 0, 0) {
+        ll a = mr(); ll b = mr(); ll c = mr(); ll d = mr(); ll e = mr();
+        // a = 2;
+        ll ans1 = solve(a, b, c, d, e);
+        ll ans2 = solve2(a, b, c, d, e);
+        if(ans1 != ans2) {
+            cout << a << ' ' << b << ' ' << c << ' ' << d << ' ' << e << endl;
+        }
+    }
+}

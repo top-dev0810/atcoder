@@ -1,0 +1,99 @@
+#include <bits/stdc++.h>
+using namespace std;
+using int64 = long long;
+
+vector<int64> prefix_best(const vector<int64>& a) {
+    int n = a.size();
+    vector<int64> best(n + 1, 0);
+    priority_queue<int64> low; 
+    priority_queue<int64, vector<int64>, greater<int64>> high;
+    int64 sumLow = 0, sumHigh = 0;
+
+    for (int i = 0; i < n; ++i) {
+        int64 x = a[i];
+        if (!high.empty() && x > high.top()) {
+            high.push(x);
+            sumHigh += x;
+        } else {
+            low.push(x);
+            sumLow += x;
+        }
+
+        int len = i + 1;
+
+        while ((int)high.size() > len / 2) {
+            int64 v = high.top(); high.pop();
+            sumHigh -= v;
+            low.push(v);
+            sumLow += v;
+        }
+        while ((int)high.size() < len / 2) {
+            int64 v = low.top(); low.pop();
+            sumLow -= v;
+            high.push(v);
+            sumHigh += v;
+        }
+        if (len % 2 == 0) best[len] = sumHigh - sumLow;
+    }
+    return best;
+}
+
+vector<int64> suffix_best(const vector<int64>& a) {
+    int n = a.size();
+    vector<int64> best(n + 1, 0);
+    priority_queue<int64> low;
+    priority_queue<int64, vector<int64>, greater<int64>> high;
+    int64 sumLow = 0, sumHigh = 0;
+
+    for (int i = n - 1; i >= 0; --i) {
+        int64 x = a[i];
+        if (!high.empty() && x > high.top()) {
+            high.push(x);
+            sumHigh += x;
+        } else {
+            low.push(x);
+            sumLow += x;
+        }
+
+        int len = n - i;
+        while ((int)high.size() > len / 2) {
+            int64 v = high.top(); high.pop();
+            sumHigh -= v;
+            low.push(v);
+            sumLow += v;
+        }
+        while ((int)high.size() < len / 2) {
+            int64 v = low.top(); low.pop();
+            sumLow -= v;
+            high.push(v);
+            sumHigh += v;
+        }
+        if (len % 2 == 0) best[i] = sumHigh - sumLow;
+    }
+    return best;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    int N;
+    if (!(cin >> N)) return 0;
+    vector<int64> A(N);
+    for (auto &x: A) cin >> x;
+
+    if (N % 2 == 0) {
+        auto pre = prefix_best(A);
+        cout << pre[N] << '\n';
+        return 0;
+    }
+
+    auto pre = prefix_best(A);
+    auto suf = suffix_best(A);
+
+    int64 ans = 0;
+    for (int p = 0; p < N; p += 2) {
+        ans = max(ans, pre[p] + suf[p + 1]);
+    }
+    cout << ans << '\n';
+    return 0;
+}

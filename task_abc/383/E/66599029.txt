@@ -1,0 +1,59 @@
+#include<bits/stdc++.h>
+using namespace std;
+long long s=0,n,m,k,b[200100],c[200100],d[200100];
+struct jg
+{
+    long long x,y,z;
+}a[200100];
+bool cp(jg a,jg b)
+{
+    return a.z<b.z;
+}
+int fi(int x)
+{
+    if(x==b[x])
+    {
+        return x;
+    }
+    b[x]=fi(b[x]);
+    return b[x];
+}
+int main()
+{
+    cin>>n>>m>>k;
+    for(int i=1;i<=m;i++)
+    {
+        cin>>a[i].x>>a[i].y>>a[i].z;
+    }
+    for(int i=1,x;i<=k;i++)
+    {
+        cin>>x;
+        c[x]++;
+    }
+    for(int i=1;i<=n;i++)
+    {
+        b[i]=i;
+    }
+    for(int i=1,x;i<=k;i++)
+    {
+        cin>>x;
+        d[x]++;
+    }
+    sort(a+1,a+m+1,cp);
+    for(int i=1;i<=m;i++)
+    {
+        int x=fi(a[i].x),y=fi(a[i].y);
+        if(x!=y)
+        {
+            b[y]=x;
+            c[x]+=c[y];
+            d[x]+=d[y];
+            long long v=min(d[x],c[x]);
+            d[x]-=v,c[x]-=v;
+            s+=a[i].z*v;
+            //cout<<a[i].x<<' '<<a[i].y<<' '<<v<<"\n";
+        }
+    }
+    cout<<s;
+    return 0;
+}

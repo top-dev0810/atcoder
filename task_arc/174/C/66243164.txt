@@ -1,0 +1,58 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+typedef long long ll;
+typedef pair<ll,ll> P;
+typedef long double ld;
+
+#define pb push_back
+#define fi first
+#define se second
+#define all(vl) vl.begin(),vl.end()
+#define forn(mp,it) for(it = mp.begin();it!=mp.end();it++)
+#define FOR(i,a,n) for(ll i=a;i<ll(n);i++)
+#define FORE(i,a,n) FOR(i,a,n+1)
+#define FORD(i,n,a) for(ll i = n;i>=a;i--)
+
+const double one = 1.0;
+const double PI = 3.14159265/*358979323846*/;
+const ld eps = 1e-14;
+const ll INF = 1e18;
+/*
+const ll mod1 = 1000000007;
+const ll hash_time1 = 1877;
+const ll hash_time2 = 3343;
+*/
+const ll maxn = 1e6 + 10;
+const ll mod = 998244353;
+
+ll qp(ll a,ll b)
+{
+	ll ret = 1;
+	while(b)
+	{
+		if(b &1)ret = (ret*a)%mod;
+		a = (a*a)%mod;
+		b >>= 1;
+	}
+	return ret;
+}
+
+ll n;
+ll dp1[maxn],dp2[maxn],p;
+
+int main()
+{
+ 	ios_base::sync_with_stdio(0);
+ 	cin.tie(0);
+ 	cout.tie(0);
+ 	cin>> n;
+ 	FORD(i,n-1,1)
+ 	{
+	 	p = i*qp(n,mod-2)%mod;
+	 	dp1[i]=(((1-p)*dp2[i+1]+p*(1-p)%mod*dp1[i+1]%mod+(p*p)%mod)%mod+mod)%mod*qp((1-p*p%mod+mod)%mod,mod-2)%mod;
+		dp2[i]=(((1-p)*dp1[i+1]%mod+p*(dp1[i]+1)%mod)%mod+mod)%mod;
+	}
+	cout  << dp1[1] << " " << dp2[1] <<endl;
+ 	return 0;
+}

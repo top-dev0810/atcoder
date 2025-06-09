@@ -1,0 +1,76 @@
+#include <bits/stdc++.h>
+using namespace std;
+const int N=8e6+1;
+int n,m,t,ans[200005],bg,d[N];
+struct node{
+	int u,v;
+}a[200005];
+struct ss{
+	int u,v,id;
+}q[200005];
+bool cmp(node a,node b){
+	return a.u<b.u;
+}
+bool cmp1(ss a,ss b){
+	return a.u<b.u;
+}
+bool cmp2(node a,node b){
+	return a.v>b.v;
+}
+bool cmp3(ss a,ss b){
+	return a.v>b.v;
+}
+void update(int l,int r,int x,int y,int p){
+	if(l==r){
+		d[p]+=y;
+		return;
+	}
+	int mid=l+r>>1;
+	if(x<=mid)update(l,mid,x,y,p*2);
+	else update(mid+1,r,x,y,p*2+1);
+	d[p]=d[p*2]+d[p*2+1];
+}
+int query(int l,int r,int s,int t,int p){
+	if(s<=l&&r<=t)return d[p];
+	int mid=l+r>>1,res=0;
+	if(s<=mid)res+=query(l,mid,s,t,p*2);
+	if(mid+1<=t)res+=query(mid+1,r,s,t,p*2+1);
+	return res;
+}
+int main(){
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+	cin>>n>>m;
+	for(int i=1;i<=m;i++){
+		cin>>a[i].u>>a[i].v;
+		if(a[i].u>a[i].v)swap(a[i].u,a[i].v);
+	}
+	cin>>t;
+	for(int i=1;i<=t;i++){
+		cin>>q[i].u>>q[i].v;
+		if(q[i].u>q[i].v)swap(q[i].u,q[i].v);
+		q[i].id=i;
+	}
+	sort(a+1,a+m+1,cmp);
+	sort(q+1,q+t+1,cmp1);
+	bg=1;
+	for(int i=1;i<=t;i++){
+		int j;
+		for(j=bg;j<=m&&a[j].u<q[i].u;j++)update(1,2*n,a[j].v,1,1);
+		bg=j;
+		ans[q[i].id]+=query(1,2*n,q[i].u,q[i].v,1);
+	}
+	sort(a+1,a+m+1,cmp2);
+	sort(q+1,q+t+1,cmp3);
+	bg=1;
+	memset(d,0,sizeof(d));
+	for(int i=1;i<=t;i++){
+		int j;
+		for(j=bg;j<=m&&a[j].v>q[i].v;j++)update(1,2*n,a[j].u,1,1);
+		bg=j;
+		ans[q[i].id]+=query(1,2*n,q[i].u,q[i].v,1);
+	}
+	for(int i=1;i<=t;i++)cout<<ans[i]<<'\n';
+	return 0;
+}

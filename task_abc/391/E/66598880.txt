@@ -1,0 +1,69 @@
+// To the Moon and never back ...
+#include <bits/stdc++.h>
+#define Maryam ios_base::sync_with_stdio(false);cin.tie(0);
+#define ll long long
+#define ld long double
+using namespace std ;
+int n ; string s ;
+int rec( int l , int r ) { // for each part of 3
+
+    if ( l == r ) {
+        return s[l] - '0' ;
+    }
+
+    int sz = ( r - l + 1 ) / 3 ;
+    int a = rec( l , l + sz - 1 ) ;
+    int b = rec( l + sz  , l + ( 2 * sz ) - 1 ) ;
+    int c = rec( l + ( 2 * sz) , l + ( 3 * sz ) - 1 ) ;
+
+    int ret = 0 ;
+    if ( a == b && b == c ) {
+        ret = a ;
+    }
+    else if ( a == b || a == c ) {
+        ret = a ;
+    }
+    else if ( b == c ) {
+        ret = b ;
+    }
+
+    return ret ;
+}
+int ans_of_all( int l , int r ) {
+    if ( l == r) {
+        return 1 ;
+    }
+
+    int sz = ( r - l + 1 ) / 3 ;
+    int ret1 = ans_of_all( l , l + sz - 1 ) ;
+    int ret2 = ans_of_all( l + sz  , l + ( 2 * sz ) - 1 ) ;
+    int ret3 = ans_of_all( l + ( 2 * sz) , l + ( 3 * sz ) - 1 ) ;
+
+    int a = rec( l , l + sz - 1 ) ;
+    int b = rec( l + sz  , l + ( 2 * sz ) - 1 ) ;
+    int c = rec( l + ( 2 * sz) , l + ( 3 * sz ) - 1 ) ;
+
+    int ret = 0 ;
+    if ( a == b && b == c ) {
+        ret = ( ret1 + ret2 + ret3 ) - max({ret1 ,ret2 , ret3 });
+    }
+    else if ( a == b ) {
+        ret = min(ret1 , ret2 ) ;
+    }
+    else if ( b == c ) {
+        ret = min(ret2 , ret3) ;
+    }
+    else if ( a == c ) {
+        ret = min(ret1 , ret3 ) ;
+    }
+    return ret ;
+}
+int main() {
+    Maryam;
+
+    cin >> n >> s ;
+    cout << ans_of_all( 0 , s.size() - 1 ) ;
+
+    return 0;
+}
+

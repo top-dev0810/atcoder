@@ -1,0 +1,62 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+using ld = long double;
+using ull = unsigned long long;
+template <class T>
+using MaxHeap = std::priority_queue<T>;
+template <class T>
+using MinHeap = std::priority_queue<T, vector<T>, greater<T>>;
+#define rep2(i, n) for (ll i = 0; i < (n); i++)
+#define rep3(i, l, r) for (ll i = (l); i < (r); i++)
+#define rrep2(i, n) for (ll i = n; i-- > 0;)
+#define rrep3(i, r, l) for (ll i = (r); i-- > (l);)
+#define overload(a, b, c, d, ...) d
+#define rep(...) overload(__VA_ARGS__, rep3, rep2)(__VA_ARGS__)
+#define rrep(...) overload(__VA_ARGS__, rrep3, rrep2)(__VA_ARGS__)
+#define all(x) begin(x), end(x)
+bool chmin(auto& lhs, auto rhs) {
+    return lhs > rhs ? lhs = rhs, 1 : 0;
+}
+bool chmax(auto& lhs, auto rhs) {
+    return lhs < rhs ? lhs = rhs, 1 : 0;
+}
+struct IOIO {
+    IOIO() {
+        std::cin.tie(0)->sync_with_stdio(0);
+    }
+} ioio;
+
+void solve() {
+    int n, k;
+    cin >> n >> k;
+    vector<int> p(n);
+    rep(i, n) cin >> p[i], p[i]--;
+    vector<int> q(n);
+    rep(i, n) q[p[i]] = i;
+    vector<pair<int, int>> ans;
+
+    auto SWAP = [&](int i, int j) {
+        ans.push_back(minmax({q[i], q[j]}));
+        swap(q[i], q[j]);
+    };
+
+    rep(i, 1, n) {
+        int cur = i;
+        rrep(j, i) {
+            if (q[j] - q[cur] >= k) {
+                SWAP(j, cur);
+                cur = j;
+            }
+        }
+    }
+
+    cout << ans.size() << '\n';
+    for (auto [l, r]: ans) cout << l + 1 << ' ' << r + 1 << '\n';
+}
+
+int main() {
+    int t = 1;
+
+    while (t--) solve();
+}

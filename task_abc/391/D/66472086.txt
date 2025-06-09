@@ -1,0 +1,140 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+const ll MOD = 1e9;
+// const ll MAX = 2*1e5 +10;
+#define f first
+#define s second
+const ll MAX = 1e3 + 10;
+
+
+void init_code()
+{
+#ifndef ONLINE_JUDGE
+  freopen("input.txt", "r", stdin);
+  freopen("output.txt", "w", stdout);
+  freopen("Error.txt","w",stderr);
+#endif    
+}
+
+//1d vector input
+template <typename T>
+void input_v1D(vector<T>& v) {
+    for (auto& x : v)
+        cin >> x;
+}
+
+//2d vector input
+template <typename T>
+void input_v2D(vector<vector<T>> &v,ll n,ll m){
+   for(ll i=0;i<n;i++)
+      for(ll j=0;j<m;j++)
+         cin>>v[i][j];
+}
+
+//graph edge input
+template<typename T>
+void input_g2D(vector<vector<T>> &g,ll n){
+   for(ll i=0;i<n;i++){
+      ll x,y;
+      cin>>x>>y;
+      --x,--y;
+      g[x].push_back(y);
+      g[y].push_back(x);
+   }
+}
+
+bool compare(pair<int,pair<int,int>> a,pair<int,pair<int,int>> b){
+   if(a.s.f == b.s.f)
+      return a.s.s < b.s.s;
+   return a.s.f < b.s.f;
+}
+
+void solve()
+{ 
+
+  int n,w;
+  cin>>n>>w;
+  vector<pair<int,pair<int,int>>> v(n);
+
+  for(int i=0;i<n;i++){
+   int x,y;
+   cin>>x>>y;
+
+   v[i].f = i;
+   v[i].s.f = x;
+   v[i].s.s = y;
+  }
+
+  sort(v.begin(),v.end(),compare);
+  int curr_i = v[0].s.f;
+  int count = 1;
+
+  //used to find max height for each row possible
+  vector<int> height(n,-1);
+  //used to find if all columns are filled 
+  vector<int> count_row(n);
+  //used to find in which row in final each box comes under
+  vector<int> box_height(n);
+  vector<int> ans(n,INT_MAX);
+
+  //assigning height , max height for each row in each column to find when all the elements in the i row are found
+  for(int i=0;i<n;i++){
+
+   if(curr_i != v[i].s.f)
+      count = 1,curr_i = v[i].s.f;
+   
+   int index = v[i].f;
+   box_height[index] = count;
+
+   //used to find if all the box for each column of w are present or not
+   count_row[count]++;
+
+   height[count] = max(height[count],v[i].s.s);
+   count++;
+
+  }
+  
+  for(int i=0;i<n;i++){
+   int index = v[i].f;
+   int h =  box_height[index];
+
+   if(count_row[h] == w){
+      ans[index] = height[h];
+   }
+  }
+   
+   int q;
+   cin>>q;
+
+   while(q--){
+      int t,b;
+      cin>>t>>b;
+      
+      //since in input it is 1 based indexing in code implementation it is 0 based indexing
+      b--;
+      if(ans[b] <= t)
+         cout<<"No"<<endl;
+      else
+         cout<<"Yes"<<endl;
+   }
+}
+
+
+
+int main(){
+   
+   ios::sync_with_stdio(false);
+   cin.tie(nullptr);
+   init_code(); 
+    // 
+   
+   ll t; 
+   // cin>>t;
+   t = 1;
+
+   while(t--){
+      solve();
+   }
+
+}

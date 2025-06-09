@@ -1,0 +1,37 @@
+#include<bits/stdc++.h>
+#define LL long long
+#define Maxn 1000006
+using namespace std;
+const int md = 998244353;
+LL inv[Maxn];
+LL ksm(LL x, LL y){
+	LL z=1;
+	while(y){
+		if(y&1) z=z*x%md;
+		x=x*x%md; y>>=1;
+	}
+	return z;
+}
+
+int n;
+LL f[2][Maxn],g[Maxn];
+
+int main(){
+	scanf("%d",&n);
+	inv[1] = 1;
+	for(int i=2; i<=n; i++){
+		inv[i] = inv[md%i] * (md - md / i) % md;
+	}
+	
+	LL tmp,val;
+	for(int i=1; i<n; i++){
+		tmp = i * inv[n] % md;
+		g[i+1] = (g[i] * tmp + md + 1 - g[i]) % md * ksm(tmp+1, md-2) % md;
+		val = ksm((md+1-tmp)*(tmp+1)%md, md-2) * tmp % md;
+		f[0][i+1] = (f[0][i] + val*g[i] + val*tmp%md*(md+1-g[i])) % md;
+		f[1][i+1] = (f[1][i] + val*(md+1-g[i]) + val*tmp%md*g[i]) % md;
+	}
+	
+	printf("%lld %lld", (f[0][n]%md+md) % md, (f[1][n]%md+md) % md);
+	return 0;
+}

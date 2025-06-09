@@ -1,0 +1,96 @@
+#include<bits/stdc++.h>
+using namespace std;
+long long h,w,n,m,x,y,z,d[200100];
+struct jg
+{
+	long long x,y;
+}a[6400100];
+struct gj
+{
+    long long x,l,r,i;
+}b[200100];
+bool cp(gj a,gj b)
+{
+    if(a.x==b.x)
+    {
+        return a.i<b.i;
+    }
+    return a.x<b.x;
+}
+void cg(int s,int x)
+{
+    a[s].x=x;
+    a[s].y=x;
+}
+void p(int s,int l,int r)
+{
+	int m=(l+r)/2;
+	if(a[s].y)
+    {
+        cg(s*2,a[s].y);
+        cg(s*2+1,a[s].y);
+        a[s].y=0;
+    }
+
+}
+void ch(int s,int l,int r,int x,int y,long long z)
+{
+	if(x<=l&&r<=y)
+	{
+		cg(s,z);
+		return ;
+	}
+	int m=(l+r)/2;
+	p(s,l,r);
+	if(x<=m)
+	{
+		ch(s*2,l,m,x,y,z);
+	}
+	if(y>m)
+	{
+		ch(s*2+1,m+1,r,x,y,z);
+	}
+	a[s].x=max(a[s*2].x,a[s*2+1].x);
+}
+long long dy(int s,int l,int r,int x,int y)
+{
+	if(x<=l&&r<=y)
+	{
+		return a[s].x;
+	}
+	int m=(l+r)/2;
+	p(s,l,r);
+	long long z=0;
+	if(x<=m)
+	{
+		z=max(z,dy(s*2,l,m,x,y));
+	}
+	if(y>m)
+	{
+		z=max(z,dy(s*2+1,m+1,r,x,y));
+	}
+	return z;
+}
+int main()
+{
+	cin>>h>>w>>n;
+	for(int i=1;i<=n;i++)
+	{
+		cin>>b[i].x>>b[i].l>>b[i].r;
+        b[i].r+=b[i].l-1;
+        b[i].x=h-b[i].x+1;
+		b[i].i=i;
+	}
+	sort(b+1,b+n+1,cp);
+	for(int i=1;i<=n;i++)
+	{
+	    gj v=b[i];
+	    //cout<<v.x<<' '<<v.l<<' '<<v.r<<' '<<v.i<<' '<<dy(1,1,w,v.l,v.r)<<endl;
+		d[v.i]=dy(1,1,w,v.l,v.r)+1;
+		ch(1,1,w,v.l,v.r,d[v.i]);
+	}
+	for(int i=1;i<=n;i++)
+    {
+        cout<<h-d[i]+1<<'\n';
+    }
+}

@@ -1,0 +1,132 @@
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int MOD = 998244353;
+#ifdef int
+#define inf 0x3f3f3f3f3f3f3f3f
+#else
+#define inf 0x3f3f3f3f
+#endif
+const long long infll = 0x3f3f3f3f3f3f3f3f;
+#define pii pair<int, int>
+#define mkp(x,y) make_pair(x,y)
+
+#ifndef LOCAL
+#define SUBMIT
+#endif
+
+#ifdef SUBMIT
+#define endl '\n'
+//#define cin Fastio ::cin
+//#define cout Fastio ::cout
+#endif
+
+template<typename T>
+void read(vector<T> &vec)
+{
+    for(auto &x:vec)
+    {
+        cin>>x;
+    }
+}
+
+int qpow(int n,int k)
+{
+    int res=1;
+    while(k)
+    {
+        if(k&1)(res*=n)%=MOD;
+        (n*=n)%=MOD;
+        k>>=1;
+    }
+    return res;
+}
+
+int dp[5010][5010];
+
+string s,t;
+
+int n;
+
+vector<int>ansa,ansb;
+
+void recall(int x,int y)
+{
+    if(x==0&&y==0)
+    {
+        return ;
+    }
+    if(x&&dp[x-1][y]+1==dp[x][y])
+    {
+        recall(x-1,y);
+        return ansa.push_back(x-1);
+    }
+    if(y&&dp[x][y-1]+1==dp[x][y])
+    {
+        recall(x,y-1);
+        return ansb.push_back(y-1);
+    }
+    return recall(x-1,y-1);
+}
+
+void work()
+{
+    cin>>n>>s>>t;
+    memset(dp,0x3f,sizeof dp);
+    dp[0][0]=0;
+    for(int i=0;i<=n;i++)
+    {
+        for(int j=i;j<=n;j++)
+        {
+            if(i<j)
+            {
+                dp[i+1][j]=min(dp[i+1][j],dp[i][j]+1);
+            }
+            if(j<n)
+            {
+                dp[i][j+1]=min(dp[i][j+1],dp[i][j]+1);
+            }
+            if(i<n&&j<n&&s[i]==t[j])
+            {
+                dp[i+1][j+1]=min(dp[i+1][j+1],dp[i][j]);
+            }
+        }
+    }
+    recall(n,n);
+    cout<<dp[n][n]/2<<endl;
+    for(int i=0;i<dp[n][n]/2;i++)
+    {
+        if(t[ansb[i]]=='Y')
+        {
+            cout<<ansb[i]*2+1<<' ';
+        }
+        else
+        {
+            cout<<ansb[i]*2+2<<' ';
+        }
+        if(s[ansa[i]]=='Y')
+        {
+            cout<<ansa[i]*2+1<<endl;
+        }
+        else
+        {
+            cout<<ansa[i]*2+2<<endl;
+        }
+    }
+}
+
+signed main()
+{
+#ifndef cin
+#ifdef SUBMIT
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#endif
+#endif
+    int t=1;
+    t=1;
+    while(t--)
+    {
+        work();
+    }
+}

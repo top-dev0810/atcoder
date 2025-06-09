@@ -1,0 +1,31 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+using ll = long long;
+
+const int MAXN = 3e5 + 35, MAXT = 1e6;
+
+ll n;
+
+int main(){
+	cin >> n;
+	for(ll i = 1; i * i * i < n; i++) {//i = x - y;
+//		cout << i << ' ';
+		if(n % i)continue;
+		ll j = n / i - i * i;//j = 3xy;
+//		cout << j << ' ';
+		if(j % 3)continue;
+		j /= 3;
+		ll x_add_y = sqrt(i * i + j * 4);//x_add_y = x + y;
+//		cout << x_add_y << '\n';
+		if((i + x_add_y) % 2)continue;
+		if(x_add_y - i < 2)continue;//如果 y = 0，不符合题意。
+		ll x = (i + x_add_y) / 2, y = (x_add_y - i) / 2;
+		if(x * x + x * y + y * y == n / i){ //最后判断一下
+			cout << x << ' ' << y;
+			return 0;
+		}
+	}
+	cout << -1;
+	return 0;
+}

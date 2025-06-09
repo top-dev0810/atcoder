@@ -1,0 +1,68 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define all(a) a.begin(),a.end()
+#define _GLIBCXX_DEBUG
+using ll=long long;
+using pll = pair<ll,ll>;
+using vll = vector<long long>;
+using vvll = vector<vll>;
+template <typename T>
+vector<T> comvec(const vector<T>& vec1, const vector<T>& vec2) {
+    std::vector<T> result;
+    result.reserve(vec1.size() + vec2.size()); 
+    result.insert(result.end(), vec1.begin(), vec1.end()); 
+    result.insert(result.end(), vec2.begin(), vec2.end()); 
+    return result;
+}
+#define vecp(type,name) vector<type>name
+#define vec(type, size, name) vector<type>name(size)
+#define vecp2(type) vector<vector<type>>
+#define vec2(type, rows, cols, name) \
+    vector<vector<type>> name(rows, vector<type>(cols, 0))
+#define vecout(container, start, end) \
+    for (auto i = (start); i < (end) && i < (container).size(); ++i) \
+        cout << (container)[i] << " "; \
+    cout << endl;                  
+#define pb(vec,in) vec.push_back(in)
+#define rep(i,n) for(ll i=0; i<(n);i++)
+#define reps(i,n) for(ll i=1; i<=(n);i++)
+#define repze(i,n) for(ll i=0; i<=(n);i++)
+#define repre(i,n) for(ll i=(n-1); i>=0 ;i--)
+#define repve(x,a) for(ll x : a)
+#define vecpair(type,type2,name) vector<pair<type,type2>> name;
+#define outy cout<<"Yes"
+#define outn cout<<"No"
+#define vecin(type,size,name) vec(type,size,name);rep(i,size)cin>>name[i];
+#define repcs(i,start,finish) for(ll i=(start);i<(finish);i++)
+#define eouty {cout<<"Yes";return 0;}
+#define eoutn {cout<<"No";return 0;}
+int main(){
+   ll T;
+    cin>>T;
+    rep(q,T){
+        ll N;
+        string S,S1;
+        char ch='z'+1;
+        cin>>N>>S;
+        ll si=N;
+        rep(i,N-1){
+            if(S[i]>S[i+1]){
+                ch=S[i];
+                si=i;
+                break;
+            }
+        }
+        ll flg2=0;
+        rep(i,N){
+            if(i==si)continue;
+            else if((si<i && ch<S[i]) && flg2==0){
+                S1+=ch;
+                S1+=S[i];
+                flg2=1;
+            }
+            else S1+=S[i];
+        }
+        if(S.size()!=S1.size())S1+=ch;
+        cout<<S1<<endl;
+    }
+}

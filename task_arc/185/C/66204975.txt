@@ -1,0 +1,105 @@
+#include <bits/stdc++.h>
+using namespace std;
+const int N = 2e6 + 5, M = 1e6 + 5, mod = 998244353, inv2 = 499122177, inv3 = 332748118;
+
+inline int qmi(int a, int k) {
+    int res = 1;
+    while (k) {
+        if (k & 1) res = res * 1ll * a % mod;
+        a = a * 1ll * a % mod, k >>= 1;
+    } return res;
+}
+inline int inv(int x) { return qmi(x, mod - 2); }
+
+int id[N << 2];
+inline int rev(int x, int lim) {
+    int y = 0; while (lim) y = (y << 1) | (x & 1), x >>= 1, lim >>= 1;
+    return y;
+}
+inline void init(int n) { for (int i = 0; i < n; i++) id[i] = rev(i, n - 1); }
+void NTT(int lim, int *f, int opt) {
+    for (int i = 0; i < lim; i++)
+        if (i < id[i]) swap(f[i], f[id[i]]);
+    for (int len = 2; len <= lim; len <<= 1) {
+        int mid = len >> 1, omega = qmi((opt == 1) ? 3 : inv3, (mod - 1) / len);
+        for (int i = 0; i < lim; i += len) {
+            int now = 1;
+            for (int j = i; j < i + mid; j++, now = now * 1ll * omega % mod ) {
+                int f0 = f[j], f1 = f[j + mid] * 1ll * now % mod;
+                f[j] = (f0 + f1) % mod;
+                f[j + mid] = (f0 - f1 + mod) % mod;
+            }
+        }
+    }
+}
+
+void solve(int n, int *a) {
+    int lim = 1; while (lim <= n * 2) lim <<= 1;
+    init(lim); int invlim = qmi(lim, mod - 2);
+
+    NTT(lim, a, 1);
+    for (int i = 0; i < lim; i++) a[i] = a[i] * 1ll * a[i] % mod;
+    NTT(lim, a, -1);
+    for (int i = 0; i < lim; i++) a[i] = a[i] * 1ll * invlim % mod;
+}
+
+int n, m, a[M], b[N << 2], c[M];
+long long ans = 0;
+vector<int> p;
+
+int main() {
+    scanf("%d%d", &n, &m);
+    int Max = 0;
+    for (int i = 1, x; i <= n; i++) scanf("%d", &a[i]), c[a[i]]++, Max = max(Max, a[i]);
+    if (m % 3 == 0 && c[m / 3] >= 3) {  // 3-same
+        for (int i = 1; i <= n; i++)
+            if (a[i] == m / 3) p.push_back(i);
+        printf("%d %d %d\n", p[0], p[1], p[2]);
+        return 0;
+    }
+    
+    for (int i = 1; i <= Max && 2 * i < m; i++)    // 2-same 1-diff
+        if (c[i] >= 2 && c[m - 2 * i] >= 1 && m != 3 * i) {
+            for (int j = 1; j <= n; j++) {
+                if (a[j] == i) p.push_back(j);
+                if (p.size() == 2) break;
+            }
+            for (int j = 1; j <= n; j++) if (a[j] == m - 2 * i) { p.push_back(j); break; }
+            sort(p.begin(), p.end());
+            printf("%d %d %d\n", p[0], p[1], p[2]);
+            return 0;
+        }
+    
+    for (int i = 1; i <= Max; i++) b[i] = c[i];
+    solve(Max, b);
+    for (int i = 1; i <= n; i++) (b[a[i] * 2] += mod - 1) %= mod; // 钦定不能选同一个位置
+    for (int i = 1; i <= Max * 2; i++) b[i] = b[i] * 1ll * inv2 % mod;  // 去掉顺序
+    // a 是原序列，b 是卷后序列，c 是计数
+    for (int i = 1; i <= min(Max, m); i++) {
+        if (!c[i] || !b[m - i]) continue;    // i 不存在或不能凑出两个
+        if (2 * i < m && c[i] == 1 && b[m - i] == 1 && c[m - i - i] == 1) continue; // 由 i 重复两次得到的
+        // 若能凑出两个，则必定不为相同（否则已经判掉了
+        m -= i;
+        for (int j = 1; j <= min(Max, m); j++) {
+            if (!c[j] || !c[m - j] || j == i || m - j == i || j == m - j) continue; // 三个都不同
+            // j, m-j
+            for (int k = 1; k <= n; k++)
+                if (a[k] == i) { p.push_back(k); break; }
+            for (int k = 1; k <= n; k++)
+                if (a[k] == j) { p.push_back(k); break; }
+            for (int k = 1; k <= n; k++)
+                if (a[k] == m - j) { p.push_back(k); break; }
+            sort(p.begin(), p.end());
+            printf("%d %d %d\n", p[0], p[1], p[2]);
+            return 0;
+        }
+        m += i, p.clear();
+    }
+    puts("-1");
+    return 0;
+}
+
+/*
+5 5
+1 3 3 2 3
+*/

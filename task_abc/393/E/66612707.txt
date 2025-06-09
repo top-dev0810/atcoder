@@ -1,0 +1,44 @@
+/*
+* @Author: sunyiqi
+* @Date:   2025-02-05 20:05:54
+* @Last Modified by:   sunyiqi
+* @Last Modified time: 2025-06-08 13:36:51
+*/
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+int ans = 0x3f;
+
+int n;
+ll k;
+
+int main() {
+	#ifndef ONLINE_JUDGE
+	freopen("input.txt", "r", stdin);  // For input
+    freopen("output.txt", "w", stdout); // For output
+    #endif
+    int  n, k;
+    int m = 0;
+    scanf("%d%d\n", &n, &k);
+    vector<int> a(n);
+    for (auto & v: a) {
+    	cin >> v;
+    	m = max(m, v);
+    }
+
+    vector<int> s(m+1), t(m+1), u(m+1);
+	for (auto &v : a) s[v]++;
+
+	for (int d = 1; d <= m; d++)
+		for (int n = d; n <= m; n += d)
+			t[d] += s[n];
+	for (int d = 1; d <= m ; d++) {
+		if (t[d] < k) continue;
+		for (int n = d; n <= m; n+= d) {
+			u[n] = max(u[n], d);
+		}
+	}
+	for (auto& v : a) printf("%d\n", u[v]);;
+
+}

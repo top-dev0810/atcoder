@@ -1,0 +1,67 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+using ll = long long;
+
+typedef pair<ll, ll> pii;
+
+const int N = 2e5 + 10;
+
+int n, m;
+vector<int> p(N), to(N);
+vector<bool> vis(N);
+
+void init() {
+    for (int i = 1; i <= n; i++) {
+        p[i] = i;
+    }
+}
+
+int find(int x) {
+    if (x != p[x]) p[x] = find(p[x]);
+    return p[x];
+}
+
+void merge(int u, int v) {
+    int uu = find(u), vv = find(v);
+    if (uu == vv) return;
+    p[uu] = vv;
+}
+
+void solve() {
+    cin >> n >> m;
+    init();
+    int ans = n;
+    for (int i = 1; i <= m; i++) {
+        int u, v;
+        cin >> u >> v;
+        to[i] = v;
+        if (find(u) != find(v)) {
+            merge(u, v);
+            ans--;
+            vis[i] = true;
+        }
+    }
+    cout << ans - 1 << "\n";
+    int idx = 1;
+    for (int i = 1; i <= m; i++) {
+        if (vis[i]) continue;
+
+        while (idx <= n and find(idx) == find(to[i])) {
+            idx++; // idx属于没有和当前联通块联通的另一个块
+        }
+        if (idx > n) break;  // 所有边都联通，直接break，防止夜长梦多以后越界
+
+        merge(idx, to[i]); // 没越界就合并，每次合并少一个联通块
+        
+        cout << i << " " << to[i] << " " << idx << "\n";
+    }
+}
+
+signed main() {
+    ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);
+    // int _;
+    // for(cin>>_;_;_--)
+    solve();
+    return 0;
+}

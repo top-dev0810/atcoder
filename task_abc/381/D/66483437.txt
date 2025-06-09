@@ -1,0 +1,78 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+// #define rep(i,n) for(int i=0;i<(int)n;i++)
+#define rep(i,n) for(ll i=0;i<(ll)n;i++)
+#define vi vector<int>
+#define vl vector<ll>
+#define vd vector<double>
+#define vb vector<bool>
+#define vs vector<string>
+#define vc vector<char>
+#define ull unsigned long long
+
+
+// ll inf=(1ll<<62);
+
+// ll rui(ll a,ll b){
+//     if(b==0)return 1;
+//     if(b%2==1) return a*rui(a*a,b/2);
+//     return rui(a*a,b/2);
+// }
+
+
+int main(){
+    ll n;cin >> n;
+    vl v(n);rep(i,n) cin >> v[i];
+    ll l=0,r=0,ans=0;
+    set<ll> st;
+    while((r+=2)<=n){
+        if(v[r-2]!=v[r-1]){
+            st.clear();
+            l=r;
+        }
+        else{
+            if(st.find(v[r-2])!=st.end()){
+                while(true){
+                    if(v[l]==v[r-2]){
+                        st.erase(v[l]);
+                        l+=2;
+                        break;
+                    }
+                    else{
+                        st.erase(v[l]);
+                        l+=2;
+                    }
+                }
+            }
+            st.insert(v[r-2]);
+            ans=max(ans,r-l);
+        }
+    }
+
+    l=1;r=1;st.clear();
+    while((r+=2)<=n){
+        if(v[r-2]!=v[r-1]){
+            st.clear();
+            l=r;
+        }
+        else{
+            if(st.find(v[r-2])!=st.end()){
+                while(true){
+                    if(v[l]==v[r-2]){
+                        st.erase(v[l]);
+                        l+=2;
+                        break;
+                    }
+                    else{
+                        st.erase(v[l]);
+                        l+=2;
+                    }
+                }
+            }
+            st.insert(v[r-2]);
+            ans=max(ans,r-l);
+        }
+    }
+    cout << ans << endl;
+}

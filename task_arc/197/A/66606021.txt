@@ -1,0 +1,53 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long int
+const int N = 4e5 + 5;
+int h, w;
+string s;
+int mx[N],mn[N];
+main() {
+    ios::sync_with_stdio(false), cin.tie(0);
+    // freopen("***.in", "r", stdin);
+    // freopen("***.out", "w", stdout);
+    int T;
+    for (cin >> T; T; T--) {
+        cin >> h >> w >> s;
+        s = "@" + s;
+        int cnt0 = 0, cntd = 0, cntr = 0;
+        for (int i = 1; i <= w; i++) mn[i] = 1e9, mx[i] = 0;
+        for (int i = 1; i <= h + w - 2; i++) {
+            cnt0 += (s[i] == '?');
+            cntd += (s[i] == 'D');
+            cntr += (s[i] == 'R');
+        }
+        int ni = 1, nj = 1, use = 0;
+        mn[1] = 1;
+        for (int i = 1; i <= h + w - 2; i++) {
+            if (s[i] == 'R') nj++;
+            else if (s[i] == 'D') ni++;
+            else if (s[i] == '?') {
+                if (use + cntr < w - 1) nj++, use++;
+                else ni++;
+            }
+            mn[nj] = min(mn[nj], ni);
+        }
+        ni = 1, nj = 1, use = 0;
+        for (int i = 1; i <= h + w - 2; i++) {
+            mx[nj] = max(mx[nj], ni);
+            if (s[i] == 'R') nj++;
+            else if (s[i] == 'D') ni++;
+            else if (s[i] == '?') {
+                if (use + cntd < h - 1) ni++, use++;
+                else nj++;
+            }
+        }
+        mx[w] = h;
+        // for (int i = 1; i <= w; i++)
+        //     cout << mx[i] << " " << mn[i] << '\n';
+        int ans = 0;
+        for (int i = 1; i <= w; i++)
+            ans += mx[i] - mn[i] + 1;
+        cout << ans << '\n';
+    }
+    return 0;
+}

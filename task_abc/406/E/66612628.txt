@@ -1,0 +1,52 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define gc getchar
+#define ll long long
+template<typename T>inline void rd(T&x){x=0;char ch=gc();while(ch<'0'||ch>'9')ch=gc();while(ch>='0'&&ch<='9'){x=(x<<1)+(x<<3)+ch-'0';ch=gc();}}
+template<typename T,typename...A>inline void rd(T&x,A&...a){rd(x);rd(a...);}
+const ll mod=998244353,mk=60;
+ll p2[61];
+string change(ll n){string s;while(n){s+=(n&1)+'0';n>>=1;}return s;}//转二进制 
+void init(){p2[0]=1;for(int i=1;i<=60;i++)p2[i]=p2[i-1]*2%mod;}//预处理2^i 
+ll solve(ll n,ll k){//数位DP 
+    if(!k)return 0;
+    string b=change(n);
+    ll l=b.size(),pc[2][mk+1]={},ps[2][mk+1]={};//pc:个数，ps:和 
+    pc[1][0]=1;//第一位表示：0：不受限制，1：受限制。第二位表示cnt 
+    for(int i=l-1;i>=0;i--){//从高到低枚举位 
+        ll cnt[2][mk+1]={},sum[2][mk+1]={};//目前状态 
+        for(int x=0;x<2;x++){//枚举前面的状态 
+            for(int y=0;y<=k;y++){
+                if(!pc[x][y])continue;
+                ll mb=x?(b[i]-'0'):1;
+                //选一 
+                ll nw=x&&(!mb);//更新状态 
+                ll c0=y;
+                if(c0<=k){
+                    cnt[nw][c0]=(cnt[nw][c0]+pc[x][y])%mod;//累加 
+                    sum[nw][c0]=(sum[nw][c0]+ps[x][y])%mod;
+                }
+                //选零 
+                if(y+1>k||1>mb)continue;
+                nw=x&&(mb==1);
+                ll c1=y+1;
+                ll as=(ps[x][y]+pc[x][y]*p2[i])%mod;//对答案的贡献：2^i*个数 
+                cnt[nw][c1]=(cnt[nw][c1]+pc[x][y])%mod;//累加 
+                sum[nw][c1]=(sum[nw][c1]+as)%mod;
+            }
+        }
+        for(int i=0;i<2;i++)for(int j=0;j<=k;j++)pc[i][j]=cnt[i][j],ps[i][j]=sum[i][j];//更新 
+    }
+    ll a=0;
+    for(int i=0;i<2;i++)a=(a+ps[i][k])%mod;
+    return a;
+}
+signed main(){
+    init();
+    int T;rd(T);
+    while(T--){
+        ll n,k;rd(n,k);
+        printf("%lld\n",solve(n,k));
+    }
+    return 0;
+}

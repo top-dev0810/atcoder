@@ -1,0 +1,31 @@
+/*AtCoder-arc183_c Not Argmax
+动态规划:dp[l][r]代表区间[l,r]对应的能成功的排列顺序.若a,b,c是题目中一组限制条件,那
+么若[a,b]包含于[l,r],那么c不能是最大的.取出所有能是最大的x,dp[l][x-1],dp[x+1][r]分
+别考虑.两者之间的顺序结合在一起的时候,还要乘C(r-l,x-l).
+*/
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+const int mod=998244353;
+int n,m,dp[505][505],g[505][505],C[505][505];
+signed main(){
+	ios::sync_with_stdio(false),cin.tie(0),cout.tie(0);
+	cin>>n>>m;
+	for(int i=1,l,r,x;i<=m;i++){
+		cin>>l>>r>>x;
+		g[x][r]=max(l,g[x][r]);
+	} //g[x][r]代表不能以Px为最大值的以r为上界的区间的最小下界l
+	for(int x=1;x<=n;x++)for(int r=1;r<=n;r++)g[x][r]=max(g[x][r],g[x][r-1]);
+	for(int i=0;i<=n;i++){ //组合数:C(i,j)递归计算
+		C[i][0]=1;
+		for(int j=1;j<=i;j++)C[i][j]=(C[i-1][j-1]+C[i-1][j])%mod;
+	}
+	for(int i=0;i<=n;i++)dp[i+1][i]=1; //空组排列顺序1种
+	for(int l=n;l;l--)for(int r=l;r<=n;r++)for(int i=l;i<=r;i++)if(g[i][r]<l){
+		int dlt=dp[l][i-1]*dp[i+1][r]%mod*C[r-l][i-l]%mod; /*Pi最大,两侧分别考虑
+,最后确定顺序可相互嵌入式插入,还需乘C(r-l,i-l)*/
+		(dp[l][r]+=dlt)%=mod;
+	}
+	cout<<dp[1][n]<<"\n";
+	return 0;
+}

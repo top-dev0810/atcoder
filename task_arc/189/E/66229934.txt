@@ -1,0 +1,34 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define pb push_back
+
+const int N=25;
+int n,id[N];
+vector<int> V[4];
+vector<vector<int> > mp={{0,1,2,3},{1,0,3,2},{2,3,0,1},{3,2,1,0}};
+
+int main(){
+  /*2025.5.28 H_W_Y AT_arc189_e [ARC189E] Straight Path Constructive*/
+  ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);
+  cin>>n;
+  if(n<=3) cout<<"No\n",exit(0);
+  cout<<"Yes\n"; 
+  if(n==5){
+    vector<vector<int> > V={{2,1,4,4},{4,3,1},{1,3},{2}};
+	for(auto t:V){
+	  for(int i:t) cout<<i<<' ';
+	  cout<<'\n';
+	}
+	return 0;
+  }
+  for(int i=0,j=1;i<4;i++){
+	int num=n/4+(n%4>i);
+	for(int k=1;k<=num;k++,j++) V[i].pb(j),id[j]=i;
+  } 
+  
+  for(int i=1;i<=n;i++,cout<<'\n') for(int j=i+1;j<=n;j++){
+	if(id[i]==id[j]) cout<<3<<' ';
+	else cout<<mp[id[i]][id[j]]<<' ';
+  }
+  return 0;
+}

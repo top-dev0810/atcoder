@@ -1,0 +1,37 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+
+struct node{int x,y,z;bool operator <(const node &t)const{return z>t.z;}};
+const int N=510;
+int a[N][N],n,vis[N][N],res;char x;
+priority_queue < node > Q;
+
+inline void check(int x,int y,int c){if(a[x][y]!=c){a[x][y]=c;++res;}}
+inline int bfs(int sx,int sy,int tx,int ty,int lim){
+	while(!Q.empty()) Q.pop();
+	Q.push({sx,sy,0});
+	for(int i=1;i<=n;++i) for(int j=1;j<=n;++j) vis[i][j]=0;
+	while(!Q.empty()){
+		node now=Q.top();Q.pop();
+		int x=now.x,y=now.y,z=now.z;
+		if(x==tx&&y==ty){return z;}
+		if(x<1||y<1||x>n||y>n) continue;
+		if(vis[x][y]) continue;
+		vis[x][y]=1;
+		if(!vis[x+1][y]) Q.push({x+1,y,z+(a[x+1][y]!=lim)});
+		if(!vis[x][y+1]) Q.push({x,y+1,z+(a[x][y+1]!=lim)});
+		if(!vis[x-1][y]) Q.push({x-1,y,z+(a[x-1][y]!=lim)});
+		if(!vis[x][y-1]) Q.push({x,y-1,z+(a[x][y-1]!=lim)});
+	}
+	return 0;
+}
+
+int main(){
+	ios::sync_with_stdio(0);
+	cin.tie(0);cout.tie(0);cin>>n;
+	for(int i=1;i<=n;++i) for(int j=1;j<=n;++j){cin>>x;a[i][j]=(x=='R');}
+	check(1,1,1);check(n,n,1);check(1,n,0);check(n,1,0);
+	cout<<res+bfs(1,1,n,n,1)+bfs(1,n,n,1,0)<<endl;
+	return 0;
+}

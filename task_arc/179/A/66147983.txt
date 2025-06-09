@@ -1,0 +1,24 @@
+#include <bits/stdc++.h>
+using namespace std;
+int n,k,arr[200005];
+int main() {
+	while (scanf("%d%d",&n,&k)!=EOF) {
+		for (int i=1;i<=n;i++) scanf("%d",&arr[i]);
+		sort(arr+1,arr+n+1);
+		if (k>0) {
+			printf("Yes\n");
+			for (int i=1;i<=n;i++) printf("%d ",arr[i]);
+			printf("\n");
+		}
+		else {
+			long long sm=0;
+			for (int i=n;i>=1;i--) sm+=arr[i];
+			if (sm>=k) {
+				printf("Yes\n");
+				for (int i=n;i>=1;i--) printf("%d ",arr[i]);
+				printf("\n");
+			}
+			else printf("No\n");
+		}
+	}
+}

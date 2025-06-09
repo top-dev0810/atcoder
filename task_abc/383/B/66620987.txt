@@ -1,0 +1,40 @@
+#include<bits/stdc++.h>
+using i64 = long long;
+int main(){
+    std::ios::sync_with_stdio(0);
+    std::cin.tie(nullptr);
+
+    int H , W , D;
+    std::cin >> H >> W >> D;
+
+    std::vector<std::vector<char>> g(H , std::vector<char> (W));
+    for(int i = 0; i < H; i++){
+        for(int j = 0; j < W; j++){
+            std::cin >> g[i][j];
+        }
+    }
+
+    int ans = 0;
+    for(int i = 0; i < H; i++){
+        for(int j = 0; j < W; j++){
+            for(int ii = 0; ii < H; ii++){
+                for(int jj = 0; jj < W; jj++){
+                    if(g[i][j] == '.' && g[ii][jj] == '.' && (i != ii || j != jj)){
+                        int res = 0;
+                        for(int iii = 0; iii < H; iii++){
+                            for(int jjj = 0; jjj < W; jjj++){
+                                if(g[iii][jjj] == '.' && (std::abs(iii - ii) + std::abs(jjj - jj) <= D || std::abs(iii - i) + std::abs(jjj - j) <= D)){
+                                    res++;
+                                }
+                            }
+                        }
+                        ans = std::max(ans , res);
+                    }
+                }
+            }
+        }
+    }
+
+    std::cout << ans << "\n";
+    return 0;
+}

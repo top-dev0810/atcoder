@@ -1,0 +1,54 @@
+#include<bits/stdc++.h>
+#define files freopen("in.txt","r",stdin),freopen("out.txt","w",stdout);
+#define FastIO ios::sync_with_stdio(false), cin.tie(nullptr), cout.tie(nullptr);
+#define int long long
+#define i3 tuple<int,int,int>
+#define i2 pair<int,int>
+#define all(x) x.begin(),x.end()
+using namespace std;
+
+constexpr int N = 5e5 + 10;
+constexpr int mod = 1e9 + 7;
+constexpr int inf = 1e18;
+
+
+void solve() {
+    int n; cin >> n;
+    vector<int> x(n+1);
+    vector<vector<i2>> adj(n+1);
+    for(int i = 1; i <= n; i++) {
+        cin >> x[i];
+    }
+    for(int i = 1; i < n; i++) {
+        int a, b, c; cin >>  a >> b >> c;
+        adj[a].push_back({b,c});
+        adj[b].push_back({a,c});
+    }
+    int ans = 0;
+    function<int(int,int)> dfs = [&](int r, int p) {
+        for(auto [c, w] : adj[r]) {
+            if(c == p)
+                continue;
+            int xc = dfs(c,r);
+            x[r] += xc;
+            ans += abs(xc)*w;
+        }
+        return x[r];
+    };
+    dfs(1,0);
+    cout << ans << '\n';
+}
+
+int32_t main() {
+#ifndef ONLINE_JUDGE
+    files
+#endif
+    FastIO
+
+
+    int t = 1;
+    // cin >> t;
+    while (t--) {
+        solve();
+    }
+}

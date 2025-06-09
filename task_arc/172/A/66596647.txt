@@ -1,0 +1,27 @@
+// ARC172A - Chocolate
+#include <bits/stdc++.h>
+using namespace std;
+int main() {
+  ios::sync_with_stdio(false), cin.tie(0);
+  using LL = long long;
+  using RC = array<LL, 2>;  // ?×?
+  priority_queue<RC> Q;
+  auto add = [&](LL h, LL w) {
+    if (h == 0 or w == 0) return;
+    if (h > w) swap(h, w);
+    Q.push({h, w});
+  };
+  LL H, W, N;
+  cin >> H >> W >> N, add(H, W);
+  vector<LL> A(N);
+  for (LL& a : A) cin >> a, a = 1ll << a;
+  sort(begin(A), end(A), greater<>());
+  for (LL a : A) {  // ????,????,???????
+    if (Q.empty() or Q.top()[0] < a) return puts("No"), 0;
+    LL h = Q.top()[0], w = Q.top()[1];  // ?????????
+    assert(h >= a);  // ???????,?????2???
+    assert(h <= w);  // ??????????,??????
+    Q.pop(), add(w - a, h), add(a, h - a);
+  }
+  return puts("Yes"), 0;
+}

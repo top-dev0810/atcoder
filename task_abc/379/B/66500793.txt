@@ -1,0 +1,18 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+int main(){
+    int N,K;cin>>N>>K;
+    string S;cin>>S;
+    int b=0,cnt=0;
+    for(int a=0;a<N;){
+        b=a;
+        while(b<N&&S[b]=='O'){
+            b++;
+        }
+        //cout<<b-a<<endl;
+        cnt+=(b-a)/K;
+        a=b+1;
+    }
+    cout<<cnt<<endl;
+}

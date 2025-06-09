@@ -1,0 +1,28 @@
+#include<bits/stdc++.h>
+using namespace std;
+const int N=2e5+5;
+int a[N],b[N],n,m;
+int pos[N],pos2[N];
+int main(){
+	cin>>n>>m;
+	for(int i=1;i<=n;++i)
+		scanf("%d",&a[i]);
+	for(int i=1;i<=m;++i)
+		scanf("%d",&b[i]);
+	int tp=1;
+	for(int i=1;i<=m;++i){
+		while(tp<=n&&a[tp]!=b[i])tp++;
+		if(tp>n)puts("No"),exit(0);
+		pos[i]=tp,tp++;	
+	}
+	tp=n;
+	for(int i=m;i>=1;--i){
+		while(tp>=1&&a[tp]!=b[i])tp--;
+		if(tp<0)puts("No"),exit(0);
+		pos2[i]=tp,tp--;
+	}
+	for(int i=1;i<=m;++i)
+		if(pos[i]!=pos2[i])
+			puts("Yes"),exit(0);
+	puts("No");
+}

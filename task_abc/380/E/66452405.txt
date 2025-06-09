@@ -1,0 +1,90 @@
+#include <bits/stdc++.h>
+
+#define all(x) (x).begin(), (x).end()
+using ll = long long;
+using pii = std::array<int, 2>;
+using pll = std::array<ll, 2>;
+using vi = std::vector<int>;
+using vl = std::vector<ll>;
+
+using namespace std;
+
+#ifndef DSU_HPP
+#define DSU_HPP
+
+#include <cassert>
+#include <numeric>
+#include <vector>
+
+struct dsu_t {
+    int n;
+    std::vector<int> leader;
+    std::vector<int> size;
+    vi mn, mx;
+
+   public:
+    dsu_t(const int _n) : n(_n), leader(n), size(n, 1), mn(n), mx(n) {
+        std::iota(leader.begin(), leader.end(), 0);
+        iota(all(mn), 0);
+        iota(all(mx), 0);
+    }
+
+    int find(int u) {
+        assert(0 <= u and u < n);
+        int u_leader = leader[u];
+        if (u_leader != u) {
+            leader[u] = find(u_leader);
+        }
+        return leader[u];
+    }
+
+    int get_size(int u) { return size[find(u)]; }
+
+    bool join(int u, int v) {
+        int u_leader = find(u);
+        int v_leader = find(v);
+        if (u_leader == v_leader) {
+            return false;
+        }
+        if (size[u_leader] < size[v_leader]) {
+            std::swap(u_leader, v_leader);
+        }
+        size[u_leader] = size[u_leader] + size[v_leader];
+        leader[v_leader] = u_leader;
+        mn[u_leader] = min(mn[u_leader], mn[v_leader]);
+        mx[u_leader] = max(mx[u_leader], mx[v_leader]);
+        return true;
+    }
+};
+
+#endif /* DSU_HPP */
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    int n, q;
+    cin >> n >> q;
+    vi col(n), cnt(n, 1);
+    iota(all(col), 0);
+    dsu_t d(n);
+    auto get_col = [&](int pos) { return col[d.find(pos)]; };
+    while (q--) {
+        int t;
+        cin >> t;
+        if (t == 1) {
+            int x, c;
+            cin >> x >> c;
+            int id = d.find(--x), l = d.mn[id], r = d.mx[id];
+            cnt[col[id]] -= r - l + 1;
+            col[id] = --c;
+            cnt[col[id]] += r - l + 1;
+            if (r + 1 < n && col[id] == get_col(r + 1)) d.join(id, r + 1);
+            if (l > 0 && col[id] == get_col(l - 1)) d.join(l - 1, id);
+        } else {
+            int c;
+            cin >> c;
+            cout << cnt[--c] << '\n';
+        }
+    }
+}

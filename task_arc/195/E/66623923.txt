@@ -1,0 +1,44 @@
+#include<bits/stdc++.h>
+#define int long long
+using namespace std;
+const int mod=998244353;
+int n,q;
+int a[200005];
+int f[200005],e[200005],fac[200005],inv[200005];
+int f_pow(int a,int b)
+{
+	int res=1;
+	for(;b;b>>=1,a=a*a%mod)
+		if(b&1)	res=res*a%mod;
+	return res;
+}
+signed main()
+{
+	ios::sync_with_stdio(0);
+	cin.tie(0),cout.tie(0);
+	cin>>n>>q;
+	for(int i=2;i<=n;i++)
+		cin>>a[i];
+	fac[0]=1;
+	for(int i=1;i<=n;i++)
+		fac[i]=fac[i-1]*i%mod;
+	inv[n]=f_pow(fac[n],mod-2);
+	for(int i=n-1;i>=1;i--)
+		inv[i]=inv[i+1]*(i+1)%mod;
+	for(int i=n;i>=1;i--)
+		inv[i]=inv[i]*fac[i-1]%mod;
+	int sum=0;
+	for(int i=2;i<=n;i++)
+		f[i]=(sum*inv[i-1]%mod+a[i])%mod,sum=(sum+f[i])%mod;
+	sum=0;
+	for(int i=2;i<=n;i++)
+		e[i]=((sum+f[i])%mod*inv[i]%mod)%mod,sum=(sum+e[i])%mod;
+	while(q--)
+	{
+		int u,v;
+		cin>>u>>v;
+		if(u>v)	swap(u,v);
+		cout<<((f[u]+f[v]-2*e[u]+mod*2ll)%mod*fac[n-1])%mod<<"\n";
+	}
+	return 0;
+}

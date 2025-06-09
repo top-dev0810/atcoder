@@ -1,0 +1,69 @@
+#include <bits/stdc++.h>
+using namespace std;
+template <typename T>
+auto vec(const T& init) { return T(init); }
+template <typename T, typename Size>
+auto vec(const T& init, Size size) { return vector<T>(static_cast<size_t>(size) + 1, init); }
+template <typename T, typename First, typename... Rest>
+auto vec(const T& init, First first, Rest... rest) { auto inner = vec(init, rest...); return vector<decltype(inner)>(static_cast<size_t>(first) + 1, inner); }
+const int N = 4000400, mod = 998244353;
+int f[N], ct;
+int getf(int x) { return f[x] < 0 ? x : f[x] = getf(f[x]); }
+void merge(int x, int y)
+{
+    x = getf(x), y = getf(y);
+    if (x == y)return;
+    if (f[x] < f[y])swap(x, y);
+    f[y] += f[x]; f[x] = y;
+}
+void work()
+{
+    int n, m; cin >> n >> m; ct = 0;
+    auto ud = vec<int>(0, n + 1, m, 1), lr = vec<int>(0, n, m + 1, 1);
+    for (int i = 1;i <= n;i++) for (int j = 1;j <= m;j++)
+        lr[i][j][0] = ++ct, lr[i][j][1] = ++ct,
+        ud[i][j][0] = ++ct, ud[i][j][1] = ++ct;
+    for (int i = 1;i <= ct;i++) f[i] = -1;
+    for (int i = 1;i <= n;i++) lr[i][m + 1][0] = lr[i][1][0], lr[i][m + 1][1] = lr[i][1][1];
+    for (int i = 1;i <= m;i++) ud[n + 1][i][0] = ud[1][i][0], ud[n + 1][i][1] = ud[1][i][1];
+    for (int i = 1;i <= n;i++)
+    {
+        string s; cin >> s;
+        for (int j = 1;j <= m;j++)
+        {
+            if (s[j - 1] == 'A')
+            {
+                merge(ud[i][j][false], ud[i + 1][j][true]);
+                merge(ud[i][j][true], ud[i + 1][j][false]);
+                merge(lr[i][j][false], lr[i][j + 1][true]);
+                merge(lr[i][j][true], lr[i][j + 1][false]);
+            }
+            else
+            {
+                merge(ud[i][j][true], lr[i][j][false]);
+                merge(ud[i][j][false], lr[i][j][true]);
+                merge(ud[i][j][true], ud[i + 1][j][true]);
+                merge(ud[i][j][false], ud[i + 1][j][false]);
+                merge(lr[i][j][true], lr[i][j + 1][true]);
+                merge(lr[i][j][false], lr[i][j + 1][false]);
+            }
+        }
+    }
+    int ans = 1, sum = 0;
+    for (int i = 1;i <= ct;i += 2)
+        if (getf(i) == getf(i + 1))ans = 0;
+    for (int i = 1;i <= ct;i++) if (f[i] < 0) sum++;
+    for (int i = sum / 2;i;i--)
+    {
+        ans = ans + ans;
+        if (ans >= mod) ans -= mod;
+    }
+    cout << ans << '\n';
+}
+int main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr); cout.tie(nullptr);
+    int T; cin >> T; while (T--) work();
+    return 0;
+}

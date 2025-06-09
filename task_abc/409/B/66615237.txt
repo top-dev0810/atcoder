@@ -1,0 +1,21 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+int main(){
+  int N;
+  cin >> N;
+  vector<int> A(N);
+  for(int i = 0;i < N;i++){
+    cin >> A.at(i);
+  }
+  int count = 1;
+  //ソート(降順)
+  sort(A.rbegin(), A.rend());
+  for(int i = N;i > 0;i--){
+      if(A[i-1]>=i){
+        cout<<i<<endl;
+        return 0;
+      }
+  }
+        cout<<0<<endl;
+}

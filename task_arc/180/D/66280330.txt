@@ -1,0 +1,334 @@
+#include <bits/stdc++.h>
+
+// what the fuck
+template<typename T, int N>
+struct NDVector { using type = std::vector<typename NDVector<T, N - 1>::type>; };
+template<typename T>
+struct NDVector<T, 1> { using type = std::vector<T>; };
+
+// A tensor is essentially a vector of tensors. (or multidimensional array)
+template<typename T, int N>
+using Tensor = typename NDVector<T, N>::type;
+
+/**
+ * Create a multidimensional vector with the given dimension sizes.
+ *
+ * In particular, create_vector(N) = create_tensor(N), create_matrix(N, M) = create_tensor(N, M).
+ * If you have some weird multidimensional DP, you can create the DP table by doing:
+ *      dp = create_tensor(5, 5, 5, 5, 5);
+ *
+ * Be careful, for a large number of dimensions, this uses a lot of memory and is very cache unfriendly.
+ */
+template<typename T>
+std::vector<T> create_tensor(int N) {
+    return std::vector<T>(N);
+}
+template <typename T, typename... ArgTypes>
+Tensor<T, sizeof...(ArgTypes) + 1> create_tensor(int N, ArgTypes... args) {
+    auto under = create_tensor<T>(args...);
+    return std::vector(N, under);
+}
+
+/**
+ * Create a matrix of the given dimensions.
+ */
+template<typename T>
+Tensor<T, 2> create_matrix(int N, int M) {
+    return create_tensor<T>(N, M);
+}
+
+/**
+ * Frequently used definitions, like Vector, Matrices, pairs of ints, pairs, triples, etc.
+ */
+template<typename T>
+using Vector = Tensor<T, 1>; // I could use std::vector<T>, but this is just too cool.
+template<typename T>
+using Matrix = Tensor<T, 2>;
+
+template<typename T1, typename T2>
+using Pair = std::pair<T1, T2>;
+using PairII = Pair<int, int>;
+using PairLL = Pair<long long, long long>;
+
+template<typename T1, typename T2, typename T3>
+using Triple = std::tuple<T1, T2, T3>;
+
+/**
+ * Read a vector from input. Set start to 1 if you want it to be 1-indexed.
+ */
+template<typename T>
+Vector<T> read_vector(int N, int start = 0) {
+    Vector<T> v(start + N);
+    for (int i = start; i < (int)v.size(); i++) {
+        std::cin >> v[i];
+    }
+    return v;
+}
+
+/**
+ * Read a matrix from input. Set start_l to make lines 1-indexed. Same thing for start_c.
+ */
+template<typename T>
+Matrix<T> read_matrix(int N, int M, int start_l = 0, int start_c = 0) {
+    Matrix<T> matr = create_matrix<T>(N + start_l, M + start_c);
+
+    for (int l = start_l; l < N + start_l; l++)
+        for (int c = start_c; c < M + start_c; c++)
+            std::cin >> matr[l][c];
+
+    return matr;
+}
+
+/**
+ * Print a tensor to the output stream. Prints all indices between i and j, and the elements 
+ * are separated by the given separator.
+ *
+ * To generalize, for each dimension, you give the bounds that you want to print and the separator
+ * between each order. To print a matrix, you would do:
+ *
+ *      print_tensor(matr, std::cout, 0, N - 1, "\n", 0, M - 1, " ");
+ */
+template<typename T>
+void print_tensor(Tensor<T, 1>& tens, std::ostream&fout, int i, int j, const char* sep) {
+    for (int t = std::max(i, 0); t <= j && t < (int)tens.size(); t++) {
+        fout << tens[t];
+        if (t + 1 <= j)
+            fout << sep;
+    }
+}
+
+template<typename T, typename... Sizes>
+void print_tensor(
+        Tensor<T, sizeof...(Sizes) / 3 + 1>& tens,
+        std::ostream& fout, 
+        int i, int j, const char* sep, Sizes... sizes) {
+    for (int t = std::max(i, 0); t <= j && t < (int)tens.size(); t++) {
+        print_tensor<T>(tens[t], fout, sizes...);
+        if (t + 1 <= j)
+            fout << sep;
+    }
+}
+
+/**
+ * Print a vector to the given output stream with given bounds and separator.
+ */
+template<typename T>
+void print_vector(std::vector<T>& v, std::ostream& fout, int i = 0, int j = (1 << 30), const char* sep = " ") {
+    print_tensor<T>(v, fout, i, j, sep);
+}
+
+/**
+ * Read a vector of pairs. Set start to 1 if you want this to be 1-indexed.
+ */
+template<typename T1, typename T2>
+Vector<Pair<T1, T2>> read_pairvec(int N, int start = 0) {
+    Vector<Pair<T1, T2>> input = Vector<Pair<T1, T2>>(start + N);
+    for (int i = start; i < start + N; i++)
+        std::cin >> input[i].first >> input[i].second;
+    return input;
+}
+
+/**
+ * Read a vector of triples. Set start to 1 if you want this to be 1-indexed.
+ *
+ * If you need higher order tuples, like quadruples, you're better off using a matrix instead.
+ */
+template<typename T1, typename T2, typename T3>
+Vector<Triple<T1, T2, T3>> read_triplevec(int N, int start = 0) {
+    Vector<Triple<T1, T2, T3>> input = Vector<Triple<T1, T2, T3>>(start + N);
+    for (int i = start; i < N + start; i++) {
+        T1 a;
+        T2 b;
+        T3 c;
+        std::cin >> a >> b >> c;
+        input[i] = {a, b, c};
+    }
+    return input;
+}
+
+/**
+ * Removes duplicates from vector. Assumes it is sorted.
+ */
+template<typename T>
+void deduplicate(Vector<T>& v) {
+    v.resize(std::unique(v.begin(), v.end()) - v.begin());    
+}
+
+/**
+ * Solve a testcase of the problem. You will code your solution here instead of main.
+ */
+void solve_test();
+
+/**
+ * Call this function if you have a problem with multiple testcases.
+ */
+void multitest_problem() {
+    int T;
+    std::cin >> T;
+
+    while (T--) solve_test();
+}
+
+int main() {
+    std::cin.tie(NULL);
+    std::iostream::sync_with_stdio(false);
+
+    // Choose one of the following functions, depending on the problem type.
+    solve_test();
+    //multitest_problem();
+
+    return 0;
+}
+
+struct CoolSegtree {
+    Vector<int>& ref;
+    Vector<Vector<PairII>> tree;
+    Vector<Vector<int>> suff_min;
+    Vector<Vector<int>> pref_min;
+    int lroot, rroot;
+
+    void build(int l, int r, int node) {
+        int mid = (l + r) / 2;
+        if (r - l > 1) {
+            build(l, mid, 2 * node);
+            build(mid, r, 2 * node + 1);
+        }
+
+        int vmax = 0, vmin = 1 << 30;
+        for (int i = l; i < r; i++) {
+            vmax = std::max(vmax, ref[i]);
+            tree[node].push_back({vmax, vmax + ref[i + 1]});
+            vmin = std::min(vmin, ref[i + 1]);
+            pref_min[node].push_back(vmin);
+        }
+
+        int len = r - l;
+        suff_min[node].resize(len + 1);
+        suff_min[node][len] = 1 << 30;
+        for (int i = tree[node].size() - 1; i >= 0; i--)
+            suff_min[node][i] = std::min(suff_min[node][i + 1], tree[node][i].second);
+    }
+
+    int query_node(int node, int val) {
+        int l = -1, r = tree[node].size();
+        while (r - l > 1) {
+            int mid = (l + r) / 2;
+            if (tree[node][mid].first >= val)
+                r = mid;
+            else
+                l = mid;
+        }
+
+        int res = suff_min[node][r];
+        if (l >= 0) res = std::min(res, val + pref_min[node][l]);
+        return res;
+    }
+
+    int query(int i, int j, int& pref_max, int l, int r, int node) {
+        if (j <= l || r <= i || j <= i) return 1 << 30;
+
+        if (i <= l && r <= j) {
+            int res = query_node(node, pref_max);
+            // std::cerr << "Querying " << l << " " << r << "\n";
+            pref_max = std::max(pref_max, tree[node].back().first);
+            return res;
+        } 
+
+        int mid = (l + r) / 2;
+        int vleft = query(i, j, pref_max, l, mid, 2 * node);
+        int vright = query(i, j, pref_max, mid, r, 2 * node + 1);
+        return std::min(vleft, vright);
+    }
+
+    CoolSegtree(Vector<int>& ref): ref(ref) {
+        int N = ref.size();
+        lroot = 0;
+        rroot = N - 1;
+        tree.resize(1 + 4 * N);
+        suff_min.resize(1 + 4 * N);
+        pref_min.resize(1 + 4 * N);
+        build(lroot, rroot, 1);
+    }
+
+    int query(int i, int j) {
+        int pref = 0;
+        return query(i, j, pref, lroot, rroot, 1);
+    }
+};
+
+/**
+ * Range minimum tree, or sparse table. Given an idempotent operation, 
+ * find the aggregation of said value at a range. Built in O(Nlog), queries
+ * are O(1).
+ */
+template<typename T>
+struct RMQ {
+    std::vector<std::vector<T>> rmq;
+    int N;
+    std::vector<int> mylg;
+    std::function<T(T, T)> comb;
+
+    explicit RMQ(const std::vector<T>& v,
+            std::function<T(T, T)> comb = std::max<T, T>): comb(comb) {
+        rmq.push_back(v);
+        N = v.size();
+        mylg.resize(1 + N);
+
+        for (int i = 2; i <= N; i++)
+            mylg[i] = mylg[i / 2] + 1;
+
+        for (int b = 1; (1 << b) < N; b++) {
+            std::vector<T> new_vec(N);
+            for (int i = 0; i < N - (1 << b) + 1; i++) {
+                new_vec[i] = comb(rmq.back()[i],
+                        rmq.back()[i + (1 << (b - 1))]); 
+            }
+            rmq.push_back(new_vec);
+        }
+    }
+
+    T query(int i, int j) {
+        int l = mylg[j - i + 1];
+        return comb(rmq[l][i], rmq[l][j - (1 << l) + 1]);
+    }
+};
+
+
+void solve_test() {
+    int N, Q;
+    std::cin >> N >> Q;
+
+    auto A = read_vector<int>(N);
+    auto A_ext = Vector<PairII>(N);
+    for (int i = 0; i < N; i++) {
+        A_ext[i] = {A[i], i};
+    }
+
+    RMQ<PairII> rmq(A_ext, [](PairII a, PairII b) { return std::max(a, b); });
+
+    CoolSegtree T(A);
+    auto Arev = A;
+    std::reverse(Arev.begin(), Arev.end());
+    CoolSegtree Trev(Arev);
+
+    auto queries = read_pairvec<int, int>(Q);
+    for (auto [l, r] : queries) {
+        l--; r--;
+
+        auto p = rmq.query(l, r).second;
+
+        int res = 1 << 30;
+        if (l < p && p < r)
+            res = std::min(res, A[l] + A[p] + A[r]);
+
+        // std::cerr << "Solving " << l << " " << r << " with vmax " << A[p] << " " << p << '\n';
+        res = std::min(res, T.query(l, p - 1) + A[p]);
+        int rrev = N - r - 1;
+        int prev = N - p - 1;
+        res = std::min(res, Trev.query(rrev, prev - 1) + A[p]);
+
+        std::cout << res << "\n";
+    }
+}
+
+

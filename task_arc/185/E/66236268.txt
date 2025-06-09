@@ -1,0 +1,59 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define I_love_you_Liny ios_base::sync_with_stdio(0),cin.tie(0)
+#define int long long
+#define all(x)     (x).begin(), (x).end()
+#define rall(x)    (x).rbegin(),(x).rend()
+
+const long long inf = 3e18;
+const int mod = 998244353;
+const int N = 500005;
+const int V = 100000;
+
+int phi[V+1], spf[V+1], pw[N], s[V+1];
+
+vector<int> divs(int x){
+    vector<int> ds{1};
+    while(x>1){
+        int p=spf[x], c=0;
+        while(x%p==0){x/=p;++c;}
+        int sz=ds.size(), cur=1;
+        for(int i=0;i<c;++i){
+            cur*=p;
+            for(int j=0;j<sz;++j) ds.push_back(ds[j]*cur);
+        }
+    }
+    return ds;
+}
+
+void solve(){
+    int n;cin>>n;
+    pw[0]=1;
+    for(int i=1;i<=n;i++) pw[i]=(pw[i-1]*2)%mod;
+    int ans=0;
+    for(int i=1;i<=n;i++){
+        int x;cin>>x;
+        auto d=divs(x);
+        int add=0;
+        for(int v:d) add=(add+phi[v]*s[v])%mod;
+        ans=((ans<<1)+add)%mod;
+        cout<<ans<<"\n";
+        int p=pw[i-1];
+        for(int v:d){ s[v]+=p; if(s[v]>=mod) s[v]-=mod; }
+    }
+}
+
+int32_t main(){
+    I_love_you_Liny;
+    for(int i=0;i<=V;i++) spf[i]=i;
+    for(int i=2;i*i<=V;i++) if(spf[i]==i) for(int j=i*i;j<=V;j+=i) if(spf[j]==j) spf[j]=i;
+    phi[1]=1;
+    for(int i=2;i<=V;i++){
+        int p=spf[i], m=i/p;
+        if(m%p==0) phi[i]=phi[m]*p;
+        else phi[i]=phi[m]*(p-1);
+    }
+    solve();
+    return 0;
+}

@@ -1,0 +1,46 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int n, m;
+constexpr int MOD = 998244353;
+char s[105];
+int ans[15];
+int dp[105][1 << 15];
+
+int main() {
+  cin >> n >> m;
+  cin >> (s + 1);
+
+  dp[0][0] = 1;
+
+  for (int i = 1; i <= m; ++i) {
+    for (int j = 0; j < (1 << n); ++j) {
+      for (int k = 0; k < 26; ++k) {
+        char c = (char) (k + 'a');
+        int tmp[15], tmp2[15];
+        for (int l = 0; l <= n; ++l) {
+          tmp[l] = tmp2[l] = 0;
+        }
+        for (int l = 1; l <= n; ++l) {
+          tmp[l] = tmp[l - 1] + ((j >> (l - 1)) & 1);
+        }
+        int next = 0;
+        for (int l = 1; l <= n; ++l) {
+          tmp2[l] = max<int>({tmp2[l - 1], tmp[l], tmp[l - 1] + (s[l] == c)});
+          next |= (tmp2[l] - tmp2[l - 1]) << (l - 1);
+        }
+        (dp[i][next] += dp[i - 1][j]) %= MOD;
+      }
+    }
+  }
+
+  for (int j = 0; j < (1 << n); ++j) {
+    (ans[__builtin_popcount(j)] += dp[m][j]) %= MOD;
+  }
+
+  for (int i = 0; i <= n; ++i) {
+    cout << ans[i] << " \n"[i == m];
+  }
+
+  return 0;
+}

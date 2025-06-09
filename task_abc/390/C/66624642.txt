@@ -1,0 +1,36 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+inline void solve()
+{
+    char a[1010][1010];
+    int n,m;
+    cin>>n>>m;
+    int x=100000,xx=0,y=100000,yy=0;
+    for(int i=1;i<=n;++i)
+    {
+        for(int j=1;j<=m;++j)
+        {
+            cin>>a[i][j];
+            if(a[i][j]=='#')
+            {
+                x=min(x,i),xx=max(xx,i);
+                y=min(y,j),yy=max(yy,j);
+            }
+        }
+    }
+    // cout<<x<<' '<<xx<<" "<<y<<" "<<yy<<'\n';
+    for(int i=x;i<=xx;++i)
+    {
+        for(int j=y;j<=yy;++j)
+        {
+            if(a[i][j]!='#'&&a[i][j]!='?')return cout<<"No",void();
+        }
+    }
+    cout<<"Yes";
+}
+signed main()
+{
+    ios::sync_with_stdio(0);
+    return solve(),0;
+}

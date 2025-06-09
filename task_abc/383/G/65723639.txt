@@ -1,0 +1,91 @@
+// Eternal respect and pranam to my Shree DR.MDD
+
+#include<bits/stdc++.h>
+using namespace std;
+int totalElems, windowSize;
+#define ll long long
+ll prefixSum[200100], diffArr[200100];
+#define vi vector<ll>
+vi segment[800100][5][5];
+#define pb push_back
+vi operator + (const vi &left, const vi &right) {
+    vi merged;
+    int l = 0, r = 0;
+    while (l < left.size() || r < right.size()) {
+        if (l < left.size() && (r == right.size() || left[l] < right[r])) merged.pb(left[l++]);
+        else merged.pb(right[r++]);
+    }
+    return merged;
+}
+const ll INF = 1e18;
+void accumulate(vi &v) {
+    if (v.empty()) return;
+    for (int i = 1; i < v.size(); i++) v[i] += v[i - 1];
+}
+void minimize(vi &base, vi patch) {
+    accumulate(patch);
+    int len = patch.size();
+    while (base.size() < len) base.emplace_back(INF);
+    for (int i = 0; i < len; i++) base[i] = min(base[i], patch[i]);
+}
+void revert(vi &v) {
+    if (v.empty()) return;
+    for (int i = v.size() - 1; i > 0; i--) v[i] -= v[i - 1];
+}
+void smartMerge(vi &base, vi &addon) {
+    accumulate(base), minimize(base, addon), revert(base);
+}
+void solve(int node, int left, int right) {
+    if (left == right) {
+        segment[node][0][0].pb(diffArr[left]);
+        return;
+    }
+    int mid = (left + right) >> 1;
+    solve(node << 1, left, mid);
+    solve(node << 1 | 1, mid + 1, right);
+    for (int x = 0; x < windowSize; x++)
+        for (int y = 0; y < windowSize; y++)
+            if (!segment[node << 1][x][y].empty())
+                minimize(segment[node][x][min(y + right - mid, windowSize - 1)], segment[node << 1][x][y]);
+    for (int x = 0; x < windowSize; x++)
+        for (int y = 0; y < windowSize; y++)
+            if (!segment[node << 1 | 1][x][y].empty())
+                minimize(segment[node][min(x + mid - left + 1, windowSize - 1)][y], segment[node << 1 | 1][x][y]);
+    for (int x = windowSize - 2; x >= 0; x--)
+        for (int y = 0; y < windowSize; y++)
+            smartMerge(segment[node << 1 | 1][x][y], segment[node << 1 | 1][x + 1][y]);
+    for (int x = 0; x < windowSize; x++)
+        for (int y = 0; y < windowSize; y++)
+            if (!segment[node << 1][x][y].empty())
+                for (int z = 0; z < windowSize; z++)
+                    if (!segment[node << 1 | 1][windowSize - 1 - y][z].empty())
+                        minimize(segment[node][x][z], segment[node << 1][x][y] + segment[node << 1 | 1][windowSize - 1 - y][z]);
+    for (int x = 0; x < windowSize; x++)
+        for (int y = 0; y < windowSize; y++)
+            revert(segment[node][x][y]);
+}
+int main() {
+    scanf("%d%d", &totalElems, &windowSize);
+    for (int i = 1; i <= totalElems; i++) {
+        scanf("%lld", &prefixSum[i]);
+        prefixSum[i] = -prefixSum[i];
+        prefixSum[i] += prefixSum[i - 1];
+    }
+    for (int i = 1; i <= totalElems - windowSize + 1; i++) {
+        diffArr[i] = prefixSum[i + windowSize - 1] - prefixSum[i - 1];
+    }
+    totalElems = totalElems - windowSize + 1;
+    solve(1, 1, totalElems);
+    for (int x = 0; x < windowSize; x++)
+        for (int y = 0; y < windowSize; y++)
+            accumulate(segment[1][x][y]);
+    for (int i = 1; i <= (totalElems + windowSize - 1) / windowSize; i++) {
+        ll res = INF;
+        for (int x = 0; x < windowSize; x++)
+            for (int y = 0; y < windowSize; y++)
+                if (i <= segment[1][x][y].size())
+                    res = min(res, segment[1][x][y][i - 1]);
+        printf("%lld ", -res);
+    }
+    return 0;
+}

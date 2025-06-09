@@ -1,0 +1,78 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+typedef long long ll;
+typedef pair<ll,ll> P;
+typedef long double ld;
+
+#define pb push_back
+#define fi first
+#define se second
+#define all(vl) vl.begin(),vl.end()
+#define forn(mp,it) for(it = mp.begin();it!=mp.end();it++)
+#define FOR(i,a,n) for(ll i=a;i<ll(n);i++)
+#define FORE(i,a,n) FOR(i,a,n+1)
+#define FORD(i,n,a) for(ll i = n;i>=a;i--)
+
+const double one = 1.0;
+const double PI = 3.14159265/*358979323846*/;
+const ld eps = 1e-14;
+const ll INF = 1e18;
+/*
+const ll mod1 = 1000000007;
+const ll hash_time1 = 1877;
+const ll hash_time2 = 3343;
+*/
+const ll maxn = 2e5 + 10;
+const ll mod = 998244353;
+
+ll dis[510][510],n;
+char g[510][510];
+
+ll dx[4] = {1,-1,0,0},dy[4] = {0,0,1,-1};
+
+ll ans = 0;
+
+void bfs(ll sx,ll sy,ll tx ,ll ty,char tp)
+{
+	deque<array<ll,3> > que;
+	que.push_front({sx,sy,g[sx][sy] != tp});
+	dis[sx][sy] = (g[sx][sy] != tp);
+	while(que.size())
+	{
+		auto [x,y,s] = que.front();
+		que.pop_front();
+		if(x == tx && y == ty)
+		{
+			ans += dis[tx][ty];
+			while(que.size())que.pop_front();
+			FOR(i,0,n)FOR(j,0,n)dis[i][j] = INF;
+			return;
+		}
+		FOR(i,0,4)
+		{
+			ll xx = x+dx[i],yy = y + dy[i];
+			if(xx < 0 || xx >= n || yy < 0 || yy >= n)continue;
+			if(dis[x][y] + (g[xx][yy] != tp) < dis[xx][yy])
+			{
+				dis[xx][yy] = dis[x][y] + (g[x][y] != tp);
+				if(g[xx][yy] != tp)que.push_back({xx,yy,dis[xx][yy]});
+				else que.push_front({xx,yy,dis[xx][yy]});
+			}
+		}
+	}
+}
+
+int main()
+{
+ 	ios_base::sync_with_stdio(0);
+ 	cin.tie(0);
+ 	cout.tie(0);
+ 	cin >> n;
+ 	FOR(i,0,n)FOR(j,0,n)cin >> g[i][j];
+ 	FOR(i,0,n)FOR(j,0,n)dis[i][j] = INF;
+ 	bfs(0,0,n-1,n-1,'R');
+ 	bfs(0,n-1,n-1,0,'B');
+ 	cout << ans << endl;
+ 	return 0;
+}

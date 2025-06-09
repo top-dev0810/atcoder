@@ -1,0 +1,580 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll=long long;
+using ull=unsigned long long;
+using P=pair<ll,ll>;
+template<typename T>using minque=priority_queue<T,vector<T>,greater<T>>;
+template<typename T>bool chmax(T &a,const T &b){return (a<b?(a=b,true):false);}
+template<typename T>bool chmin(T &a,const T &b){return (a>b?(a=b,true):false);}
+template<typename T1,typename T2>istream &operator>>(istream &is,pair<T1,T2>&p){is>>p.first>>p.second;return is;}
+template<typename T1,typename T2,typename T3>istream &operator>>(istream &is,tuple<T1,T2,T3>&a){is>>std::get<0>(a)>>std::get<1>(a)>>std::get<2>(a);return is;}
+template<typename T,size_t n>istream &operator>>(istream &is,array<T,n>&a){for(auto&i:a)is>>i;return is;}
+template<typename T>istream &operator>>(istream &is,vector<T> &a){for(auto &i:a)is>>i;return is;}
+template<typename T1,typename T2>void operator++(pair<T1,T2>&a,int n){a.first++,a.second++;}
+template<typename T1,typename T2>void operator--(pair<T1,T2>&a,int n){a.first--,a.second--;}
+template<typename T>void operator++(vector<T>&a,int n){for(auto &i:a)i++;}
+template<typename T>void operator--(vector<T>&a,int n){for(auto &i:a)i--;}
+#define overload3(_1,_2,_3,name,...) name
+#define rep1(i,n) for(int i=0;i<(int)(n);i++)
+#define rep2(i,l,r) for(int i=(int)(l);i<(int)(r);i++)
+#define rep(...) overload3(__VA_ARGS__,rep2,rep1)(__VA_ARGS__)
+#define reps(i,l,r) rep2(i,l,r)
+#define all(x) x.begin(),x.end()
+#define pcnt(x) __builtin_popcountll(x)
+#define fin(x) return cout<<(x)<<'\n',static_cast<void>(0)
+#define yn(x) cout<<((x)?"Yes\n":"No\n")
+#define uniq(x) sort(all(x)),x.erase(unique(all(x)),x.end())
+template<typename T>
+inline int fkey(vector<T>&z,T key){return lower_bound(z.begin(),z.end(),key)-z.begin();}
+ll myceil(ll a,ll b){return (a+b-1)/b;}
+template<typename T,size_t n,size_t id=0>
+auto vec(const int (&d)[n],const T &init=T()){
+  if constexpr (id<n)return vector(d[id],vec<T,n,id+1>(d,init));
+  else return init;
+}
+#ifdef LOCAL
+#include<debug.h>
+#define SWITCH(a,b) (a)
+#else
+#define debug(...) static_cast<void>(0)
+#define debugg(...) static_cast<void>(0)
+#define SWITCH(a,b) (b)
+template<typename T1,typename T2>ostream &operator<<(ostream &os,const pair<T1,T2>&p){os<<p.first<<' '<<p.second;return os;}
+#endif
+struct Timer{
+  clock_t start;
+  Timer(){
+    start=clock();
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cout<<fixed<<setprecision(16);
+  }
+  inline double now(){return (double)(clock()-start)/1000;}
+  #ifdef LOCAL
+  ~Timer(){
+    cerr<<"time:";
+    cerr<<now();
+    cerr<<"ms\n";
+  }
+  #endif
+}timer;
+void SOLVE();
+int main(){
+  int testcase=1;
+  //cin>>testcase;
+  for(int i=0;i<testcase;i++){
+    SOLVE();
+  }
+}
+template<typename T=int>
+struct Edge{
+  int from,to;
+  T weight;
+  int index;
+  Edge(int from_,int to_,T weight_=T(),int index_=-1):from(from_),to(to_),weight(weight_),index(index_){}
+  Edge():from(-1),to(-1),weight(),index(-1){}
+  friend std::ostream &operator<<(std::ostream &os,const Edge&e){
+    os<<'[';
+    os<<"from:"<<e.from;
+    os<<"to:"<<e.to;
+    os<<"weight:"<<e.weight;
+    os<<"index:"<<e.index;
+    os<<']';
+    return os;
+  }
+};
+template<typename T=int>
+struct Tree{
+private:
+  int n;
+  std::vector<int>par;
+  std::vector<Edge<T>>edge;
+  std::vector<Edge<T>>g;
+  std::vector<int>ptr;
+  struct tree_range{
+    using iterator=typename std::vector<Edge<T>>::iterator;
+    iterator l,r;
+    iterator begin()const{return l;}
+    iterator end()const{return r;}
+    int size()const{return r-l;}
+    bool empty()const{return !size();}
+    Edge<T> &operator[](int i)const{return l[i];}
+  };
+  struct const_tree_range{
+    using iterator=typename std::vector<Edge<T>>::const_iterator;
+    iterator l,r;
+    iterator begin()const{return l;}
+    iterator end()const{return r;}
+    int size()const{return r-l;}
+    bool empty()const{return !size();}
+    const Edge<T> &operator[](int i)const{return l[i];}
+  };
+public:
+  explicit Tree(int n_):n(n_){
+    edge.reserve(n-1);
+  }
+  Tree():n(0){}
+  Tree(int n_,const std::vector<Edge<T>>&e,bool dir=false):n(n_),edge(e){
+    if(!dir)build();
+    else{
+      par.resize(n,-1);
+      ptr.resize(n+1);
+      for(const Edge<T>&i:edge)ptr[i.from]++,par[i.to]=i.from;
+      for(int i=1;i<=n;i++)ptr[i]+=ptr[i-1];
+      assert(ptr[n]==n-1);
+      g.resize(n-1);
+      for(const Edge<T>&i:edge)g[--ptr[i.from]]=i;
+    }
+  }
+  template<bool weighted=false,bool index=1>
+  void read(){
+    for(int i=0;i<n-1;i++){
+      int u,v;
+      T w=T();
+      std::cin>>u>>v;
+      if constexpr(index)u--,v--;
+      if constexpr(weighted)std::cin>>w;
+      else w=1;
+      edge.emplace_back(u,v,w,i);
+    }
+    build();
+  }
+  template<bool index=1>
+  void readp(){
+    par.resize(n);
+    par[0]=-1;
+    ptr.resize(n+1);
+    for(int i=1;i<n;i++){
+      int p;
+      std::cin>>p;
+      if constexpr(index)p--;
+      edge.emplace_back(p,i,1,i-1);
+      par[i]=p;
+      ptr[p]++;
+    }
+    for(int i=1;i<=n;i++)ptr[i]+=ptr[i-1];
+    g.resize(n-1);
+    for(int i=0;i<n-1;i++){
+      g[--ptr[edge[i].from]]=edge[i];
+    }
+  }
+  void add_edge(int u,int v){edge.emplace_back(u,v,1,edge.size());}
+  void add_edge(int u,int v,T w){edge.emplace_back(u,v,w,edge.size());}
+  void add_edge(int u,int v,T w,int idx){edge.emplace_back(u,v,w,idx);}
+  inline bool is_directed()const{return !par.empty();}
+  void build(){
+    ptr.resize(n+1,0);
+    for(auto&&[u,v,w,i]:edge)ptr[u]++,ptr[v]++;
+    for(int i=1;i<=n;i++)ptr[i]+=ptr[i-1];
+    assert(ptr[n]==n*2-2);
+    g.resize(n*2-2);
+    par.clear();
+    for(auto&&[u,v,w,i]:edge){
+      g[--ptr[u]]=Edge(u,v,w,i);
+      g[--ptr[v]]=Edge(v,u,w,i);
+    }
+  }
+  void remove_parent(int root=0){
+    edge.resize(n-1);
+    par.resize(n);
+    auto dfs=[&](auto self,int x,int p)->void {
+      par[x]=p;
+      for(const Edge<T>&e:(*this)[x])if(e.to!=p){
+        edge[e.index]=e;
+        self(self,e.to,x);
+      }
+    };
+    dfs(dfs,root,-1);
+    ptr.resize(n+1);
+    std::fill(ptr.begin(),ptr.end(),0);
+    for(int i=0;i<n-1;i++)ptr[edge[i].from]++;
+    for(int i=1;i<=n;i++)ptr[i]+=ptr[i-1];
+    g.resize(ptr[n]);
+    for(const Edge<T>&e:edge)g[--ptr[e.from]]=e;
+  }
+  std::vector<int>bfs_order()const{
+    assert(is_directed());
+    std::vector<int>bfs(n);
+    int p=0,q=0;
+    bfs[q++]=root();
+    while(p<q){
+      int x=bfs[p++];
+      for(const Edge<T>&e:(*this)[x])bfs[q++]=e.to;
+    }
+    return bfs;
+  }
+  std::vector<int>dfs_order()const{
+    assert(is_directed());
+    std::vector<int>res;
+    res.reserve(n);
+    std::vector<int>st(n);
+    int p=0;
+    st[p++]=root();
+    while(p){
+      int x=st[--p];
+      res.push_back(x);
+      p+=(*this)[x].size();
+      for(const Edge<T>&e:(*this)[x])st[--p]=e.to;
+      p+=(*this)[x].size();
+    }
+    return res;
+  }
+  std::vector<int>rbfs_order()const{
+    std::vector<int>bfs=bfs_order();
+    std::reverse(bfs.begin(),bfs.end());
+    return bfs;
+  }
+  void hld(){
+    assert(is_directed());
+    auto dfs=[&](auto self,int x)->int {
+      int ret=1,mx=-1;
+      for(Edge<T>&e:(*this)[x]){
+        int s=self(self,e.to);
+        ret+=s;
+        if(mx<s){
+          mx=s;
+          std::swap((*this)[x][0],e);
+        }
+      }
+      return ret;
+    };
+    dfs(dfs,root());
+  }
+  std::pair<std::vector<int>,std::vector<int>>in_out_order(){
+    assert(is_directed());
+    std::vector<int>in(n),out(n);
+    int p=0;
+    auto dfs=[&](auto self,int x)->void {
+      in[x]=p++;
+      for(const Edge<T>&e:(*this)[x]){
+        self(self,e.to);
+      }
+      out[x]=p;
+    };
+    dfs(dfs,root());
+    return std::make_pair(in,out);
+  }
+  int size()const{return n;}
+  tree_range operator[](int i){return tree_range{g.begin()+ptr[i],g.begin()+ptr[i+1]};}
+  const_tree_range operator[](int i)const{return const_tree_range{g.begin()+ptr[i],g.begin()+ptr[i+1]};}
+  const Edge<T>& get_edge(int i)const{return edge[i];}
+  inline int parent(int i)const{return par[i];}
+  inline int root()const{return std::find(par.begin(),par.end(),-1)-par.begin();}
+  typename std::vector<Edge<T>>::iterator begin(){return edge.begin();}
+  typename std::vector<Edge<T>>::iterator end(){return edge.end();}
+  typename std::vector<Edge<T>>::const_iterator begin()const{return edge.begin();}
+  typename std::vector<Edge<T>>::const_iterator end()const{return edge.end();}
+};
+std::pair<Tree<>,std::vector<std::pair<int,int>>> parenthesis_to_tree(const std::string&s){
+  int n=s.size();
+  assert(n%2==0);
+  int cnt=0;
+  for(int i=0;i<n;i++){
+    if(s[i]=='(')cnt++;
+    else if(s[i]==')'){
+      cnt--;
+      if(cnt==0)assert(i+1==n);
+    }
+    else assert(!"s is not parenthesis");
+  }
+  assert(cnt==0);
+  std::vector<Edge<>>edge;
+  edge.reserve(n/2-1);
+  int p=0;
+  std::vector<std::pair<int,int>>rng(n/2);
+  auto dfs=[&](auto self,int l,int r)->int {
+    if(l+2==r){
+      rng[p]=std::make_pair(l,r);
+      return p++;
+    }
+    int c=0;
+    int v=p++;
+    int pre=l+1;
+    for(int i=l+1;i<r;i++){
+      if(s[i]=='(')c++;
+      else{
+        c--;
+        if(c==0){
+          edge.emplace_back(v,self(self,pre,i+1));
+          pre=i+1;
+        }
+      }
+    }
+    rng[v]=std::make_pair(l,r);
+    return v;
+  };
+  dfs(dfs,0,n);
+  return std::make_pair(Tree<>(n/2,edge,true),rng);
+}
+template<typename T>
+std::vector<int>tree_isomorphism_classification(const Tree<T>&t){
+  assert(t.is_directed());
+  std::vector<int>res(t.size());
+  std::vector<int>bfs=t.bfs_order();
+  std::reverse(bfs.begin(),bfs.end());
+  std::map<std::vector<int>,int>mp;
+  for(int x:bfs){
+    std::vector<int>now;
+    now.reserve(t[x].size());
+    for(const Edge<T>&e:t[x])now.push_back(res[e.to]);
+    std::sort(now.begin(),now.end());
+    if(mp.contains(now))res[x]=mp[now];
+    else{
+      res[x]=mp.size();
+      mp[now]=res[x];
+    }
+  }
+  return res;
+}
+#include<type_traits>
+#include<optional>
+constexpr int carmichael_constexpr(int n){
+  if(n==998244353)return 998244352;
+  if(n==1000000007)return 1000000006;
+  if(n<=1)return n;
+  int res=1;
+  int t=0;
+  while(n%2==0){
+    n/=2;
+    t++;
+  }
+  if(t==2)res=2;
+  else if(t>=3)res=1<<(t-2);
+  for(int i=3;i*i<=n;i++)if(n%i==0){
+    int c=0;
+    while(n%i==0){
+      n/=i;
+      c++;
+    }
+    int prod=i-1;
+    for(int j=0;j<c-1;j++)prod*=i;
+    res=std::lcm(res,prod);
+  }
+  if(n!=1)res=std::lcm(res,n-1);
+  return res;
+}
+template<int m>
+struct mod_int{
+private:
+  static constexpr unsigned int umod=static_cast<unsigned int>(m);
+  static constexpr unsigned int car=carmichael_constexpr(m);
+  using uint=unsigned int;
+  using mint=mod_int;
+  uint v;
+  static_assert(m<uint(1)<<31);
+  mint sqrt_impl()const{
+    if(this->val()<=1)return *this;
+    if constexpr(m%8==1){
+      mint b=2;
+      while(b.pow((m-1)/2).val()==1)b++;
+      int m2=m-1,e=0;
+      while(m2%2==0)m2>>=1,e++;
+      mint x=this->pow((m2-1)/2);
+      mint y=(*this)*x*x;
+      x*=*this;
+      mint z=b.pow(m2);
+      while(y.val()!=1){
+        int j=0;
+        mint t=y;
+        while(t.val()!=1)t*=t,j++;
+        z=z.pow(1<<(e-j-1));
+        x*=z;
+        z*=z;
+        y*=z;e=j;
+      }
+      return x;
+    }
+    else if constexpr(m%8==5){
+      mint ret=this->pow((m+3)/8);
+      if((ret*ret).val()==this->val())return ret;
+      else return ret*mint::raw(2).pow((m-1)/4);
+    }
+    else{
+      return this->pow((m+1)/4);
+    }
+  }
+public:
+  using value_type=uint;
+  mod_int():v(0){}
+  template<typename T,std::enable_if_t<std::is_signed_v<T>,std::nullptr_t> =nullptr>
+  mod_int(T a){
+    a%=m;
+    if(a<0)v=a+umod;
+    else v=a;
+  }
+  template<typename T,std::enable_if_t<std::is_unsigned_v<T>,std::nullptr_t> =nullptr>
+  mod_int(T a):v(a%umod){}
+  static constexpr mint raw(int a){
+    mint ret;
+    ret.v=a;
+    return ret;
+  }
+  inline uint val()const{return this->v;}
+  static constexpr int mod(){return m;}
+  inline mint &operator+=(const mint &b){
+    this->v+=b.v;
+    if(this->v>=umod)this->v-=umod;
+    return *this;
+  }
+  inline mint &operator-=(const mint &b){
+    this->v-=b.v;
+    if(this->v>=umod)this->v+=umod;
+    return *this;
+  }
+  inline mint &operator*=(const mint &b){
+    this->v=((unsigned long long)this->v*b.v)%umod;
+    return *this;
+  }
+  inline mint &operator/=(const mint &b){
+    *this*=b.inv();
+    return *this;
+  }
+  inline mint operator+()const{return *this;}
+  inline mint operator-()const{return mint()-*this;}
+  friend inline mint operator+(const mint &a,const mint &b){return mint(a)+=b;}
+  friend inline mint operator-(const mint &a,const mint &b){return mint(a)-=b;}
+  friend inline mint operator*(const mint &a,const mint &b){return mint(a)*=b;}
+  friend inline mint operator/(const mint &a,const mint &b){return mint(a)/=b;}
+  friend inline bool operator==(const mint &a,const mint &b){return a.val()==b.val();}
+  friend inline bool operator!=(const mint &a,const mint &b){return !(a==b);}
+  inline mint operator++(int){
+    mint ret=*this;
+    *this+=mint::raw(1);
+    return ret;
+  }
+  inline mint operator--(int){
+    mint ret=*this;
+    *this-=mint::raw(1);
+    return ret;
+  }
+  mint pow(long long n)const{
+    mint ret=mint::raw(1),a(*this);
+    while(n){
+      if(n&1)ret*=a;
+      a*=a;
+      n>>=1;
+    }
+    return ret;
+  }
+  inline mint inv()const{
+    assert(this->v!=0);
+    return pow(car-1);
+  }
+  std::optional<mint>sqrt()const{
+    if(this->val()<=1||this->pow((m-1)/2)==1)return std::make_optional(this->sqrt_impl());
+    else return std::nullopt;
+  }
+  static constexpr unsigned int order(){return car;}
+  friend std::istream &operator>>(std::istream &is,mint &b){
+    long long a;
+    is>>a;
+    b=mint(a);
+    return is;
+  }
+  friend std::ostream &operator<<(std::ostream &os,const mint &b){
+    os<<b.val();
+    return os;
+  }
+};
+template<int m>
+struct std::hash<mod_int<m>>{
+  std::size_t operator()(mod_int<m>x)const{
+    return std::hash<unsigned int>()(x.val());
+  }
+};
+using mint998=mod_int<998244353>;
+using mint107=mod_int<1000000007>;
+#include<initializer_list>
+template<typename T>
+struct F{
+private:
+  static int capacity;
+  static std::vector<T>fact,factinv,inv;
+public:
+  static void resize(int n){
+    if(capacity>=n)return;
+    fact.resize(n+1),factinv.resize(n+1),inv.resize(n+1);
+    for(int i=capacity+1;i<=n;i++){
+      fact[i]=fact[i-1]*i;
+      inv[i]=-inv[T::mod()%i]*(T::mod()/i);
+      factinv[i]=factinv[i-1]*inv[i];
+    }
+    capacity=n;
+  }
+  static T C(int n,int k){
+    if(n<k)return 0;
+    if(k<0)return 0;
+    resize(n);
+    return fact[n]*factinv[k]*factinv[n-k];
+  }
+  static T P(int n,int k){
+    if(n<k)return 0;
+    if(k<0)return 0;
+    resize(n);
+    return fact[n]*factinv[n-k];
+  }
+  static T H(int n,int k){
+    if(n==0&&k==0)return 1;
+    return C(n+k-1,k);
+  }
+  static T factorial(int n){
+    resize(n);
+    return fact[n];
+  }
+  static T factorial_inv(int n){
+    resize(n);
+    return factinv[n];
+  }
+  static T inverse(int n){
+    resize(n);
+    return inv[n];
+  }
+  static T S(long long n,int k){
+    if(n<0)return 0;
+    if(n<k)return 0;
+    T ret=0;
+    resize(k);
+    for(int i=0;i<=k;i++){
+      ret+=fact[k]*factinv[i]*factinv[k-i]*T::raw(i).pow(n)*((k-i)&1?-1:1);
+    }
+    return ret*factinv[k];
+  }
+  template<typename... INT>
+  static T O(INT...k){
+    int n=0;
+    for(int i:std::initializer_list<int>{k...}){
+      if(i<0)return 0;
+      n+=i;
+    }
+    resize(n);
+    T ret=fact[n];
+    for(int i:std::initializer_list<int>{k...})ret*=factinv[i];
+    return ret;
+  }
+};
+template<typename T>int F<T>::capacity=1;
+template<typename T>std::vector<T>F<T>::fact{1,1};
+template<typename T>std::vector<T>F<T>::factinv{1,1};
+template<typename T>std::vector<T>F<T>::inv{0,1};
+using mint=mint998;
+void SOLVE(){
+  int n;
+  string s;
+  cin>>n>>s;
+  auto t=parenthesis_to_tree('('+s+')').first;
+  auto c=tree_isomorphism_classification(t);
+  mint ans=1;
+  rep(i,t.size()){
+    vector<int>now;
+    for(auto e:t[i])now.push_back(c[e.to]);
+    sort(all(now));
+    for(int j=0;j<now.size();){
+      int k=j;
+      while(k<now.size()&&now[j]==now[k])k++;
+      ans*=F<mint>::factorial_inv(k-j);
+      j=k;
+    }
+    ans*=F<mint>::factorial(now.size());
+  }
+  cout<<ans<<endl;
+}

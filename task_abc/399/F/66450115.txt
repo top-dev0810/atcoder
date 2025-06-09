@@ -1,0 +1,151 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+const int P = 998244353;
+const int root = 3;
+
+
+int norm(int x) {
+    if (x < 0) x += P;
+    else if (x >= P) x -= P;
+    return x;
+}
+
+int mul(int a, int b) {
+    return 1LL * a * b % P;
+}
+
+int sub(int a, int b) {
+    return norm(a - b + P);
+}
+
+int add(int a, int b) {
+    return norm(a + b);
+}
+
+int pow(int x, int n) {
+    int ans = 1, s = x;
+    while (n) {
+        if (n & 1) ans = mul(ans, s);
+        n >>= 1, s = mul(s, s);
+    }
+    return ans;
+}
+
+vector<int> NTT(vector<int>& f, int inv) {
+    int n = f.size();
+    int h = 2;
+    while (h <= n) {
+        int diff = pow(root, (P - 1) / h);
+        if (inv == -1) diff = pow(diff, P - 2);
+        for (int j = 0; j < n; j += h) {
+            int w = 1;
+            for (int k = j; k < j + h / 2; k++) {
+                int u = f[k];
+                int t = mul(f[k + h / 2], w);
+                f[k] = add(u, t);
+                f[k + h / 2] = sub(u, t);
+                w = mul(w, diff);
+            }
+        }
+        h <<= 1;
+    }
+    if (inv == -1) {
+        int inv_ = pow(n, P - 2);
+        for (int i = 0; i < n; i++) {
+            f[i] = mul(f[i], inv_);
+        }
+    }
+    return f;
+}
+
+vector<int> work(vector<int>& g1, vector<int>& g2) {
+    int m1 = g1.size(), m2 = g2.size();
+    int n = m1 + m2 - 1;
+    int t = 1;
+    while (t < n) t <<= 1;
+
+    int lg = __builtin_ctz(t);
+    vector<int> rev(t);
+    for (int i = 0; i < t; i++) {
+        rev[i] = (rev[i >> 1] >> 1) | ((i & 1) << (lg - 1));
+    }
+
+    vector<int> h1(t), h2(t);
+    copy(g1.begin(), g1.end(), h1.begin());
+    copy(g2.begin(), g2.end(), h2.begin());
+
+    for (int i = 0; i < t; i++) {
+        if (i < rev[i]) {
+            swap(h1[i], h1[rev[i]]);
+            swap(h2[i], h2[rev[i]]);
+        }
+    }
+
+    auto H1 = NTT(h1, 1);
+    auto H2 = NTT(h2, 1);
+
+    vector<int> f(t);
+    for (int i = 0; i < t; i++) {
+        f[i] = mul(H1[i], H2[i]);
+    }
+
+    for (int i = 0; i < t; i++) {
+        if (i < rev[i]) {
+            swap(f[i], f[rev[i]]);
+        }
+    }
+
+    auto F = NTT(f, -1);
+
+    return F;
+}
+
+pair<vector<int>, vector<int>> func(int mx, int mod) {
+    vector<int> f(mx + 1), g(mx + 1);
+    f[0] = 1;
+    g[0] = 1;
+    for (int i = 1; i <= mx; i++) {
+        f[i] = mul(i, f[i - 1]);
+        g[i] = pow(f[i], mod - 2);
+    }
+    return {f, g};
+}
+
+void sol() {
+    int n, k;
+    cin >> n >> k;
+    vector<int> arr(n);
+    for (int i = 0; i < n; i++) cin >> arr[i];
+
+    vector<int> dp(k + 1);
+    int s = 0;
+    auto [f, g] = func(k, P);
+
+    for (int i = 0; i < n; i++) {
+        int x = arr[i];
+        vector<int> a(k + 1), b(k + 1);
+        for (int j = 0; j <= k; j++) {
+            a[j] = mul(g[j], pow(x, j));
+            b[j] = mul(g[j], dp[j]);
+        }
+        auto c = work(a, b);
+        vector<int> ndp(k + 1);
+        for (int j = 0; j <= k; j++) {
+            ndp[j] = mul(f[j], add(c[j], a[j]));
+        }
+        s = add(s, ndp[k]);
+        dp = ndp;
+    }
+    cout << s << endl;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    int T = 1;
+    while (T--) {
+        sol();
+    }
+    return 0;
+}

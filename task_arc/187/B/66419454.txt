@@ -1,0 +1,18 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+const int N=2005,P=998244353;int n,m,a[N],b[N],c[N],L[N][N],R[N][N],ans=0;
+signed main(){
+	ios::sync_with_stdio(false),cin.tie(0);
+	cin>>n>>m;
+	for(int i=0;i<=m;++i)L[0][i]=R[n+1][i]=1;
+	for(int i=1;i<=n;++i){
+		cin>>a[i];
+		for(int j=m;j;--j)L[i][j]=L[i-1][j]*(a[i]<0?m+1-j:(a[i]>=j))%P;
+	}
+	for(int i=n;i;--i)for(int j=m;j;--j){
+		R[i][j]=R[i+1][j]*(a[i]<0?j:(a[i]<=j))%P;
+		(ans+=(L[i][j]-L[i][j+1])*R[i+1][j-1])%=P;
+	}
+	return cout<<(ans+P)%P<<"\n",0;
+}

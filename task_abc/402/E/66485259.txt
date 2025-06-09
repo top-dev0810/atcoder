@@ -1,0 +1,42 @@
+#include <bits/stdc++.h>
+
+#define all(x) begin(x), end(x)
+#define int long long
+
+using namespace std;
+using ll = long long;
+
+const char nl = '\n';
+
+void solve() {
+    int n, x;
+    cin >> n >> x;
+    vector<tuple<int, int, double>> a(n);
+    for (auto &[s, c, p]: a) {
+        cin >> s >> c >> p;
+        p /= 100.0;
+    }
+    vector dp(x + 1, vector(1 << n, 0.0));
+    for (int w = 0; w <= x; w++) {
+        for (int m = 0; m < 1 << n; m++) {
+            for (int i = 0; i < n; i++) {
+                auto &[s, c, p] = a[i];
+                if (m >> i & 1 || w < c) continue;
+                dp[w][m] = max(dp[w][m], p * (s + dp[w - c][m | (1 << i)]) +
+                                         (1 - p) * dp[w - c][m]);
+            }
+        }
+    }
+    cout << dp[x][0] << nl;
+}
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cout << fixed << setprecision(10);
+#ifdef LOCAL
+    freopen("../in.txt", "r", stdin);
+    freopen("../out.txt", "w", stdout);
+#endif
+    solve();
+}

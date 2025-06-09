@@ -1,0 +1,112 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+const int mod = 998244353, g = 3, inv = 332748118, N = 4e6 + 5;
+int r[N], lmt, n, s, cr[N], x[N];
+struct dxs {
+  int len, a[N];
+} a, b;
+void gz(dxs &c, int len) {
+  c.len = len;
+}
+int ksm(int x, int y, int ans = 1) {
+  for (; y; (y & 1) && (ans = ans * x % mod), x = x * x % mod, y >>= 1) {
+  }
+  return ans;
+}
+void operator+=(dxs &a, int b) {
+  for (int i = 0; i < a.len; i++) {
+    if (i < r[i]) {
+      swap(a.a[r[i]], a.a[i]);
+    }
+  }
+  for (int s = 1; s < a.len; s <<= 1) {
+    int wn = ksm((b == 1) ? g : inv, (mod - 1) / (s << 1));
+    for (int i = 0; i < a.len; i += (s << 1)) {
+      int w = 1;
+      for (int j = 0; j < s; j++, w = (w * wn) % mod) {
+        int x = a.a[i + j], y = w * a.a[i + j + s] % mod;
+        a.a[i + j] = (x + y) % mod;
+        a.a[i + j + s] = (x - y + mod) % mod;
+      }
+    }
+  }
+}
+dxs operator*(dxs a, dxs b) {
+  int ln = a.len, lm = b.len;
+  lmt = 1;
+  for (; lmt <= ln + lm; lmt <<= 1) {
+  }
+  for (int i = 0; i < lmt; i++) {
+    r[i] = (r[i >> 1] >> 1) | ((i & 1) * lmt / 2);
+  }
+  gz(a, lmt), gz(b, lmt);
+  a += 1, b += 1;
+  for (int i = 0; i < lmt; i++) {
+    a.a[i] = a.a[i] * b.a[i] % mod;
+  }
+  a += -1;
+  int invx = ksm(lmt, mod - 2);
+  for (int i = 0; i <= ln + lm; i++) {
+    a.a[i] = a.a[i] * invx % mod;
+  }
+  return a;
+}
+void getans(int a, int b, int c) {
+  int sx = 0, sy = 0, sz = 0;
+  for (int i = 1; i <= n; i++) {
+    if ((x[i] == a) && (!sx)) {
+      sx = i;
+      continue;
+    }
+    if ((x[i] == b) && (!sy)) {
+      sy = i;
+      continue;
+    }
+    if ((x[i] == c) && (!sz)) {
+      sz = i;
+      continue;
+    }
+  }
+  int mx = max({sx, sy, sz}), mn = min({sx, sy, sz}), mid = sx + sy + sz - mx - mn;
+  cout << mn << " " << mid << " " << mx;
+}
+signed main() {
+  cin >> n >> s;
+  gz(a, 1e6 + 1);
+  for (int i = 1; i <= n; i++) {
+    cin >> x[i];
+    a.a[x[i]]++;
+    a.a[x[i]] = min(a.a[x[i]],3ll);
+  }
+  b = a * a;
+  for (int i = 0; i <= 1e6; i++) {
+    b.a[2 * i] -= a.a[i];
+  }
+  for (int i = 1; i <= n; i++) {
+    if (x[i] <= s) {
+      int ans = b.a[s - x[i]] / 2;
+      (s >= 2 * x[i]) && (ans -= a.a[s - 2 * x[i]]);
+      ans += (x[i] * 3 == s);
+      if (ans) {
+        a.a[x[i]]--;
+        for (int j = 0; j + x[i] <= s; j++) {
+          if (!a.a[j]) {
+            continue;
+          }
+          a.a[j]--;
+          if (a.a[s - j - x[i]]) {
+            getans(x[i], j, s - j - x[i]);
+            return 0;
+          }
+          a.a[j]++;
+        }
+      }
+    }
+  }
+  cout << "-1";
+}
+/*
+L
+x^k
+*/

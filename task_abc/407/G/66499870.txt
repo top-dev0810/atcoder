@@ -1,0 +1,80 @@
+#include<bits/stdc++.h>
+#define int long long
+using namespace std;
+const int N=3000000+5,M=3e6+5,inf=1e18;
+int dis[N] , head[N] , s , t , fa[N] , cost=0 , cnt=0 ;
+bool vis[N] ;
+struct node {
+	int to , next , w , c ;
+} e[N<<1];
+void use(int u,int v,int w,int c) {
+	e[cnt].to = v ;
+	e[cnt].w = w ;
+	e[cnt].c = c ;
+	e[cnt].next = head[u] ;
+	head[u] = cnt++ ;
+}
+void newnet(int u,int v,int w,int c) {
+	use(u,v,w,c) ;
+	use(v,u,0,-c) ;
+}
+bool spfa() {
+	for(int i=1; i<=t; i++) dis[i] = (1ll<<60) , vis[i]=0 ;
+	queue<int> q ;
+	q.push(s) ;
+	dis[s] = 0 ;
+	while(!q.empty()) {
+		int u=q.front() ;
+		q.pop() ;
+		vis[u] = 0 ;
+		for(int i=head[u]; ~i; i=e[i].next) {
+			int x=e[i].to ;
+			if(dis[u]+e[i].c<dis[x]&&e[i].w) {
+				fa[x] = i ;
+				dis[x] = dis[u]+e[i].c ;
+				if(!vis[x]) q.push(x) , vis[x]=1 ;
+			}
+		}
+	}
+	return dis[t]!=(1ll<<60);
+}
+void flows() {
+	while(spfa()) {
+		int now=t ;
+		while(now!=s) {
+			e[fa[now]].w = 0 ;
+			e[fa[now]^1].w = 1 ;
+			now = e[fa[now]^1].to ;
+		}
+		if(dis[t]>0) return ;
+		cost -= dis[t] ;
+	}
+}
+#define num(i,j) ((i-1)*w+j)
+int h,w,a[2005][2005];
+signed main(){
+    memset(head,-1,sizeof head);
+	scanf("%lld%lld",&h,&w);
+	s=h*w+1;t=s+1;int ans=0;
+	for(int i=1;i<=h;i++)
+		for(int j=1;j<=w;j++){
+			scanf("%lld",&a[i][j]);
+			cost+=a[i][j];
+		}
+	for(int i=1;i<=h;i++)
+		for(int j=1;j<=w;j++){
+			if(i+j&1){
+				newnet(num(i,j),t,1,0);
+			}
+			else{
+				newnet(s,num(i,j),1,0);
+				if(i>1) newnet(num(i,j),num(i-1,j),1,a[i][j]+a[i-1][j]);
+				if(j>1) newnet(num(i,j),num(i,j-1),1,a[i][j]+a[i][j-1]);
+				if(i<h) newnet(num(i,j),num(i+1,j),1,a[i][j]+a[i+1][j]);
+				if(j<w) newnet(num(i,j),num(i,j+1),1,a[i][j]+a[i][j+1]);
+			}
+		}
+    flows();
+	printf("%lld\n",cost);
+	return 0;
+}

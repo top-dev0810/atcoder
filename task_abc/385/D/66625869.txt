@@ -1,0 +1,143 @@
+#include <bits/stdc++.h>
+using namespace std;
+template<class T> bool chmin(T& a, T b) { return a > b ? a = b, true : false; }
+template<class T> bool chmax(T& a, T b) { return a < b ? a = b, true : false; }
+template<typename T>
+concept Iterable = requires(T t) { std::begin(t); std::end(t); };
+template<typename T>
+    requires Iterable<T> && (!is_same_v<T, string>)
+ostream& operator<<(ostream& os, const T& container) { for (auto& element : container) os << element << ' '; return os; }
+template<typename R>
+    requires ranges::range<R> && (!is_same_v<decay_t<R>, string>) && (!is_same_v<decay_t<R>, const char*>)
+ostream& operator<<(ostream& os, R&& range) { for (auto& element : range)os << element << ' '; return os; }
+template<typename T>
+    requires Iterable<T> && (!is_same_v<T, string>)
+istream& operator>>(std::istream& is, T& container) { for (auto& e : container)is >> e; return is; }
+using ll = long long;
+using ull = unsigned long long;
+using uint = unsigned int;
+template<class T = ll> struct Edge {
+    int to;
+    T weight;
+    bool operator==(Edge e) { return this->to == e.to and this->weight == e.weight; }
+    bool operator<(Edge e) { return this->to == e.to ? this->weight < e.weight : this->to < e.to; }
+};
+#ifdef _DEBUG
+#define SHOW(n) {const auto& _ret = n; cerr << #n << ": " << _ret << endl;}
+#define MSG(x) cerr << x << endl;
+#else
+#define SHOW(n)
+#define MSG(x)
+#endif
+
+//AtCoder Library 
+#include <atcoder/all>
+using namespace atcoder;
+using mint = modint998244353;
+//using mint = modint1000000007;
+//using mint1 = dynamic_modint<0>;
+//using mint = modint;
+//mint::set_mod();
+istream& operator>>(istream& is, mint& x) { ll r; is >> r; x = r; return is; }
+ostream& operator<<(ostream& os, mint& x) { os << x.val(); return os; }
+
+//boost
+#include <boost/multiprecision/cpp_int.hpp>
+using namespace boost::multiprecision;
+using l3 = int128_t;
+
+
+int main() {
+    cin.tie(nullptr);
+    ios::sync_with_stdio(false);
+
+    ll n, m, sx, sy;
+    cin >> n >> m >> sx >> sy;
+    map<ll, vector<ll>> vy, vx;
+    for (int i = 0; i < n; ++i) {
+        int y, x;
+        cin >> x >> y;
+        vy[y].push_back(x);
+        vx[x].push_back(y);
+    }
+
+    for (auto& [k, v] : vy)ranges::sort(v);
+    for (auto& [k, v] : vx)ranges::sort(v);
+
+    map<ll, vector<ll>> cy, cx;
+    for (auto& [k, v] : vy) {
+        cy[k].resize(v.size() + 1);
+    }
+    for (auto& [k, v] : vx) {
+        cx[k].resize(v.size() + 1);
+    }
+    
+    for (int i = 0; i < m; ++i) {
+        char d;
+        ll c;
+        cin >> d >> c;
+        ll ny = sy;
+        ll nx = sx;
+        if (d == 'U') ny += c;
+        else if (d == 'R') nx += c;
+        else if (d == 'D') ny -= c;
+        else nx -= c;
+
+        if (d == 'U' or d == 'D') {
+            auto [l, r] = minmax(sy, ny);
+            int li = ranges::lower_bound(vx[nx], l) - vx[nx].begin();
+            int ri = ranges::upper_bound(vx[nx], r) - vx[nx].begin();
+            SHOW(li);
+            SHOW(ri);
+            if (li < ri) {
+                cx[nx][li]++;
+                cx[nx][ri]--;
+            }
+        }
+        else {
+            auto [l, r] = minmax(sx, nx);
+            int li = ranges::lower_bound(vy[ny], l) - vy[ny].begin();
+            int ri = ranges::upper_bound(vy[ny], r) - vy[ny].begin();
+            if (li < ri) {
+                cy[ny][li]++;
+                cy[ny][ri]--;
+            }
+        }
+
+        sy = ny;
+        sx = nx;
+        SHOW(sy);
+        SHOW(sx);
+    }
+
+
+    set<pair<ll, ll>> st;
+
+    for (auto& [y, v] : cy) {
+        const int m = v.size();
+        for (int i = 0; i < m; ++i) {
+            if (i > 0)v[i] += v[i - 1];
+            if (v[i] > 0) {
+                ll x = vy[y][i];
+                st.insert({ y, x });
+            }
+        }
+    }
+
+
+    for (auto& [x, v] : cx) {
+        const int m = v.size();
+        for (int i = 0; i < m; ++i) {
+            if (i > 0)v[i] += v[i - 1];
+            if (v[i] > 0) {
+                ll y = vx[x][i];
+                st.insert({ y, x });
+            }
+        }
+    }
+
+    cout << sx << ' ' << sy << ' ' << st.size() << endl;
+
+
+    return 0;
+}

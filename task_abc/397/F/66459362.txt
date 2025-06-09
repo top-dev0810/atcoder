@@ -1,0 +1,107 @@
+#include <iostream>
+
+using namespace std;
+
+int n;
+int a[300005];
+int last[300005];
+int hits[300005];
+int pfx[300005];
+int sfx[300005];
+int tree[1200006];
+int lazy[1200006];
+int ans;
+
+void init(int idx, int s, int e) {
+    if (s == e)
+    {
+        tree[idx] = pfx[s - 1];
+        return;
+    }
+    int mid = (s + e) / 2;
+    init(2 * idx, s, mid);
+    init(2 * idx + 1, mid + 1, e);
+    tree[idx] = max(tree[2 * idx], tree[2 * idx + 1]);
+}
+
+int busy(int idx, int s, int e) {
+    int mid = (s + e) / 2;
+    if (lazy[idx])
+    {
+        tree[2 * idx] += lazy[idx];
+        lazy[2 * idx] += lazy[idx];
+        tree[2 * idx + 1] += lazy[idx];
+        lazy[2 * idx + 1] += lazy[idx];
+        lazy[idx] = 0;
+    }
+    return mid;
+}
+
+void update(int idx, int s, int e, int l, int r, int val) {
+    if (s > r || e < l)
+    {
+        return;
+    }
+    if (l <= s && e <= r)
+    {
+        tree[idx] += val;
+        lazy[idx] += val;
+        return;
+    }
+    int mid = busy(idx, s, e);
+    update(2 * idx, s, mid, l, r, val);
+    update(2 * idx + 1, mid + 1, e, l, r, val);
+    tree[idx] = max(tree[2 * idx], tree[2 * idx + 1]);
+}
+
+int query(int idx, int s, int e, int l, int r) {
+    if (s > r || e < l)
+    {
+        return 0;
+    }
+    if (l <= s && e <= r)
+    {
+        return tree[idx];
+    }
+    int mid = busy(idx, s, e);
+    return max(query(2 * idx, s, mid, l, r), query(2 * idx + 1, mid + 1, e, l, r));
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+    cin >> n;
+    for (int i = 1; i <= n; i++)
+    {
+        pfx[i] = pfx[i - 1];
+        cin >> a[i];
+        last[i] = hits[a[i]] + 1;
+        if (hits[a[i]] == 0)
+        {
+            pfx[i]++;
+        }
+        hits[a[i]] = i;
+    }
+    for (int i = 1; i <= n; i++)
+    {
+        hits[i] = 0;
+    }
+    for (int i = n; i >= 1; i--)
+    {
+        sfx[i] = sfx[i + 1];
+        if (hits[a[i]] == 0)
+        {
+            sfx[i]++;
+            hits[a[i]] = 1;
+        }
+    }
+    init(1, 1, n);
+    for (int i = 2; i < n; i++)
+    {
+        update(1, 1, n, last[i], i, 1);
+        ans = max(ans, query(1, 1, n, 2, i) + sfx[i + 1]);
+    }
+    cout << ans << "\n";
+    return 0;
+}

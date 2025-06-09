@@ -1,0 +1,29 @@
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+int a[8]={0,1,5,10,50,100,500},d[8];
+int main(){
+    ios::sync_with_stdio(0);cin.tie(0),cout.tie(0);
+    int n;
+    for(int i=1;i<=6;i++){
+    	cin>>d[i];
+	}
+    cin>>n;
+    for(int i=1;i<=n;i++){
+    	int x;
+    	cin>>x;
+    	for(int j=6;j>=1;j--){
+    		if(a[j]>x)continue;
+    		int h=x/a[j];
+    		h=min(h,d[j]);
+    		x-=a[j]*h;
+    		d[j]-=h;
+		}
+		if(x!=0){
+			cout<<"No\n";
+			return 0;
+		}
+	}
+	cout<<"Yes\n";
+	return 0;
+}

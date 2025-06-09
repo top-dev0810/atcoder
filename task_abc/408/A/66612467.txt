@@ -1,0 +1,18 @@
+#include "bits/stdc++.h"
+using namespace  std; 
+
+int n, s; 
+int a[1010]; 
+int main()
+{
+    cin>>n>>s; 
+    for(int i=1;i<=n;i++)
+        scanf("%d", &a[i]);
+    int f = 1; 
+    for(int i=1;i<=n;i++){
+        if(a[i] - a[i-1] > s) f = 0; 
+    }
+    if(f) puts("Yes");
+    else puts("No");
+    
+} // namespace  std; 

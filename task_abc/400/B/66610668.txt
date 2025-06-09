@@ -1,0 +1,19 @@
+#include<bits/stdc++.h>
+using namespace std;
+int main(){
+  int n,m;
+  cin>>n>>m;
+  long long sum=1;
+  long long ans=1;
+  for(int i=1;i<=m;i++){
+    ans=ans*n;
+    if(sum+ans>1000000000){
+      cout<<"inf";
+      return 0;
+    }
+    else{
+        sum+=ans;
+    }
+  }
+  cout<<sum;
+}

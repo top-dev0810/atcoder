@@ -1,0 +1,73 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define int long long
+#define pb push_back
+#define el endl
+#define fo(i,a,b) for (int i = a; i < b; i++)
+#define fill(v) for(auto &e:v) cin>>e
+#define sz(v) (int)v.size()
+#define fastio ios::sync_with_stdio(false); cin.tie(0);
+
+void solve()
+{
+    int n, m;
+    cin >> n >> m;
+    
+    // Use unordered_map for O(1) average access
+    unordered_map<int, vector<int>> element_to_sets;
+    vector<int> set_sizes(m);
+    
+    fo(i, 0, m)
+    {
+        int x;
+        cin >> x;
+        set_sizes[i] = x;
+        fo(j, 0, x)
+        {
+            int a;
+            cin >> a;
+            element_to_sets[a].push_back(i);
+        }
+    }
+    
+    vector<int> v(n);
+    fill(v);
+    
+    int completed_sets = 0;
+    
+    fo(i, 0, n)
+    {
+        int element = v[i];
+        
+        // Check if this element exists in any sets
+        auto it = element_to_sets.find(element);
+        if(it != element_to_sets.end())
+        {
+            // Process all sets containing this element
+            for(int set_id : it->second)
+            {
+                set_sizes[set_id]--;
+                if(set_sizes[set_id] == 0)
+                {
+                    completed_sets++;
+                }
+            }
+            // Remove this element from consideration
+            element_to_sets.erase(it);
+        }
+        
+        cout << completed_sets << el;
+    }
+}
+
+signed main()
+{
+    fastio;
+    int t = 1;
+    while(t--)
+    {
+        solve();
+    }
+    return 0;
+}

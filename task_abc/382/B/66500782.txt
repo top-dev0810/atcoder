@@ -1,0 +1,27 @@
+// clang-format off
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+#define rep(i, n) for (int i = 0; i < (int)(n); i++)
+#define debug(x) rep(_i,x.size())cout<<x[_i]<<" \n"[_i==(int)x.size()-1];
+template<typename T> bool chmax(T &a,T b){if(a<b){a=b;return true;}return false;}
+template<typename T> bool chmin(T &a,T b){if(a>b){a=b;return true;}return false;}
+// clang-format on
+
+int main()
+{
+    int n, d;
+    string s;
+    cin >> n >> d >> s;
+    int pt = n - 1;
+    while (d)
+    {
+        if (s[pt] == '@')
+        {
+            d--;
+            s[pt] = '.';
+        }
+        pt--;
+    }
+    cout << s << "\n";
+}

@@ -1,0 +1,64 @@
+#include<bits/stdc++.h>
+#define int long long
+#define rep(i,a,b) for(register int i=(a);i<=(b);++i)
+#define per(i,a,b) for(register int i=(a);i>=(b);--i)
+#define edge(i,u) for(int i=head[u];i;i=e[i].next)
+#define lc(u) tre[u].ls
+#define rc(u) tre[u].rs
+#define pii pair<int,int>
+#define pdd pair<double,double>
+#define mp make_pair
+#define pb push_back
+#define fst first
+#define sed second
+#define Max(a,b) (a=max(a,b))
+#define Min(a,b) (a=min(a,b))
+using namespace std;
+const int N=1e6+10,M=1e6+10,inf=1e9,mod=998244353;
+const double eps=1e-6;
+bool MS;int used;
+int L[N],R[N];
+int l[N],r[N];
+int n;
+bool MT;
+signed main()
+{
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+    cin>>n;
+    l[0]=0,r[0]=inf;
+    bool tag=0;
+    rep(i,1,n)
+    {
+        cin>>L[i]>>R[i];
+        l[i]=l[i-1];
+        r[i]=r[i-1];
+        Max(l[i],L[i]);
+        Min(r[i],R[i]);
+        if(l[i]>r[i])
+        {
+            if(l[i]>=L[i]&&l[i]<=R[i])r[i]=l[i];
+            else l[i]=r[i];
+            if(!tag)
+            {
+                if(L[i]>r[i-1])l[i-1]=r[i-1];
+                per(j,i-1,2)
+                Max(l[j-1],l[j]);
+                tag=1;
+            }
+        }
+    }
+    if(!tag)
+    {
+        per(j,n,2)
+        Max(l[j-1],l[j]);        
+    }
+    per(i,n,2)
+    {
+        if(l[i-1]>l[i])
+        l[i-1]=max(L[i-1],l[i]);
+    }
+    rep(i,1,n)cout<<l[i]<<" ";
+	cerr<<"Memory:"<<(&MT-&MS)/1048576.0<<"MB Time:"<<clock()/1000.0<<"s\n";
+}

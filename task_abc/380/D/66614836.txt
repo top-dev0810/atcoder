@@ -1,0 +1,53 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+// cambiar minusculas a mayusculas y viceversa 
+char cambiarMayusMinus(char caracter){
+    if(caracter >= 'a' && caracter <= 'z') {
+        return caracter - 'a'+'A';
+    }else{
+        return caracter - 'A' + 'a';
+    }
+}
+
+int contarBits(long long numero){
+    int contador = 0;
+    while(numero > 0){
+        if(numero %2 == 1){
+            contador += 1;
+        }
+        numero = numero/2;
+    }
+    return contador;
+}
+
+int main(){
+    string cadena;
+    cin >> cadena;
+
+    int cantidadConsultas;
+    cin >>cantidadConsultas;
+
+    // Para procesar consultas
+    for (int i = 0; i < cantidadConsultas; i++){
+        long long posicion;  
+        cin >> posicion;
+
+        long long indBaseCero = posicion - 1;
+        long long numBloque = indBaseCero/ cadena.size();
+
+        int posBloque = indBaseCero % cadena.size();
+
+        int cantidadBitsEncendidos = contarBits(numBloque);
+        if(cantidadBitsEncendidos % 2 == 0){
+            cout<<cadena[posBloque]<< " ";
+        }else{
+            char caracterModificado = cambiarMayusMinus(cadena[posBloque]);
+            cout<< caracterModificado<< " ";
+        }
+    }
+    cout << "\n";
+    return 0;
+}

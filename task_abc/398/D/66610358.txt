@@ -1,0 +1,75 @@
+#include<bits/stdc++.h>
+using namespace std;
+ 
+#ifndef ONLINE_JUDGE
+    #include "template.cpp"
+#else
+    #define debug(...)
+    #define debuga(a, n)
+#endif
+ 
+#define io ios_base::sync_with_stdio(false); cin.tie(NULL); 
+#define endl '\n'
+ 
+void Wah(){
+    io;
+    #ifndef ONLINE_JUDGE
+        freopen("input.txt","r",stdin);
+        // freopen("output.txt","w",stdout);
+    #endif
+}
+ 
+typedef vector<long long> vll;
+typedef long long ll;
+typedef long double ld;
+#define int long long
+ 
+
+
+
+
+void samekoSaba(){
+
+    int n, a,b; cin >> n >> a >> b;
+    string s; cin >> s;
+
+    int x = 0, y = 0;
+
+    map<pair<int,int>, int> mp;
+    mp[{0,0}] = 1;
+
+    for ( int i = 0; i < n; i++ ){
+        char c = s[i];
+
+        if ( c == 'N' ){
+            x++;
+            a++;
+        } else if ( c == 'W' ){
+            y++;
+            b++;
+        } else if ( c == 'S' ){
+            a--;
+            x--;
+        } else {
+            y--;
+            b--;
+        }
+
+        mp[{x,y}] = 1;
+
+        if ( mp[{a,b}] > 0 ) cout << 1;
+        else cout << 0;
+    }
+
+}
+
+ 
+signed main(){
+    Wah();
+    int tt = 1;
+    // cin >> tt;
+    while ( tt-- > 0 ){
+        samekoSaba();
+    }      
+    return 0;
+}

@@ -1,0 +1,66 @@
+/*
+可以看出实际上要求
+1. 同向的</>关系，满足限制区间不交或包含，包含要求严格包含
+2. 不同向的关系，要求同作为左/右端点的不重合
+即可？
+也就是说，去掉重复限制后，同向关系，要求严格包含或不相交
+全局地每个点不同时作为左端点
+猜测这就足够了
+因此，作出一些考虑
+注意到每个人的限制是不同的
+算出每个点作为左/右端点的次数
+然后加入时，就将这个区间+1？
+也不用，算出每个限制，往前第一个与它相交的位置在哪里即可
+如何算出？l1<l2<r1<r2
+可以通过xor计算
+*/
+#include<bits/stdc++.h>
+using namespace std;
+#define N 1050500
+#define ull unsigned long long 
+mt19937_64 rnd(3819311);
+int ans[N],n,m,l[N],q,r[N],cntl[N],cntr[N],bel[N];
+ull w[N];
+struct bit{
+    ull c[N];
+    void add(int x,ull k){
+        while(x<=n){
+            c[x]^=k;
+            x+=(x&-x);
+        }
+    }
+    ull ask(int x){
+        ull res=0;
+        while(x)res^=c[x],x-=(x&-x);
+        return res;
+    }
+}d[2];
+signed main(){
+    ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);
+    cin>>n>>m>>q;
+    ans[0]=1;
+    for(int i=1;i<=m;++i){
+        w[i]=rnd();
+        cin>>l[i]>>r[i];
+        int x=(l[i]<r[i]);bel[i]=x;
+        if(l[i]>r[i])swap(l[i],r[i]);
+        d[x].add(l[i],w[i]);
+        d[x].add(r[i],w[i]);
+        ++cntl[l[i]];++cntr[r[i]];
+        ans[i]=ans[i-1];
+        while(cntl[l[i]]>1||cntr[r[i]]>1||(d[x].ask(l[i])!=d[x].ask(r[i]-1))){ 
+            // cout<<" "<<(d[x].ask(l[i]))<<" "<<(d[x].ask(r[i]-1))<<" "<<ans[i]<<' '<<cnt[l[i]]<<' '<<cnt[r[i]]<<"\n";
+            cntl[l[ans[i]]]--;
+            cntr[r[ans[i]]]--;
+            d[bel[ans[i]]].add(l[ans[i]],w[ans[i]]);
+            d[bel[ans[i]]].add(r[ans[i]],w[ans[i]]);
+            ++ans[i];
+        }
+        // cout<<ans[i]<<"?!\n";
+    }
+    while(q--){
+        int l,r;cin>>l>>r;
+        if(ans[r]<=l)cout<<"Yes\n";
+        else cout<<"No\n";
+    }
+}

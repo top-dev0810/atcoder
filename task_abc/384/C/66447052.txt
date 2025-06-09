@@ -1,0 +1,119 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long int
+#define fr(i,a,n) for(ll i=a;i<n;i++)
+#define fru(i,n,a) for(ll i=n;i>=a;i--)
+#define frr(i,a,n,k) for(ll i=a;i<n;i+=k)
+#define frru(i,n,a,k) for(ll i=n;i>=a;i-=k)
+#define pb push_back
+#define mk make_pair
+#define fast ios::sync_with_stdio(0);cin.tie(0);cout.tie(0)
+#define PI 2*acos(0)
+#define el "\n"
+ll delrow[]={1,-1,0,0};
+ll delcol[]={0,0,-1,1};
+ll gcd(ll A,ll B)
+{
+    while(B){
+        ll mod=A%B;
+        A=B;
+        B=mod;
+    }
+    return A;
+}
+ll lcm(ll A,ll B)
+{
+    return ((A*B)/gcd(A,B));
+}
+const ll mod=1000000007;
+void modnor(ll &x) {x %= mod; if(x < 0)(x += mod);}
+ll modmul(ll x, ll y) { x %= mod, y %= mod; modnor(x),modnor(y); return (x*y)%mod; }
+ll modadd(ll x, ll y) { x %= mod, y %= mod; modnor(x),modnor(y); return (x+y)%mod; }
+ll modsub(ll x, ll y) { x %= mod, y %= mod; modnor(x),modnor(y); x -= y; modnor(x); return x; }
+ll modpow(ll b, ll p) { ll r = 1; while(p) {if(p&1) r = modmul(r, b); b = modmul(b, b);p >>= 1;}return r;}
+ll modinverse(ll x){return modpow(x,mod-2);}
+ll moddiv(ll x, ll y){return modmul(x,modinverse(y));}
+
+int main()
+{
+    fast;
+    ll ara[5];
+    for(int i=0;i<5;i++){
+        cin >> ara[i];
+    }
+    map <ll,vector <string>> mp;
+    map <ll,vector <string>> :: reverse_iterator it;
+    ll tot=0;
+    for(int i=0;i<5;i++){
+        string str="";
+        str.pb(i+'A');
+        mp[ara[i]].pb(str);
+        tot+=ara[i];
+    }
+    mp[tot].pb("ABCDE");
+
+    for(int i=0;i<5;i++){
+        string st="";
+        st.pb((char)(i+'A'));
+        ll cur=ara[i];
+        for(int j=i+1;j<5;j++){
+            st.pb((char)(j+'A'));
+            cur+=ara[j];
+            mp[cur].pb(st);
+            cur-=ara[j];
+            st.pop_back();
+        }
+        cur-=ara[i];
+    }
+    for(int i=0;i<5;i++){
+        string st="";
+        st.pb((char)(i+'A'));
+        ll cur=ara[i];
+        for(int j=i+1;j<5;j++){
+            st.pb((char)(j+'A'));
+            cur+=ara[j];
+            for(int k=j+1;k<5;k++){
+                st.pb((char)(k+'A'));
+                cur+=ara[k];
+                mp[cur].pb(st);
+                cur-=ara[k];
+                st.pop_back();
+            }
+            cur-=ara[j];
+            st.pop_back();
+        }
+        cur-=ara[i];
+    }
+    for(int i=0;i<5;i++){
+        string st="";
+        st.pb((char)(i+'A'));
+        ll cur=ara[i];
+        for(int j=i+1;j<5;j++){
+            st.pb((char)(j+'A'));
+            cur+=ara[j];
+            for(int k=j+1;k<5;k++){
+                st.pb((char)(k+'A'));
+                cur+=ara[k];
+                for(int l=k+1;l<5;l++){
+                    st.pb((char)(l+'A'));
+                    cur+=ara[l];
+                    mp[cur].pb(st);
+                    cur-=ara[l];
+                    st.pop_back();
+                }
+                cur-=ara[k];
+                st.pop_back();
+            }
+            cur-=ara[j];
+            st.pop_back();
+        }
+        cur-=ara[i];
+    }
+    for(it=mp.rbegin();it!=mp.rend();it++){
+        sort(it->second.begin(),it->second.end());
+        for(int i=0;i<it->second.size();i++){
+            cout << it->second[i] << el;
+        }
+    }
+}
+

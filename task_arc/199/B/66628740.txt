@@ -1,0 +1,250 @@
+#include <bits/stdc++.h>
+#define int long long
+#define fir first
+#define sec second
+#define el '\n'
+#define all(x) (x).begin(), (x).end()
+#define FINISH cout << "FINISH" << endl;
+#define debug(x) cout << #x << " :== " << x << endl;
+#define debugv(x)\
+    cout << #x << " :: ";\
+    for (auto v : x) cout << v << " ";\
+    cout << endl;
+
+using namespace std;
+typedef long long ll;
+typedef pair<int, int> PII;
+
+const int mod = 998244353;
+const int inf32 = 0x3f3f3f3f;
+const ll inf64 = 0x3f3f3f3f3f3f3f3f;
+mt19937_64 rng{chrono::steady_clock::now().time_since_epoch().count()};
+
+struct Base {
+	vector<int> a;
+	bitset<65> pos[65]; 
+	void clear () {
+		a.resize(65, 0);
+		for (int i = 0; i <= 60; i++) {
+			a[i] = 0, pos[i].reset();
+		}
+	}
+
+	void insert (ll x, int idx) {
+		bitset<65> res;
+		res[idx] = 1;
+		for (ll i = 60; i >= 0; i--) {
+			if ((x >> i) & 1) {
+				if (!a[i]) {
+					a[i] = x, pos[i] = res;
+					return;
+				}
+				else {
+					x ^= a[i], res ^= pos[i];
+				}
+			}
+		}
+	}
+
+	pair<bool, vector<int>> find (ll k, int n) {
+		bitset<65> res;
+		vector<int> vec(n + 1, 0);
+		for (ll i = 60; i >= 0; i--) {
+			if ((k >> i) & 1) {
+				if (!a[i])
+					return {false, vec};
+				res ^= pos[i];
+				k ^= a[i];
+			}
+		}
+		// if (k != 0) {
+		// 	cout << "!!!!!!!!!!!! "<< k << endl;
+		// }
+		for (int i = 1; i <= n; i++) {
+			if (res[i] == 1)
+				vec[i] = 1;
+		}
+		return {true, vec};
+	}
+}base;
+
+void solve(/*int n, ll k*/) 
+{
+    int n;
+    ll k;
+    cin >> n >> k;
+    // cout << n << " " << k << endl;
+    vector<ll> a(n + 1, 0);
+    vector<int> ans;
+    vector<int> vis(n + 1, 0);
+
+    auto insert = [&] (int x) -> void {
+    	ans.push_back(x);
+    	a[x] = a[x + 1] = (a[x] ^ a[x + 1]);
+    };
+
+    for (int i = 1; i <= n; i++) {
+    	// a[i] = (1ll << i - 1);
+    	// a[i] =rng() % (1ll << 60);
+    	cin >> a[i];
+    }
+    // debugv(a);
+
+    if (k == 0) {
+    	cout << "Yes\n2\n1 1" << el;
+    	return;
+    }
+
+    auto getans = [&] (auto &self, int l, int r, int pos) -> void {
+    	// cout << l << " " << r << " " << pos << endl;
+    	// debugv(a);
+    	// cout << endl;
+    	if (r - l == 1) {
+    		if (r + 1 <= n) {
+    			if (vis[r + 1]) {
+    				insert(r);
+    				self(self, l, r + 1, r + 1);
+    			} else {
+    				insert(r);
+    				insert(r);
+    				insert(l);
+    				insert(r);
+
+    				self(self, l, r + 1, r + 1);
+    			}
+    		} else {
+    			if (vis[l - 1]) {
+    				insert(l - 1);
+    				self(self, l - 1, r, l - 1);
+    			} else {
+    				insert(l - 1);
+    				insert(l - 1);
+    				insert(l);
+    				insert(l - 1);
+
+    				self(self, l - 1, r, l - 1);
+    			}
+    		}
+    	}
+
+
+    	else if (r == n) {
+    		if (pos == 1)
+    			return;
+    		if (pos == n) {
+	    		for (int i = n - 2; i >= l; i -= 2) {
+	    			insert(i);
+	    			insert(i);
+	    			insert(i + 1);
+	    			insert(i);
+	    		}
+	    		insert(l);
+	    		insert(l);
+	    		insert(l + 1);
+	    		insert(l);
+	    		
+	    		self(self, l, r, l);
+    		} else {
+    			if (vis[l - 1] == 0) {
+    				insert(l + 1);
+    				insert(l + 1);
+    				insert(l);
+    				insert(l - 1);
+    				insert(l - 1);
+    				insert(l);
+    				insert(l - 1);
+    				self(self, l - 1, r, l - 1);
+    			} else {
+    				insert(l - 1);
+    				self(self, l - 1, r, l - 1);
+    			}
+    		}
+    	}
+
+    	else {
+    		if (vis[r + 1] == 0) {
+    			insert(r - 2);
+    			insert(r - 2);
+    			insert(r - 1);
+    			insert(r);
+    			insert(r);
+    			insert(r - 1);
+    			insert(r);
+    			self(self, l, r + 1, r + 1);
+    		} else {
+    			insert(r);
+    			self(self, l, r + 1, r + 1);
+    		}
+    	}
+    };
+
+    int flag = 0;
+    for (int i = 2; i <= n; i++) {
+    	base.clear();
+    	for (int j = 1; j <= n; j++) {
+    		if (j == i || j == i - 1) {
+    			continue;
+    		}
+    		base.insert(a[j], j);
+    	}
+    	auto ret = base.find(k, n);
+    	if (ret.fir) {
+    		flag = 1;
+    		vis = ret.sec;
+    		cout << "Yes" << el;
+
+    		// debugv(vis);
+    		// debugv(a);
+
+    		insert(i - 1);
+    		insert(i - 1);
+    		getans(getans, i - 1, i, i - 1);
+    		break;
+    	}
+    	ll nowk = k ^ (a[i] ^ a[i - 1]);
+    	ret = base.find(nowk, n);
+    	if (ret.fir) {
+    		flag = 1;
+    		vis = ret.sec;
+    		vis[i] = vis[i - 1] = 1;
+    		cout << "Yes" << el;
+
+    		// debugv(vis);
+    		// debugv(a);
+
+    		insert(i - 1);
+    		getans(getans, i - 1, i, i - 1);
+    		break;
+    	}
+    }
+
+    if (flag == 0) {
+    	cout << "No" << el;
+    	return;
+    }
+    
+    cout << ans.size() << el;
+    assert(ans.size() <= 10000);
+    assert(a[1] == k);
+    for (auto x : ans) {
+    	cout << x << " ";
+    }
+    cout << el;
+}
+
+signed main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+    int T = 1;
+    cin >> T;
+    // ll mx = (1ll << 60);
+    while (T--) {
+        // solve(59, rng() % mx);
+        // cout << endl;
+        solve();
+    }
+    return 0;
+}
+

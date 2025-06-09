@@ -1,0 +1,139 @@
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int MOD = 998244353;
+#ifdef int
+#define inf 0x3f3f3f3f3f3f3f3f
+#else
+#define inf 0x3f3f3f3f
+#endif
+const long long infll = 0x3f3f3f3f3f3f3f3f;
+#define pii pair<int, int>
+#define mkp(x,y) make_pair(x,y)
+
+#ifndef LOCAL
+#define SUBMIT
+#endif
+
+#ifdef SUBMIT
+#define endl '\n'
+//#define cin Fastio ::cin
+//#define cout Fastio ::cout
+#endif
+
+template<typename T>
+void read(vector<T> &vec)
+{
+    for(auto &x:vec)
+    {
+        cin>>x;
+    }
+}
+
+int qpow(int n,int k)
+{
+    int res=1;
+    while(k)
+    {
+        if(k&1)(res*=n)%=MOD;
+        (n*=n)%=MOD;
+        k>>=1;
+    }
+    return res;
+}
+
+vector<int>gtfrm(vector<int>res)
+{
+    vector<int>ans;
+    int lst=-1;
+    for(auto x:res)
+    {
+        if(x==lst)continue;
+        ans.push_back(x);
+        lst=x;
+    }
+    return ans;
+}
+
+bool ck(vector<int>a,vector<int>b)
+{
+    int n=a.size(),m=b.size();
+    if(m>n)return false;
+    int j=0;
+    for(int i=0;i<n;i++)
+    {
+        if(a[i]==b[j])
+        {
+            j++;
+            if(j==m)return true;
+        }
+    }
+    return false;
+}
+
+void work()
+{
+    int n,k;
+    cin>>n>>k;
+    vector<int>a(n),b(n);
+    read(a);
+    read(b);
+    if(a==b){cout<<"Yes\n";return ;}
+    if(k==1)
+    {
+        if(ck(gtfrm(a),gtfrm(b)))
+        {
+            cout<<"Yes\n";
+        }
+        else
+        {
+            cout<<"No\n";
+        }
+        return ;
+    }
+    set<int>se;
+    for(auto x:a)se.insert(x);
+    for(auto x:b)
+    {
+        if(!se.count(x))
+        {
+            cout<<"No\n";
+            return ;
+        }
+    }
+    map<int,int>lst;
+    for(int i=0;i<n;i++)
+    {
+        if(!lst.count(b[i]))
+        {
+            lst[b[i]]=i;
+        }
+        else
+        {
+            int dis=i-lst[b[i]];
+            if(dis<=k)
+            {
+                cout<<"Yes\n";
+                return ;
+            }
+            lst[b[i]]=i;
+        }
+    }
+    cout<<"No\n";
+}
+
+signed main()
+{
+#ifndef cin
+#ifdef SUBMIT
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#endif
+#endif
+    int t=1;
+    cin>>t;
+    while(t--)
+    {
+        work();
+    }
+}

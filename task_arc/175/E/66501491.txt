@@ -1,0 +1,65 @@
+#include<bits/stdc++.h>
+using namespace std;
+int n,k;
+int A[510][510];
+void build(int n){
+	if(n&1){
+		for(int i=1;i<=n;++i){
+			int f=((i==1)?n:i-1);A[i][i]=i;
+			for(int j=(i==n?1:i+1);j!=i;j=((j==n)?1:j+1),f=((f==1)?n:f-1)){
+				A[i][j]=f;
+			}
+		}
+	}
+	else{
+		build(n-1);
+		int f=n-1;
+		for(int i=1;i<n;++i){
+			A[n][i]=A[f][n]=A[f][i];A[f][i]=n;
+			++f;if(f>=n) f=1;
+		}
+		A[n][n]=n;
+	}
+}
+int main()
+{
+//	freopen("cube.in","r",stdin);
+//	freopen("cube.out","w",stdout);
+	scanf("%d%d",&n,&k);
+	if(k<=8){
+		if(k==1) printf("0 0 0\n");
+		if(k==2) printf("0 0 0\n 1 1 1\n");
+		if(k==3) printf("0 0 1\n 0 1 0\n 1 0 0\n");
+		if(k==4) printf("0 0 0\n 0 1 1\n 1 0 1\n 1 1 0\n");
+		if(k==5) printf("0 0 0\n 0 1 1\n 1 0 1\n 1 1 0\n 2 2 2\n");
+		if(k==6) printf("0 0 2\n 0 1 1\n 0 2 0\n 1 0 1\n 1 1 0\n 2 0 0\n");
+		if(k==7) printf("0 0 0\n 0 1 1\n 0 2 2\n 1 0 1\n 1 1 0\n 2 0 2\n 2 2 0\n");
+		if(k==8) printf("0 0 0\n 0 1 2\n 0 2 1\n 1 0 2\n 1 1 1\n 1 2 0\n 2 0 1\n 2 1 0\n");
+		return 0;
+	}
+	while(k<=(n-1)*(n-1)) --n;
+	if(k<n*(n-1)){
+		build(n-1);
+		k-=(n-1)*(n-1);
+		if(k&1) printf("%d %d %d\n",n-1,n-1,n-1),--k;
+		for(int i=1;i<=(k>>1);++i){
+			printf("%d %d %d\n%d %d %d\n%d %d %d\n",i-1,i-1,n-1,i-1,n-1,i-1,n-1,i-1,i-1);
+		}
+		for(int i=1;i<n;++i){
+			for(int j=1;j<n;++j){
+				if(i==j&&i<=(k>>1)) continue;
+				printf("%d %d %d\n",i-1,j-1,A[i][j]-1);
+			}
+		}
+	}
+	else{
+		build(n);
+		for(int i=1;i<=n;++i){
+			for(int j=1;j<=n;++j){
+				if(i==j&&i>k-n*(n-1)) continue;
+				printf("%d %d %d\n",i-1,j-1,A[i][j]-1);
+			}
+		}
+	}
+	return 0;
+} 

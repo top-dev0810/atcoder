@@ -1,0 +1,31 @@
+//テンプレート
+#include <bits/stdc++.h>
+using namespace std;
+using LL=long long;
+#define rep(i, n) for (int i = 0; i < (n); i++)
+#define repLL(i, n) for (LL i = 0; i < (n); i++)
+using vint=vector<int>;using vvint=vector<vector<int>>;using vvvint=vector<vector<vector<int>>>;
+using vLL=vector<LL>;using vvLL=vector<vector<LL>>;using vvvLL=vector<vector<vector<LL>>>;
+using pint=pair<int,int>;using pLL=pair<LL,LL>;
+//テンプレートここまで
+
+LL zettai(LL a, LL b){
+  if(a>b) return a-b;
+  else return b-a;
+}
+
+int main(){
+  int N; cin >> N;
+  string S; cin >> S;
+  vLL A;
+  repLL(i,N) if(S[i]=='1') A.push_back(i);
+  int M=A.size();
+  vLL B(M);
+  repLL(i,M) B[i]=A[i]-i;
+  LL Bm; //Bの中央値
+  if(M%2!=0) Bm=B[M/2];
+  else Bm=(B[M/2]+B[M/2-1])/2;
+  LL ans=0;
+  rep(i,M) ans+=zettai(Bm,B[i]);
+  cout << ans << endl;
+}

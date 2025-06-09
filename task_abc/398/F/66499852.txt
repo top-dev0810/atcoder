@@ -1,0 +1,37 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define ull unsigned long long
+#define N 2000003
+string s,t;
+int id,mx,ls,lt,p[22000007],l,r,maxx;
+int main(){
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+	cin>>s;
+	ls=s.length();
+	t+='$';
+	for(int i=0;i<ls;i++) t+='#',t+=s[i];
+	t+='#',t+='^';
+	lt=ls*2+1;
+//	cout<<t;
+	for(int i=1;i<lt;i++){
+		if(i<mx){
+			p[i]=min(p[2*id-i],mx-i+1);
+		}
+		else p[i]=1;
+		while(t[i+p[i]]==t[i-p[i]]){
+			p[i]++;
+		}
+		if(i-1+p[i]>mx){
+			mx=i-1+p[i],id=i;
+		}
+		maxx=max(maxx,p[i]-1);
+	}
+//	cout<<mx;
+	cout<<s;
+	for(int i=2*id-mx;i>=0;i--){
+		if(t[i]!='#'&&t[i]!='$') cout<<t[i];
+	}
+	return 0;
+} 

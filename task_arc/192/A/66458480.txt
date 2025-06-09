@@ -1,0 +1,61 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define endl '\n'
+#define rep(i, a, b) for(int i = (a); i <= (b); i++)
+#define per(i, a, b) for(int i = (a); i >= (b); i--)
+#define rept(i, a, ne) for(int i = (a); ~i ; i=ne[i])
+#define debug(x) cout<<#x<<": "<<x<<endl
+#define fi first
+#define sec second
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+typedef long long LL;
+typedef long double  LD;
+typedef unsigned long long ULL;
+typedef vector<int> VI;
+typedef pair<int,int>PII;
+const int N=6e5+10;;
+int a[N];
+void slove()
+{
+    int n;
+    cin>>n;
+    int f=0,p=0,o=0;
+
+    rep(i,1,n)
+    {
+        cin>>a[i];
+        a[n+i]=a[i];
+        f|=a[i];
+    }
+    rep(i,1,n)
+    {
+        if(a[i]&&i%2)
+        p=1;
+        else if(a[i]&&i%2==0)
+        o=1;
+    }
+    if(((n%4==1||n%4==3)&&f==0)||(n%4==2&&(p&o)==0))
+    cout<<"No"<<endl;
+    else
+    cout<<"Yes"<<endl;
+}
+
+int main()
+{
+    // freopen("test.in","r",stdin);
+    // freopen("test.out","w",stdout);
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+//	cout << fixed << setprecision(9);
+    int t=1;
+	// cin>>t;
+    while(t--)
+    {
+        slove();
+    }
+
+
+    return 0;
+}
+//#pragma GCC optimize(2)

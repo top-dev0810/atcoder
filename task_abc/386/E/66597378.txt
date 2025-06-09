@@ -1,0 +1,33 @@
+#include<bits/stdc++.h>
+#define int long long
+
+using namespace std;
+
+const int N=2e5+5;
+
+long long n,k,a[N],ans,pp;
+
+void solve(int o,int nw,int sum){
+	if(sum==k){
+		ans=max(ans,nw^pp);
+		return;
+	}
+//	if(o+k-sum-1>n) return;
+	if(sum+n-o>=k) solve(o+1,nw,sum);
+	solve(o+1,nw^a[o],sum+1);
+}
+
+signed main(){
+//	freopen(".in","r",stdin);
+//	freopen(".out","w",stdout);
+//	ios::sync_with_stdio(0);
+//	cin.tie(0);
+//	cout.tie(0);
+	cin>>n>>k;
+	for(int i=1;i<=n;i++) cin>>a[i],pp^=a[i];
+	if(k<n-k) pp=0;
+	else k=n-k;
+	solve(1,0,0);
+	cout<<ans;
+}
+

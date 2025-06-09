@@ -1,0 +1,42 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    int N; cin >> N;
+    vector<int> c(N,0), a(N,1);
+    for (int i = 1; i < N; i++) cin >> c[i];
+    for (int i = 1; i < N; i++) cin >> a[i];
+
+    vector<int> L(N);
+    for (int i = 0; i < N; i++) L[i] = i - c[i];
+
+    int ans = 0;
+    for (int i = N-1; i >= 1; i--) {
+        if (a[i] == 0) continue;
+        ans++;
+        int l = L[i];
+
+        bool found = false;
+        for (int j = i-1; j >= l; j--) {
+            if (a[j] == 1) {
+                found = true;
+                break;
+            }
+        }
+        if (found) continue;
+
+        int mn = INT_MAX;
+        int argmn = -1;
+        for (int j = i-1; j >= l; j--) {
+            if (L[j] < mn) {
+                mn = L[j];
+                argmn = j;
+            }
+        }
+        a[argmn] = 1;
+        a[i] = 0;
+    }
+
+    cout << ans << endl;
+    return 0;
+}

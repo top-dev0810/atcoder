@@ -1,0 +1,22 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+
+
+int main() {
+   string S;
+   cin>>S;
+   vector<char>T(S.size());
+   int count=0;
+   for(int i=0;i<S.size();i++){
+    if (S.at(i)=='2'){
+        T.at(count)=S.at(i);
+        count++;
+    }
+   }
+   for(int j=0;j<count;j++){
+    cout<<T.at(j);
+   }
+}
+
+  

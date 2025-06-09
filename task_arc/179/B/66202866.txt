@@ -1,0 +1,40 @@
+#include<bits/stdc++.h>
+using namespace std;
+const int Maxm=10,Maxn=10000;
+const int mod=998244353;
+int m,n,nums[Maxm+5];
+int val[Maxm+5];
+int dp[(1<<Maxm)+5][Maxn+10];
+int main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    while(cin>>m>>n)
+    {
+        for(int i=0;i<m;i++)
+        {
+            cin>>nums[i];
+            nums[i]--;
+            val[i]=(1<<m)-1;
+        }
+        for(int i=0;i<m;i++)
+            val[nums[i]]^=(1<<i);
+        for(int i=0;i<(1<<m);i++)
+            for(int j=0;j<=n;j++)
+                dp[i][j]=0;
+        dp[0][0]=1;
+        for(int i=0;i<n;i++)
+            for(int j=0;j<(1<<m);j++)
+                for(int k=0;k<m;k++)
+                {
+                    if(((1<<k)&j)!=0) continue;
+                    int v=(j^(1<<k))&val[k];
+                    dp[v][i+1]=(dp[v][i+1]+dp[j][i])%mod;
+                }
+        int sum=0;
+        for(int i=0;i<(1<<m);i++)
+            sum=(sum+dp[i][n])%mod;
+        cout<<sum<<"\n";
+    }
+    return 0;
+}

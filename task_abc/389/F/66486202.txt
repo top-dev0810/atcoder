@@ -1,0 +1,51 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+int n,m,a[500005];
+void add(int d,int x){
+	while(d<=500000){
+		a[d]+=x;
+		d+=d&-d;
+	}
+}
+int get(int d){
+	int sum=0;
+	while(d){
+		sum+=a[d];
+		d-=d&-d;
+	}
+	return sum;
+}
+signed main(){
+	ios::sync_with_stdio(0);
+	cin.tie(0);cout.tie(0);
+	cin>>n;
+	for(int i=1;i<=n;i++){
+		int l,r;
+		cin>>l>>r;
+		int L=1,R=500000;
+		while(L<=R){
+			int mid=(L+R)>>1;
+			if(get(mid)+mid>=l)R=mid-1;
+			else L=mid+1;
+		}
+		l=R+1;
+		L=1,R=500000;
+		while(L<=R){
+			int mid=(L+R)>>1;
+			if(get(mid)+mid<=r)L=mid+1;
+			else R=mid-1;
+		}
+		r=L-1;
+		if(r<l)continue;
+		add(l,1);
+		add(r+1,-1);
+	}
+	cin>>m;
+	while(m--){
+		int x;
+		cin>>x;
+		cout<<x+get(x)<<"\n";
+	}
+	return 0;
+}

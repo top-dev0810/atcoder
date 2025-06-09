@@ -1,0 +1,60 @@
+#include <bits/stdc++.h>
+#define reaD read
+#define haed head
+using namespace std;
+const int Max=2e5+10;
+const int mod=998244353;
+
+
+
+void DD(){
+	cerr << "joker\n";
+}
+inline int read(){
+	int res=0,v=1;
+	char c=getchar();
+	while(c<'0'||c>'9'){v=(c=='-'?-1:1);c=getchar();}
+	while(c>='0'&&c<='9'){res=(res<<3)+(res<<1)+(c^48);c=getchar();}
+	return res*v;
+}
+
+int n,a[Max],b[Max];
+
+void work(){
+	n=read();
+	for(int i=1;i<=n;++i)a[i]=read();
+	for(int i=1;i<=n;++i)b[i]=read();
+	sort(a+1,a+1+n); sort(b+1,b+1+n);
+	int res=0;
+	for(int i=1;i<=n;++i){
+		int now=1e9;
+		if(i!=1)now=min(a[i]-a[i-1],now);
+		if(i!=n)now=min(a[i+1]-a[i],now);
+		if(now<b[1])res=max(res,i);
+	}
+	if(!res){
+		printf("Bob\n");
+		return;
+	}
+	for(int i=1;i<=n;++i){
+			int l=abs(a[res]-b[i]),r=b[i]+a[res];
+			int now=upper_bound(a+1,a+1+n,l)-a;
+			if(now==res)++now;
+			if(now>n||a[now]>=r){
+				printf("Bob\n");
+				return ;
+			}
+	}
+	printf("Alice\n");
+}
+
+
+signed main(){
+	int t=read();
+	while(t--)work();
+	DD();
+	return 0;
+}
+/*
+有很显然的 O(n^2)做法 
+*/

@@ -1,0 +1,51 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+typedef long long ll;
+typedef double db;
+typedef tuple<int,int,int> tiii;
+const int N = 35;
+ll res=0,ans=0;
+int n,m,a[N][N];
+bool vis[N][N];
+int dx[4]={-1,0,1,0};
+int dy[4]={0,1,0,-1};//1->0
+void dfs(int x,int y,int as,bool flag){
+	if(!flag){
+		ans=max(ans,as^res);
+	}
+	vis[x][y]=true;
+	for(int i=0;i<4;i++){
+		int xx=x+dx[i],yy=y+dy[i];
+		if(xx>=1&&xx<=n&&yy>=1&&yy<=m&&!vis[xx][yy]){
+			if(!flag){
+				dfs(xx,yy,as^a[xx][yy],1);
+				dfs(xx,yy,as,0);
+			}else{
+				dfs(xx,yy,as^a[xx][yy],0);
+			}
+		}
+	}
+	vis[x][y]=false;
+}
+void solve()
+{   
+	cin>>n>>m;
+	for(int i=1;i<=n;i++)for(int j=1;j<=m;j++)vis[i][j]=false;
+	for(int i=1;i<=n;i++)for(int j=1;j<=m;j++)cin>>a[i][j],res^=a[i][j];
+	dfs(1,1,a[1][1],1);
+	dfs(1,1,0,0);
+	cout<<ans<<"\n";
+}
+signed main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+    // int T;
+    // cin >> T;
+    // while (T--)
+    // {
+        solve();
+    // }
+}

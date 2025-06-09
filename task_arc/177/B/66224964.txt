@@ -1,0 +1,42 @@
+#include<bits/stdc++.h>
+#define int long long
+#define rep(i,a,b) for(register int i=(a);i<=(b);++i)
+#define per(i,a,b) for(register int i=(a);i>=(b);--i)
+#define edge(i,u) for(int i=head[u];i;i=e[i].next)
+#define lc(u) tre[u].ls
+#define rc(u) tre[u].rs
+#define pii pair<ll,int>
+#define pdd pair<double,double>
+#define mp make_pair
+#define pb push_back
+#define fst first
+#define sed second
+#define Max(a,b) (a=max(a,b))
+#define Min(a,b) (a=min(a,b))
+using namespace std;
+const int N=1e6+10,M=1e6+10,inf=1e9,mod=998244353;
+const double eps=1e-6;
+bool MS;int used;
+char a[N];
+vector<int>ans;
+int n;
+bool MT;
+signed main()
+{
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+	cin>>n;
+	rep(i,1,n)
+	cin>>a[i];
+	per(i,n,1)
+	if(a[i]=='1')
+	{
+		rep(j,1,i)ans.pb(0);
+		rep(j,1,i-1)ans.pb(1);
+	}
+	cout<<ans.size()<<'\n';
+	for(auto u:ans)if(u)cout<<"B";
+	else cout<<"A";
+	cerr<<"Memory:"<<(&MS-&MT)/1048576.0<<"MB Time:"<<clock()/1000.0<<"s\n";
+}

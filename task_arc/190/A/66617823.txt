@@ -1,0 +1,138 @@
+#include<bits/stdc++.h>
+#define int long long
+#define rep(i,a,b) for(register int i=(a);i<=(b);++i)
+#define per(i,a,b) for(register int i=(a);i>=(b);--i)
+#define edge(i,u) for(int i=head[u];i;i=e[i].next)
+#define lc(u) tre[u].ls
+#define rc(u) tre[u].rs
+#define pii pair<int,int>
+#define pdd pair<double,double>
+#define mp make_pair
+#define pb push_back
+#define fst first
+#define sed second
+#define Max(a,b) (a=max(a,b))
+#define Min(a,b) (a=min(a,b))
+using namespace std;
+const int N=1e6+10,M=6e6+10,inf=1e9,mod=998244353;
+bool MS;int used; 
+int n,m;
+int l[N],r[N];
+int vis[N];
+int ans[N];
+bool cmp(pii x,pii y){return x.fst!=y.fst?x.fst<y.fst:x.sed>y.sed;}
+bool MT;
+signed main()
+{
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+	cin>>n>>m;
+	rep(i,1,m)
+	{
+		cin>>l[i]>>r[i];
+		vis[l[i]]=i;
+		vis[r[i]]=i;
+	}
+	rep(i,1,m)
+	{
+		if(l[i]==1&&r[i]==n)
+		{
+			cout<<"1\n";
+			rep(j,1,m)
+			if(j==i)cout<<"1 ";
+			else cout<<"0 ";
+			return 0;
+		}
+	}
+	if(vis[1]&&vis[n])
+	{
+		if(r[vis[1]]>=l[vis[n]])
+		ans[vis[1]]=ans[vis[n]]=1;
+		else
+		ans[vis[1]]=ans[vis[n]]=2;
+		cout<<2<<'\n';
+		rep(i,1,m)
+		cout<<ans[i]<<' ';
+		return 0;
+	}
+	else
+	{
+		pii maxn={0,0};
+		pii minn={inf,0};
+		rep(i,1,m)
+		{
+			Min(minn,mp(r[i],i));
+			Max(maxn,mp(l[i],i));
+		}
+		if(minn.fst<maxn.fst)
+		{
+			ans[minn.sed]=2,
+			ans[maxn.sed]=2;
+			cout<<2<<'\n';
+			rep(i,1,m)
+			cout<<ans[i]<<' ';
+			return 0;
+		}
+		vector<pii>vec;
+		pii as[2]={{0,0},{0,0}};
+		rep(i,1,m)
+		vec.pb(mp(l[i],r[i]));
+		sort(vec.begin(),vec.end(),cmp);
+		reverse(vec.begin(),vec.end());
+		minn={inf,inf};
+		int tag=0;
+		for(auto u:vec)
+		{
+			if(minn.sed<=u.sed)
+			{as[0]=u,as[1]=minn;tag=1;break;}
+			Min(minn,u);
+		}
+		if(tag)
+		{
+			rep(i,1,m)
+			if(as[0]==mp(l[i],r[i]))
+			{
+				ans[i]=1;
+				tag=i;
+				break;
+			}
+			rep(i,1,m)
+			if(i!=tag&&as[1]==mp(l[i],r[i]))
+			{
+				ans[i]=2;
+				break;
+			}
+			cout<<2<<'\n';
+			rep(i,1,m)
+			cout<<ans[i]<<' ';
+			return 0;
+			
+		}
+		else
+		{
+			if(m>=3)
+			{
+				pii k1=min({mp(l[1],r[1]),mp(l[2],r[2]),mp(l[3],r[3])});
+				pii k2=max({mp(l[1],r[1]),mp(l[2],r[2]),mp(l[3],r[3])});
+				if(mp(l[1],r[1])==k1||mp(l[1],r[1])==k2)
+				ans[1]=2;
+				if(mp(l[2],r[2])==k1||mp(l[2],r[2])==k2)
+				ans[2]=2; 
+				if(mp(l[3],r[3])==k1||mp(l[3],r[3])==k2)
+				ans[3]=2;
+				rep(i,1,3)
+				if(!ans[i])ans[i]=1;
+				cout<<3<<'\n';
+				rep(i,1,m)
+				cout<<ans[i]<<' ';
+			}
+			else
+			{
+				cout<<"-1\n";
+			}
+		}
+	}
+	cerr<<"Memory:"<<(&MS-&MT)/1048576.0<<"MB Time:"<<clock()/1000.0<<"s\n";
+	return 0;
+}

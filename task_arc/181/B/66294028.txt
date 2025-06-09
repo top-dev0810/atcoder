@@ -1,0 +1,51 @@
+#include<bits/stdc++.h>
+#pragma GCC target("avx2,fma")
+#pragma GCC optimize("O2")
+using namespace std;
+using ll = int_fast64_t;
+using ull = uint_fast64_t;
+void solve()
+{
+        string s, x, y;
+        cin >> s >> x >> y;
+        ll n = s.size();
+        ll x1 = count(x.begin(), x.end(), '1');
+        ll x0 = x.size() - x1;
+        ll y1 = count(y.begin(), y.end(), '1');
+        ll y0 = y.size() - y1;
+        if (x0 == y0) {
+                cout << "Yes\n";
+                return;
+        }
+        if ((x1 == y1) || ((x0 - y0) * (y1 - x1)) < 0 || (n * (x0 - y0)) % (x1 - y1)) {
+                cout << "No\n";
+                return;
+        }
+        ll d = (n * (x0 - y0)) / (y1 - x1);
+        d = gcd(d, n);
+        ll k = n / d;
+        for (ll i = 0; i < d; ++i) {
+                for (int j = 1; j < k; ++j) {
+                        if (s[i] != s[i + d * j]) {
+                                cout << "No\n";
+                                return;
+                        }                        
+                }
+
+        }
+        cout << "Yes\n";
+}
+
+
+int main()
+{
+        ios_base::sync_with_stdio(0);
+        cin.tie(0);
+
+        ll t; 
+        cin >> t;
+
+        while(t--)
+                solve();
+}
+

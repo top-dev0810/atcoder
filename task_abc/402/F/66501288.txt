@@ -1,0 +1,52 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define pb push_back
+typedef long long ll;
+typedef pair<int, int> pii;
+typedef unsigned long long ull;
+#define int long long
+const int N = 20;
+int n, m, a[25][25];
+vector<int> f[25], g[25];
+
+signed main() {
+    ios::sync_with_stdio(false); cin.tie(0);
+    cin >> n >> m;
+    for (int i = 1; i <= n; i++) for (int j = 1; j <= n; j++) cin >> a[i][j];
+    for (int i = 0; i < (1 << (n - 1)); i++) {
+        int res = 0, x = 1, y = 1, base = 1;
+        for (int j = 0; j < n - 1; j++) {
+            res = (res * 10ll + a[x][y]) % m;
+            if ((i >> j) & 1) x++;
+            else y++;
+        }
+        base = 1;
+        for (int j = 0; j < n; j++) base = base * 10ll % m;
+        res = (ll)res * base % m;
+        f[x].push_back(res);
+    }
+    for (int i = 0; i < (1 << (n - 1)); i++) {
+        int res = 0, x = n, y = n, base = 1;
+        for (int j = 0; j < n - 1; j++) {
+            res = ((ll)res + a[x][y] * base) % m;
+            base = base * 10ll % m;
+            if ((i >> j) & 1) x--;
+            else y--;
+        }
+        res = ((ll)res + a[x][y] * base) % m;
+        g[x].push_back(res);
+    }
+    int ans = 0;
+    for (int i = 1; i <= n; i++) {
+        sort(f[i].begin(), f[i].end());
+        sort(g[i].begin(), g[i].end());
+        int len1 = (int)f[i].size(), len2 = (int)g[i].size();
+        ans = max(ans, f[i][len1-1] + g[i][len2-1] - m);
+        for (int j = 0, k = len2 - 1; j < len1; j++) {
+            while (k >= 0 && f[i][j] + g[i][k] >= m) k--;
+            if (k >= 0) ans = max(ans, f[i][j] + g[i][k]);
+        }
+    }
+    cout << ans << endl;
+    return 0;
+}

@@ -1,0 +1,68 @@
+#include<bits/stdc++.h>
+//#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,avx2")
+#define ll long long
+#define ld long double
+#define ull unsigned long long
+#define rep(i,l,r) for(ll i=(l);i<=(r);++i)
+#define Rep(i,l,r) for(ll i=(r);i>=(l);--i)
+#define all(x) x.begin(),x.end()
+#define Set(x,y) memset(x,y,sizeof(x))
+#define Cpy(x,y) memcpy(x,y,sizeof(x))
+#define cll const long long
+using namespace std;
+mt19937 rnd(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+template<class T>void death(T s){cout<<s<<endl;exit(0);}
+template<cll MOD> class modint{
+	private:
+	public:
+		ll x;
+		modint()=default;
+		modint(ll _x){x=_x%MOD;}
+		friend istream& operator>>(istream& in, modint& a){in>>a.x; a.x%=MOD; return in;}
+		friend ostream& operator<<(ostream& out, modint a){return out<<a.x;}
+		friend modint operator+(modint a,modint b){return a.x+b.x>=MOD?a.x+b.x-MOD:a.x+b.x;}
+		friend modint operator-(modint a,modint b){return a.x-b.x>=0?a.x-b.x:a.x-b.x+MOD;}
+		friend modint operator*(modint a,modint b){ll x=a.x,y=b.x;return x*y%MOD;}
+		friend modint operator/(modint a,modint b){return a*(~b);}
+		friend modint operator^(modint a,ll p){modint ans=1;for(;p;p>>=1){if(p&1)ans*=a;a=a*a;}return ans;}
+		friend modint operator~(modint a){return a^(MOD-2);}
+		friend modint operator-(modint a){return a.x==0?0:MOD-a.x;}
+		friend modint& operator+=(modint&a,modint b){return a=a+b;}
+		friend modint& operator-=(modint&a,modint b){return a=a-b;}
+		friend modint& operator*=(modint&a,modint b){return a=a*b;}
+		friend modint& operator/=(modint&a,modint b){return a=a/b;}
+		friend modint& operator++(modint&a) {return a+=1;}
+		friend modint operator++(modint&a,int){modint x=a;a+=1;return x;}
+		friend modint& operator--(modint&a) {return a-=1;}
+		friend modint operator--(modint&a,int){modint x=a;a-=1;return x;}
+		friend bool operator==(modint a, modint b){return a.x==b.x;}
+		friend bool operator!=(modint a, modint b){return a.x!=b.x;}
+};
+using mint=modint<998244353>;
+cll N=(1<<24)+5;
+ll n,m;mint b[N],c[N],f[N],g[N],a[N];
+void calc(ll l,ll r,ll d){
+	if(r==l+1){
+		b[l]+=f[l];
+		f[r]=g[l]=b[l]*a[l]-c[l];
+		b[l]=f[l],c[l]=g[l];
+		return;
+	} ll m=(l+r)/2,u=d/2;
+	calc(l,m,d-1); rep(i,l,m-1)b[i+(1<<d-1)]+=b[i],c[i+(1<<d-1)]+=c[i]; 
+	calc(m,r,d-1); rep(i,l,m-1)b[i+(1<<d-1)]+=b[i],c[i+(1<<d-1)]+=c[i]; 
+}
+void solve(){
+	cin>>n>>m;
+	rep(i,1,m){ll x; cin>>x; ++a[x];}
+	ll w=1<<n;
+	rep(i,0,n-1)rep(j,0,w-1)if(j>>i&1)a[j]+=a[j^(1<<i)];
+	f[0]=1; calc(0,w,n); cout<<f[w]<<endl;
+}
+int main(){
+//	freopen(".in","r",stdin);
+//	freopen(".out","w",stdout);
+	ll T=1; //cin>>T;
+	while(T--)solve();
+	return 0;
+}
+

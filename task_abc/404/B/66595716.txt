@@ -1,0 +1,53 @@
+#include<bits/stdc++.h>
+using namespace std;
+int main(){
+	int n;
+	cin>>n;
+	char nas[n][n];
+	for(int i=0;i<n;i++){
+		for(int j=0;j<n;j++){
+			cin>>nas[i][j];
+		}
+	}
+	char bas[n][n];
+	for(int i=0;i<n;i++){
+		for(int j=0;j<n;j++){
+			cin>>bas[i][j];
+		}
+	}
+	int sq[4];
+	for(int h=0;h<4;h++){
+		sq[h]=h;
+		char a[n][n];
+		for(int i=0;i<n;i++){
+			for(int j=0;j<n;j++){
+				if(nas[i][j]!=bas[i][j]){
+					sq[h]++;
+				}
+				a[i][j]=nas[n-j-1][i];
+			}
+		}
+		for(int i=0;i<n;i++){
+			for(int j=0;j<n;j++){
+				nas[i][j]=a[i][j];
+			}
+		}
+		
+		
+	}
+	sort(sq,sq+4);
+	cout<<sq[0];
+	return 0;
+}
+/*
+* 0  1  2  3  4
+0             
+1
+2
+3
+4
+
+
+
+
+*/

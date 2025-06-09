@@ -1,0 +1,49 @@
+#include <bits/stdc++.h>
+#define rep(i, a, b) for (int i = a; i < (b); ++i)
+#define per(i, a, b) for (int i = (int)(b) - 1; i >= (a); --i)
+#define all(x) begin(x), end(x)
+#define sz(x) (int)(x).size()
+
+using namespace std;
+using ll = long long;
+using pii = pair<int, int>;
+using vi = vector<int>;
+using vii = vector<pii>;
+using vb = vector<bool>;
+using vl = vector<ll>;
+
+const ll MOD = 998244353;
+
+ll modpow(ll b, ll e) {
+  ll ans = 1;
+  for (; e > 0; b = b * b % MOD, e /= 2)
+    if (e & 1) ans = ans * b % MOD;
+  return ans;
+}
+
+int main() {
+  cin.tie(0)->sync_with_stdio(0);
+
+  int n, k;
+  cin >> n >> k;
+
+  // Son chiquitos, no hace falta tomar MOD :D
+  vl fact(k + 1, 1);
+  rep(i, 0, k) fact[i + 1] = fact[i] * (i + 1);
+  const auto choose = [&](int x, int y) { return fact[x] / (fact[y] * fact[x - y]); };
+
+  vl a(n);
+  rep(i, 0, n) cin >> a[i];
+  vl f(n + 1);
+  rep(i, 0, n) f[i + 1] = (f[i] + a[i]) % MOD;
+
+  vector<vl> F(k + 1, vl(n + 1, 0));
+  rep(i, 0, k + 1) per(j, 0, n) F[i][j] = (F[i][j + 1] + modpow(f[j + 1], i)) % MOD;
+
+  ll ans = 0;
+  rep(i, 0, k + 1) rep(l, 0, n) {
+    ll curr = choose(k, i) * modpow((MOD - f[l]) % MOD, k - i) % MOD;
+    ans = (ans + curr * F[i][l]) % MOD;
+  }
+  cout << ans << '\n';
+}

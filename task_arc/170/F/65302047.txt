@@ -1,0 +1,100 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long
+constexpr ll maxn=2e5+5,inf=1e18;
+ll tgt[maxn],A[maxn],du[maxn],n,T,cnt;
+set<ll> tmp[maxn],G[maxn];
+void init(ll n){
+    for(int i=0;i<=n;i++){
+        tgt[i]=A[i]=du[i]=0;
+        G[i].clear();
+        tmp[i].clear();
+    }
+    cnt=0;
+}
+bool chk0(ll x){
+    if(*G[x].rbegin()>x)return false;
+    for(auto v:G[x]){
+        if(tgt[v] && tgt[v]!=x)return false;
+    }
+    for(auto v:G[x])tgt[v]=x;
+    A[x]=0;
+    return true;
+}
+void Chain(ll x){
+    for(auto v:G[x]){
+        if(tgt[v]!=x){
+            if(!tgt[x])tgt[x]=v;
+            if(du[v]){
+                du[v]--;
+                if(du[v]==1 && !tgt[v])Chain(v);
+            }
+            return;
+        }
+    }
+}
+bool candidate(ll x,ll y){
+    if((tgt[x] && tgt[x]!=y) || tgt[y]==x)return false;
+    if(du[y]==2-(tgt[x]>0) && !tgt[y])return false;
+    return true;
+}
+void case1(ll x){
+    A[x]=++cnt;
+    for(auto v:G[x]){
+        if(tgt[v]!=x){
+            tmp[v].insert(x);
+            du[x]++;
+        }
+    }
+    if(du[x]==1 && !tgt[x])Chain(x);
+}
+bool case2(ll x){
+    ll pos=0,sce=inf;
+    for(auto v:G[x]){
+        if(tgt[v]==x)continue;
+        while(!tmp[v].empty() && !candidate(*tmp[v].begin(),v)){
+            tmp[v].erase(tmp[v].begin());
+        }
+        if(!tmp[v].empty() && *tmp[v].begin()<sce){
+            sce=*tmp[v].begin();
+            pos=v;
+        }
+    }
+    if(sce==inf)return 0;
+    A[x]=A[sce];
+    if(!tgt[sce]){
+        if(du[pos])du[pos]--;
+        tgt[sce]=pos;
+    }
+    if(!tgt[x])tgt[x]=pos;
+    if(du[pos])du[pos]--;
+    if(du[pos]==1 && !tgt[pos])Chain(pos);
+    return 1;
+}
+void work(){
+    cin>>n;
+    init(n);
+    for(int i=1;i<n;i++){
+        ll x,y;
+        cin>>x>>y;
+        G[x].insert(y);
+        G[y].insert(x);
+    }
+    for(int i=1;i<=n;i++){
+        if(chk0(i))continue;
+        if(case2(i))continue;
+        case1(i);
+    }
+    for(int i=1;i<=n;i++){
+        cout<<A[i];
+        if(i==n)cout<<"\n";
+        else cout<<" ";
+    }
+}
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(0);cout.tie(0);
+    cin>>T;
+    while(T--)work();
+    return 0;
+}

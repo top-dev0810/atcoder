@@ -1,0 +1,16 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+  int q; cin >> q;
+  while(q--){
+    int n,m; cin >> n >> m; vector<int> A; set<int> S;
+    for (int i(1);i < (1<<m)&&(int)A.size()<n;++i) if (!S.contains(i)){
+      int k = i; while(k<(1<<m)) S.emplace(k),k <<= 1;
+      A.emplace_back(k>>1);
+    }
+    while(A.size()!=n) A.emplace_back(1);
+    for (int a:A) cout <<a  << ' ';
+    cout << endl;
+  }
+}

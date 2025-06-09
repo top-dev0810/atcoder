@@ -1,0 +1,135 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define il inline
+#define gc getchar
+#define stt static
+#define pb push_back
+#define rep(i, s, t) for(int i = s; i <= t; i++)
+#define per(i, t, s) for(int i = t; i >= s; i--)
+using ll = long long;
+using i128 = __int128;
+using ull = unsigned long long;
+using pii = pair<int, int>;
+
+il int rd() {
+    int x = 0, f = 1;
+    char ch = gc();
+    while(!isdigit(ch)) {if(ch == '-') f = -f; ch = gc();}
+    while(isdigit(ch)) {x = x * 10 + ch - '0'; ch = gc();}
+    return x * f;
+}
+il int rd01() {
+    char ch = gc();
+    while(!isdigit(ch)) ch = gc();
+    return ch ^ 48;
+}
+
+constexpr int N = 3005;
+vector<int> G[N];
+int n, fa[N], sz[N], dfn[N], rnk[N], dfc, A[N][N];
+int dis[N][N], nxt[N][N];
+bool f[N][N];
+
+void dfs(int u, int lst) {
+    fa[u] = lst, sz[u] = 1;
+    dfn[u] = ++dfc; rnk[dfc] = u;
+    for(int v : G[u]) {
+        if(v == lst) continue;
+        dfs(v, u);
+        sz[u] += sz[v];
+    }
+}
+void getDis(int u, int lst, int s, int d) {
+    dis[s][u] = d;
+    for(int v : G[u]) {
+        if(v != lst) getDis(v, u, s, d + 1);
+    }
+}
+
+vector<pii> E[N];
+int F[N];
+int fnd(int x) {
+    return (F[x] == x ? x : F[x] = fnd(F[x]));
+}
+void merge(int x, int y) {
+    F[fnd(x)] = fnd(y);
+}
+
+void solve() {
+    n = rd();
+    rep(i, 2, n) {
+        int u = rd(), v = rd();
+        G[u].pb(v), G[v].pb(u);
+    }
+    rep(i, 1, n) rep(j, 1, n) A[i][j] = rd01();
+    dfs(1, 0);
+    rep(i, 1, n) getDis(i, 0, i, 0);
+    rep(i, 1, n) rep(j, 1, n) E[dis[i][j]].pb({i, j});
+//    rep(i, 1, n) {
+//        rep(j, 1, n) 
+//            printf("%d ", dis[i][j]);
+//        printf("\n");
+//    }
+    rep(i, 1, n) {
+        nxt[i][i] = -1;
+        for(int j : G[i]) nxt[i][j] = -1;
+        rep(t, 1, dfn[i] - 1) {
+            int j = rnk[t];
+            if(j == fa[i]) continue;
+            nxt[i][j] = fa[i];
+        }
+        rep(t, dfn[i] + sz[i], n) {
+            int j = rnk[t];
+            nxt[i][j] = fa[i];
+        }
+        for(int j : G[i]) {
+            if(j == fa[i]) continue;
+            rep(t, dfn[j] + 1, dfn[j] + sz[j] - 1) {
+                int k = rnk[t];
+                nxt[i][k] = j;
+            }
+        }
+    }
+    
+//    rep(i, 1, n) {
+//        rep(j, 1, n) printf("%d ", nxt[i][j]);
+//        printf("\n");
+//    }
+    
+    rep(i, 1, n) F[i] = i;
+    rep(i, 1, n) rep(j, i, n) {
+        if(!A[i][j]) continue;
+        int ii = i, jj = j;
+        while(ii != -1 && jj != -1) {
+            if(f[ii][jj]) break;
+            f[ii][jj] = f[jj][ii] = 1;
+            merge(ii, jj);
+            ii = nxt[ii][jj], jj = nxt[jj][ii];
+        }
+    }
+    rep(i, 1, n) fnd(i);
+    memset(f, 0, sizeof f);
+    int ans = 0;
+    rep(i, 1, n) {
+        f[i][i] = 1; ans++;
+        for(int j : G[i]) {
+            if(F[i] == F[j]) {
+                f[i][j] = f[j][i] = 1, ans++;
+            }
+        }
+    }
+    rep(s, 2, n) {
+        if(E[s].empty()) continue;
+        for(pii p : E[s]) {
+            int i = p.first, j = p.second;
+            if(f[nxt[i][j]][nxt[j][i]] && F[i] == F[j]) f[i][j] = f[j][i] = 1, ans++;
+        }
+    }
+    printf("%d\n", ans);
+}
+
+signed main() {
+    solve();
+    return 0;
+}

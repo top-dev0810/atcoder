@@ -1,0 +1,124 @@
+//~~~~~~~~~~
+
+#include <bits/stdc++.h>
+using namespace std;
+
+using ll = long long;
+using ld = long double;
+
+#if !defined(ONLINE_JUDGE)
+#define _GLIBCXX_DEBUG
+#endif
+
+#define rrep(i, s, n) for (ll i = s; i < (n); i++)
+#define rep(i, n) rrep(i, 0, n)
+#define all(a) (a).begin(), (a).end()
+#define rall(a) (a).rbegin(), (a).rend()
+
+//~~~~~~~~~~
+
+template <class ...C>
+void in(C &...v) { (cin >> ... >> v); }
+
+template <class C>
+void out_single(const C& v) { cout << v; }
+
+void out_single(const char& v) { cout << v; }
+
+template <class ...C>
+void out(C&&...v) { (out_single(v), ...); }
+
+template <class C>
+void err_single(const C& v) { cerr << v; }
+
+void err_single(const char& v) { cerr << v; }
+
+template <class ...C>
+void err(C&&...v) { (err_single(v), ...); }
+
+//~~~~~~~~~~
+
+template <class C>
+bool chmax(C &a, const C b) {
+    if (a < b) {
+        a = b;
+        return true;
+    }
+    return false;
+}
+
+template <class C>
+bool chmin(C &a, const C b) {
+    if (a > b) {
+        a = b;
+        return true;
+    }
+    return false;
+}
+
+template<class C1, class C2>
+istream& operator>>(istream& is, pair<C1, C2>& p) {
+    return is >> p.first >> p.second;
+}
+
+bool is_grid(int h, int w, int y, int x) {
+    return (0 <= y && y < h && 0 <= x && x < w);
+}
+
+//~~~~~~~~~~
+
+class UnionFind {
+    public:
+        UnionFind() = default;
+
+        explicit UnionFind(size_t n)
+                : m_parentsOrSize(n, -1) {}
+        
+        int find(int i) {
+            if (m_parentsOrSize[i] < 0) return i;
+
+            return (m_parentsOrSize[i] = find(m_parentsOrSize[i]));
+        }
+
+        void merge(int a, int b) {
+            a = find(a);
+            b = find(b);
+
+            if (a != b) {
+                if (-m_parentsOrSize[a] < -m_parentsOrSize[b]) swap(a, b);
+
+                m_parentsOrSize[a] += m_parentsOrSize[b];
+                m_parentsOrSize[b] = a;
+            }
+        }
+
+        bool connected(int a, int b) { return (find(a) == find(b)); }
+
+        int size(int i) { return -m_parentsOrSize[find(i)]; }
+        
+    private:
+        vector<int> m_parentsOrSize;
+};
+
+//~~~~~~~~~~
+
+int main() {
+    cin.tie(nullptr);
+    ios_base::sync_with_stdio(false);
+
+    int n, m; in(n, m);
+
+    int res = 0;
+    UnionFind uf(n);
+    while (m--) {
+        int u, v; in(u, v); u--; v--;
+        if (uf.connected(u, v)) {
+            res++;
+        } else {
+            uf.merge(u, v);
+        }
+    }
+    out(res, '\n');
+
+    return 0;
+}

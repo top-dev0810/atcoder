@@ -1,0 +1,91 @@
+#include <bits/stdc++.h>
+
+typedef long long lnt;
+
+using namespace std;
+
+const int N = 1e7 + 7, M = 998244353, iv2 = (1 + M) / 2;
+
+int ksm(int x, int y = M - 2, int res = 1) {
+    for (; y; x = (lnt) x * x % M, y /= 2) {
+        if (y & 1) {
+            res = (lnt) res * x % M;
+        }
+    }
+    return res;
+}
+
+int ica[N + 1];
+int vca[N + 1];
+
+inline void INIT() {
+    ica[0] = 1;
+    for (int i = 1; i <= N; ++ i) {
+        ica[i] = (lnt) ica[i - 1] * i % M;
+    }
+    vca[N] = ksm(ica[N]);
+    for (int i = N; i >= 1; -- i) {
+        vca[i - 1] = (lnt) vca[i] * i % M;
+    }
+}
+
+inline int C(int n, int m) {
+    if (m < 0 || n < m) {
+        return 0;
+    }
+    return (lnt) ica[n] * vca[n - m] % M * vca[m] % M;
+}
+
+int n;
+int a, b;
+int m;
+int k;
+
+int f[N];
+int g[N];
+
+inline void WORK() {
+    cin >> n >> a >> b;
+    for (int k = 1; k <= n; ++ k) {
+        f[k] = ((lnt) f[k - 1] + C(n - k, a - k) + C(n - k, a - 1)) * iv2 % M;
+        g[k] = ((lnt) g[k - 1] + C(n - k, b - k) + C(n - k, b - 1)) * iv2 % M;
+    }
+    for (cin >> m; m; -- m) {
+        cin >> k;
+        if (k == 1) {
+            cout << (lnt) C(n - k, a - 1) * C(n - k, b - 1) % M << '\n';
+            continue;
+        }
+        lnt ans = (
+            (lnt) f[k] * (C(n - k, b - 1) + C(n - k, b - k)) % M +
+            (lnt) g[k] * (C(n - k, a - 1) + C(n - k, a - k)) % M
+        ) * 2;
+        ans -= (lnt) C(n - k, a - 1) * C(n - k, b - 1) % M;
+        ans -= (lnt) C(n - k, a - 1) * C(n - k, b - k) % M;
+        ans -= (lnt) C(n - k, a - k) * C(n - k, b - 1) % M;
+        ans -= (lnt) C(n - k, a - k) * C(n - k, b - k) % M;
+        ans %= M;
+        if (ans < 0) {
+            ans += M;
+        }
+        cout << ksm(4, k - 2, ans) << '\n';
+    }
+}
+
+//#define filename ""
+
+int main() {
+    #ifdef filename
+    freopen(filename ".in", "r", stdin);
+    freopen(filename ".out", "w", stdout);
+    #endif
+    cin.tie(0); cout.tie(0);
+    ios::sync_with_stdio(0);
+    int Turn = 1;
+    //cin >> Turn;
+    INIT();
+    while (Turn -- ) {
+        WORK();
+    }
+    return 0;
+}

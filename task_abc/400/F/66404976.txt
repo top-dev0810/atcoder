@@ -1,0 +1,41 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll=long long;
+int main(){
+	int n;
+	cin>>n;
+	vector<int> c(2*n);
+	for(int i=0;i<n;i++){
+		cin>>c[i];
+		c[i]--;
+		c[i+n]=c[i];
+	}
+	vector<ll> x(n);
+	ll inf=1e18;
+	for(int i=0;i<n;i++)cin>>x[i];
+	vector<vector<ll>> dp(2*n,vector<ll>(2*n+1,inf)),ep(2*n,vector<ll>(2*n+1,inf));
+	auto rec1=[&](auto rec1,auto rec2,int l,int r)->ll{
+		if(dp[l][r]!=inf)return dp[l][r];
+		if(l+1==r)return dp[l][r]=1+x[c[l]];
+		for(int i=l+1;i<r;i++)dp[l][r]=min(dp[l][r],rec1(rec1,rec2,l,i)+rec1(rec1,rec2,i,r));
+		if(c[l]==c[r-1]){
+			dp[l][r]=min(dp[l][r],rec2(rec1,rec2,l,r)+(r-l)+x[c[l]]);
+		}
+		return dp[l][r];
+	};
+	auto rec2=[&](auto rec1,auto rec2,int l,int r)->ll{
+		if(ep[l][r]!=inf)return ep[l][r];
+		if(l+1==r)return ep[l][r]=0;
+		for(int i=l+1;i<r;i++){
+			ep[l][r]=min(ep[l][r],rec2(rec1,rec2,l,i)+rec1(rec1,rec2,i,r));
+		}
+		if(c[l]==c[r-1]){
+			ep[l][r]=min(ep[l][r],rec2(rec1,rec2,l,r-1));
+		}
+		return ep[l][r];
+	};
+	ll ans=inf;
+	for(int i=0;i<n;i++)ans=min(ans,rec1(rec1,rec2,i,i+n));
+	cout<<ans<<endl;
+	return 0;
+}

@@ -1,0 +1,26 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false); cin.tie(nullptr);
+    int n; cin >> n;
+    vector<int> A(n+1);
+    for (int i = 1; i <= n; ++i) {
+        cin >> A[i];
+    }
+
+    sort(A.begin()+1, A.begin()+1+n);
+    set<int, greater<int>> S;
+    for (int i = 1; i <= n; ++i) S.insert(i);
+
+    vector<int> Res(n+1, 0);
+    for (int cost = n-1; ~cost; --cost) {
+        auto it = S.lower_bound(A[n-cost]);
+        if (it != S.end()) S.erase(it);
+        Res[S.size()] = cost;
+    }
+    for (int i = 2; i <= n; ++i) Res[i] = max(Res[i], Res[i-1]);
+    for (int i = 1; i <= n; ++i) cout << Res[i] << ' ';
+    cout << '\n';
+
+}

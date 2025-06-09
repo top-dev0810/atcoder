@@ -1,0 +1,54 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+
+int main(){
+    
+    string s;
+    cin>>s;
+
+    long long i=0;
+    //string result(s.size(), '?');
+    //int cflag=0;
+
+    for(i=s.size()-1;i>=0;){
+        if(s[i]!='A'){
+            --i;
+        }else{
+            if(i-1>=0&&s[i-1]=='W'){
+                s[i]='C';
+                s[i-1]='A';
+            }
+            --i;
+        }
+    }
+    
+
+
+    // for(i=s.size()-1;i>=0;){
+    //     if(s[i]!='A'){
+    //         //result[i]=s[i];
+    //         --i;
+    //     }else{
+    //         cflag=0;
+    //         if(i-1>=0&&s[i-1]=='W'){
+    //             while(i-1>=0&&s[i-1]=='W'){
+    //                 s[i]='C';
+    //                 cflag=1;//W...WA is apperad
+    //                 --i;
+    //             }
+    //             if(cflag==1){
+    //                 s[i]='A';
+    //                 --i;
+    //             } 
+    //         }       
+    //     }
+    //     //cout<<result<<endl;
+    // }
+
+    cout<<s<<endl;
+
+    return 0;
+}
+
+    

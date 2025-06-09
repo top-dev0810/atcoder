@@ -1,0 +1,130 @@
+// LUOGU_RID: 207549962
+#include <bits/stdc++.h>
+using namespace std;
+using ll=long long;
+using ld=long double;
+const ll ILL=2167167167167167167;
+const int INF=2100000000;
+#define rep(i,a,b) for (int i=(int)(a);i<(int)(b);i++)
+#define all(p) p.begin(),p.end()
+template<class T> using _pq = priority_queue<T, vector<T>, greater<T>>;
+template<class T> ll LB(vector<T> &v,T a){return lower_bound(v.begin(),v.end(),a)-v.begin();}
+template<class T> ll UB(vector<T> &v,T a){return upper_bound(v.begin(),v.end(),a)-v.begin();}
+template<class T> bool chmin(T &a,T b){if(a>b){a=b;return 1;}else return 0;}
+template<class T> bool chmax(T &a,T b){if(a<b){a=b;return 1;}else return 0;}
+template<class T> void So(vector<T> &v) {sort(v.begin(),v.end());}
+template<class T> void Sore(vector<T> &v) {sort(v.begin(),v.end(),[](T x,T y){return x>y;});}
+bool yneos(bool a,bool upp=0){if(a){cout<<(upp?"YES\n":"Yes\n");}else{cout<<(upp?"NO\n":"No\n");}return a;}
+template<class T> void vec_out(vector<T> &p,int ty=0){
+    if(ty==2){cout<<'{';for(int i=0;i<(int)p.size();i++){if(i){cout<<",";}cout<<'"'<<p[i]<<'"';}cout<<"}\n";}
+    else{if(ty==1){cout<<p.size()<<"\n";}for(int i=0;i<(int)(p.size());i++){if(i) cout<<" ";cout<<p[i];}cout<<"\n";}}
+template<class T> T vec_min(vector<T> &a){assert(!a.empty());T ans=a[0];for(auto &x:a) chmin(ans,x);return ans;}
+template<class T> T vec_max(vector<T> &a){assert(!a.empty());T ans=a[0];for(auto &x:a) chmax(ans,x);return ans;}
+template<class T> T vec_sum(vector<T> &a){T ans=T(0);for(auto &x:a) ans+=x;return ans;}
+int pop_count(long long a){int res=0;while(a){res+=(a&1),a>>=1;}return res;}
+
+
+
+void solve();
+// CITRUS CURIO CITY / FREDERIC
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t = 1;
+    cin >> t;
+    rep(i, 0, t) solve();
+}
+
+void solve(){
+    struct point{
+        ll x, y;
+    };
+    ll K;
+    cin >> K;
+    point S, T;
+    cin >> S.x >> S.y >> T.x >> T.y;
+    ll lim = 10'000'000'000'000'000ll;
+    lim /= K;
+    lim += 2;
+    lim *= K * 2;
+    S.x += lim;
+    S.y += lim;
+    T.x += lim;
+    T.y += lim;
+    struct F{
+        ll a;
+        ll b;
+        ll num;
+    };
+    auto f = [&](point p) -> F {
+        F res;
+        res.a = p.x / K;
+        res.b = p.y / K;
+        if ((res.a ^ res.b) & 1){
+            res.num = p.x % K;
+        }
+        else{
+            res.num = p.y % K;
+        }
+        return res;
+    };
+    // if (true){
+    if (K != 2){
+        vector<point> p = {S, T};
+        vector<F> tile;
+        rep(i, 0, 2) tile.push_back(f(p[i]));
+        vector<vector<pair<ll, pair<ll, ll>>>> q(2);
+        rep(i, 0, 2){
+            auto t = tile[i];
+            if ((t.a ^ t.b) & 1){
+                q[i].push_back({t.num,         {t.a + t.b + 1, t.a - t.b}});
+                q[i].push_back({K - 1 - t.num, {t.a + t.b + 2, t.a - t.b + 1}});
+                q[i].push_back({1,             {t.a + t.b + 1, t.a - t.b + 1}});
+                q[i].push_back({1,             {t.a + t.b + 2, t.a - t.b}});
+            }
+            else{
+                q[i].push_back({1,             {t.a + t.b + 1, t.a - t.b}});
+                q[i].push_back({1,             {t.a + t.b + 2, t.a - t.b + 1}});
+                q[i].push_back({t.num,         {t.a + t.b + 1, t.a - t.b + 1}});
+                q[i].push_back({K - 1 - t.num, {t.a + t.b + 2, t.a - t.b}});
+            }
+        }
+        ll ans = ILL;
+        if (tile[0].a == tile[1].a && tile[0].b == tile[1].b){
+            chmin(ans, abs(tile[0].num - tile[1].num));
+        }
+        rep(i, 0, 4) rep(j, 0, 4){
+            ll tmp = q[0][i].first + q[1][j].first;
+            tmp += abs(q[0][i].second.first - q[1][j].second.first);
+            tmp += abs(q[0][i].second.second - q[1][j].second.second);
+            chmin(ans, tmp);
+        }
+        cout << ans << "\n";
+    }
+    else{
+        vector<point> p = {S, T};
+        vector<F> tile;
+        rep(i, 0, 2) tile.push_back(f(p[i]));
+        vector<point> pos(2);
+        rep(i, 0, 2){
+            auto t = tile[i];
+            if ((t.a ^ t.b) & 1){
+                pos[i] = {t.a + t.b + t.num + 1, t.a + t.num - t.b};
+            }
+            else{
+                pos[i] = {t.a + t.b + 1 + t.num, t.a - t.b - t.num + 1};
+            }
+        }
+        // cout << pos[0].x << " " << pos[0].y << " " << pos[1].x << " " << pos[1].y << endl;
+        if (pos[0].x > pos[1].x) swap(pos[0], pos[1]);
+        ll ans = abs(pos[0].x - pos[1].x) + abs(pos[0].y - pos[1].y);
+        if (pos[0].y < pos[1].y){
+            ans -= min(pos[1].x - pos[0].x + 1 - (pos[0].x & 1), pos[1].y - pos[0].y + (pos[0].y & 1)) / 2;
+        }
+        else{
+            ans -= min(pos[1].x - pos[0].x + (pos[0].x & 1), pos[0].y - pos[1].y + (pos[0].y & 1)) / 2;
+        }
+        cout << ans << "\n";
+    }
+}

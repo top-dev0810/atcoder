@@ -1,0 +1,21 @@
+#include <iostream>
+#include <string>
+
+int main(void){
+
+   int str_length;
+   std::cin >> str_length;
+
+   std::string str_s, str_t;
+   std::cin >> str_s >> str_t;
+
+   int answer = 0;
+   for(int it__char = 0; it__char < str_length; it__char++){
+      if(str_s.at(it__char) != str_t.at(it__char))  answer++;
+   }
+
+   std::cout << answer << std::endl;
+
+   return 0;
+
+}

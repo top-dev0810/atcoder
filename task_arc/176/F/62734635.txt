@@ -1,0 +1,72 @@
+#include <bits/stdc++.h>
+#define IL inline
+#define LL long long
+#define eb emplace_back
+#define L(i, j, k) for (int i = (j); i <= (k); ++i)
+#define R(i, j, k) for (int i = (j); i >= (k); --i)
+using namespace std;
+
+using vi = vector<int>;
+
+constexpr int P = 998244353;
+
+using uLL = uint64_t;
+
+IL uLL Mul (uLL a) {
+	return a;
+}
+
+IL uLL Mul (uLL a, uLL b) {
+	return a * b % P;
+}
+
+template<class ...Args>
+IL uLL Mul (uLL a, uLL b, Args... c) {
+	return Mul(c..., a * b % P);
+}
+
+IL void qm (int &x) {
+	x += (x >> 31) & P;
+}
+
+IL int ksm (int b, int k = P - 2) {
+	int r = 1;
+	for (; k; k >>= 1, b = (uLL)b * b % P) {
+		if (k & 1) {
+			r = (uLL)r * b % P;
+		}
+	}
+	return r;
+}
+
+int main () {
+	ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+	int n, m;
+	cin >> n >> m;
+	int fc = 1;
+	L (i, 2, n) {
+		fc = (LL)fc * i % P;
+	}
+	auto C2 = [&] (int a) {
+		return (LL)a * (a - 1) / 2 % P;
+	};
+	if (n == 1)
+		cout << "1\n";
+	else if (n == 2)
+		cout << 2 * m + 2 << '\n';
+	else if (m == 1) {
+		int ans = (ksm(n, n + 1) - (LL)n * ksm(n - 1, n) - (LL)n * (fc - 1)) % P;
+		qm(ans);
+		cout << ans << '\n';
+	} else {
+		int ans = ksm(n, ((LL)n * m + 1) % (P - 1));
+		int a = (LL)n * (m - 1) % (P - 1);
+		qm(ans -= (int)Mul(n, ksm(n - 1, (LL)n * m % (P - 1))));
+		qm(ans -= (int)Mul(n, m, fc, ksm(n - 1, a)));
+		int b = (LL)n * (m - 2) % (P - 1);
+		qm(ans -= (int)Mul(n, m, fc, C2(n - 1), ksm(n - 1, b)));
+		qm(ans -= (int)Mul(C2((LL)n * m % P), fc, ksm(n - 1, b)));
+		cout << ans << '\n';
+	}
+	return 0;
+}

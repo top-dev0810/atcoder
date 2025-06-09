@@ -1,0 +1,88 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define fast ios::sync_with_stdio(0), cin.tie(0), cout.tie(0)
+#define debug(x) cout << "x = " << x << endl
+#define endl '\n'
+#define _yes cout << "yes"<<endl
+#define _no cout << "no"<<endl
+#define _Yes cout << "Yes"<<endl
+#define _No cout << "No"<<endl
+#define _YES cout << "YES"<<endl
+#define _NO cout << "NO"<<endl
+#define _pb push_back
+#define _all(x) x.begin(),x.end()
+#define _for(i,a,b) for( int i=(a); i<(b); ++i)
+#define _rep(i,a,b) for( int i=(a); i<=(b); ++i)
+#define _sp(x) fixed << setprecision(x)
+#define _m0(x) memset(x,0,sizeof(x))
+#define _mm(x) memset(x,0x3f,sizeof(x))
+#define _mi(x) memset(x,-0x3f,sizeof(x))
+#define _x first
+#define _y second
+#define _lc (x<<1)
+#define _rc (x<<1|1)
+#define _mid ((l+r)>>1)
+
+using ll = long long;
+using pii = pair<int, int>;
+
+const ll mod = 1e9 + 7;
+const double eps = 1e-9;
+const int N = 5e5 + 5,INF = 0x3f3f3f3f;
+
+
+inline ll lowbit(ll x) { return x & -x; }
+inline ll lcm(ll a, ll b) { return a / __gcd(a, b) * b; }
+inline ll mul(ll a, ll b, ll p) {ll c = a * b - ll(1.0L * a * b / p) * p;c %= p;if (c < 0) {c += p;}return c;}
+inline ll qmi(ll a, ll b, ll p) {ll res = 1;for (; b; b /= 2, a = mul(a, a, p)) {if (b % 2) {res = mul(res, a, p);}}return res;}
+inline int popcnt(int n) {int res = 0;while (n) res += n & 1, n >>= 1;return res;}
+
+double dp[5005],p[5005],g[5005];
+void solve() {
+    int n,m;
+    cin>>n>>m;
+    _rep(i,1,n)
+    {
+        cin>>p[i];
+        p[i] /= 100;
+    }
+    dp[0] = 1;
+    _rep(i,1,n)
+    {
+        for(int j = n; j > 0; j --)
+        {
+            dp[j] = dp[j] * (1.0- p[i]) + dp[j-1] * p[i];
+        }
+        dp[0] *= (1 - p[i]);
+    }
+    g[m] = 0;
+    for(int i = m - 1; i >= 0; i --)
+    {
+        double sum = 1;
+        _rep(j,1,n)
+        {
+            sum += dp[j]*g[min(m,i+j)];
+        }
+        g[i] = sum / (1 - dp[0]);
+    }
+    cout<<_sp(15)<<g[0]<<endl;
+}
+
+int main() {
+    fast;
+    int T = 1;
+    //cin >> T;
+    while (T--) {
+        solve();
+    }
+    return 0;
+}
+
+
+
+
+
+
+

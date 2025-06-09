@@ -1,0 +1,86 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+using ull = unsigned long long;
+using db = double;
+using i128 = __int128;
+using u128 = unsigned __int128;
+#define I return
+#define AK 0
+#define XCPC ;
+#define AL(X) (X).begin() + 1, (X).end()
+#define ALL(X) (X).begin(), (X).end()
+#define l first
+#define r second
+#define lson (u << 1)
+#define rson (u << 1 | 1)
+#define debug(x) cerr << #x << "=" << x
+ll base1 = 141231;
+ll base2 = 131;
+ll inf = 1e18;
+mt19937_64 rdm(chrono::system_clock::now().time_since_epoch().count()); // 随机数生成
+db eps = 1e-9;
+int n, m, k, q;
+int sx[] = {-1, 1, 0, 0};
+int sy[] = {0, 0, -1, 1};
+inline void solve()
+{
+    int h, w, p, q, x;
+    cin >> h >> w >> x >> p >> q;
+    vector f(h, vector<ll>(w));
+    vector ck(h, vector<int>(w));
+    ll sum = 0;
+    for (int i = 0; i < h; i++)
+    {
+        for (int j = 0; j < w; j++)
+        {
+            cin >> f[i][j];
+        }
+    }
+    p--, q--;
+    priority_queue<array<ll, 3>, vector<array<ll, 3>>, greater<>> pq;
+    pq.push({f[p][q], (ll)p, (ll)q});
+    ll ans = 0;
+    while (pq.size())
+    {
+        auto [w1, x1, y1] = pq.top();
+        pq.pop();
+        int ck1 = 0;
+        if (x1 == p && y1 == q && ck[x1][y1] == 0)
+        {
+            ck1 = 1;
+            ck[x1][y1] = 1;
+            ans += w1;
+        }
+        else if (ans > (i128)1 * x * w1 && ck[x1][y1] == 0)
+        {
+            ck1 = 1;
+            ck[x1][y1] = 1;
+            ans += w1;
+        }
+        if (ck1 == 0)
+            continue;
+        for (int i = 0; i < 4; i++)
+        {
+            int x2 = sx[i] + x1;
+            int y2 = sy[i] + y1;
+            if (x2 < 0 || x2 >= h || y2 < 0 || y2 >= w || ck[x2][y2])
+                continue;
+            pq.push({f[x2][y2], (ll)x2, (ll)y2});
+        }
+    }
+    cout << ans;
+}
+int main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+    int tt = 1;
+    // cin >> tt;
+    while (tt--)
+    {
+        solve();
+    }
+    I AK XCPC
+}

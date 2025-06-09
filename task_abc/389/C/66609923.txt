@@ -1,0 +1,46 @@
+#include <bits/stdc++.h>
+
+using i64 = long long;
+
+void solve()
+{
+    int n;
+    std::cin >> n;
+    std::vector<i64> a(n + 1);
+    std::vector<i64> b(n + 1);
+    int st = 1, ed = 1;
+    i64 s = 0;
+    i64 sum = 0;
+    for (int i = 1; i <= n; i++) {
+        int op;
+        std::cin >> op;
+        if (op == 1) {
+            int l;
+            std::cin >> l;
+            b[st] = l;
+            a[st++] = s;
+            s += l;
+        } else if (op == 2) {
+            sum += b[ed];
+            ed++;
+        } else {
+            int x;
+            std::cin >> x;
+            std::cout << a[ed + x - 1] - sum << "\n";
+        }
+    }
+}
+
+int main()
+{
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+
+    int _ = 1;
+    //std::cin >> _;
+    while (_--) {
+        solve();
+    }
+
+   return 0;
+}

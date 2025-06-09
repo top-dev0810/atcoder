@@ -1,0 +1,23 @@
+#include <bits/stdc++.h>
+using namespace std;
+const int N=3e5+10;
+typedef long long ll;
+int n;
+ll a[N], pre[N], nex[N], pos[N];
+ll ans;
+int main(){
+    scanf("%d", &n);
+    for(int i=1;i<=n;i++) scanf("%lld", &a[i]);
+    for(int i=1;i<=n;i++){
+        pre[i]=max(pos[a[i]], pos[a[i]+1]);
+        pos[a[i]]=i;
+    }
+    for(int i=1;i<=n+1;i++) pos[i]=n+1;
+    for(int i=n;i>=1;i--){
+        nex[i]=pos[a[i]+1];
+        pos[a[i]]=i;
+    }
+    for(int i=1;i<=n;i++) ans+=(i-pre[i])*(nex[i]-i);//一共有(i-pre[i])*(nex[i]-i)个区间要专门为a[i]这个数字设立[l, r]
+    printf("%lld\n", ans);
+    return 0;
+}

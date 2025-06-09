@@ -1,0 +1,164 @@
+#include <bits/stdc++.h>
+using namespace std;
+ 
+#define rng(i,a,b) for(int i=int(a);i<=int(b);i++)
+#define rep(i,b) rng(i,0,b-1)
+#define gnr(i,b,a) for(int i=int(b);i>=int(a);i--)
+#define per(i,b) gnr(i,b-1,0)
+#define pb push_back
+#define eb emplace_back
+#define fi first
+#define se second
+#define bg begin()
+#define ed end()
+#define all(x) x.bg,x.ed
+#define si(x) int(x.size())
+template<class t> using vc=vector<t>;
+template<class t> using vvc=vc<vc<t>>;
+typedef long long ll;
+using pii=pair<int,int>;
+using vi=vc<int>;
+using uint=unsigned;
+using ull=unsigned long long;
+using pil=pair<int,ll>;
+using pli=pair<ll,int>;
+using pll=pair<ll,ll>;
+#define N_ 510000
+
+int n, w[N_], C[N_], Nxt[N_], Left[N_];
+ll INF = 1e18;
+ll S[N_];
+pli D[N_];
+void Put(int e, int b, int col, ll cost){
+    if(D[b].se == col)return;
+    ll tp = D[b].fi + cost;
+    if(D[e].fi > tp) D[e] = {tp,w[b]};
+}
+void Put2(int e, int b, ll cost){
+    ll tp = D[b].fi + cost;
+    if(D[e].fi > tp) D[e] = {tp, D[b].se};
+}
+const int SZ = (1<<19);
+int IT[SZ+SZ], Bef[SZ];
+void Put(int a, int x){
+    a+=SZ;
+    while(a){
+        IT[a]=max(IT[a],x);
+        a>>=1;
+    }
+}
+
+ll SS[N_];
+ll Tri(int b, int e){
+    return SS[e] - SS[b-1] - (S[e]-S[b-1]) * (b-1);
+}
+ll CalcBase(int b, int e){
+    int mid = (b+e)/2;
+
+    return Tri(b+1,e-1) - Tri(mid+1,e-1)*2;
+}
+
+
+int par[N_][20];
+ll pS[N_][20];
+int Find_o(int x, int y){
+    x+=SZ;
+    int b = SZ;
+    while(b<=x){
+        if(IT[x] > y)break;
+        b=(b+1)>>1;
+        x=(x-1)>>1;
+    }
+    if(b>x)return -1;
+    while(x<SZ){
+        x=x*2+1;
+        if(IT[x]<=y)x--;
+    }
+    return x-SZ;
+}
+ll Calc(int b, int e){
+    int t = Find_o(e,b);
+    //printf("%d %d %d\n",b,e,t);
+    if(t <= b)return CalcBase(b,e);
+    int tt = t;
+    ll ss = 0;
+    per(i,19){
+        if(par[tt][i] > b){
+            ss += pS[tt][i];
+            tt = par[tt][i];
+        }
+    }
+    assert(t+tt == b+e);
+    return ss - CalcBase(tt,t) + CalcBase(b,e);
+}
+void Solve(){
+    scanf("%d",&n);
+    int cur = 0;
+    vc<vi>G(n+1);
+    rng(i,1,n){
+        int a;
+        scanf("%d",&a);
+        if(!cur || w[cur] != a){
+            w[++cur] = a;
+            G[a].pb(cur);
+            C[cur] = 1;
+        }
+        else{
+            C[cur]++;
+        }
+    }
+    n = cur;
+    rng(i,2,n){
+        if(w[i]==w[i-2]){
+            Left[i]=i-2;
+        }
+        else{
+            int x = i-1;
+            int a = w[i];
+            int pv = lower_bound(all(G[a]),i) - G[a].begin() - 1;
+            while(x && pv >= 0){
+                per(j,18)if(par[x][j]>G[a][pv])x=par[x][j];
+                if(w[x-1]==w[i]){
+                    Left[i]=x-1;
+                    break;
+                }
+                x=Left[x];
+                pv = lower_bound(all(G[a]),x) - G[a].begin() - 1;
+            }
+        }
+        par[i][0]=Left[i];
+        rep(j,19)par[i][j+1]=par[par[i][j]][j];
+    }
+    rng(i,1,n){
+        Put(i,Left[Left[i]]);
+    }
+
+    rng(i,1,n){
+        S[i]=S[i-1]+C[i];
+        SS[i]=SS[i-1]+1ll*C[i]*i;
+    }
+    rng(i,1,n){
+        D[i]={INF,-1};
+    }
+    rng(i,1,n){
+        Put(i, i-1, w[i], 0);
+        int l = Left[i];
+        if(!l)continue;
+        ll g = Calc(l,i);
+        pS[i][0] = g;
+        rep(j,19){
+            pS[i][j+1] = pS[i][j] + pS[par[i][j]][j];
+        }
+        Put(i, l-1, w[i], g);
+        Put2(i, l, g);
+    }
+    printf("%lld\n",D[n].fi);
+}
+
+int main(){
+    int TC=1;
+    //scanf("%d",&TC);
+    while(TC--){
+        Solve();
+    }
+}

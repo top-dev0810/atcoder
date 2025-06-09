@@ -1,0 +1,64 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+inline int rd()
+{
+	int x=0;bool f=0;char ch=getchar();
+	while(ch<'0' || ch>'9') {if(ch=='-') f=1;ch=getchar();}
+	while(ch>='0' && ch<='9') x=(x<<3)+(x<<1)+(ch^48),ch=getchar();
+	return f?-x:x;
+}
+
+#define x first
+#define y second
+#define mp make_pair
+#define pb emplace_back
+#define upb upper_bound
+#define lowb lower_bound
+#define isz(x) (int)x.size()
+#define gmx(a,b) (a=max(a,b))
+#define gmn(a,b) (a=min(a,b))
+#define fil(a,x) memset(a,x,sizeof(a))
+#define rep(i,a,b) for(int i=(a);i<=(b);i++)
+#define per(i,a,b) for(int i=(a);i>=(b);i--)
+
+/*
+
+*/
+
+typedef __int128 i128;
+typedef long long LL;
+typedef long double LD;
+typedef unsigned long long ull;
+typedef pair<int,int> PII;
+typedef vector<int> VI;
+typedef set<int>::iterator iter;
+const int N=510;
+
+int n,m;
+int vis[N][N];
+
+signed main()
+{
+	n=rd(),m=rd();
+	if(m%3==2 && n%3) vis[1][1]=1;
+	rep(x,0,n-1) rep(y,x,n-1) if(!vis[x][y]) {
+		int z=(-x-y+n+n)%n;
+		if(x==y && x==z || vis[z][x] || vis[y][z]) continue;
+		if(m>=3) {
+			vis[x][y]=vis[y][z]=vis[z][x]=1,m-=3;
+			printf("%d %d %d\n",x,y,z);
+			printf("%d %d %d\n",z,x,y);
+			printf("%d %d %d\n",y,z,x);
+		}
+	}
+	if(n%3==0) {
+		rep(i,0,n-1) if(m) m--,printf("%d %d %d\n",n/3*i,n/3*i,n/3*i);
+	} else {
+		if(m) puts("0 0 0");
+		if(m>1) puts("1 1 1");
+	}
+
+	return 0;
+}

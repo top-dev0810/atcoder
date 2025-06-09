@@ -1,0 +1,133 @@
+#include <bits/stdc++.h>
+using namespace std;
+using uint = unsigned int;
+template <const int64_t MOD = 998'244'353>
+class mint {
+    int64_t value;
+public:
+    mint(const int64_t v = 0) : value((v % MOD + MOD) % MOD) {}
+    operator int64_t() const { return value; }
+    operator bool() const { return value; }
+    strong_ordering operator<=>(const mint mint) const { return value <=> mint.value; }
+    friend mint operator+(const mint a, const mint b) { return mint((a.value + b.value) % MOD); }
+    friend mint operator-(const mint a, const mint b) { return mint((a.value + MOD - b.value) % MOD); }
+    friend mint operator*(const mint a, const mint b) { return mint((a.value * b.value) % MOD); }
+    friend mint operator/(const mint a, const mint b) { return a * inverse(b); }
+    mint operator+=(const mint mint) { return *this = *this + mint; }
+    mint operator-=(const mint mint) { return *this = *this - mint; }
+    mint operator*=(const mint mint) { return *this = *this * mint; }
+    mint operator/=(const mint mint) { return *this = *this / mint; }
+    mint& operator++() { *this += 1; return *this; }
+    mint operator++(int) { const mint temp = *this; ++*this; return temp; }
+    mint& operator--() { *this -= 1; return *this; }
+    mint operator--(int) { const mint temp = *this; --*this; return temp; }
+    template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
+    friend mint operator+(const mint& a, T b) { return a + mint(static_cast<uint64_t>(b)); }
+    template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
+    friend mint operator-(const mint& a, T b) { return a - mint(static_cast<uint64_t>(b)); }
+    template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
+    friend mint operator*(const mint& a, T b) { return a * mint(static_cast<uint64_t>(b)); }
+    template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
+    friend mint operator/(const mint& a, T b) { return a / mint(static_cast<uint64_t>(b)); }
+    friend mint pow(mint x, uint64_t y) {
+        mint res = 1;
+        while (y) {
+            if (y & 1ULL) res *= x;
+            x *= x; y >>= 1;
+        }
+        return res;
+    }
+    friend mint inverse(const mint& a) { return pow(a, MOD - 2); }
+    friend istream& operator>>(istream& in, mint& mint) { uint64_t v; in >> v; mint = v; return in; }
+    friend ostream& operator<<(ostream& out, const mint& mint) { return out << mint.value; }
+};
+template <typename T> using twin = pair<T, T>;
+template <typename T> using ilist = initializer_list<T>;
+template <typename T, typename C = greater<T>>
+using pq = priority_queue<T, vector<T>, C>;
+template <typename T> struct matrix : vector<vector<T>> {
+    matrix() = default;
+    matrix(int r) { this->resize(r); }
+    matrix(int r, int c) { this->resize(r, vector<T>(c)); }
+    matrix(int r, vector<T> value) { this->resize(r, value); }
+    matrix(int r, int c, T value) { this->resize(r, vector<T>(c, value)); }
+    matrix(vector<vector<T>> matrix) { this->assign(matrix.begin(), matrix.end()); }
+    matrix(ilist<vector<T>> ilist) { this->assign(ilist); }
+};
+template <typename T> struct cubic : vector<matrix<T>> {
+    cubic() = default;
+    cubic(int h) { this->resize(h); }
+    cubic(int h, int r) { this->resize(h, vector<T>(r)); }
+    cubic(int h, int r, int c) { this->resize(h, matrix<T>(r, c)); }
+    cubic(int h, matrix<T> value) { this->resize(h, value); }
+    cubic(int h, int r, vector<T> value) { this->resize(h, matrix<T>(r, value)); }
+    cubic(int h, int r, int c, T value) { this->resize(h, matrix<T>(r, c, value)); }
+    cubic(vector<matrix<T>> cubic) { this->assign(cubic.begin(), cubic.end()); }
+    cubic(ilist<matrix<T>> ilist) { this->assign(ilist); }
+};
+struct Coord {
+    int x, y;
+    Coord() : x(0), y(0) {}
+    Coord(const int x, const int y) : x(x), y(y) {}
+    friend bool operator==(const Coord a, const Coord b) {
+        return a.x == b.x && a.y == b.y;
+    }
+    friend Coord operator+(const Coord a, const Coord b) {
+        return Coord(a.x + b.x, a.y + b.y);
+    }
+    friend Coord operator-(const Coord a, const Coord b) {
+        return Coord(a.x - b.x, a.y - b.y);
+    }
+    friend Coord operator*(const Coord coord, const int n) {
+        return Coord(coord.x * n, coord.y * n);
+    }
+    friend int dist(const Coord a, const Coord b) {
+        return abs(a.x - b.x) + abs(a.y - b.y);
+    }
+    Coord& operator+=(const Coord coord) { return *this = *this + coord; }
+    Coord& operator-=(const Coord coord) { return *this = *this - coord; }
+    Coord& operator*=(const int n) { return *this = *this * n; }
+};
+static const Coord dCoord4[4] = {
+    Coord(1, 0), Coord(0, 1), Coord(-1, 0), Coord(0, -1)
+};
+static const Coord dCoord8[8] = {
+    Coord(-1, -1), Coord(0, -1), Coord(1, -1),
+    Coord(-1, 0) ,               Coord(1, 0),
+    Coord(-1, 1) , Coord(0, 1) , Coord(1, 1),
+};
+template <const bool closed, typename T = int> struct Range {
+    T begin, end;
+    T length() const { return end - begin + closed; }
+    bool empty() const { return !length(); }
+    T middle() const { return begin + length() / 2; }
+    bool contains(const int element) const {
+        return begin <= element && (closed && element <= end || !closed && element < end) ;
+    }
+    bool contains(const Range range) const {
+        return begin <= range.begin && range.end <= end;
+    }
+    bool intersects(const Range range) const {
+        return !closed && !(end <= range.begin || range.end <= begin)
+             || closed && !(end < range.begin || range.end < begin);
+    }
+    twin<Range> split() const {
+        return {
+            Range(begin, middle()),
+            Range(middle() + closed, end)
+        };
+    }
+};
+
+int main() {
+    cin.tie(nullptr);
+    ios::sync_with_stdio(false);
+    int n, m; cin >> n >> m;
+    vector<int> w(n);
+    while (m--) {
+        int l, r; cin >> l >> r;
+        w[--l]++; w[r]--;
+    }
+    for (int i = 1; i < n; i++) w[i] += w[i - 1];
+    cout << *ranges::min_element(w);
+}

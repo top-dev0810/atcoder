@@ -1,0 +1,99 @@
+//#pragma GCC optimize(2)
+#include<bits/stdc++.h>
+
+using namespace std;
+
+typedef long long LL;
+typedef unsigned long long ULL;
+typedef pair<int,int>PII;
+
+#define rep(x, y, z) for(LL x = (y); x <= (z); ++x)
+#define per(x, y, z) for(LL x = (y); x >= (z); --x)
+#define fi first
+#define se second
+#define ls (u<<1)
+#define rs (u<<1|1)
+#define all(ss) ss.begin(),ss.end()
+#define pb push_back
+#define vi vector<int>
+#define vii vector<vector<int>>
+#define vl vector<LL>
+#define vll vector<vector<LL>>
+#define i128 __int128
+
+int const mod=1e9+7;
+int const B=507;
+double const eps=1e-6;
+//int const mod=998244353;
+//const LL mod1=1e9+21,mod2=1e9+1e8+9;	//不大众的模数
+//const LL base1=61,base2=31;	//不大众的底数
+int const N=5e5+7,M=2e6+7;
+int const INF=0x3f3f3f3f;
+LL const INFF=0x3f3f3f3f3f3f3f3f;
+
+int n,m,K;
+int opt,x,y,z;
+int a[N];
+int fa[N],cnt[N];
+struct Node{int l,r,c;}p[N];
+
+int find(int x){
+	return fa[x]==x?fa[x]:fa[x]=find(fa[x]);
+}
+
+/*
+对于每个联通快区间，记录左右端点，和当前联通快的颜色，
+在维护一个区间[1,n]每个颜色出出现的数量
+
+*/
+
+void solve(){
+	cin>>n>>m;
+	for(int i=1;i<=n;i++) p[i]={i,i,i},fa[i]=i,cnt[i]=1;
+	
+	while(m--){
+		cin>>opt>>x;
+		if(opt==1){
+			cin>>y;
+			int px=find(x);
+			cnt[p[px].c]-=p[px].r-p[px].l+1;
+			p[px].c=y; //修改颜色
+			cnt[p[px].c]+=p[px].r-p[px].l+1;
+			
+			//修改颜色后，看是否可以向左右合并
+			if(p[px].l!=1){
+				int pl=find(p[px].l-1);
+				//颜色相同，可以向左合并
+				if(p[pl].c==p[px].c) fa[pl]=px,p[px].l=p[pl].l;
+			}
+			if(p[px].r!=n){
+				int pr=find(p[px].r+1);
+				//颜色相同，可以向右合并
+				if(p[px].c==p[pr].c) fa[pr]=px,p[px].r=p[pr].r;
+			}
+		}else cout<<cnt[x]<<"\n";
+	}
+	
+}
+
+
+void init(){
+
+}
+
+int main()
+{
+// 	freopen("in.txt","r",stdin);
+//	freopen("out.txt","w",stdout);
+    //std::ios::sync_with_stdio(false);   cin.tie(0); cout.tie(0);
+    //init();
+    int T=1;
+    //cin>>T;
+    //scanf("%d",&T);
+
+   	for(int i=1;i<=T;i++){
+	   	solve();
+	}
+
+	return 0;
+}

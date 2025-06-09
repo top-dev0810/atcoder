@@ -1,0 +1,457 @@
+#include <bits/stdc++.h>
+
+// what the fuck
+template<typename T, int N>
+struct NDVector { using type = std::vector<typename NDVector<T, N - 1>::type>; };
+template<typename T>
+struct NDVector<T, 1> { using type = std::vector<T>; };
+
+// A tensor is essentially a vector of tensors. (or multidimensional array)
+template<typename T, int N>
+using Tensor = typename NDVector<T, N>::type;
+
+/**
+ * Create a multidimensional vector with the given dimension sizes.
+ *
+ * In particular, create_vector(N) = create_tensor(N), create_matrix(N, M) = create_tensor(N, M).
+ * If you have some weird multidimensional DP, you can create the DP table by doing:
+ *      dp = create_tensor(5, 5, 5, 5, 5);
+ *
+ * Be careful, for a large number of dimensions, this uses a lot of memory and is very cache unfriendly.
+ */
+template<typename T>
+std::vector<T> create_tensor(int N) {
+    return std::vector<T>(N);
+}
+template <typename T, typename... ArgTypes>
+Tensor<T, sizeof...(ArgTypes) + 1> create_tensor(int N, ArgTypes... args) {
+    auto under = create_tensor<T>(args...);
+    return std::vector(N, under);
+}
+
+/**
+ * Create a matrix of the given dimensions.
+ */
+template<typename T>
+Tensor<T, 2> create_matrix(int N, int M) {
+    return create_tensor<T>(N, M);
+}
+
+/**
+ * Frequently used definitions, like Vector, Matrices, pairs of ints, pairs, triples, etc.
+ */
+template<typename T>
+using Vector = Tensor<T, 1>; // I could use std::vector<T>, but this is just too cool.
+template<typename T>
+using Matrix = Tensor<T, 2>;
+
+template<typename T1, typename T2>
+using Pair = std::pair<T1, T2>;
+using PairII = Pair<int, int>;
+using PairLL = Pair<long long, long long>;
+
+template<typename T1, typename T2, typename T3>
+using Triple = std::tuple<T1, T2, T3>;
+
+/**
+ * Read a vector from input. Set start to 1 if you want it to be 1-indexed.
+ */
+template<typename T>
+Vector<T> read_vector(int N, int start = 0) {
+    Vector<T> v(start + N);
+    for (int i = start; i < (int)v.size(); i++) {
+        std::cin >> v[i];
+    }
+    return v;
+}
+
+/**
+ * Read a matrix from input. Set start_l to make lines 1-indexed. Same thing for start_c.
+ */
+template<typename T>
+Matrix<T> read_matrix(int N, int M, int start_l = 0, int start_c = 0) {
+    Matrix<T> matr = create_matrix<T>(N + start_l, M + start_c);
+
+    for (int l = start_l; l < N + start_l; l++)
+        for (int c = start_c; c < M + start_c; c++)
+            std::cin >> matr[l][c];
+
+    return matr;
+}
+
+/**
+ * Print a tensor to the output stream. Prints all indices between i and j, and the elements 
+ * are separated by the given separator.
+ *
+ * To generalize, for each dimension, you give the bounds that you want to print and the separator
+ * between each order. To print a matrix, you would do:
+ *
+ *      print_tensor(matr, std::cout, 0, N - 1, "\n", 0, M - 1, " ");
+ */
+template<typename T>
+void print_tensor(Tensor<T, 1>& tens, std::ostream&fout, int i, int j, const char* sep) {
+    for (int t = std::max(i, 0); t <= j && t < (int)tens.size(); t++) {
+        fout << tens[t];
+        if (t + 1 <= j)
+            fout << sep;
+    }
+}
+
+template<typename T, typename... Sizes>
+void print_tensor(
+        Tensor<T, sizeof...(Sizes) / 3 + 1>& tens,
+        std::ostream& fout, 
+        int i, int j, const char* sep, Sizes... sizes) {
+    for (int t = std::max(i, 0); t <= j && t < (int)tens.size(); t++) {
+        print_tensor<T>(tens[t], fout, sizes...);
+        if (t + 1 <= j)
+            fout << sep;
+    }
+}
+
+/**
+ * Print a vector to the given output stream with given bounds and separator.
+ */
+template<typename T>
+void print_vector(std::vector<T>& v, std::ostream& fout, int i = 0, int j = (1 << 30), const char* sep = " ") {
+    print_tensor<T>(v, fout, i, j, sep);
+}
+
+/**
+ * Read a vector of pairs. Set start to 1 if you want this to be 1-indexed.
+ */
+template<typename T1, typename T2>
+Vector<Pair<T1, T2>> read_pairvec(int N, int start = 0) {
+    Vector<Pair<T1, T2>> input = Vector<Pair<T1, T2>>(start + N);
+    for (int i = start; i < start + N; i++)
+        std::cin >> input[i].first >> input[i].second;
+    return input;
+}
+
+/**
+ * Read a vector of triples. Set start to 1 if you want this to be 1-indexed.
+ *
+ * If you need higher order tuples, like quadruples, you're better off using a matrix instead.
+ */
+template<typename T1, typename T2, typename T3>
+Vector<Triple<T1, T2, T3>> read_triplevec(int N, int start = 0) {
+    Vector<Triple<T1, T2, T3>> input = Vector<Triple<T1, T2, T3>>(start + N);
+    for (int i = start; i < N + start; i++) {
+        T1 a;
+        T2 b;
+        T3 c;
+        std::cin >> a >> b >> c;
+        input[i] = {a, b, c};
+    }
+    return input;
+}
+
+/**
+ * Removes duplicates from vector. Assumes it is sorted.
+ */
+template<typename T>
+void deduplicate(Vector<T>& v) {
+    v.resize(std::unique(v.begin(), v.end()) - v.begin());    
+}
+
+/**
+ * Solve a testcase of the problem. You will code your solution here instead of main.
+ */
+void solve_test();
+
+/**
+ * Call this function if you have a problem with multiple testcases.
+ */
+void multitest_problem() {
+    int T;
+    std::cin >> T;
+
+    while (T--) solve_test();
+}
+
+int main() {
+    std::cin.tie(NULL);
+    std::iostream::sync_with_stdio(false);
+
+    // Choose one of the following functions, depending on the problem type.
+    solve_test();
+    //multitest_problem();
+
+    return 0;
+}
+
+/**
+ * Push directed and undirected edges. For pairs, the second value is added
+ * to both directions.
+ */
+void push_edge(std::vector<std::vector<int>>& graph, int a, int b) {
+    graph[a].push_back(b);
+}
+
+void push_uedge(std::vector<std::vector<int>>& graph, int a, int b) {
+    graph[a].push_back(b);
+    graph[b].push_back(a);
+}
+
+void push_edge(std::vector<std::vector<std::pair<int, int>>>& graph, int a, int b, int c) {
+    graph[a].push_back({b, c});
+}
+
+void push_uedge(std::vector<std::vector<std::pair<int, int>>>& graph, int a, int b, int c) {
+    graph[a].push_back({b, c});
+    graph[b].push_back({a, c});
+}
+
+/**
+ * Given a struct that represents the edge A -> B, return the value of B.
+ *
+ * Implemented for ints and pairs, if you want something more, you should specialize it
+ * yourself. You're probably better of just attaching an ID to the edge and keeping extra
+ * info in another structure.
+ */
+template<typename T>
+int edge_goes_to(T);
+template<>
+int edge_goes_to<int>(int x) { return x; }
+template<>
+int edge_goes_to<std::pair<int, int>>(std::pair<int, int> x) {
+    return x.first;
+}
+
+/**
+ * The core of walking through trees. It's an iterator that walks through the tree, and at each
+ * moment, it returns the tuple [from, to, down, edge]:
+ *
+ *      from, to -> walk through the edge (from, to)
+ *      down -> true whether the edge goes from top to bottom.
+ *      edge -> the entire structure containing the edge.
+ *
+ * This iterator will return two extra edges, from a fictive node -1 to the root, and from the
+ * root to the fictive node.
+ *
+ * Also note that each edge will be iterated through twice, one for each way, hence the `down` field.
+ *
+ * For instance, for the tree (1, 2), (2, 3), (2, 4), the iterator will return the following edges:
+ *      (-1, 1, true), (1, 2, true), (2, 3, true), (3, 2, false), (2, 4, true), 
+ *      (4, 2, false), (2, 1, false), (1, -1, false)
+ *
+ * Note that for trees where the edges go only down (so for a node you don't have an edge back 
+ * to its parent), the edge field will be undefined, which might be problematic for your implementation.
+ * You can take TreePreorder and reverse it to implement bottom-up stuff.
+ */
+template<typename E>
+struct TreeIterator {
+    using difference_type = std::ptrdiff_t;
+    using value_type = std::tuple<int, int, bool, E>;
+
+    std::vector<std::tuple<int, int, int>> st;
+    const std::vector<std::vector<E>>* graph;
+    value_type yield;
+    std::function<bool(int)> block;
+
+    TreeIterator() : graph(NULL), yield(-1, -1, -1, E()) {}
+    explicit TreeIterator(
+        int root,
+        const std::vector<std::vector<E>>& graph,
+        std::function<bool(int)> block = [](int node) { return false; }
+    )
+    : graph(&graph), block(block) {
+        st.push_back({-1, 0, -1});
+        st.push_back({root, -1, -1});
+        yield = {-1, root, true, E()};
+    }
+
+    value_type operator*() const { return yield; }
+    TreeIterator& operator++() {
+        do {
+            auto& [node, at, par_edge] = st.back();
+            if (node == -1) {
+                st.pop_back();
+                return *this;
+            }
+            at++;
+
+            if (at == (int)(*graph)[node].size()) {
+                st.pop_back();
+                E back_edge = E();
+                if (par_edge != -1) back_edge = (*graph)[node][par_edge];
+                yield = {node, std::get<0>(st.back()), false, back_edge};
+                return *this;
+            }
+            int to = edge_goes_to<E>((*graph)[node][at]);
+            auto [prev_node, x, y] = st[st.size() - 2];
+            if (to != prev_node && !block(to)) {
+                yield = {node, to, true, (*graph)[node][at]};
+                st.push_back({to, -1, -1});
+                return *this;
+            } else if (to == prev_node) {
+                par_edge = at;
+            }
+        } while (st.size());
+
+        return *this;
+    }
+    TreeIterator operator++(int) {
+        TreeIterator tmp = *this;
+        ++(*this);
+        return tmp;
+    }
+    bool operator==(const TreeIterator& x) const {
+        return st.size() == x.st.size();
+    }
+};
+static_assert(std::input_iterator<TreeIterator<int>>);
+
+/**
+ * A container that does the actual dfs walk, this instantiates the iterator
+ * from above. Arguments:
+ *
+ *      graph - adjacency list of the tree
+ *      root - start the dfs from this node.
+ *      block - a predicate that returns true for a node if the dfs should not go
+ *              through it.
+ */
+template<typename E>
+struct TreeDfs {
+    const std::vector<std::vector<E>>* graph;
+    int root;
+    std::function<bool(int)> block;
+
+    explicit TreeDfs(const std::vector<std::vector<E>>& graph,
+        int root,
+        std::function<bool(int)> block = [](int node) { return false; }
+    ): graph(&graph), root(root), block(block) {}
+
+    TreeIterator<E> begin() const { return TreeIterator<E>(root, *graph, block); }
+    TreeIterator<E> end() const { return TreeIterator<E>(); }
+    TreeIterator<E> cbegin() { return TreeIterator<E>(root, *graph, block); }
+    TreeIterator<E> cend() { return TreeIterator<E>(); }
+};
+static_assert(std::ranges::range<TreeDfs<int>>);
+
+template<typename E>
+using IteratorValue = std::tuple<int, int, bool, E>;
+
+template<typename E>
+const std::function<bool(IteratorValue<E>)> goes_down = [](IteratorValue<E> it) {
+    return std::get<2>(it);
+};
+
+/**
+ * Returns the preorder walk of the tree. In particular, returns the same as the dfs
+ * walk from before, but keeps only the edges that go down.
+ */
+template<typename E>
+auto TreePreorder(
+    const std::vector<std::vector<E>>& graph, int root,
+    std::function<bool(int)> block = [](int node) { return false; }) {
+    return TreeDfs(graph, root, block) |
+        std::views::filter(goes_down<E>);
+}
+
+/**
+ * Returns the postorder walk of the tree. In particular, returns the same as the dfs
+ * walk from before, but keeps only the edges that go up.
+ */
+template<typename E>
+auto TreePostorder(
+    const std::vector<std::vector<E>>& graph, int root,
+    std::function<bool(int)> block = [](int node) { return false; }) {
+    return TreeDfs(graph, root, block) |
+        std::views::filter(std::not_fn(goes_down<E>));
+}
+
+/*
+ * Structure that stores the two largest elements of a set. Only supports
+ * insertions and queries where you erase one element, but the erasure is
+ * not persistent.
+ *
+ * If you need minimum, just do min(a, b) = -max(-a, -b)
+ *
+ * You're doing reroot dp, aren't you?
+ */
+template<typename T>
+std::pair<T, T> twomax_insert(std::pair<T, T> maxes, T x) {
+    auto [max1, max2] = maxes;
+    if (x > max1) {
+        max2 = max1;
+        max1 = x;
+    } else if (x > max2) {
+        max2 = x;
+    }
+    return {max1, max2};
+}
+
+template<typename T>
+T twomax_query(std::pair<T, T> maxes, T x) {
+    auto [max1, max2] = maxes;
+    if (x == max1)
+        return max2;
+    return max1;
+}
+
+void solve_test() {
+    int N;
+    std::cin >> N;
+
+    auto edges = read_pairvec<int, int>(N - 1);
+    Vector<Vector<int>> graph(1 + N);
+    for (auto [a, b] : edges)
+        push_uedge(graph, a, b);
+
+    int res = 2 * N;
+
+    Vector<int> subtree(1 + N, 1), longest(1 + N), dpH(1 + N), dp(1 + N);
+    Vector<PairII> max_longest(1 + N), max_val(1 + N);
+    Vector<int> val(1 + N);
+
+    auto compute_dp = [&](int node, int father) {
+        dp[node] = dpH[node] = 0;
+        longest[node] = 0;
+        subtree[node] = 1;
+        max_longest[node] = max_val[node] = {0, 0};
+
+        for (auto it : graph[node]) {
+            if (it != father) {
+                dpH[node] += val[it];
+                subtree[node] += subtree[it];
+                max_longest[node] = twomax_insert(max_longest[node], longest[it] + 1);
+                max_val[node] = twomax_insert(max_val[node], -(dp[it] - val[it] + 1));
+            }
+        }
+        longest[node] = max_longest[node].first;
+        dp[node] = dpH[node] - max_val[node].first;
+        val[node] = std::min(dpH[node] + 2, 2 * subtree[node] - (longest[node] + 1));
+    };
+
+    for (auto [from, to, _, _e] : TreePostorder(graph, 1)) {
+        compute_dp(from, to);
+    }
+
+    for (auto [from, to, down, _] : TreeDfs(graph, 1)) {
+        if (from != -1 && to != -1) {
+            // Recompute the dp of 'from' so that it looks as if the
+            // tree was rooted in 'to'
+            subtree[from] -= subtree[to];
+            dpH[from] -= val[to];
+            longest[from] = twomax_query(max_longest[from], longest[to] + 1);
+            val[from] = std::min(dpH[from] + 2, 2 * subtree[from] - (longest[from] + 1));
+            dp[from] = dpH[from] - twomax_query(max_val[from],
+                    -(dp[to] - val[to] + 1));
+        }
+
+        if (down) {
+            compute_dp(to, -1);
+            res = std::min(res, dp[to]);
+        } else if (to != -1) {
+            subtree[to] += subtree[from];
+            dpH[to] += val[from];
+            longest[to] = max_longest[to].first;
+            dp[to] = dpH[to] - max_val[to].first;
+        }
+    }
+
+    std::cout << res; 
+}
+
+

@@ -1,0 +1,111 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define ll long long
+#define ld long double
+
+
+ll test_case = 1, n, m, k;
+vector<pair<int, int>> ans;
+
+void master() {
+    cin >> n;
+    int sum1 = 0, sum2 = 0;
+    vector<int> a(n), b(n);
+    for (auto &i: a)cin >> i, sum1 += i;
+    for (auto &i: b)cin >> i, sum2 += i;
+    if (sum1 != sum2) {
+        cout << "No\n";
+        return;
+    }
+    if (n == 2) {
+        if (a[0] != b[0] && a[0] != b[1] - 1) {
+            cout << "No\n";
+        } else if (a[0] == b[0]) {
+            cout << "Yes\n0\n";
+        } else {
+            cout << "Yes\n1\n1 2\n";
+        }
+        return;
+    }
+    if (n == 1) {
+        cout << "Yes\n0\n";
+        return;
+    }
+
+    for (int i = 0; i < n - 2; i++) {
+        if (b[i] == a[i])continue;
+        int df = abs(a[i] - b[i]);
+        int v[2] = {i + 1, i + 2};
+        if (b[i] > a[i]) {
+            while (df--) {
+                for (int j = i + 2; j < n; j++) {
+                    if (a[j] > a[v[1]]) {
+                        v[1] = j;
+                    }
+                }
+                vector<pair<int, int>> tem = {{i + 1,    v[0] + 1},
+                                              {v[0] + 1, v[1] + 1},
+                                              {i + 1,    v[1] + 1}};
+                for (auto j: tem)ans.push_back(j);
+                a[i]++, a[v[1]]--;
+                swap(a[v[1]], a[v[0]]);
+            }
+
+        } else {
+            v[1] = n - 1;
+
+            while (df--) {
+                for (int j = i + 1; j + 1 < n; j++) {
+                    if (a[j] < a[v[0]]) {
+                        v[0] = j;
+                    }
+                }
+                vector<pair<int, int>> tem = {{i + 1,    v[0] + 1},
+                                              {v[0] + 1, v[1] + 1},
+                                              {i + 1,    v[1] + 1}};
+                reverse(tem.begin(), tem.end());
+                for (auto j: tem)ans.push_back(j);
+                a[i]--, a[v[0]]++;
+                swap(a[v[1]], a[v[0]]);
+            }
+        }
+    }
+
+    if (a[n - 1] != b[n - 1]) {
+
+        vector<pair<int, int>> tem = {{n - 2, n - 1},
+                                      {n - 2, n},
+                                      {n - 2, n - 1},
+                                      {n - 1, n}};
+
+        if (a[n - 1] > b[n - 1]) {
+            reverse(tem.begin(), tem.end());
+        }
+        int df = abs(a[n - 1] - b[n - 1]);
+        while (df--) {
+            for (auto i: tem)ans.push_back(i);
+            if (ans.size() > 31000) {
+                assert(0);
+                cout << "No\n";
+                return;
+            }
+        }
+    }
+    if (ans.size() > 31000) {
+        cout << "No\n";
+        return;
+    }
+    cout << "Yes\n" << ans.size() << '\n';
+    for (auto [i, j]: ans)
+        cout << i << ' ' << j << '\n';
+}
+
+signed main() {
+    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+    //cin >> test_case;
+    while (test_case--) {
+        master();
+    }
+}

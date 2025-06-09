@@ -1,0 +1,54 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, T, M, K;
+    if (!(cin >> N >> T >> M >> K)) return 0;
+
+    const int KMAX = K;
+    vector<double> prev(KMAX + 1, 0.0), cur(KMAX + 1);
+    prev[0] = 1.0;                          // f[0][0] = 1
+
+    const double NEG = -1e100;
+    const int SLIM = min(N, M);             // maximal #parts ever needed
+
+    static double dp[31][31];               // M ≤ 30, SLIM ≤ 30
+
+    for (int t = 1; t <= T; ++t) {
+        for (int k = 0; k <= KMAX; ++k) {
+
+            /*  Δr = f[t-1][k-r] - f[t-1][k]  */
+            double delta[31]{};
+            for (int r = 1; r <= M; ++r)
+                delta[r] = prev[max(k - r, 0)] - prev[k];
+
+            /* unbounded knapsack with part limit ≤ SLIM */
+            for (int m = 0; m <= M; ++m)
+                for (int s = 0; s <= SLIM; ++s)
+                    dp[m][s] = NEG;
+            dp[0][0] = 0.0;
+
+            for (int r = 1; r <= M; ++r) {
+                double val = delta[r];
+                for (int m = r; m <= M; ++m)
+                    for (int s = 1; s <= SLIM && s <= m; ++s)
+                        if (dp[m - r][s - 1] > NEG / 2)
+                            dp[m][s] = max(dp[m][s],
+                                           dp[m - r][s - 1] + val);
+            }
+            double bestGain = NEG;
+            for (int s = 0; s <= SLIM; ++s)
+                bestGain = max(bestGain, dp[M][s]);
+            if (bestGain < -1e90) bestGain = 0.0;      // safety
+
+            cur[k] = (N * prev[k] + bestGain) / N;
+        }
+        swap(prev, cur);
+    }
+
+    cout << fixed << setprecision(15) << prev[K] << '\n';
+    return 0;
+}

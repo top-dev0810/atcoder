@@ -1,0 +1,53 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+
+const int N = 2e5 + 10;
+vector<int> ad[N];
+int deg[N]; ll ans = 0;
+
+int dfs(int u, int par) {
+  int cnt = 0;
+  vector<int> cc;
+  for (int v : ad[u]) {
+    if (v == par) continue;
+    int g = dfs(v, u);
+    cc.push_back(g);
+    if (deg[u] == 3) {
+      ans += 1ll * cnt * g;
+    }
+    if (deg[u] == 2 and deg[v] != 2) {
+      ans += g;
+    }
+    cnt += g;
+  }
+  if (deg[u] == 2) {
+    return 1;
+  }
+  if (deg[u] == 3) return cnt;
+  return 0;
+}
+
+void solve() {
+  int n; cin >> n;
+  for (int i = 1; i < n; i++) {
+    int u, v; cin >> u >> v;
+    ad[u].push_back(v);
+    ad[v].push_back(u);
+    deg[u]++;
+    deg[v]++;
+  }
+  dfs(1, 1);
+  cout << ans << "\n";
+}
+
+int main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);
+
+  int tt = 1;
+  // cin >> tt;
+  while (tt--) {
+    solve();
+  }
+}

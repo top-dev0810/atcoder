@@ -1,0 +1,27 @@
+#include<bits/stdc++.h>
+using namespace std;
+using ll=int64_t;
+int main(){
+  int t,j;
+  vector<ll> b(14,9),c(15,0);
+  for(j=1;j<14;j++) b[j]=b[j-1]*9;
+  for(j=0;j<14;j++) c[j+1]=c[j]+b[j];
+  cin>>t;
+  while(t--){
+    ll k,m,i,d=1,pre=0;
+    cin>>k;
+    while(k>c[d]) d++;
+    m=k-c[d-1]-1;
+    vector<ll> x(d);
+    for(i=0;i<d;i++){
+      x[i]=m%9;
+      m/=9;
+    }
+    for(i=d-1;i>=0;i--){
+      m*=10;
+      if(x[i]>=pre){m+=x[i]+1; pre=x[i]+1;}
+      else if(x[i]<pre){m+=x[i]; pre=x[i];}
+    }
+    cout<<m<<endl;
+  }
+}

@@ -1,0 +1,159 @@
+#include<bits/stdc++.h>
+#define ll long long
+#define rep(i,a,b) for(register int i=(a);i<=(b);++i)
+#define per(i,a,b) for(register int i=(a);i>=(b);--i)
+#define edge(i,u) for(int i=head[u];i;i=e[i].next)
+#define lc(u) tre[u].ls
+#define rc(u) tre[u].rs
+#define pii pair<int,int>
+#define pdd pair<double,double>
+#define mp make_pair
+#define pb push_back
+#define fst first
+#define sed second
+#define Max(a,b) (a=max(a,b))
+#define Min(a,b) (a=min(a,b))
+using namespace std;
+const int N=51,M=1e6+10,inf=1e9,mod=998244353;
+const double eps=1e-6;
+bool MS;int used;
+void Add(int&a,int b){a+=b;if(a>=mod)a-=mod;}
+struct modint{
+	int val;
+	static int norm(const int& x){return x<0?x+mod:x;}
+	modint inv()const{
+		int a=val,b=mod,u=1,v=0,t;
+		while (b>0)t=a/b,swap(a-=1ll*t*b,b),swap(u-=1ll*t*v,v);
+		return modint(u);
+	}
+	modint():val(0){}
+	modint(const int& m):val(norm(m)){}
+//	modint(const long long& m):val(norm(m % mod)){}
+	modint operator-()const{return modint(norm(-val));}
+	bool operator==(const modint&o){return val==o.val;}
+	bool operator<(const modint&o){return val<o.val;}
+	modint&operator+=(const modint&o){return val=(1ll*val+o.val)%mod,*this;}
+	modint&operator-=(const modint&o){return val=norm(1ll*val-o.val),*this;}
+	modint&operator*=(const modint&o){return val=static_cast<int>(1ll*val*o.val%mod),*this;}
+	modint operator-(const modint&o)const{return modint(*this)-=o;}
+	modint operator+(const modint&o)const{return modint(*this)+=o;}
+	modint operator*(const modint&o)const{return modint(*this)*=o;}
+	friend std::ostream&operator<<(std::ostream& os, const modint&a){return os<<a.val;}
+	friend std::istream&operator>>(std::istream& is,modint&a){long long v;return is>>v,a.val=norm(v%mod),is;}
+};
+modint qpow(modint a,int b){modint res=1;while(b){if(b&1)res=res*a;a=a*a;b/=2;}return res;}
+modint pw3[N];
+struct val
+{
+	char cnt[4];
+	val(){memset(cnt,0,sizeof cnt);}
+	char&operator[](int x){return cnt[x];}
+	bool operator<(const val&b)const
+	{
+		if(cnt[0]!=b.cnt[0])return cnt[0]<b.cnt[0];
+		if(cnt[1]!=b.cnt[1])return cnt[1]<b.cnt[1];
+		if(cnt[2]!=b.cnt[2])return cnt[2]<b.cnt[2];
+		return cnt[3]<b.cnt[3];
+	}
+};
+map<val,int> f[2][N*N];
+int lnk[128];
+int lst[N];//>=n最多能造成的贡献 
+int n,k;
+modint ans;
+string s;
+bool MT;
+signed main()
+{
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+	lnk['A']=3;
+	lnk['B']=2;
+	lnk['C']=1;
+	cin>>n>>k;
+	cin>>s;
+	s=" "+s;
+	if(s[1]=='?')
+	{
+		val a;a[3]=1;
+		val b;b[2]=1;
+		val c;c[1]=1;
+		f[1][0][a]++;
+		f[1][0][b]++;
+		f[1][0][c]++;
+	}
+	else 
+	{
+		val a;a[lnk[s[1]]]=1;
+		f[1][0][a]++;
+	}
+	per(i,n,1)lst[i]=lst[i+1]+n/2; 
+	pw3[n+1]=1;
+	per(i,n,1)
+	if(s[i]=='?')pw3[i]=pw3[i+1]*3;
+	else pw3[i]=pw3[i+1]; 
+	int res=0;
+	rep(i,2,n)
+	{
+		int C=i%2;
+		rep(j,max(0,k-lst[i]),min(res,k-1))
+		{
+			for(auto u:f[C^1][j])
+			{
+				val v=u.fst;
+				int l=s[i],r=s[i];
+				if(s[i]=='?')l='A',r='C';
+				rep(c,l,r)
+				{
+					val now=v;
+					if(c=='A')
+					{
+						swap(now[0],now[3]);
+						swap(now[1],now[2]);
+					}
+					if(c=='B')
+					{
+						swap(now[0],now[2]);
+						swap(now[1],now[3]);
+					}
+					if(c=='C')
+					{
+						swap(now[0],now[1]);
+						swap(now[2],now[3]);
+					}
+					now[lnk[c]]++;
+//					Add(f[i][j+now[0]+now[7]][now],f[i-1][j][v]);
+					if(j+now[0]+lst[i+1]>=k)
+					Add(f[C][min(j+now[0],k)][now],u.sed);
+				}
+//				used++;
+			}
+//			cout<<i-1<<" "<<j<<" "<<f[C^1][j].size()<<'\n';
+			f[C^1][j].clear();
+		}
+		if(res>=k)
+		{
+			for(auto u:f[C^1][k])
+			ans+=pw3[i]*u.sed;
+			f[C^1][k].clear();
+		}
+		res+=i/2;
+	}
+	rep(j,k,k)
+	{
+		for(auto u:f[n%2][j])
+		ans+=u.sed;
+	} 
+	cout<<ans<<'\n';
+	cerr<<"Memory:"<<(&MS-&MT)/1048576.0<<"MB Time:"<<clock()/1000.0<<"s\n";
+}
+/*
+50 325
+??????????????????????????????????????????????????
+AAAAAAAABBBBBBBBCCCCCCCCC
+
+设 F_{l,r,[0,7],k} 区间 l,r,存在k个子区间合法，且此时区间ABC奇偶性为[0,7] 
+
+转移合并两个区间，钦定左边的一定是合法的。 
+*/

@@ -1,0 +1,62 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+
+void solve() {
+  int n, q; cin >> n >> q;
+  string s; cin >> s;
+  vector<int> on, sl, two;
+  for (int i = 0; i < n; i++) {
+    if (s[i] == '1') on.push_back(i);
+    if (s[i] == '2') two.push_back(i);
+    if (s[i] == '/') sl.push_back(i);
+  }
+
+  auto ok = [&](int md, int l, int r) {
+    if (md == 0) {
+      int id = lower_bound(sl.begin(), sl.end(), l) - sl.begin();
+      if (id == sl.size()) return false;
+      return sl[id] <= r;
+    }
+    int id = lower_bound(on.begin(), on.end(), l) - on.begin();
+    if (id + md - 1 >= on.size()) return false;
+    if (on[id + md - 1] > r) return false;
+    id = on[id + md - 1] + 1;
+
+    id = lower_bound(sl.begin(), sl.end(), id) - sl.begin();
+    if (id >= sl.size()) return false;
+    if (sl[id] > r) return false;
+    id = sl[id] + 1;
+
+    id = lower_bound(two.begin(), two.end(), id) - two.begin();
+    if (id + md - 1 >= two.size()) return false;
+    if (two[id + md - 1] > r) return false;
+    return true;
+  };
+
+  while (q--) {
+    int l, r; cin >> l >> r;
+    l--; r--;
+    int mn = 0, mx = r - l;
+    while (mn <= mx) {
+      int md = (mn + mx) / 2;
+      if (ok(md, l, r)) {
+        mn = md + 1;
+      }
+      else mx = md - 1;
+    }
+    if (mx == -1) cout << "0\n";
+    else cout << mx * 2 + 1 << "\n";
+  }
+}
+
+int main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);
+
+  int tt = 1;
+  // cin >> tt;
+  while (tt--) {
+    solve();
+  }
+}

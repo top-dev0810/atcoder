@@ -1,0 +1,11 @@
+#include<iostream>
+using namespace std;
+int main()
+{
+    string s,a;
+    cin >> s;
+    a+=s[0];
+    a+="UPC";
+    cout << a;
+    return 0;
+}

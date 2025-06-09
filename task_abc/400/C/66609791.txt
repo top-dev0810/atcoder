@@ -1,0 +1,7 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+signed main() {
+    int n;cin>>n;
+    cout<<(long long)(sqrtl(n/2))+(long long)(sqrtl(n/4))<<endl;
+}

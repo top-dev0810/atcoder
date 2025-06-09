@@ -1,0 +1,160 @@
+// https://www.luogu.com.cn/discuss/1087309
+
+// https://www.cnblogs.com/joke3579/p/-/chitchat240710
+
+#include<bits/stdc++.h>
+#define For(i,l,r) for(int i=l,i##_e=r;i<=i##_e;++i)
+#define rFor(i,r,l) for(int i=r,i##_e=l;i>=i##_e;--i)
+#define y0 y_zero
+#define y1 y_one
+#define all(a) a.begin(),a.end()
+#define cmin(a,b) a=min<remove_reference<decltype(a)>::type>(a,b)
+#define cmax(a,b) a=max<remove_reference<decltype(a)>::type>(a,b)
+#define vect basic_string
+// #define ensure(_) ((_) || (__builtin_unreachable(),0))
+using namespace std;
+using u32=unsigned;
+using i64=long long;
+using ll=long long;
+using u64=unsigned long long;
+using ull=unsigned long long;
+#if __SIZEOF_POINTER__==8
+using i128=__int128;
+using u128=__uint128_t;
+#endif
+using pii=array<int,2>;
+using pll=array<ll,2>;
+using a3=array<int,3>;
+using a4=array<int,4>;
+using a5=array<int,5>;
+#define mtc() int T; cin>>T; while(T--) work();
+
+#ifndef _DYNAMIC_MOD_INT_H
+#define _DYNAMIC_MOD_INT_H
+struct Barret_t {
+	u128 w; u64 M;
+	Barret_t(const u64 M):M(M),w(u64((u128(1)<<64)/M)){}
+	inline u64 mod(u64 x)const{ x-=((w*x)>>64)*M; return x>=M?x-M:x; }
+	inline u64 mod_without_chk(u64 x)const{ return x-((w*x)>>64)*M; }
+};
+template<int id=0> struct mint_dynamic {
+  private:
+	using T=u32; using I=i64; using U=u64;
+	using mint=mint_dynamic;
+	static void exgcd(I a,I b,I &x,I &y) {!b?(x=1,y=0):(exgcd(b,a%b,y,x),y-=x*(a/b));}
+	static void mod(I &x) { x%=I(M); if(x<0) x+=M; }
+	static T M; static Barret_t B;
+	T x;
+  public:
+	static T getM() { return M; }
+	static void setM(T x) {
+		assert(x>0); M=x; B=Barret_t(M);
+	}
+	constexpr T val()const{ return x; }
+	static constexpr mint raw(T x){ mint s; s.x=x; return s; }
+	mint inv()const{
+		I _x=0,_y=0;
+		exgcd(x,M,_x,_y);
+		mod(_x); return raw(_x);
+	}
+	constexpr mint_dynamic():x(0){};
+	mint_dynamic(I a):x((a%=I(M),a>=0?a:a+M)) {}
+	mint& operator+=(const mint b) {
+		x+=b.x; if(x>=M) x-=M;
+		return *this;
+	}
+	mint& operator-=(const mint b) {
+		x-=b.x; if(x>=M) x+=M;
+		return *this;
+	}
+	mint& operator*=(const mint b) {
+		x=B.mod(U(x)*b.x); return *this;
+	}
+	mint& operator/=(const mint b) {return *this*=b.inv();}
+	friend mint operator+(mint a,const mint b) {return a+=b;}
+	friend mint operator-(mint a,const mint b) {return a-=b;}
+	friend mint operator*(mint a,const mint b) {return a*=b;}
+	friend mint operator/(mint a,const mint b) {return a/=b;}
+	friend mint operator-(mint a) { if(a.x) a.x=M-a.x; return a; }
+	friend bool operator!(const mint a) { return !a.x; }
+#ifdef with_buffer
+	friend my_istream operator>>(my_istream in,mint &x) {
+		I y; in>>y; x=y; return in;
+	}
+	friend my_ostream operator<<(my_ostream out,const mint x) {
+		out<<x.x; return out;
+	}
+#endif
+	friend istream& operator>>(istream &in,mint &x) {
+		I y; in>>y; x=y; return in;
+	}
+	friend ostream& operator<<(ostream &out,const mint x) {
+		out<<x.x; return out;
+	}
+};
+template<int id> u32 mint_dynamic<id>::M=3;
+template<int id> Barret_t mint_dynamic<id>::B(3);
+#endif // _DYNAMIC_MOD_INT_H
+using mint=mint_dynamic<0>;
+
+#ifndef _C_H
+#define _C_H
+template<typename mint> class Comb_t {
+	static constexpr double alpha=1.3;
+	static constexpr int Cm1m1=0; // Sometimes C(-1,-1)=1
+	static vector<mint> f,g;
+	static void init(int m) {
+		if(m<int(f.size())) return; m*=alpha; if(m>=mint::getM()) m=mint::getM()-1;
+		int n=f.size(); f.resize(m+1); g.resize(m+1);
+		For(i,n,m) f[i]=f[i-1]*mint::raw(i);
+		g[m]=f[m].inv(); rFor(i,m-1,n) g[i]=g[i+1]*mint::raw(i+1);
+	}
+  public:
+	static mint C(int n,int m) {
+		if(!~n && !~m) return Cm1m1;
+		if(m<0 || n<m) return 0;
+		init(n);
+		return f[n]*g[m]*g[n-m];
+	}
+	static mint fac(int n) { init(n); return n<0?0:f[n]; }
+	static mint ifac(int n) { init(n); return n<0?0:g[n]; }
+	static mint _inv(int n) { init(n); return n<=0?0:g[n]*f[n-1]; }
+};
+template<typename mint> vector<mint> Comb_t<mint>::f{1};
+template<typename mint> vector<mint> Comb_t<mint>::g{1};
+#endif // _C_H
+using Comb=Comb_t<mint>;
+static auto C=Comb::C; static auto fac=Comb::fac,ifac=Comb::ifac,_inv=Comb::_inv;
+
+const int N=1e6+10;
+int n,m,c,M;
+int C2(int n) { return n*(n-1)/2; }
+int a[N];
+void work() {
+	cin>>n>>m>>M; mint::setM(M);
+	c=n+m-2;
+	if(n>m) swap(n,m);
+	For(i,1,n) {
+		a[i]=min((n-i+1)*2-1+m-n,c-i+1);
+	}
+	int len=n+m-c-1,tot=n*m-C2(n+m-c);
+	mint ans=fac(tot);
+	For(i,1,n) For(j,1,m) if(i+j-1<=c) {
+		ans*=_inv(m-max(0,i-(n-len))-j+n-max(0,j-(m-len))-i+1);
+	}
+	ans*=fac(tot);
+	For(i,1,n) ans*=ifac(a[i]);
+	For(i,1,n) For(j,i+1,n) ans*=(a[i]-a[j])*_inv(a[i]+a[j]);
+	cout<<ans<<"\n";
+}
+int main() {
+#ifdef LOCAL
+	freopen(".in","r",stdin);
+	// freopen(".out","w",stdout);
+	// freopen(".debug","w",stderr);
+#endif
+#ifndef with_buffer
+	ios::sync_with_stdio(0); cin.tie(0);
+#endif
+	work();
+}

@@ -1,0 +1,58 @@
+#include <bits/stdc++.h>
+#define reaD read
+#define haed head
+using namespace std;
+const int Max=2e5+10;
+
+
+
+void DD(){
+	cerr << "joker\n";
+}
+inline int read(){
+	int res=0,v=1;
+	char c=getchar();
+	while(c<'0'||c>'9'){v=(c=='-'?-1:1);c=getchar();}
+	while(c>='0'&&c<='9'){res=(res<<3)+(res<<1)+(c^48);c=getchar();}
+	return res*v;
+}
+
+char a[Max],b[Max];
+int pr[Max],su[Max];
+int main(){
+	int n=read();
+	scanf("%s",a+1);
+	scanf("%s",b+1);
+	for(int i=1;i<=n;++i){
+		if(b[i]=='A')pr[i]=1;
+		pr[i]=pr[i-1]|pr[i];
+	}
+	for(int i=n;i>=1;--i){
+		if(b[i]=='B')su[i]=1;
+		su[i]=su[i+1]|su[i];
+	}
+//	for(int i=1;i<=n;++i)cout << pr[i] << ' ';
+	int cnt=0,ans=0;
+	for(int i=1;i<=n;++i){
+		if(a[i]==b[i])continue;
+		if(a[i]=='B'){
+			if(!su[i]){
+				cout << "-1\n";
+				return 0;
+			}
+			cnt++;
+			ans++;
+//			cout << "op\n";
+		}else{
+			if(!pr[i]){
+				cout << "-1\n";
+				return 0;
+			}
+			if(cnt)--cnt;
+			else ans++;
+		}
+	}
+	cout << ans << "\n";
+	DD();
+	return 0;
+}

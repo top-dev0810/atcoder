@@ -1,0 +1,205 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+using ld = long double;
+using pll = pair<ll, ll>;
+using int128 = __int128;
+using State = string::const_iterator;
+class ParseError {};
+#define rep(i, n) for(ll i = 0; i < (n); i++)
+#define reps(i, l, r) for(ll i = (l); i < (r); i++)
+#define all(a) (a).begin(), (a).end()
+#define rall(a) (a).rbegin(), (a).rend()
+#define endl "\n";
+const ll INF = LLONG_MAX / 4;
+const ld inf = numeric_limits<long double>::max() / (ld)4;
+const ll mod1 = 1000000007;
+const ll mod2 = 998244353;
+const ld pi = 3.1415926535897;
+const ll Hash = (1ll << 61) - 1;
+ll dx[8] = {1, 1, 0, -1, -1, -1, 0, 1};
+ll dy[8] = {0, -1, -1, -1, 0, 1, 1, 1};
+template <typename T>
+bool chmax(T &a, const T& b) {
+	if (a < b) { a = b; return true; }
+	return false;
+}
+template <typename T>
+bool chmin(T &a, const T& b) {
+	if (a > b) { a = b; return true; }
+	return false;
+}
+template <ll mod>
+struct modint {
+	ll x;
+	modint() : x(0) {}
+
+	modint(ll y) : x(y >= 0 ? y % mod : (mod - (-y) % mod) % mod) {}
+
+	modint &operator+=(const modint &p) {
+		if ((x += p.x) >= mod) {
+			x -= mod;
+		}
+		return *this;
+	}
+	modint &operator-=(const modint &p) {
+		if ((x += mod - p.x) >= mod) {
+			x -= mod;
+		}
+		return *this;
+	}
+	modint &operator*=(const modint &p) {
+		x = (ll)(1ll * x * p.x % mod);
+		return *this;
+	}
+	modint &operator/=(const modint &p) {
+		*this *= p.inverse();
+		return *this;
+	}
+
+	modint operator-() const { return modint(-x); }
+	modint operator+(const modint &p) const { return modint(*this) += p; }
+	modint operator-(const modint &p) const { return modint(*this) -= p; }
+	modint operator*(const modint &p) const { return modint(*this) *= p; }
+	modint operator/(const modint &p) const { return modint(*this) /= p; }
+	bool operator==(const modint &p) const { return x == p.x; }
+	bool operator!=(const modint &p) const { return x != p.x; }
+	friend ostream &operator<<(ostream &os, const modint &p) { return os << p.x; }
+	friend istream &operator>>(istream &is, modint &a) {
+		ll t; is >> t;
+		a = modint<mod>(t);
+		return (is);
+	}
+
+	modint inverse() const {
+	    int a = x, b = mod, u = 1, v = 0, t;
+		while (b > 0) {
+			t = a / b;
+			swap(a -= t * b, b);
+			swap(u -= t * v, v);
+		}
+		return modint(u);
+	}
+	modint pow(ll n) const {
+		modint ret(1), mul(x);
+		while (n > 0) {
+			if (n & 1) ret *= mul;
+			mul *= mul;
+			n >>= 1;
+		}
+		return ret;
+	}
+
+	static ll get_mod() { return mod; }
+};
+struct Edge {
+    ll from, to, cost;
+    Edge (ll from, ll to, ll cost = 1ll) : from(from), to(to), cost(cost) {}
+};
+struct Graph {
+    vector<vector<Edge>> G;
+    Graph() = default;
+    explicit Graph(ll N) : G(N) {}
+    size_t size() const {
+        return G.size();
+    }
+    void add(ll from, ll to, ll cost = 1ll, bool direct = 0) {
+        G[from].emplace_back(from, to, cost);
+        if (!direct) G[to].emplace_back(to, from, cost);
+    }
+    vector<Edge> &operator[](const int &k) {
+        return G[k];
+    }
+};
+using Edges = vector<Edge>;
+void dfs(Graph &G, vector<ll> &dist, ll v) {
+	for (auto nv : G[v]) {
+		if (dist[nv.to] != INF) continue;
+		dist[nv.to] = dist[v] + 1;
+		dfs(G, dist, nv.to);
+	}
+}
+void solve() {
+	ll N; cin >> N;
+	Graph G1(N);
+	rep(i, N - 1) {
+		ll u, v; cin >> u >> v;
+		u--; v--;
+		G1.add(u, v);
+	}
+	ll M; cin >> M;
+	Graph G2(M);
+	rep(i, M - 1) {
+		ll u, v; cin >> u >> v;
+		u--; v--;
+		G2.add(u, v);
+	}
+
+	vector<ll>dist(N, INF);
+	dist[0] = 0;
+	dfs(G1, dist, 0);
+	ll left1 = 0;
+	rep(i, N) {
+		if (dist[left1] < dist[i]) left1 = i;
+	}
+	dist.assign(N, INF);
+	dist[left1] = 0;
+	dfs(G1, dist, left1);
+	ll right1 = 0;
+	rep(i, N) {
+		if (dist[right1] < dist[i]) right1 = i;
+	}
+	ll MAX = dist[right1];
+	vector<ll>distl(N, INF), distr(N, INF);
+	distl[left1] = 0;
+	distr[right1] = 0;
+	dfs(G1, distl, left1);
+	dfs(G1, distr, right1);
+	vector<ll>dist1(N, INF);
+	rep(i, N) {
+		dist1[i] = max(distl[i], distr[i]);
+	}
+
+	dist.assign(M, INF);
+	dist[0] = 0;
+	dfs(G2, dist, 0);
+	ll left2 = 0;
+	rep(i, M) {
+		if (dist[left2] < dist[i]) left2 = i;
+	}
+	dist.assign(M, INF);
+	dist[left2] = 0;
+	dfs(G2, dist, left2);
+	ll right2 = 0;
+	rep(i, M) {
+		if (dist[right2] < dist[i]) right2 = i;
+	}
+	chmax(MAX, dist[right2]);
+	distl.assign(M, INF); distr.assign(M, INF);
+	distl[left2] = 0;
+	distr[right2] = 0;
+	dfs(G2, distl, left2);
+	dfs(G2, distr, right2);
+	vector<ll>dist2(M, INF);
+	rep(i, M) {
+		dist2[i] = max(distl[i], distr[i]);
+	}
+
+	sort(all(dist1)); sort(all(dist2), greater<>());
+
+	ll ans = 0, pos = 0, sum = 0, num = N * M;
+	rep(i, N) {
+		while (pos < M && dist1[i] + dist2[pos] + 1 >= MAX) {
+			sum += dist2[pos] + 1;
+			pos++;
+		}
+		ans += pos * dist1[i] + sum;
+		num -= pos;
+	}
+	cout << ans + num * MAX << endl;
+}
+int main() {
+	ll T = 1;
+	//cin >> T;
+	while (T--) solve();
+}

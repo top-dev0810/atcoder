@@ -1,0 +1,58 @@
+#include <bits/stdc++.h>
+#define rep(i, n) for(int i = 0; i < (n); i++)
+#define rrep(i, n) for(int i = 1; i <= (n); i++)
+#define drep(i, n) for(int i = (n)-1; i >= 0; i--)
+#define srep(i,s,t) for (int i = s; i <= t; ++i)
+#define dsrep(i,s,t) for (int i = s; i >= t; --i)
+#define ALL(x) (x).begin(), (x).end()
+#define dup(x,y) (((x)+(y)-1)/(y))
+using namespace std;
+using ll = long long;
+using P = pair<int, int>;
+using vp = vector<P>;
+using vi = vector<int>;
+using vvi = vector<vi>;
+using vl = vector<ll>;
+using vb = vector<bool>;
+using vs = vector<string>;
+const ll LINF = 1001002003004005006ll;
+const int INF = 1001001001;
+template<class T> inline bool chmax(T& a, T b) { if (a < b) { a = b; return 1; } return 0; }
+template<class T> inline bool chmin(T& a, T b) { if (a > b) { a = b; return 1; } return 0; }
+
+void CIN() {};
+template <class T, class... U>
+void CIN(T &&x, U &&...y) { cin >> x; CIN(forward<U>(y)...); }
+
+// const int mod = 1000000007;
+const int mod = 998244353;
+
+
+
+int main() {
+  int n, r, c;
+  string s;
+  CIN(n, r, c, s);
+  int x = 0, y = 0;
+  set<P> st;
+  string ans = "";
+  int nx = c, ny = -r;
+  rep(i, n) {
+    st.emplace(x, y);
+    if (s[i] == 'N') {
+      y--; ny--;
+    }
+    if (s[i] == 'S') {
+      y++; ny++;
+    }
+    if (s[i] == 'E') {
+      x--; nx--;
+    }
+    if (s[i] == 'W') {
+      x++; nx++;
+    }
+    if (st.count(P(nx, ny))) ans += '1';
+    else ans += '0';
+  }
+  cout << ans << endl;
+}

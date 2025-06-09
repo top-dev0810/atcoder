@@ -1,0 +1,31 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+#define F(i,a,b) for(int i=(int)(a);i<=(int)(b);i++)
+#define R(i,b,a) for(int i=(int)(b);i>=(int)(a);i--)
+#define endl "\n"
+#define ios ios::sync_with_stdio(0),cin.tie(0),cout.tie(0)
+#define out(x) cout<<setprecision(15)<<x<<endl,exit(0)
+#define pii pair<int,int>
+#define pb push_back
+#define all(v) v.begin(),v.end()
+#define I first
+#define S second
+
+int32_t main(){
+   ios;
+   int n;
+   cin>>n;
+
+   int ans = 0, lst = 0;
+   F(i,1,n){
+      int t,v;
+      cin>>t>>v;
+
+      
+      if(i>1) ans-=min(ans,t-lst);
+      ans+=v;
+      lst = t;
+   }
+   cout<<ans<<endl;
+} 

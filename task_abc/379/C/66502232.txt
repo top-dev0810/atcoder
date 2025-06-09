@@ -1,0 +1,50 @@
+#include <bits/stdc++.h>
+//#include <atcoder/all>
+using namespace std;
+#define rep(i,n) for(ll i=0; i<n; i++)
+#define REP(i,m,n) for(ll i=(ll)(m);i<(ll)(n);i++)
+#define rrep(i,n) for(ll i=n-1; i>=0; i--)
+#define fi first
+#define se second
+#define pcnt __builtin_popcountll
+typedef long long ll;
+typedef unsigned long long ull;
+typedef long double ld;
+typedef pair<int,int> Pii;
+typedef pair<ll,ll> Pll;
+typedef pair<ll,Pll> PlP;
+template<class T, class S> void cmin(T &a, const S &b) { if (a > b)a = b; }
+template<class T, class S> void cmax(T &a, const S &b) { if (a < b)a = b; }
+template<class A>void PR(A a,ll n){rep(i,n){if(i)cout<<' ';cout<<a[i];}cout << "\n";}
+template<typename T> void drop(const T &x){cout<<x<<endl;exit(0);}
+string zero_padding(int val, int nf){ ostringstream sout;sout << setfill('0') << setw(nf) << val; return sout.str();};
+const ld eps = 1e-10;
+const ll INF = 1e18; 
+ull mo = 1000000007;
+ld PI=asin(1)*2;
+//using namespace atcoder;
+
+int main(){
+    ll N,M;
+    cin >> N >> M;
+	vector<Pll> P(M);
+	rep(i,M) cin >> P[i].fi;
+	rep(i,M) P[i].fi--;
+	rep(i,M) cin >> P[i].se;
+	sort(P.begin(), P.end());
+	P.push_back(Pll(N, 0));
+	ll prev = 0;
+	ll buf = 0;
+	ll ans = 0;
+	for(auto [x, a]:P){
+		ll len = (x - prev);
+		if(len > buf) drop(-1);
+		ans += (buf - (len))*(len);
+		ans += (len)*(len-1)/2;
+		buf -= len;
+		buf += a;
+		prev = x;
+	}
+	if(buf != 0) drop(-1);
+	cout << ans << endl;
+}	

@@ -1,0 +1,124 @@
+#include<bits/stdc++.h>
+#define int long long
+using namespace std;
+namespace fast_IO {//我向众神祈祷，回应我的只有心跳
+#define IOSIZE 100000
+	char ibuf[IOSIZE], obuf[IOSIZE], *p1 = ibuf, *p2 = ibuf, *p3 = obuf;
+#define getchar() ((p1==p2)and(p2=(p1=ibuf)+fread(ibuf,1,IOSIZE,stdin),p1==p2)?(EOF):(*p1++))
+#define putchar(x) ((p3==obuf+IOSIZE)&&(fwrite(obuf,p3-obuf,1,stdout),p3=obuf),*p3++=x)
+#define isdigit(ch) (ch>47&&ch<58)
+#define isspace(ch) (ch<33)
+	template<typename T> inline T read() { T s = 0; int w = 1; char ch; while (ch = getchar(), !isdigit(ch) and (ch != EOF)) if (ch == '-') w = -1; if (ch == EOF) return false; while (isdigit(ch)) s = s * 10 + ch - 48, ch = getchar(); return s * w; }
+	template<typename T> inline bool read(T &s) { s = 0; int w = 1; char ch; while (ch = getchar(), !isdigit(ch) and (ch != EOF)) if (ch == '-') w = -1; if (ch == EOF) return false; while (isdigit(ch)) s = s * 10 + ch - 48, ch = getchar(); return s *= w, true; }
+	template<typename T> inline void print(T x) { if (x < 0) putchar('-'), x = -x; if (x > 9) print(x / 10); putchar(x % 10 + 48); }
+	inline bool read(char &s) { while (s = getchar(), isspace(s)); return true; }
+	inline bool read(char *s) { char ch; while (ch = getchar(), isspace(ch)); if (ch == EOF) return false; while (!isspace(ch)) *s++ = ch, ch = getchar(); *s = '\000'; return true; }
+	inline void print(char x) { putchar(x); }
+	inline void print(char *x) { while (*x) putchar(*x++); }
+	inline void print(const char *x) { for (int i = 0; x[i]; i++) putchar(x[i]); }
+	inline bool read(std::string& s) { s = ""; char ch; while (ch = getchar(), isspace(ch)); if (ch == EOF) return false; while (!isspace(ch)) s += ch, ch = getchar(); return true; }
+	inline void print(std::string x) { for (int i = 0, n = x.size(); i < n; i++) putchar(x[i]); }
+	inline bool read(bool &b) { char ch; while(ch=getchar(), isspace(ch)); b=ch^48; return true; }
+	inline void print(bool b) { putchar(b+48); }
+	template<typename T, typename... T1> inline int read(T& a, T1&... other) { return read(a) + read(other...); }
+	template<typename T, typename... T1> inline void print(T a, T1... other) { print(a), print(other...); }
+	struct Fast_IO { ~Fast_IO() { fwrite(obuf, p3 - obuf, 1, stdout); } } io;
+	template<typename T> Fast_IO& operator >> (Fast_IO &io, T &b) { return read(b), io; }
+	template<typename T> Fast_IO& operator << (Fast_IO &io, T b) { return print(b), io; }
+#define cout io
+#define cin io
+#define endl '\n'
+} using namespace fast_IO;
+const int maxn=3e5;
+const int mod=998244353;
+int n,m,a[maxn+5],ans[maxn+5],pre[maxn+5],inv[maxn+5];
+int C(int n,int m){return pre[n]*inv[m]%mod*inv[n-m]%mod;}
+int ksm(int x,int y){
+	int res=1;
+	while(y){
+		if(y&1)res=res*x%mod;
+		y>>=1;x=x*x%mod;
+	}
+	return res;
+}
+inline void mo(int &x){x=x>=mod?x-mod:x;}
+struct Bit_array{
+	int sum[maxn+5],n;
+	void init(int m){n=m;}
+	void clear(int x=0){fill(sum+1,sum+1+n,x);}
+	inline int lowbit(int x){return x&(-x);}
+	inline void modify(int x,int add){for(;x<=n;x+=lowbit(x))mo(sum[x]+=add);}
+	void modify(int lef,int rig,int add){modify(lef,add),modify(rig+1,mod-add);}
+	inline int query(int x){int res=0;for(;x;x-=lowbit(x))mo(res+=sum[x]);return res;}
+}bit,bit2;
+struct SGT{
+	struct node{
+		int lef,rig,cnt,add;
+	}tree[maxn<<2|1];
+	void build(int now,int lef,int rig){
+		tree[now].lef=lef,tree[now].rig=rig;
+		tree[now].cnt=1;
+		if(lef==rig)return;
+		int mid=lef+rig>>1;
+		build(now<<1,lef,mid);
+		build(now<<1|1,mid+1,rig);
+	}
+	void Add(int now,int x){if(tree[now].cnt)mo(tree[now].add+=x);}
+	void pushup(int now){tree[now].cnt=tree[now<<1].cnt|tree[now<<1|1].cnt;}
+	void pushdown(int now){
+		if(tree[now].add){
+			Add(now<<1,tree[now].add);
+			Add(now<<1|1,tree[now].add);
+			tree[now].add=0;
+		}
+	}
+	void update(int now,int to){
+		if(tree[now].lef==tree[now].rig)return tree[now].cnt=0,void();
+		pushdown(now);
+		int mid=tree[now].lef+tree[now].rig>>1;
+		if(to<=mid)update(now<<1,to);
+		else update(now<<1|1,to);
+		pushup(now);
+	}
+	void modify(int now,int lef,int rig,int add){
+		if(lef>rig)return;
+		if(lef<=tree[now].lef&&tree[now].rig<=rig)return Add(now,add);
+		pushdown(now);
+		int mid=tree[now].lef+tree[now].rig>>1;
+		if(lef<=mid)modify(now<<1,lef,rig,add);
+		if(mid<rig)modify(now<<1|1,lef,rig,add);
+		pushup(now);
+	}
+	int query(int now,int to){
+		if(tree[now].lef==tree[now].rig)return tree[now].add;
+		pushdown(now);
+		int mid=tree[now].lef+tree[now].rig>>1;
+		if(to<=mid)return query(now<<1,to);
+		else return query(now<<1|1,to);
+	}
+}tree;
+signed main(){
+	pre[0]=inv[0]=1;
+	for(int i=1;i<=maxn;i++)pre[i]=pre[i-1]*i%mod;
+	inv[maxn]=ksm(pre[maxn],mod-2);for(int i=maxn-1;i>=1;i--)inv[i]=inv[i+1]*(i+1)%mod;
+	cin>>n>>m;
+	bit.init(n);tree.build(1,1,n);bit2.init(n);
+	for(int i=1;i<=m;i++)cin>>a[i];
+	for(int i=1;i<=m;i++){
+		//当前位填1~a[i]-1,那么后面随便填
+		int cnt=a[i]-1-bit2.query(a[i]);
+		if(1<=a[i]-1)tree.modify(1,1,a[i]-1,C(n-i,m-i)*pre[m-i]%mod);
+		tree.modify(1,1,a[i]-1,C(n-i-1,m-i-1)*pre[m-i]%mod*max(0ll,cnt-1)%mod);
+		tree.modify(1,a[i],n,C(n-i-1,m-i-1)*pre[m-i]%mod*max(0ll,cnt)%mod);
+		bit.modify(1,i-1,C(n-i,m-i)*pre[m-i]%mod*cnt%mod);
+		tree.update(1,a[i]);
+		bit2.modify(a[i],n,1);
+	}
+	for(int i=1;i<=m;i++){
+		ans[a[i]]++;
+		mo(ans[a[i]]+=bit.query(i));
+	}
+	for(int i=1;i<=n;i++)mo(ans[i]+=tree.query(1,i));
+	for(int i=1;i<=n;i++)cout<<ans[i]<<"\n";
+	return 0;
+}//枚举那一位不一样

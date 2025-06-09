@@ -1,0 +1,60 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+
+struct node {
+  ll sm = 0, cnt = 0;
+  node operator +(node a) {
+    return node{sm + a.sm, cnt + a.cnt};
+  }
+};
+const int N = 2e5 + 10;
+node seg[4 * N];
+
+void add(int n, int st, int ed, int id, int val) {
+  if (st == ed) {
+    seg[n].cnt++;
+    seg[n].sm += val;
+    return;
+  }
+  int md = (st + ed) / 2;
+  if (id <= md) add(2 * n, st, md, id, val);
+  else add(2 * n + 1, md + 1, ed, id, val);
+  seg[n] = seg[2 * n] + seg[2 * n + 1];
+}
+node query(int n, int st, int ed, int l, int r) {
+  if (st > r or ed < l) return node {0, 0};
+  if (st >= l and ed <= r) return seg[n];
+  int md = (st + ed) / 2;
+  node a = query(2 * n, st, md, l, r);
+  node b = query(2 * n + 1, md + 1, ed, l, r);
+  return a + b;
+}
+
+void solve() {
+  int n, m; cin >> n >> m;
+  add(1, 0, m - 1, 0, 0);
+  ll sm = 0, ans = 0;
+  for (int i = 0; i < n; i++) {
+    int x; cin >> x;
+    sm += x;
+    sm %= m;
+    node smaller = query(1, 0, m - 1, 0, sm);
+    node greater = query(1, 0, m - 1, sm + 1, m);
+    ans += (sm * smaller.cnt - smaller.sm);
+    ans += (sm * greater.cnt - greater.sm + greater.cnt * m);
+    add(1, 0, m - 1, sm, sm);
+  }
+  cout << ans << "\n";
+}
+
+int main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);
+
+  int tt = 1;
+  // cin >> tt;
+  while (tt--) {
+    solve();
+  }
+}

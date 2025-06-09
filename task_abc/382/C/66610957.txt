@@ -1,0 +1,33 @@
+#include<bits/stdc++.h>
+#define int long long
+int n,m,a,b,mn=LONG_LONG_MAX;
+std::map<int,int> M1;
+std::vector<int> V1;
+signed main(){
+  std::cin >> n >> m;
+  V1.resize(m);
+  for (int i=0;i<n;i++){
+    std::cin >> a;
+    if (a<mn){
+      M1[a]=i;
+      mn=a;
+    }
+  }
+  for (int i=0;i<m;i++){
+    std::cin >> V1[i];
+  }
+//  for (auto i=M1.begin();i!=M1.end();i++){
+//    std::cout << i->first << " " << i->second << "\n";
+//  }
+//  std::cout << "\n";
+  for (int i=0;i<m;i++){
+    auto p=M1.upper_bound(V1[i]);
+    if (p==M1.begin()){
+      std::cout << -1 << "\n";
+    }
+    else {
+      --p;
+      std::cout << M1[p->first]+1 << "\n";
+    }
+  }
+}

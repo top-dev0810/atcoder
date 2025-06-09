@@ -1,0 +1,25 @@
+#include<bits/stdc++.h>
+using namespace std;
+int n;
+long double x[200020],y[200020],ans=-1e9;
+int main(){
+	cin.tie(0)->sync_with_stdio(0);
+	cout.tie(0);
+	cin>>n;
+	for(int i=1;i<=n;i++){
+		cin>>x[i]>>y[i];
+		if(i>1){
+			ans=max(ans,(y[i-1]*x[i]-y[i]*x[i-1])/(x[i]-x[i-1]));
+		}
+	}
+	if(ans<0)cout<<-1;
+	else cout<<fixed<<setprecision(20)<<ans;
+
+
+
+
+
+	return 0;
+}
+
+

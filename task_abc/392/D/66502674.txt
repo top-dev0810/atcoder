@@ -1,0 +1,49 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+using ll = long long;
+
+typedef pair<ll, ll> pii;
+
+void solve() {
+    int n;
+    cin >> n;
+    vector<int> a[n + 1];
+    vector mp(n + 1, vector<int>(int(1e5+10)));
+    vector<int> siz(n + 1);
+    for (int i = 1; i <= n; i++) {
+        int k;
+        cin >> k;
+        for (int j = 1, x; j <= k; j++) {
+            cin >> x;
+            a[i].push_back(x);
+            mp[i][x]++;
+        }
+        siz[i] = k;
+        sort(a[i].begin(), a[i].end());
+        a[i].erase(unique(a[i].begin(), a[i].end()), a[i].end());
+    }
+    // for (int i = 1; i <= n; i++) {
+    //     for (int j = 0; j < a[i].size(); j++) {
+    //         cout << a[i][j] << " \n"[j == a[i].size() - 1];
+    //     }
+    // }
+    double ans = 0;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (i == j) continue;
+            ll cnt = 0;
+            for (int x : a[i]) {
+                cnt += 1ll * mp[i][x] * mp[j][x];
+            }
+            ans = max(ans, 1.0 * cnt / (1ll * siz[i] * siz[j]));
+        }
+    }
+    cout << fixed << setprecision(12) << ans;
+}
+
+signed main() {
+    ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);
+    solve();
+    return 0;
+}

@@ -1,0 +1,108 @@
+#include <bits/stdc++.h>
+#define pii pair<int,int>
+#define pb emplace_back
+#define ll long long
+#define mk make_pair
+#define se second
+#define fi first
+//#define mid ((l+r)>>1)
+//#define rs now<<1|1
+//#define ls now<<1
+using namespace std;
+bool Mst;
+const int Max=2e5+10;
+const int mod=998244353;
+const int inf=1e9+10;
+
+inline int read(){
+	int res=0,v=1;
+	char c=getchar();
+	while(c<'0'||c>'9'){v=(c=='-'?-1:1);c=getchar();}
+	while(c>='0'&&c<='9'){res=(res<<3)+(res<<1)+(c^48);c=getchar();}
+	return res*v;
+}
+
+template <int mod>
+struct modint{
+
+	int val;
+
+	static int norm(const int &x){return x<0?x+mod:x;}
+	static int Norm(const int &x){return x>=mod?x%mod:x;}
+
+	modint inv()const{
+		int a=val,b=mod,u=1,v=0,t;
+		while(b>0)t=a/b,swap(a-=t*b,b),swap(u-=t*v,v);
+		return modint(u);
+	}
+
+
+	modint():val(0){}
+	modint(const int &m):val(norm(m)){}
+	modint(const long long &m):val(norm(m%mod)){}
+	modint operator -()const{return modint(norm(-val));}
+	bool operator ==(const modint &x){return val==x.val;}
+	bool operator !=(const modint &x){return val!=x.val;}
+	bool operator <=(const modint &x){return val<=x.val;}
+	bool operator >=(const modint &x){return val>=x.val;}
+	bool operator >(const modint &x){return val>x.val;}
+	bool operator <(const modint &x){return val<x.val;}
+	modint& operator *=(const modint &x){return val=static_cast<int>(1ll*val*x.val%mod),*this;}
+	modint& operator <<=(const modint &x){return val=(1ll*val<<x.val)%mod,*this;}
+	modint& operator +=(const modint &x){return val=Norm(1ll*val+x.val),*this;}
+	modint& operator -=(const modint &x){return val=norm(1ll*val-x.val),*this;}
+	modint& operator >>=(const modint &x){return val>>=x.val,*this;}
+	modint& operator ^=(const modint &x){return val^=x.val,*this;}
+	modint operator >>(const modint &x){return modint(*this)>>=x;}
+	modint operator <<(const modint &x){return modint(*this)<<=x;}
+	modint& operator /=(const modint &x){return *this*=x.inv();}
+	modint operator +(const modint &x){return modint(*this)+=x;}
+	modint operator -(const modint &x){return modint(*this)-=x;}
+	modint operator *(const modint &x){return modint(*this)*=x;}
+	modint operator /(const modint &x){return modint(*this)/=x;}
+	modint operator ^(const modint &x){return modint(*this)^=x;}
+	friend std::ostream& operator<<(std::ostream& os,const modint &a){return os<<a.val;}
+	friend std::istream& operator>>(std::istream& is,modint &a){return is>>a.val;}
+};
+
+typedef modint<998244353>m98;
+
+int n,m;
+
+m98 frac[Max],inv[Max];
+void Pre(int n=Max-1){
+	frac[0]=inv[0]=1;for(int i=1;i<=n;++i)frac[i]=frac[i-1]*i;
+	inv[n]=frac[n].inv();for(int i=n-1;i>=1;--i)inv[i]=inv[i+1]*(i+1);
+}
+
+m98 C(int n,int m){
+	if(n<0||m<0||n<m)return 0;
+	return frac[n]*inv[m]*inv[n-m];
+}
+
+m98 solve(int a,int b){
+	m98 ans=0,Ans=0;
+	for(int i=0;i<=m;++i){
+		ans+=C(n-a-i-1,i)*C(a-1-(m-i),m-i)*i;
+		Ans+=C(n-b-i-1,i)*C(b-1-(m-i),m-i)*i;
+	}
+	return ans*Ans*frac[m-1]*frac[m-1];
+}
+
+bool Med;
+signed main(){
+	n=read();m=read();int a=read(),b=read();Pre();
+	if(m<=2||(m&1)){cout << "0\n";return 0;}
+	m=m/2-1;
+	m98 ans=0;
+	ans+=solve(a,b)+solve(b,a);
+	ans+=solve(n-a+1,n-b+1)+solve(n-b+1,n-a+1);
+	ans+=solve(n-a+1,b)+solve(a,n-b+1)+solve(n-b+1,a)+solve(b,n-a+1);
+	cout << ans << "\n";
+	cerr<< "Time: "<<clock()/1000.0 << "s\n";
+	cerr<< "Memory: " << (&Mst-&Med)/1000000.0 << "MB\n";
+	return 0;
+}
+/*
+
+*/

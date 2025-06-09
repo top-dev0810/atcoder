@@ -1,0 +1,76 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+#define fi first
+#define sc second
+#define pll pair<ll,ll>
+#define pii pair<int,int>
+#define all(x) (x).begin(),(x).end()
+#define TASK "main"
+#define int ll
+const int nmax = 2e5 + 7;
+int n, k;
+vector<int> adj[nmax];
+int child[nmax];
+int ans[nmax];
+void dfs(int u,int parent = 0){
+    child[u] = 1;
+    for(int v : adj[u]){
+        if(v!=parent){
+            dfs(v, u);
+            child[u] += child[v];
+        }
+    }
+}
+
+void solve(){
+    cin >> n >> k;
+    if(k < n){
+        cout << "No";
+        return;
+    }
+    for(int i = 1;i<n;++i){
+        int u,v;
+        cin >> u >> v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+    dfs(1);
+    vector<pii> ord;
+    for(int i = 1;i<=n;++i){
+        ord.push_back({child[i], i});
+    }
+    sort(all(ord), greater<pii>());
+    int cur = 0;
+    int ex = 0;
+    for(auto x : ord){  
+        ++cur;
+        if(k >= x.fi){
+            k-=x.fi;
+            ans[x.sc] = cur - ex;
+        } else {
+            ans[x.sc] = - ex;
+            ++ ex;
+        }
+    }
+    if(k){
+        cout << "No";
+    } else {
+        cout << "Yes" << '\n';
+        for(int i = 1;i<=n;++i){
+            cout << ans[i] + ex << ' ';
+        }
+    }
+}
+
+main(){
+    ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);
+    if(fopen(TASK ".inp","r")){
+    freopen(TASK ".inp","r",stdin);
+    freopen(TASK ".out","w",stdout);
+    }
+    solve();
+}
+
+
+

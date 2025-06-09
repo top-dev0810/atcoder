@@ -1,0 +1,104 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+typedef long long lnt;
+
+const int N = 2e5 + 7, M = 998244353;
+
+int n, m;
+int a[N];
+int b[N];
+
+int cx[N];
+int cy[N];
+
+int fa[N];
+int si[N];
+
+int find(int x) {
+    return x == fa[x] ? x : fa[x] = find(fa[x]);
+}
+
+inline void merge(int x, int y) {
+    x = find(x);
+    y = find(y);
+    if (x == y) {
+        ++ si[x];
+    } else {
+        fa[x] = y;
+        si[y] += si[x];
+    }
+}
+
+void INIT() { }
+
+void WORK() {
+    cin >> n >> m;
+    for (int i = 1; i <= n; ++ i) {
+        a[i] = n;
+    }
+    for (int i = 1; i <= m; ++ i) {
+        int x, y, z;
+        cin >> x >> y >> z;
+        a[x] = min(a[x], z);
+        a[y] = min(a[y], z);
+        if (cx[z] == 0) {
+            cx[z] = x;
+            cy[z] = y;
+        } else {
+            if (x == cx[z]) {
+                cy[z] = x;
+            } else if (x == cy[z]) {
+                cx[z] = x;
+            } else if (y == cx[z]) {
+                cy[z] = y;
+            } else if (y == cy[z]) {
+                cx[z] = y;
+            } else {
+                cout << "0\n";
+                return;
+            }
+        }
+    }
+    for (int i = 1; i <= n; ++ i) {
+        fa[i] = i;
+        si[i] = 0;
+        ++ b[a[i]];
+    }
+    int res = 0;
+    int ans = 1;
+    for (int i = n; i >= 1; -- i) {
+        int x = cx[i];
+        int y = cy[i];
+        res += b[i];
+        if (x == 0) {
+            ans = (lnt) ans * res % M;
+        } else if (x != y) {
+            ans = (lnt) ans * ((x[a] == i) + (y[a] == i)) % M;
+        } else {
+            ans = (lnt) ans * (x[a] == i) % M;
+        }
+        -- res;
+    }
+    cout << ans << '\n';
+}
+
+//#define filename ""
+
+int main() {
+    #ifdef filename
+    freopen(filename ".in", "r", stdin);
+    freopen(filename ".out", "w", stdout);
+    #endif
+    cin.tie(0); cout.tie(0);
+    ios::sync_with_stdio(0);
+    
+    INIT();
+    int Turn = 1;
+    //cin >> Turn;
+    while (Turn -- ) {
+        WORK();
+    }
+    return 0;
+}

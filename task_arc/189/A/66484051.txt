@@ -1,0 +1,74 @@
+#include <bits/stdc++.h>
+using namespace std;
+static const int MOD = 998244353;
+
+long long modpow(long long a, long long e = MOD - 2) {
+    long long r = 1;
+    while (e) {
+        if (e & 1) r = r * a % MOD;
+        a = a * a % MOD;
+        e >>= 1;
+    }
+    return r;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    int N;
+    cin >> N;
+    vector<int> A(N);
+    for (int i = 0; i < N; i++) {
+        cin >> A[i];
+    }
+
+    vector<int> runs;
+    for (int i = 0; i < N; ) {
+        int j = i + 1;
+        while (j < N && A[j] == A[i]) j++;
+        runs.push_back(j - i);
+        i = j;
+    }
+
+    int idx = 0;
+    for (int len : runs) {
+        int expected = ((idx + 1) & 1);
+        if (A[idx] != expected || (len & 1) == 0) {
+            cout << 0 << "\n";
+            return 0;
+        }
+        idx += len;
+    }
+
+    vector<int> D;
+    long long Dsum = 0;
+    for (int len : runs) {
+        int d = (len - 1) / 2;
+        D.push_back(d);
+        Dsum += d;
+    }
+
+    int MX = N;
+    vector<long long> fact(MX + 1, 1), invfact(MX + 1, 1);
+    for (int i = 1; i <= MX; i++) {
+        fact[i] = fact[i - 1] * i % MOD;
+    }
+    invfact[MX] = modpow(fact[MX]);
+    for (int i = MX; i > 0; i--) {
+        invfact[i - 1] = invfact[i] * i % MOD;
+    }
+
+    int Dmax = N / 2;
+    vector<long long> odddf(Dmax + 1, 1);
+    for (int k = 1; k <= Dmax; k++) {
+        odddf[k] = odddf[k - 1] * (2LL * k - 1) % MOD;
+    }
+
+    long long ans = fact[Dsum];
+    for (int d : D) {
+        ans = ans * odddf[d] % MOD;
+        ans = ans * invfact[d] % MOD;
+    }
+    cout << ans << "\n";
+    return 0;
+}

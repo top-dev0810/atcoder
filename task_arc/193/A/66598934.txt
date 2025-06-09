@@ -1,0 +1,41 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+const long long INF=1LL<<60;
+int main(){
+  int N; cin >> N;
+  vector<long long> W(N),L(N),R(N);
+  vector<long long> tol(N*2+2,INF), tor(N*2+2,INF);
+  for(int i=0;i<N;i++) cin >> W[i];
+  for(int i=0;i<N;i++){
+    cin >> L[i] >> R[i];
+    tol[R[i]+1]=min(tol[R[i]+1],W[i]);
+    tor[L[i]-1]=min(tor[L[i]-1],W[i]);
+  }
+  for(int i=1;i<=2*N+1;i++) tol[i]=min(tol[i],tol[i-1]);
+  for(int i=N*2;i>=0;i--) tor[i]=min(tor[i],tor[i+1]);
+
+  auto solve=[&](int s,int t)->long long{
+    if(L[t]<L[s]) swap(s,t);
+    if(R[s]<L[t]) return W[s]+W[t];
+    if(R[t]<R[s]){
+      if(min(tol[L[s]],tor[R[s]]) < INF) return W[s]+W[t]+min(tol[L[s]],tor[R[s]]);
+      else return -1;
+    }
+
+    long long res=INF;
+    res=min(res,W[s]+W[t]+tol[L[s]]);
+    res=min(res,W[s]+W[t]+tor[R[t]]);
+    res=min(res,W[s]+W[t]+tol[L[t]]+tor[R[s]]);
+    if(res>=INF) res=-1;
+    return res;
+  };
+
+  int Q; cin >> Q;
+  while(Q--){
+    int s,t; cin >> s >> t;
+    s--; t--;
+    cout << solve(s,t) << "\n";
+  }
+  return 0;
+}

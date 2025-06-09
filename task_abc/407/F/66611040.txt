@@ -1,0 +1,45 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+stack<int> s1,s2;
+int n,a[200005],l[200005],r[200005],q[200005];
+signed main()
+{
+	cin>>n;
+	for(int i=1;i<=n;++i)
+	    cin>>a[i];
+	for(int i=1;i<=n;++i)
+	{
+		while(s1.size()&&a[s1.top()]<a[i]) 
+			s1.pop();
+		if(s1.size()) l[i]=s1.top()+1;
+		else l[i]=1;
+		s1.push(i);
+	}
+	for(int i=n;i>=1;--i)
+	{
+		while(s2.size()&&a[s2.top()]<=a[i]) 
+			s2.pop();
+		if(s2.size()) r[i]=s2.top()-1;
+		else r[i]=n;
+		s2.push(i);
+	}
+	for(int i=1;i<=n;++i)
+	{
+		int t1=i-l[i]+1;
+		int t2=r[i]-i+1;
+		int mn=min(t1,t2);
+		int mx=max(t1,t2);
+		q[1]+=a[i];
+		q[mn+1]-=a[i];
+		q[mx+1]-=a[i];
+		q[mn+mx+1]+=a[i];
+	}
+	for(int i=1;i<=n;++i)
+	    q[i]+=q[i-1];
+	for(int i=1;i<=n;++i)
+	    q[i]+=q[i-1];
+	for(int i=1;i<=n;++i)
+	    cout<<q[i]<<"\n";
+	return 0;
+}

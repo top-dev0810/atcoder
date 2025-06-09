@@ -1,0 +1,38 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+const int maxN = 24;
+const int MOD = 998244353;
+ll g[(1 << maxN) + 100], f[(1 << maxN) + 100], sumg[(1 << maxN) + 100], a[(1 << maxN) + 100];
+int N, M;
+void calc(int l, int r) {
+    if(l == r) {
+        if(l) g[l] = (g[l] + g[l - 1] * a[l]) % MOD;
+        sumg[l] = f[l + 1] = g[l];
+        return;
+    }
+    int mid = l + r >> 1;
+    calc(l, mid);
+    for(int i = l, j = mid + 1; i <= mid; ++i, ++j) g[j] = (g[j] + a[j] * f[i] - sumg[i] + MOD) % MOD;
+    calc(mid + 1, r);
+    for(int i = l, j = mid + 1; i <= mid; ++i, ++j) f[j] = (f[j] + f[i]) % MOD, sumg[j] = (sumg[j] + sumg[i]) % MOD;
+}
+void solve() {
+    cin >> N >> M;
+    while(M--) cin >> g[0], ++a[g[0]];
+    for(int i = 0; i < N; ++i)
+        for(int j = 0; j < (1 << N); ++j)
+            if(j >> i & 1) a[j] += a[j ^ (1 << i)];
+    g[0] = a[0];
+    f[0] = 1;
+    calc(0, (1 << N) - 1);
+    //cout << g[1] << " ";
+    cout << g[(1 << N) - 1];
+}
+int main() {
+    //freopen("INP.inp", "r", stdin);
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    int t = 1;
+    while(t--) solve();
+}

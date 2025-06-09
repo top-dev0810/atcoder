@@ -1,0 +1,144 @@
+#include<bits/stdc++.h>
+#define int long long
+using namespace std;
+namespace fast_IO {//我向众神祈祷，回应我的只有心跳
+#define IOSIZE 100000
+	char ibuf[IOSIZE], obuf[IOSIZE], *p1 = ibuf, *p2 = ibuf, *p3 = obuf;
+#define getchar() ((p1==p2)and(p2=(p1=ibuf)+fread(ibuf,1,IOSIZE,stdin),p1==p2)?(EOF):(*p1++))
+#define putchar(x) ((p3==obuf+IOSIZE)&&(fwrite(obuf,p3-obuf,1,stdout),p3=obuf),*p3++=x)
+#define isdigit(ch) (ch>47&&ch<58)
+#define isspace(ch) (ch<33)
+	template<typename T> inline T read() { T s = 0; int w = 1; char ch; while (ch = getchar(), !isdigit(ch) and (ch != EOF)) if (ch == '-') w = -1; if (ch == EOF) return false; while (isdigit(ch)) s = s * 10 + ch - 48, ch = getchar(); return s * w; }
+	template<typename T> inline bool read(T &s) { s = 0; int w = 1; char ch; while (ch = getchar(), !isdigit(ch) and (ch != EOF)) if (ch == '-') w = -1; if (ch == EOF) return false; while (isdigit(ch)) s = s * 10 + ch - 48, ch = getchar(); return s *= w, true; }
+	template<typename T> inline void print(T x) { if (x < 0) putchar('-'), x = -x; if (x > 9) print(x / 10); putchar(x % 10 + 48); }
+	inline bool read(char &s) { while (s = getchar(), isspace(s)); return true; }
+	inline bool read(char *s) { char ch; while (ch = getchar(), isspace(ch)); if (ch == EOF) return false; while (!isspace(ch)) *s++ = ch, ch = getchar(); *s = '\000'; return true; }
+	inline void print(char x) { putchar(x); }
+	inline void print(char *x) { while (*x) putchar(*x++); }
+	inline void print(const char *x) { for (int i = 0; x[i]; i++) putchar(x[i]); }
+	inline bool read(std::string& s) { s = ""; char ch; while (ch = getchar(), isspace(ch)); if (ch == EOF) return false; while (!isspace(ch)) s += ch, ch = getchar(); return true; }
+	inline void print(std::string x) { for (int i = 0, n = x.size(); i < n; i++) putchar(x[i]); }
+	inline bool read(bool &b) { char ch; while(ch=getchar(), isspace(ch)); b=ch^48; return true; }
+	inline void print(bool b) { putchar(b+48); }
+	template<typename T, typename... T1> inline int read(T& a, T1&... other) { return read(a) + read(other...); }
+	template<typename T, typename... T1> inline void print(T a, T1... other) { print(a), print(other...); }
+	struct Fast_IO { ~Fast_IO() { fwrite(obuf, p3 - obuf, 1, stdout); } } io;
+	template<typename T> Fast_IO& operator >> (Fast_IO &io, T &b) { return read(b), io; }
+	template<typename T> Fast_IO& operator << (Fast_IO &io, T b) { return print(b), io; }
+#define cout io
+#define cin io
+#define endl '\n'
+} using namespace fast_IO;
+const int maxn=1e6;
+const int inf=1e15;
+int n,a[maxn+5],b[maxn+5],ys[maxn+5],tot;
+struct SGT{
+	struct node{
+		int lef,rig,tag;
+		int ans,key;
+	}tree[maxn<<2];
+	void pushup(int now){
+		tree[now].ans=min(tree[now<<1].ans,tree[now<<1|1].ans);
+		tree[now].key=min(tree[now<<1].key,tree[now<<1|1].key);
+	}
+	void work(int now,int tag){//区间推平值只会越来越大
+		tree[now].tag=tag;tree[now].key=tag;
+		tree[now].ans=tag-ys[tree[now].rig];//最右边最优
+	}
+	void pushdown(int now){
+		if(tree[now].tag){
+			work(now<<1,tree[now].tag);
+			work(now<<1|1,tree[now].tag);
+			tree[now].tag=0;
+		}
+	}
+	void build(int now,int lef,int rig,int V){
+		tree[now].lef=lef,tree[now].rig=rig;
+		tree[now].ans=V,tree[now].key=V+ys[lef];
+		if(lef==rig)return;
+		int mid=lef+rig>>1;
+		build(now<<1,lef,mid,V);
+		build(now<<1|1,mid+1,rig,V);
+	}
+	void modify(int now,int lef,int rig,int tag){
+		if(lef>rig)return;
+		if(lef<=tree[now].lef&&tree[now].rig<=rig)return work(now,tag);
+		pushdown(now);
+		int mid=tree[now].lef+tree[now].rig>>1;
+		if(lef<=mid)modify(now<<1,lef,rig,tag);
+		if(mid<rig)modify(now<<1|1,lef,rig,tag);
+		pushup(now);
+	}
+	void modify(int now,int to,int x){
+		if(tree[now].lef==tree[now].rig){
+			tree[now].key=max(tree[now].tag,x);
+			tree[now].ans=tree[now].key-ys[to];
+			return;
+		}
+		pushdown(now);
+		int mid=tree[now].lef+tree[now].rig>>1;
+		if(to<=mid)modify(now<<1,to,x);
+		else modify(now<<1|1,to,x);
+		pushup(now);
+	}
+	int query_R(int now,int lef,int rig,int lim){
+		if(tree[now].key>lim||tree[now].rig<lef||rig<tree[now].lef)return 0;
+		if(tree[now].lef==tree[now].rig)return tree[now].lef;
+		pushdown(now);
+		int res=query_R(now<<1|1,lef,rig,lim);
+		if(res)return res;
+		return query_R(now<<1,lef,rig,lim);
+	}
+	int query(int now,int to){
+		if(tree[now].lef==tree[now].rig)return tree[now].ans;
+		pushdown(now);
+		int mid=tree[now].lef+tree[now].rig>>1;
+		if(to<=mid)return query(now<<1,to);
+		else return query(now<<1|1,to);
+	}
+}tr1;
+void modify(int lef,int rig,int x){
+	int R=tr1.query_R(1,lef,rig,x);
+	tr1.modify(1,lef,R,x);
+}
+signed main(){
+	cin>>n;
+	for(int i=1;i<=n;i++)cin>>a[i],ys[++tot]=a[i];
+	for(int i=1;i<=n;i++)cin>>b[i],ys[++tot]=b[i];
+	for(int i=1;i<=n;i++)if(a[i]>b[i])swap(a[i],b[i]);
+	sort(ys+1,ys+1+tot);tot=unique(ys+1,ys+1+tot)-ys-1;
+	tr1.build(1,1,tot,inf);
+	for(int i=1;i<=n;i++){
+		int L=lower_bound(ys+1,ys+1+tot,a[i])-ys;
+		int R=lower_bound(ys+1,ys+1+tot,b[i])-ys;
+		tr1.modify(1,L,a[i]);
+		tr1.modify(1,R,b[i]);
+//		cout<<tr1.tree[1].ans<<"<---\n";
+		modify(1,L,a[i]);
+		modify(L+1,R,b[i]);
+		tr1.modify(1,R+1,tot,inf);
+//		cout<<R+1<<"---"<<tot<<":"<<inf<<"\n";
+//		tr1.modify(1,1,L,a[i]);
+//		tr1.modify(1,L+1,R,b[i]);
+		
+		cout<<tr1.tree[1].ans<<"\n";
+	}
+	return 0;
+}
+//考虑对当前每个可能的最小值维护最小的最大值
+//首先考虑这个点是否可能是最小值
+//令a[i]<b[i]
+//若a[i]<x<=b[i],则令ans[x]=max(ans[x],b[i])
+//若x<=a[i]<=b[i],则令ans[x]=max(ans[x],a[i])
+//若a[i]<=b[i]<=x,则令ans[x]=inf
+//然后若a[i]满足<=min(b[1~i]),则更新ans[a[i]]
+//考虑维护两个一样的DS,前者先把全局插入,后者在更新ans[a[i]]时对前者单点查,对第二个DS查询ans[i]-i的全局最小值
+//李超线段树做完了?但是log^2
+//考虑分块,散块暴力,整块打tag并且同时移动ans[i]<tag指针
+//查询时对每个整块
+//ans[i]<=tag,则i越大越好
+//ans[i]>tag,这部分直接在重构时维护预处理即可
+//考虑单次区间修改产生2B的势能,TMD,怎么卡
+//不如去写李超树
+//等下:显然一定有ans[i]<ans[i+1]
+//然后取max就拆成二分+区间推平

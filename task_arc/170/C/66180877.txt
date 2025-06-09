@@ -1,0 +1,54 @@
+#include <bits/stdc++.h>
+#define int long long
+#define reaD read
+#define haed head
+using namespace std;
+const int Max=5e3+10;
+const int mod=998244353;
+
+
+
+void DD(){
+	cerr << "joker\n";
+}
+inline int read(){
+	int res=0,v=1;
+	char c=getchar();
+	while(c<'0'||c>'9'){v=(c=='-'?-1:1);c=getchar();}
+	while(c>='0'&&c<='9'){res=(res<<3)+(res<<1)+(c^48);c=getchar();}
+	return res*v;
+}
+
+int dp[Max][Max];
+
+signed main(){
+	int n,m;
+	n=read();
+	m=read()+1;
+	if(m>n){
+		int ans=1;
+		for(int i=1;i<=n;++i)ans=(ans*(read()?1:(m-1)))%mod;
+		cout << ans << "\n";
+		return 0;
+	}
+	dp[0][0]=1;
+	for(int i=1;i<=n;++i){
+		int s=read();
+		for(int j=1;j<=m;++j){
+			if(s)dp[i][j]=dp[i-1][j-1];
+			else dp[i][j]=(dp[i][j]+dp[i-1][j]*j%mod+dp[i-1][j-1]*(m-j)%mod)%mod;
+		}
+	}
+	int ans=0;
+	for(int i=0;i<=m;++i)ans=(ans+dp[n][i])%mod;
+	cout << ans << "\n";
+	DD();
+	return 0;
+}
+/*
+dp?
+dp[i][j][k]表示到第i位，值j是第k个mex的合法方案数 
+空间O(n^3),时间O(n^3) Boom!!! 
+第一维可以滚 假了!!!!!!!!
+dp[i][j]表示到第i位，使用了j种数的合法方案数 
+*/

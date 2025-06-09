@@ -1,0 +1,65 @@
+#include<bits/stdc++.h>
+#define int long long
+using namespace std;
+namespace fast_IO {//我向众神祈祷，回应我的只有心跳
+#define IOSIZE 100000
+	char ibuf[IOSIZE], obuf[IOSIZE], *p1 = ibuf, *p2 = ibuf, *p3 = obuf;
+#define getchar() ((p1==p2)and(p2=(p1=ibuf)+fread(ibuf,1,IOSIZE,stdin),p1==p2)?(EOF):(*p1++))
+#define putchar(x) ((p3==obuf+IOSIZE)&&(fwrite(obuf,p3-obuf,1,stdout),p3=obuf),*p3++=x)
+#define isdigit(ch) (ch>47&&ch<58)
+#define isspace(ch) (ch<33)
+	template<typename T> inline T read() { T s = 0; int w = 1; char ch; while (ch = getchar(), !isdigit(ch) and (ch != EOF)) if (ch == '-') w = -1; if (ch == EOF) return false; while (isdigit(ch)) s = s * 10 + ch - 48, ch = getchar(); return s * w; }
+	template<typename T> inline bool read(T &s) { s = 0; int w = 1; char ch; while (ch = getchar(), !isdigit(ch) and (ch != EOF)) if (ch == '-') w = -1; if (ch == EOF) return false; while (isdigit(ch)) s = s * 10 + ch - 48, ch = getchar(); return s *= w, true; }
+	template<typename T> inline void print(T x) { if (x < 0) putchar('-'), x = -x; if (x > 9) print(x / 10); putchar(x % 10 + 48); }
+	inline bool read(char &s) { while (s = getchar(), isspace(s)); return true; }
+	inline bool read(char *s) { char ch; while (ch = getchar(), isspace(ch)); if (ch == EOF) return false; while (!isspace(ch)) *s++ = ch, ch = getchar(); *s = '\000'; return true; }
+	inline void print(char x) { putchar(x); }
+	inline void print(char *x) { while (*x) putchar(*x++); }
+	inline void print(const char *x) { for (int i = 0; x[i]; i++) putchar(x[i]); }
+	inline bool read(std::string& s) { s = ""; char ch; while (ch = getchar(), isspace(ch)); if (ch == EOF) return false; while (!isspace(ch)) s += ch, ch = getchar(); return true; }
+	inline void print(std::string x) { for (int i = 0, n = x.size(); i < n; i++) putchar(x[i]); }
+	inline bool read(bool &b) { char ch; while(ch=getchar(), isspace(ch)); b=ch^48; return true; }
+	inline void print(bool b) { putchar(b+48); }
+	template<typename T, typename... T1> inline int read(T& a, T1&... other) { return read(a) + read(other...); }
+	template<typename T, typename... T1> inline void print(T a, T1... other) { print(a), print(other...); }
+	struct Fast_IO { ~Fast_IO() { fwrite(obuf, p3 - obuf, 1, stdout); } } io;
+	template<typename T> Fast_IO& operator >> (Fast_IO &io, T &b) { return read(b), io; }
+	template<typename T> Fast_IO& operator << (Fast_IO &io, T b) { return print(b), io; }
+#define cout io
+#define cin io
+#define endl '\n'
+} using namespace fast_IO;
+int check(int x){
+	int y=floor(sqrtl(x));
+	string S=to_string(x);
+	string T=to_string(y);
+	for(int i=0;i<T.size();i++)if(S[i]!=T[i])return false;
+	return true;
+}
+int pre10[11],pre100[11];
+int get(int lef,int rig,int l,int r){
+	return max(0ll,min(r,rig)-max(lef,l)+1);
+}
+void solve(){
+	int n,ans=1;
+	cin>>n;
+	for(int k=1,base=1;k<=9;k++,base*=10){
+		int L=pre100[k]-pre10[k];
+		int R=pre100[k]+pre10[k]-1;
+		ans+=get(1,n,L,R)+(pre100[k]-2*pre10[k]<=n);
+	}
+	cout<<ans<<"\n";
+}
+signed main(){
+	pre10[0]=pre100[0]=1;
+	for(int i=1;i<=10;i++)pre10[i]=pre10[i-1]*10;
+	for(int i=1;i<=10;i++)pre100[i]=pre100[i-1]*100;
+	int test;
+	cin>>test;
+	while(test--)solve();
+	return 0;
+	for(int i=1,ID=0;i<=1e7;i++)if(check(i)){
+		cerr<<(++ID)<<":"<<i<<"\n";
+	}
+	return 0;
+}

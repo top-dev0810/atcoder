@@ -1,0 +1,76 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+typedef long long lnt;
+
+const int N = 2e5 + 7, M = 998244353;
+
+int n;
+int p[N];
+string s;
+int cl[N];
+int cr[N];
+
+inline void Mo(int &x) {
+    if (x >= M) {
+        x -= M;
+    }
+}
+
+void INIT() { }
+
+void WORK() {
+    cin >> n;
+    for (int i = 0; i < n; ++ i) {
+        cin >> p[i];
+        -- p[i];
+    }
+    cin >> s;
+    int al = 1;
+    int ar = 1;
+    for (int o = 0; o < n; ++ o) {
+        int i = p[o];
+        int j = (i + 1) % n;
+        if (s[i] == 'L') {
+            if (!cr[i]) {
+                ar = 0;
+            }
+        } else if (s[i] == 'R') {
+            if (!cl[j]) {
+                al = 0;
+            }
+        } else {
+            if (cl[j]) {
+                Mo(al *= 2);
+            }
+            if (cr[i]) {
+                Mo(ar *= 2);
+            }
+        }
+        cl[i] = 1;
+        cr[j] = 1;
+    }
+    int ans = al + ar;
+    Mo(ans);
+    cout << ans << '\n';
+}
+
+//#define filename ""
+
+int main() {
+    #ifdef filename
+    freopen(filename ".in", "r", stdin);
+    freopen(filename ".out", "w", stdout);
+    #endif
+    cin.tie(0); cout.tie(0);
+    ios::sync_with_stdio(0);
+    
+    INIT();
+    int Turn = 1;
+    //cin >> Turn;
+    while (Turn -- ) {
+        WORK();
+    }
+    return 0;
+}

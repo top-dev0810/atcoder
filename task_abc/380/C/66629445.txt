@@ -1,0 +1,46 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+  int n, k;
+  cin >> n >> k;
+  string s;
+  cin >> s;
+  int i = 0;
+  int point = 0; // n個目の1の塊
+  int cnt = 0; //1の長さ
+  int cntz = 0; // 二個目の1の塊の次の場所を表す
+  int cnto = 0;
+  bool check = false;
+  
+  while(i < n) {
+    if(s[i] == '1') {
+      //0→1の時point++
+      if(!check) {
+        point++;
+        if(point == k) cnto = i;
+      }
+      check = true;
+      cnt++;
+    }
+    else {
+      if(check && point == k-1) {
+        cntz = i;
+      }
+      if(point == k) break;
+      check = false;
+      cnt = 0;
+    }
+    i++;
+  }
+  for(int io = cnto; io < cnto + cnt; io++) {
+    s[io] = '0';
+  }
+  for(int iz = cntz; iz < cntz + cnt; iz++) {
+    s[iz] = '1';
+  }
+  for(int x = 0; x < n; x++) {
+    if(s[x] == '1') cout << 1;
+    else cout << 0;
+  }
+}

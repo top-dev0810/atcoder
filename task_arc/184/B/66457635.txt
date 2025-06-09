@@ -1,0 +1,83 @@
+#include<bits/stdc++.h>
+#define ll long long
+#define popcount(x) __builtin_popcountll(x)
+using namespace std;
+namespace fast_IO {//我向众神祈祷，回应我的只有心跳
+#define IOSIZE 100000
+	char ibuf[IOSIZE], obuf[IOSIZE], *p1 = ibuf, *p2 = ibuf, *p3 = obuf;
+#define getchar() ((p1==p2)and(p2=(p1=ibuf)+fread(ibuf,1,IOSIZE,stdin),p1==p2)?(EOF):(*p1++))
+#define putchar(x) ((p3==obuf+IOSIZE)&&(fwrite(obuf,p3-obuf,1,stdout),p3=obuf),*p3++=x)
+#define isdigit(ch) (ch>47&&ch<58)
+#define isspace(ch) (ch<33)
+	template<typename T> inline T read() { T s = 0; int w = 1; char ch; while (ch = getchar(), !isdigit(ch) and (ch != EOF)) if (ch == '-') w = -1; if (ch == EOF) return false; while (isdigit(ch)) s = s * 10 + ch - 48, ch = getchar(); return s * w; }
+	template<typename T> inline bool read(T &s) { s = 0; int w = 1; char ch; while (ch = getchar(), !isdigit(ch) and (ch != EOF)) if (ch == '-') w = -1; if (ch == EOF) return false; while (isdigit(ch)) s = s * 10 + ch - 48, ch = getchar(); return s *= w, true; }
+	template<typename T> inline void print(T x) { if (x < 0) putchar('-'), x = -x; if (x > 9) print(x / 10); putchar(x % 10 + 48); }
+	inline bool read(char &s) { while (s = getchar(), isspace(s)); return true; }
+	inline bool read(char *s) { char ch; while (ch = getchar(), isspace(ch)); if (ch == EOF) return false; while (!isspace(ch)) *s++ = ch, ch = getchar(); *s = '\000'; return true; }
+	inline void print(char x) { putchar(x); }
+	inline void print(char *x) { while (*x) putchar(*x++); }
+	inline void print(const char *x) { for (int i = 0; x[i]; i++) putchar(x[i]); }
+	inline bool read(std::string& s) { s = ""; char ch; while (ch = getchar(), isspace(ch)); if (ch == EOF) return false; while (!isspace(ch)) s += ch, ch = getchar(); return true; }
+	inline void print(std::string x) { for (int i = 0, n = x.size(); i < n; i++) putchar(x[i]); }
+	inline bool read(bool &b) { char ch; while(ch=getchar(), isspace(ch)); b=ch^48; return true; }
+	inline void print(bool b) { putchar(b+48); }
+	template<typename T, typename... T1> inline int read(T& a, T1&... other) { return read(a) + read(other...); }
+	template<typename T, typename... T1> inline void print(T a, T1... other) { print(a), print(other...); }
+	struct Fast_IO { ~Fast_IO() { fwrite(obuf, p3 - obuf, 1, stdout); } } io;
+	template<typename T> Fast_IO& operator >> (Fast_IO &io, T &b) { return read(b), io; }
+	template<typename T> Fast_IO& operator << (Fast_IO &io, T b) { return print(b), io; }
+#define cout io
+#define cin io
+#define endl '\n'
+} using namespace fast_IO;
+const int maxn=1e5;
+const int inf=1e9;
+int n,ans;
+int dp[2][1<<19],ed[maxn+5];
+//dp[S]当前这一行染色情况为S的最小代价(当且仅当这一行全染色了才能进入下一行的无染色情况)
+inline void chkmin(int&x,int y){x=x<=y?x:y;}
+inline int bit(int x,int i){return (x>>i)&1;}
+int solve(int rt){
+	int m=0;
+	ll now=rt;
+	while(now<=n){
+		ed[++m]=0;
+		ll u=now;
+		while(u<=n)ed[m]++,u*=3;
+		now<<=1;
+	}
+	int all=(1<<ed[1])-1;
+	for(int S=0;S<(1<<ed[1]);S++){
+		if((((S<<1)|S)&all)!=all)dp[1][S]=inf;
+		else dp[1][S]=popcount(S);
+	}
+	int op=1;
+	for(int i=2;i<=m;i++,op^=1){
+		int all=(1<<ed[i])-1;
+		for(int j=0;j<ed[i];j++,op^=1){
+			for(int S=0;S<(1<<ed[i]);S++)if(dp[op][S]!=inf){
+				chkmin(dp[op^1][S|(1<<j)],dp[op][S]+1);//当前点选上
+				if(bit(S,j)||(j&&bit(S,j-1)))chkmin(dp[op^1][S&(~(1<<j))],dp[op][S]);//当前点不选
+				dp[op][S]=inf;
+			}
+		}
+		if(i!=m)for(int S=0;S<(1<<ed[i]);S++)chkmin(dp[op^1][S&all],dp[op][S]),dp[op][S]=inf;
+	}
+	if(m!=1)op^=1;
+	int res=inf;
+	for(int S=0;S<(1<<ed[m]);S++)chkmin(res,dp[op][S]),dp[op][S]=inf;
+	return res;
+}
+signed main(){
+	memset(dp,0x3f,sizeof(dp));
+	cin>>n;
+	int ans=0,lasans=0,las=0;
+	for(int i=1;i<=n;i++){
+		if(i%2==0||i%3==0)continue;
+		if(las==n/i)ans+=lasans;
+		else ans+=(lasans=solve(i));
+		las=n/i;
+	}
+	cout<<ans;
+	return 0;
+}

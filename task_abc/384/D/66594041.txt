@@ -1,0 +1,28 @@
+#include<bits/stdc++.h>
+using namespace std;
+const int MaxN = 2e5;
+const long Maxs = 1e18;
+long P[MaxN+1];
+long A[MaxN+1];
+long N, S, K;
+
+int main(){
+    cin>>N>>S;
+    A[0] = P[0] = 0;
+    for(int n=1;n<=N;n++){
+        cin>>A[n];
+        P[n]=P[n-1]+A[n];
+    }
+    S = S%P[N];
+    for(int m, n=0;n<=N;n++){
+        K = P[n]+S;
+        if(P[N]<K)
+            K-=P[N];
+        m = lower_bound(P,P+1+N,K)-P;
+        if(m<=N&&P[m]==K){
+            cout<<"Yes";
+            return 0;
+        }
+    }
+    cout<<"No";
+}

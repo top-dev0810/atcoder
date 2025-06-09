@@ -1,0 +1,51 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+char g[110][110];
+int ans[110][110];
+int n;bool vis[110][110];
+struct node {
+    int x,y,c;
+};
+void bfs() {
+    queue<node>q;
+    for(int i=1;i<=n;i++)q.push({i,i,0}),vis[i][i]=1,ans[i][i]=0;
+    for(int i=1;i<=n;i++) {
+        for(int j=1;j<=n;j++) {
+            if(g[i][j]!='-'&&i!=j)q.push({i,j,1}),ans[i][j]=1,vis[i][j]=1;
+        }
+    }
+    while(!q.empty()) {
+        auto cur=q.front();q.pop();
+        int x=cur.x,y=cur.y,c=cur.c;
+        for(int i=1;i<=n;i++) {
+            if(g[i][x]!='-') {
+                for(int j=1;j<=n;j++) {
+                    if(vis[i][j])continue;
+                    if(g[i][x]==g[y][j]) {
+                        ans[i][j]=min(ans[i][j],c+2);
+                        vis[i][j]=1;
+                        q.push({i,j,ans[i][j]});
+                    }
+                }
+            }
+        }
+    }
+}
+signed main() {
+    cin>>n;
+    for(int i=0;i<=n;i++) {
+        for(int j=0;j<=n;j++)ans[i][j]=9e18;
+    }
+    for(int i=1;i<=n;i++) {
+        for(int j=1;j<=n;j++)cin>>g[i][j];
+    }
+    bfs();
+    for(int i=1;i<=n;i++) {
+        for(int j=1;j<=n;j++) {
+            if(ans[i][j]==9e18)cout<<-1<<" ";
+            else cout<<ans[i][j]<<" ";
+        }
+        cout<<endl;
+    }
+}

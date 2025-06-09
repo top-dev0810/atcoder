@@ -1,0 +1,57 @@
+#include <bits/stdc++.h>
+
+#define LL long long
+
+using namespace std;
+const int N = 20 + 10 , INF = 0x3f3f3f3f;
+int n, m, a[N][N];
+vector<int> vec[N][2];
+LL power(LL x, int y){
+	LL ans = 1;
+	while(y){
+		if(y & 1) ans = ans * x % m;
+		x = x * x % m;
+		y >>= 1;
+	}
+	return ans;
+}
+void dfs(int x, int y, int s, int t){
+	if(x + y == n + 1){
+		if(!t) s = (1ll * s + power(10, 2 * n - x - y) * a[x][y] % m) % m;
+		vec[x][t].push_back(s);
+		return ;
+	}
+	s = (1ll * s + power(10, 2 * n - x - y) * a[x][y] % m) % m;
+	if(!t){
+		dfs(x + 1, y, s, t);
+		dfs(x, y + 1, s, t);
+	} else{
+		dfs(x - 1, y, s, t);
+		dfs(x, y - 1, s, t);
+	}
+}
+signed main(){
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+	cin >> n >> m;
+	for(int i = 1;i <= n;i ++)
+		for(int j = 1;j <= n;j ++)
+			cin >> a[i][j];
+			
+	dfs(1, 1, 0, 0);
+	dfs(n, n, 0, 1);
+	
+	int ans = 0;
+	for(int i = 1;i <= n;i ++){
+		sort(vec[i][1].begin(), vec[i][1].end());
+		for(int v : vec[i][0]){
+			int t;
+			if(vec[i][1][0] >= m - v) t = -v;
+			else t = *(lower_bound(vec[i][1].begin(), vec[i][1].end(), m - v)-1);
+			ans = max({ans, (*vec[i][1].rbegin() + v) % m, v + t});
+		}
+		
+	}
+	cout << ans << '\n';
+	return 0;
+}

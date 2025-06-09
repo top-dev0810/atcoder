@@ -1,0 +1,295 @@
+#include<bits/stdc++.h>
+/*
+# pragma GCC target("avx2")
+# pragma GCC optimize("O3")
+# pragma GCC optimize("unroll-loops")
+*/
+using namespace std;
+
+#define rep(i, l, n) for(int i = (int)(l); i < (int)(n); i++)
+#define ll long long
+#define ld long double
+#define all(x) (x).begin(), (x).end()
+#define rall(x) (x).rbegin(), (x).rend()
+
+template<class T> bool chmin(T &a, T b) {if(a > b) {a = b; return true;} return false;}
+template<class T> bool chmax(T &a, T b) {if(a < b) {a = b; return true;} return false;}
+template<class T> using spq = priority_queue<T, vector<T>, greater<T>>;
+
+//bool -> Yes/No
+string answer(const bool b) {return b ? "Yes" : "No";}
+
+void fix(int k) {cout << fixed << setprecision(k);}
+
+const int inf = 2e9;
+const ll INF = 2e18;
+const ld eps = 1e-10;
+int dx[] = {1, 0, -1, 0, 1, 1, -1, -1}, dy[] = {0, -1, 0, 1, 1, -1, 1, -1};
+
+// vertices and edges can be weighted
+// distance, lca, sum of subtree weights, update/add costs
+// have to "setup()"
+// verify : https://atcoder.jp/contests/abc294/submissions/66609768
+struct Euler_Tour {
+
+private:
+    template<class T>
+    struct Binary_Indexed_Tree {
+        
+        int m;
+        vector<T> data;
+
+        Binary_Indexed_Tree(int N) : m(N) {
+            data.assign(m + 1, 0);
+        }
+
+        void add(int x, T v) {
+            assert(0 <= x && x < m);
+            x++;
+            for(int k = x; k <= m; k += (k & -k)) {
+                data[k] += v;
+            }
+        }
+
+        T sum_sub(int r) {
+            if(r == 0) return 0;
+            assert(0 < r && r <= m);
+            T s = 0;
+            for(int k = r; k > 0; k -= (k & -k)) {
+                s += data[k];
+            }
+            return s;
+        }
+
+        T sum(int l, int r) {
+            assert(0 <= l && l < r && r <= m);
+            return sum_sub(r) - sum_sub(l);
+        }
+
+    };
+    
+public:
+    int n, m;
+    vector<int> depth, vis, discover, finishing;
+    vector<long long> vcost1, vcost2, ecost1, ecost2, vertex_cost;
+    vector<vector<pair<int, long long>>> g;
+    vector<pair<int, int>> rmq;
+    Binary_Indexed_Tree<long long> BIT_v1, BIT_v2, BIT_e1, BIT_e2;
+    map<pair<int, int>, int> note_lca, edge_idx;
+
+    void rmq_set(int pos, pair<int, int> x) {
+        assert(0 <= pos && pos < m);
+        pos += m;
+        rmq[pos] = x;
+        while(pos > 1) {
+            pos >>= 1;
+            rmq[pos] = min(rmq[(pos << 1) | 0], rmq[(pos << 1) | 1]);
+        }
+    }
+
+    pair<int, int> rmq_get(int pos) {
+        assert(0 <= pos && pos < m);
+        return rmq[pos + m];
+    }
+
+    pair<int, int> rmq_prod(int l, int r) {
+        assert(0 <= l && l <= r && r <= m);
+        l += m; r += m;
+        pair<int, int> ret = make_pair(1 << 30, -1);
+        while(l < r) {
+            if(l & 1) ret = min(ret, rmq[l++]);
+            if(r & 1) ret = min(ret, rmq[--r]);
+            l >>= 1; r >>= 1;
+        }
+        return ret;
+    }
+
+    Euler_Tour(int N) : n(N), BIT_v1(N << 1), BIT_v2(N << 1), BIT_e1(N << 1), BIT_e2(N << 1) {
+        init();
+    }
+
+    void init() {
+        depth.clear();
+        vis.clear();
+        discover.assign(n, (1 << 30));
+        finishing.assign(n, -1);
+        vertex_cost.assign(n, 1);
+        vcost1.clear(); vcost2.clear(); ecost1.clear(); ecost2.clear();
+        g.assign(n, vector<pair<int, long long>>(0));
+    }
+
+    void add_edge(int u, int v, long long cost = 1) {
+        assert(0 <= u && u < n);
+        assert(0 <= v && v < n);
+        g[u].emplace_back(v, cost);
+        g[v].emplace_back(u, cost);
+    }
+
+    void set_vertex(int v, long long cost) {
+        assert(0 <= v && v < n);
+        vertex_cost[v] = cost;
+    }
+
+    void setup(int root = 0) {
+        ecost1.emplace_back(0ll);
+        ecost2.emplace_back(0ll);
+        dfs(root, -1, 0);
+        for(int i = 0; i < int(vis.size()); i++) {
+            discover[vis[i]] = min(discover[vis[i]], i);
+            finishing[vis[i]] = max(finishing[vis[i]], i + 1);
+        }
+        int siz = depth.size();
+        m = 1;
+        while(m < siz) m <<= 1;
+        rmq.assign(m << 1, make_pair(1 << 30, -1));
+        for(int i = 0; i < siz; i++) {
+            rmq_set(i, make_pair(depth[i], vis[i]));
+            BIT_v1.add(i, vcost1[i]);
+            BIT_v2.add(i, vcost2[i]);
+            BIT_e1.add(i, ecost1[i]);
+            BIT_e2.add(i, ecost2[i]);
+        }
+    }
+
+    void dfs(int cur_v, int par_v, int cur_depth) {
+        vis.emplace_back(cur_v);
+        depth.emplace_back(cur_depth);
+        vcost1.emplace_back(vertex_cost[cur_v]);
+        vcost2.emplace_back(vertex_cost[cur_v]);
+        for(auto[u, cost] : g[cur_v]) {
+            if(u == par_v) continue;
+            ecost1.emplace_back(cost);
+            ecost2.emplace_back(cost);
+            edge_idx[make_pair(cur_v, u)] = int(ecost1.size()) - 1;
+            dfs(u, cur_v, cur_depth + 1);
+            vis.emplace_back(cur_v);
+            depth.emplace_back(cur_depth);
+            ecost1.emplace_back(-cost);
+            ecost2.emplace_back(0ll);
+            edge_idx[make_pair(u, cur_v)] = int(ecost1.size()) - 1;
+        }
+        vcost1.emplace_back(-vertex_cost[cur_v]);
+        vcost2.emplace_back(0ll);
+    }
+
+    int lca(int u, int v) {
+        assert(0 <= u && u < n);
+        assert(0 <= v && v < n);
+        if(u > v) swap(u, v);
+        if(note_lca.count(make_pair(u, v))) return note_lca[make_pair(u, v)];
+        return note_lca[make_pair(u, v)] = rmq_prod(min(discover[u], discover[v]), max(finishing[u], finishing[v])).second;
+    }
+
+    long long root_vdist(int u) {
+        assert(0 <= u && u < n);
+        return BIT_v1.sum_sub(finishing[u]);
+    }
+
+    long long root_edist(int u) {
+        assert(0 <= u && u < n);
+        return BIT_e1.sum_sub(finishing[u]);
+    }
+
+    long long vertex_dist(int u, int v) {
+        assert(0 <= u && u < n);
+        assert(0 <= v && v < n);
+        return root_vdist(u) + root_vdist(v) - 2 * root_vdist(lca(u, v)) + vertex_cost[lca(u, v)];
+    }
+
+    long long edge_dist(int u, int v) {
+        assert(0 <= u && u < n);
+        assert(0 <= v && v < n);
+        if(u == v) return 0ll;
+        return root_edist(u) + root_edist(v) - 2 * root_edist(lca(u, v));
+    }
+
+    long long subtree_vertex_sum(int u) {
+        assert(0 <= u && u < n);
+        return BIT_v2.sum(discover[u], finishing[u]);
+    }
+
+    long long subtree_edge_sum(int u) {
+        assert(0 <= u && u < n);
+        return BIT_e2.sum(discover[u], finishing[u]);
+    }
+
+    void add_vertex_cost(int u, long long val) {
+        assert(0 <= u && u < n);
+        vertex_cost[u] += val;
+        BIT_v1.add(discover[u], val);
+        BIT_v1.add(finishing[u], -val);
+        BIT_v2.add(discover[u], val);
+        vcost1[discover[u]] += val;
+        vcost1[finishing[u]] -= val;
+        vcost2[discover[u]] += val;
+    }
+
+    void update_vertex_cost(int u, long long val) {
+        assert(0 <= u && u < n);
+        long long rest = val - vertex_cost[u];
+        add_vertex_cost(u, rest);
+    }
+
+    void add_edge_cost(int u, int v, long long val) {
+        assert(0 <= u && u < n);
+        assert(0 <= v && v < n);
+        if(edge_idx.count(make_pair(u, v)) == 0) return;
+        if(depth[discover[u]] > depth[discover[v]]) swap(u, v);
+        int idx1 = edge_idx[make_pair(u, v)], idx2 = edge_idx[make_pair(v, u)];
+        BIT_e1.add(idx1, val);
+        BIT_e1.add(idx2, -val);
+        BIT_e2.add(idx1, val);
+        ecost1[idx1] += val;
+        ecost1[idx2] -= val;
+        ecost2[idx1] += val;
+    }
+
+    void update_edge_cost(int u, int v, long long val) {
+        assert(0 <= u && u < n);
+        assert(0 <= v && v < n);
+        if(edge_idx.count(make_pair(u, v)) == 0) return;
+        if(depth[discover[u]] > depth[discover[v]]) swap(u, v);
+        long long rest = val - ecost1[edge_idx[make_pair(u, v)]];
+        add_edge_cost(u, v, rest);
+    }
+
+};
+
+void main_program() {
+    int n; cin >> n;
+    Euler_Tour et(n);
+    pair<int, int> edge[n];
+    rep(i, 1, n) {
+        int u, v; cin >> u >> v;
+        u--; v--;
+        edge[i] = make_pair(u, v);
+        et.add_edge(u, v);
+    }
+    et.setup();
+    long sum = n;
+    int q; cin >> q;
+    while(q--) {
+        int t; cin >> t;
+        if(t == 1) {
+            int x; cin >> x;
+            x--; long w; cin >> w;
+            et.add_vertex_cost(x, w);
+            sum += w;
+        }
+        else {
+            int x; cin >> x;
+            auto[u, v] = edge[x];
+            if(et.discover[u] < et.discover[v]) swap(u, v);
+            long res = et.subtree_vertex_sum(u);
+            cout << abs((sum - res) - res) << "\n";
+        }
+    }
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    int t = 1;
+    //cin >> t;
+    while(t--) main_program();
+}

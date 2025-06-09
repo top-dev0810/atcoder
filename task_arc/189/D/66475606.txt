@@ -1,0 +1,132 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define int ll
+typedef long long ll;
+typedef unsigned long long ull;
+
+#define mk make_pair
+#define fi first
+#define se second
+typedef pair<int,int> pii;
+typedef pair<double,double> pdd;
+
+#define ReadIn(s) freopen(s,"r",stdin)
+#define OutPut(s) freopen(s,"w",stdout)
+
+#define btpcll(x) __builtin_popcountll(x)
+#define btpc(x) __builtin_popcount(x)
+
+#define eb emplace_back
+#define sz(x) (int)(x.size())
+
+template<typename T>
+void read(T &x){
+	x=0;char c=getchar();T neg=0;
+	while(!isdigit(c)) neg|=!(c^'-'),c=getchar();
+	while(isdigit(c)) x=(x<<3)+(x<<1)+(c^48),c=getchar();
+	if(neg) x=(~x)+1;
+}
+template<typename T,typename ...Args>
+void read(T &x,Args &...args) {
+	read(x);read(args...);
+}
+
+const int M=5e5+10;
+const int inf=0x3f3f3f3f3f3f3f3f;
+const double eps=1e-10;
+
+bool Mst;
+//in this
+
+int n;
+int a[M];
+int sum[M];
+
+const int V=21;
+
+pii ma[M][21];
+
+pii max(pii a,pii b) {
+	return a.fi==b.fi?(a.se<b.se?a:b):(a.fi>b.fi?a:b);
+}
+
+void Init( ) {
+	for(int i=1;i<=n;i++) ma[i][0]=mk(a[i],i);
+	for(int j=1;j<V;j++) {
+		for(int i=1;i+(1<<j-1)-1<=n;i++) ma[i][j]=max(ma[i][j-1],ma[i+(1<<j-1)][j-1]);
+	}
+}
+
+pii get(int l,int r) {
+	int k=__lg(r-l+1);
+	return max(ma[l][k],ma[r-(1<<k)+1][k]);
+}
+
+int Ans[M];
+
+void dfs(int l,int r,int ma) {
+	if(l>r) return ;
+	
+	vector<int>vec;
+	int po=get(l,r).se;
+	
+	vec.eb(po);
+	
+	int st=l;
+	if(po!=l) while(1) {
+		st=get(st,po-1).se;
+		if(a[st]!=a[po]) break;
+		vec.eb(st);
+		st++;if(st>=po) break;
+	}
+	
+	st=po+1;
+	if(po!=r) while(1) {
+		st=get(st,r).se;
+		if(a[st]!=a[po]) break;
+		vec.eb(st);
+		st++;if(st>r) break;
+	}
+	
+	vec.eb(l-1);vec.eb(r+1);
+	
+	sort(vec.begin(),vec.end());
+	
+	for(int i=1;i<sz(vec)-1;i++) {
+		if(vec[i]==vec[i-1]+1&&vec[i]==vec[i+1]-1) Ans[vec[i]]=a[po];
+		else Ans[vec[i]]=ma;
+	}
+	
+	for(int i=0;i<sz(vec)-1;i++) {
+		if(vec[i]==vec[i+1]-1) continue;
+		int s=sum[vec[i+1]-1]-sum[vec[i]];
+		if(s>a[po]) dfs(vec[i]+1,vec[i+1]-1,ma);else dfs(vec[i]+1,vec[i+1]-1,s);
+	}
+	
+}
+
+void solve() {
+	read(n);
+	for(int i=1;i<=n;i++) read(a[i]),sum[i]=sum[i-1]+a[i];
+	
+	Init();
+	
+	dfs(1,n,sum[n]);
+	
+	for(int i=1;i<=n;i++) cout<<Ans[i]<<" ";
+}
+
+//
+bool Med;
+
+signed main() {
+	
+	solve();
+	
+	cerr<<"\n";
+	cerr<<"Memory:"<<(&Mst-&Med)/1024.0/1024<<" MB\n";
+	cerr<<"Time:"<<clock()/1.0/CLOCKS_PER_SEC*1000.0<<" ms\n";
+
+	return 0;
+}

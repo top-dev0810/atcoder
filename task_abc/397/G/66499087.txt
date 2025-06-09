@@ -1,0 +1,119 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+const int E = 500000;
+const int N = 500;
+struct edge{
+    int u,v,r,nxt;
+}e[E];
+const int P = 500000;
+vector<pair<int,int>> edges;
+int pre[P];
+int pcnt;
+int ecnt;
+void add(int u,int v,int cap){
+    e[++ecnt] = {u,v,cap,pre[u]};
+    pre[u] = ecnt;
+    e[++ecnt] = {v,u,0,pre[v]};
+    pre[v] = ecnt;
+}
+
+int gap[P];
+int S,T;
+int dep[P];
+int cur[P];
+int n,m,k;
+int ISAP(int x,int flow){
+    if(x == T){
+        return flow;
+    }
+    int res = 0;
+    bool ex = 0;
+    for(int vi = cur[x];vi;vi = e[vi].nxt){
+        int v = e[vi].v;
+        cur[x] = vi;
+        if(e[vi].r && dep[x] == dep[v] + 1){
+            int d = ISAP(v,min(e[vi].r,flow - res));
+            if(d){
+                res += d;
+                e[vi].r -= d;
+                ex |= e[vi].r;
+                e[vi ^ 1].r += d;
+                if(res == flow){
+                    return res;    
+                }
+            }
+        }
+    }
+    gap[dep[x]]--;
+    if(!gap[dep[x]]){
+        dep[S] = pcnt+1;
+        return res;
+    }
+    gap[++dep[x]]++;
+    cur[x] = pre[x];
+    return res;
+}
+int d[N][N];
+bool chk(int height){
+    pcnt = 0;
+    ecnt = 1;
+    memset(pre,0,sizeof(pre));
+    memset(d,0,sizeof(d));
+    memset(e,0,sizeof(e));
+    S = ++pcnt;
+    T = ++pcnt;
+    for(int i = 1;i<=n;i++){
+        for(int j = 0;j <= height+3;j++){
+            d[i][j] = ++pcnt;
+            if(j){
+                add(d[i][j],d[i][j - 1],0x3f3f3f3f);//如果j在s么j - 1必须在s,若j - 1不在s，那么j必定不在s
+            }
+        }
+    }
+    for(pair<int,int> e:edges){
+        for(int vh = 1;vh <= height+3;vh++){
+            add(d[e.second][vh],d[e.first][vh],1);
+            add(d[e.second][vh],d[e.first][vh - 1],0x3f3f3f3f);
+        }
+    }
+    add(d[1][1],T,0x3f3f3f3f);
+    add(S,d[n][height],0x3f3f3f3f);
+    memset(gap,0,sizeof(gap));
+    memset(dep,0,sizeof(dep));
+    memcpy(cur,pre,sizeof(cur));
+    int res = 0;
+    while(dep[1] <= pcnt){
+        res += ISAP(S,0x3f3f3f3f);
+    }
+    //cerr<<height<<' '<<res<<'\n';
+    return res <= k;
+}
+signed main(){
+    #ifndef ONLINE_JUDGE
+    freopen("testcases/0.in","r",stdin);
+    freopen("debug.out","w",stdout);
+    #else
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+    #endif    
+    cin>>n>>m>>k;
+    for(int i = 1;i<=m;i++){
+        int u,v;
+        cin>>u>>v;
+        edges.push_back({u,v});
+    }
+    int l = 1,r = 30;
+    int ans = 0;
+    while(l <= r){
+        int mid = (l + r)/2;
+        if(chk(mid)){
+            ans = mid;
+            l = mid + 1;
+        }else{
+            r = mid - 1;
+        }
+    }
+    cout<<ans<<'\n';
+}

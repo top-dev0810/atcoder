@@ -1,0 +1,45 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define int long long
+#define ADD(a, b) a = (a + b) % mod
+const int N = 2e5 + 5, mod = 998244353;
+int n, x, y, a[N], b[N], c1, c2, c3, c4, jc[N], jcinv[N], ans, suf[N];
+
+inline int qstp(int a, int k) {int res = 1; for(; k; a = a * a % mod, k >>= 1) if(k & 1) res = res * a % mod; return res;}
+inline int C(int n, int m){
+    return jc[n] * jcinv[m] % mod * jcinv[n - m] % mod;
+}
+inline int Csum(int lim){
+    if(lim >= c3 + c4) return 0;
+    return suf[max(0ll, lim + 1)];
+}
+signed main(){
+    jc[0] = jcinv[0] = 1;
+    for(int i = 1; i < N; ++i) jcinv[i] = qstp(jc[i] = jc[i - 1] * i % mod, mod - 2);
+    cin >> n >> x >> y;
+    ++x, ++y;
+    for(int i = 1; i <= n; ++i){
+        scanf("%lld%lld", &a[i], &b[i]);
+        if(!a[i]) c1 += b[i] % 2, c2 += 1 - b[i] % 2;
+        else if(x % 2 == y % 2){
+            if((a[i] * x + b[i]) % 2) ++c1;
+            else ++c2; 
+        }
+        else{
+            if(x % 2){
+                if(a[i] == 1 && b[i] & 1) ++c1;
+                else ++c3; 
+            }
+            else{
+                if(a[i] == 1 && b[i] & 1) ++c1;
+                else ++c4;
+            }
+        }
+    }
+    for(int i = c3 + c4; ~i; --i) suf[i] = (suf[i + 1] + C(c3 + c4, i)) % mod;
+    for(int i = 0; i <= c1; ++i)
+            ADD(ans, C(c1, i) * Csum(c1 + c4 - 2 * i) % mod);
+    cout << ans * qstp(2, c2) % mod;
+    return 0;
+}

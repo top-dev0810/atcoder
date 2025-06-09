@@ -1,0 +1,76 @@
+// To the Moon and never back ...
+#include <bits/stdc++.h>
+#define Maryam ios_base::sync_with_stdio(false);cin.tie(0);
+#define ll long long
+#define ld long double
+using namespace std ;
+int main() {
+
+    Maryam;
+
+    int n , w ;
+    cin >> n >> w ;
+
+    map<pair<int ,int> , int>a ;
+    vector<vector<int>>g(w+1) ;
+    set<int>st ;
+    for ( int i = 0 ; i < n ; i++) {
+        int x , y ;
+        cin >> x >> y ;
+
+        st.insert(x) ;
+        a[{x , y}] = i + 1 ;
+        g[x].push_back(y) ;
+    }
+
+    if ( st.size() < w ) {
+        int q ; cin >> q ;
+        while (q--) {
+            int x , y ;
+            cin >> x >> y ;
+            cout << "Yes\n" ;
+        }
+        return 0 ;
+    }
+
+    int mn_h = INT_MAX ;
+    for ( int i = 1 ; i <= w ; i++ ) {
+        mn_h = min(mn_h, (int)g[i].size()) ;
+        sort(g[i].begin() , g[i].end() ) ;
+    }
+
+    map<int , int>order ;
+    for ( int i = 1 ; i <= w ; i++ ) {
+        for ( int j = 0 ; j < g[i].size() ; j++ ) {
+            int x = i , y = g[i][j] ;
+            order[a[{x , y}]] = j + 1 ;
+        }
+    }
+    map<ll , ll>dis ;
+    for ( int i = 1 ; i <= mn_h ; i++) {
+        ll mx = 0 ;
+        for ( int j = 1 ; j <= w ; j++) {
+            mx = max( mx , (ll)g[j][i - 1] - i ) ;
+        }
+
+        dis[i] = mx + i ;
+    }
+
+    int q ; cin >> q ;
+    while (q--) {
+        ll tt , c ;
+        cin >> tt >> c ;
+
+        if ( order[c] > mn_h ) {
+            cout << "Yes\n" ;
+        }
+        else {
+            if ( dis[order[c]] > tt ) {
+                cout << "Yes\n" ;
+            }
+            else cout << "No\n" ;
+        }
+    }
+
+    return 0;
+}

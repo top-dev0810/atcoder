@@ -1,0 +1,46 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long
+const int N=3005,mod=998244353;
+struct node{
+    int u,v,nxt;
+}e[N<<1];
+int head[N],cnt,n;
+void add(int u,int v){
+	e[++cnt].u=u;
+	e[cnt].v=v;
+	e[cnt].nxt=head[u];
+	head[u]=cnt;
+}
+ll dp[N][N][2],sum[N][2];
+void dfs(int now,int fa){
+    int u=now;
+    dp[u][0][0]=1;
+    if(u!=1)dp[u][1][1]=1;
+    int cnt=(u!=1);
+    for(int i=head[now],v;i;i=e[i].nxt){
+        v=e[i].v;if(v==fa)continue;
+        dfs(v,now);cnt++;
+        for(int j=cnt;j>=0;j--){
+            dp[now][j][0]=dp[now][j][0]*sum[v][0]%mod;
+            dp[now][j][1]=dp[now][j][1]*sum[v][0]%mod;
+            if(j>0){
+                dp[now][j][0]=(dp[now][j][0]+dp[now][j-1][0]*j%mod*sum[v][1]%mod)%mod;
+                dp[now][j][1]=(dp[now][j][1]+dp[now][j-1][1]*j%mod*sum[v][1]%mod)%mod;
+            }
+        }
+    }
+    for(int j=0;j<=cnt;j++){
+        sum[now][0]=(sum[now][0]+dp[now][j][0])%mod;
+        sum[now][1]=(sum[now][1]+dp[now][j][1])%mod;
+    }
+}
+int main(){
+    scanf("%d",&n);
+    for(int i=1,u,v;i<n;i++){
+        scanf("%d%d",&u,&v);
+        add(u,v);add(v,u);
+    }
+    dfs(1,0);
+    printf("%lld\n",sum[1][0]);
+}

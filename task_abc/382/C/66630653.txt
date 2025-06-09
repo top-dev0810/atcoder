@@ -1,0 +1,32 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define rep(i, n) for (int i = 0; i < (n); ++i)
+
+int main()
+{
+    int N, M;
+    cin >> N >> M;
+    vector<int> A(N), B(M);
+    rep(i, N) cin >> A.at(i);
+    rep(i, M) cin >> B.at(i);
+    
+    rep(i, N - 1)
+    {
+        A.at(i + 1) = min(A.at(i + 1), A.at(i));
+    }
+    
+    rep(j, M)
+    {
+        auto it = lower_bound(A.begin(), A.end(), B.at(j), greater<int>());
+        if(it == A.end())
+        {
+            cout << - 1 << endl;
+        }
+        else
+        {
+            cout << it - A.begin() + 1 << endl;
+        }
+    }
+    
+	return 0;
+}

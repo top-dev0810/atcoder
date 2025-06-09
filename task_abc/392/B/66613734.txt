@@ -1,0 +1,22 @@
+# include<bits/stdc++.h>
+// # include<atcoder/all>
+// using namespace atcoder;
+using namespace std;
+# define rep(i,n) for (int i = 0; i < (n); i++)
+// const int inf = 1073741823;
+// const long long INF = 1LL<<60;
+using ll = long long;
+using P = pair<int,string>;
+int main() {
+    int n,m;cin>>n>>m;
+    vector<int> input(m,0);
+    rep(i,m)cin>>input[i];
+    set<int> all;
+    rep(i,n){all.insert(i+1);}
+    for(int i:input){all.erase(i);}
+    cout<<all.size()<<endl;
+    for(int i:all){
+        cout << i << " ";
+    }
+    return 0;
+}

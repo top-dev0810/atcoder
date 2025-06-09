@@ -1,0 +1,32 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+
+const int N=3e5+10;
+int A[N],B[N],n,T,las[N],pos[N],k,stk[N],top;
+
+int main(){
+	ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);cin>>T;
+	while(T--){
+		cin>>n>>k;int flag=0,fg=0;top=0;
+		for(int i=1;i<=n;++i) las[i]=pos[i]=0;
+		for(int i=1;i<=n;++i) cin>>A[i],pos[A[i]]=1;
+		for(int i=1;i<=n;++i) cin>>B[i],fg|=!pos[B[i]];
+		for(int i=1;i<=n;++i) flag|=A[i]!=B[i];
+		if(!flag){cout<<"Yes\n";continue;}
+		if(fg){cout<<"No\n";continue;}
+		if(k==1){
+			int st=1;
+			for(int i=1;i<=n;++i) if(!top||stk[top]!=B[i]) stk[++top]=B[i];
+			for(int i=1;i<=n;++i) if(stk[st]==A[i]) ++st;
+			cout<<(st>top?"Yes\n":"No\n");
+		}else {
+			for(int i=1;i<=n;++i){
+				if(las[B[i]]&&i-las[B[i]]<=k) fg=1;
+				las[B[i]]=i;
+			}
+			cout<<(fg?"Yes\n":"No\n");
+		}
+	}
+	return 0;
+} 

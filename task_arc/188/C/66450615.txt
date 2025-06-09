@@ -1,0 +1,65 @@
+#include<bits/stdc++.h>
+#define ll long long
+#define rep(i,a,b) for(register int i=(a);i<=(b);++i)
+#define per(i,a,b) for(register int i=(a);i>=(b);--i)
+#define edge(i,u) for(int i=head[u];i;i=e[i].next)
+#define lc(u) tre[u].ls
+#define rc(u) tre[u].rs
+#define pii pair<int,int>
+#define pdd pair<double,double>
+#define mp make_pair
+#define pb push_back
+#define fst first
+#define sed second
+#define Max(a,b) (a=max(a,b))
+#define Min(a,b) (a=min(a,b))
+using namespace std;
+const int N=1e6+10,M=1e6+10,inf=1e9,mod=1e9+7;
+const double eps=1e-6;
+bool MS;int used;
+int n,m,nd;
+int f[N];
+int a[N],b[N],c[N];
+int val[N];
+int fa(int x){return f[x]==x?x:f[x]=fa(f[x]);}
+void merge_(int x,int y){f[fa(x)]=fa(y);}
+int pos(int x,int sign){return sign*n+x;}
+void merge(int x,int y){merge_(x+nd,y+nd);merge_(x,y);}
+void de_merge(int x,int y){merge_(x,y+nd);merge_(x+nd,y);}
+bool tag[N];
+bool MT;
+signed main()
+{
+//	freopen("open.txt","r",stdin);
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+	cin>>n>>m;
+	nd=n*2;
+	rep(i,0,N-1)f[i]=i;
+	rep(i,1,m)
+	{
+		cin>>a[i]>>b[i]>>c[i];
+		if(!c[i])
+		{
+			merge(a[i],b[i]+n);
+		}
+		else 
+		{
+			de_merge(a[i],b[i]+n);
+		}
+	}
+	rep(i,1,nd)
+	if(fa(i)==fa(i+nd))
+	return cout<<"-1\n",0;
+//	rep(i,1,nd*2)cout<<fa(i)<<" ";cout<<'\n';
+	rep(i,nd+1,2*nd)
+	if(fa(i)==i)val[i]=1;
+	rep(i,1,nd)
+	{
+		if(fa(i)==i);//val[i]=0;
+		else val[i]=val[fa(i)];
+	}
+	rep(i,1,n)cout<<(val[i]^val[i+n]);
+	cerr<<"Memory:"<<(&MS-&MT)/1048576.0<<"MB Time:"<<clock()/1000.0<<"s\n";
+}

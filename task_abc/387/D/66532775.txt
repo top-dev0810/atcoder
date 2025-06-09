@@ -1,0 +1,60 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+#define rep(i, n) for (int i = 0; i < n; i++)
+
+int main() {
+    int h, w;
+    cin >> h >> w;
+    vector<string> grid;
+    rep(i, h) {
+        string s;
+        cin >> s;
+        grid.emplace_back(s);
+    }
+
+    pair<int, int> start, end;
+
+    rep(i, h) {
+        rep(j, w) {
+            if (grid[i][j] == 'S') {
+                start = {i, j};
+            } else if (grid[i][j] == 'G') {
+                end = {i, j};
+            }
+        }
+    }
+
+    vector<vector<vector<int>>> dist(h, vector<vector<int>>(w, vector<int>(4, INT_MAX)));
+    queue<tuple<int, int, int>> q;
+    rep(i, 4) {
+        dist[start.first][start.second][i] = 0;
+        q.emplace(start.first, start.second, i);
+    }
+
+    vector<pair<int, int>> directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // left, right, up, down
+    while (!q.empty()) {
+        auto [y, x, dir] = q.front();
+        q.pop();
+
+        for (int i = 0; i < 4; i++) {
+            if ((dir < 2 && i < 2) || (dir >= 2 && i >= 2)) continue;
+
+            int ny = y + directions[i].first;
+            int nx = x + directions[i].second;
+
+            if (nx < 0 || nx >= w || ny < 0 || ny >= h || grid[ny][nx] == '#') continue;
+
+            if (dist[ny][nx][i] > dist[y][x][dir] + 1) {
+                dist[ny][nx][i] = dist[y][x][dir] + 1;
+                q.emplace(ny, nx, i);
+            }
+        }
+    }
+
+    int ans = *min_element(dist[end.first][end.second].begin(), dist[end.first][end.second].end());
+    if (ans == INT_MAX) ans = -1;
+    cout << ans << endl;
+
+    return 0;
+}

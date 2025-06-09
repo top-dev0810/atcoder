@@ -1,0 +1,115 @@
+#include<bits/stdc++.h>
+#define ll long long 
+#define Poly vector<F>
+using namespace std;
+const int N=45000,mod=998244353,g=3,ig=332748118,Inv_2=(mod+1)>>1,T=2*mod+2;
+inline int Mod(int x){return x>=mod?x-mod:x;}
+inline int poww(int x,int y){int sum=1;for(;y;y>>=1,x=1ll*x*x%mod)if(y&1)sum=1ll*sum*x%mod;return sum;}
+struct F{
+	int a,b;
+	friend F operator +(const F A,const int B){return F{Mod(A.a+B),A.b};}
+	friend F operator +(const int B,const F A){return F{Mod(A.a+B),A.b};}
+	friend F operator -(const F A,const int B){return F{Mod(A.a+mod-B),A.b};}
+	friend F operator -(const int B,const F A){return F{Mod(B+mod-A.a),Mod(mod-A.b)};}
+	friend F operator *(const F A,const int B){return F{1ll*A.a*B%mod,1ll*A.b*B%mod};}
+	friend F operator *(const int B,const F A){return F{1ll*A.a*B%mod,1ll*A.b*B%mod};}
+	friend F operator +(const F A,const F B){return F{Mod(A.a+B.a),Mod(A.b+B.b)};}
+	friend F operator -(const F A,const F B){return F{Mod(A.a+mod-B.a),Mod(A.b+mod-B.b)};}
+	friend F operator *(const F A,const F B){return F{(1ll*A.a*B.a+5ll*A.b*B.b)%mod,(1ll*A.a*B.b+1ll*A.b*B.a)%mod};}
+	friend F operator /(F A,F B){
+		int x=(1ll*B.a*B.a-5ll*B.b*B.b)%mod;
+		if(x<0)x+=mod;
+		B.b=mod-B.b;A=A*B;
+		return A*poww(x,mod-2);
+	}
+};
+const F A={Inv_2,Inv_2},B={Inv_2,mod-Inv_2},D=A/B;
+F PD[N<<1+5],PND[N<<1+5];
+F calcD(int x){return PND[x/N]*PD[x%N];}
+inline F poww(F x,ll y){F sum={1,0};for(;y;y>>=1,x=x*x)if(y&1)sum=sum*x;return sum;}
+int rev[N<<3+5];
+inline void Init(int len){for(int i=0;i<(1<<len);i++)rev[i]=(rev[i>>1]>>1)|((i&1)<<(len-1));}
+inline void NTT(Poly &a,int len,int ops=1){
+	for(int i=0;i<len;i++)if(i<rev[i])swap(a[i],a[rev[i]]);
+	for(int m=2;m<=len;m<<=1){
+		int wn=poww(ops?g:ig,(mod-1)/m);
+		for(int i=0;i<len;i+=m){
+			for(int j=0,w=1;j<m/2;j++,w=1ll*w*wn%mod){
+				F u=a[i+j],t=w*a[i+j+m/2];
+				a[i+j]=u+t,a[i+j+m/2]=u-t;
+			}
+		}
+	}
+	if(!ops){
+		int Inv=poww(len,mod-2);
+		for(int i=0;i<len;i++)a[i]=a[i]*Inv;
+	}
+	return;
+}
+Poly operator *(Poly a,Poly b){
+	int len=0,tmp=(int)a.size()+(int)b.size();
+	while((1<<len)<tmp)len++;
+	a.resize(1<<len),b.resize(1<<len);Init(len);
+	NTT(a,1<<len,1),NTT(b,1<<len,1);
+	for(int i=0;i<(1<<len);i++)a[i]=a[i]*b[i];
+	NTT(a,1<<len,0);
+	return a;
+}
+Poly CZT(Poly a,int n,F c,int m){//多点求值 
+	F ic=F{1,0}/c;
+	for(int i=0;i<n;i++)
+		a[i]=a[i]*poww(ic,1ll*i*(i-1)/2);
+	reverse(a.begin(),a.end());
+	Poly b;b.resize(n+m-1);
+	for(int i=0;i<n+m-1;i++)
+		b[i]=poww(c,1ll*i*(i-1)/2);
+	a=a*b;
+	Poly ans;
+	for(int i=0;i<m;i++)ans.push_back(a[n+i-1]*poww(ic,1ll*i*(i-1)/2));
+	return ans;
+}
+F c1,c2;
+Poly sol(int len){
+	Poly ans;
+	if(len==1){
+		ans.resize(2);
+		ans[0]=c2;
+		ans[1]=c1*D;
+	}else if(len&1){
+		Poly s;s.resize(2);
+		s[0]=c2,s[1]=c1*calcD(len);
+		ans=sol(len-1)*s;
+	}else{
+		int _len=len>>1;
+		Poly s=sol(_len),t=s;
+		F w=F{1,0},wn=calcD(_len);
+		for(int i=0;i<t.size();i++,w=w*wn)t[i]=t[i]*w;
+		ans=s*t;
+	}
+	ans.resize(len+1);
+	return ans;
+}
+Poly f,s;
+int calc_ans(ll n){
+	if(!n)return 1;
+	if(n>T)return 1ll*poww(calc_ans(T),n/T)*calc_ans(n%T)%mod;
+	F ans=(n>=N?s[n/N-1]:F{1,0});
+	for(int i=(n/N)*N+1;i<=n;i++)ans=ans*(c1*poww(A,i)+c2*poww(B,i));
+	return ans.a;
+}
+void sol(){
+	ll n,x,y;cin>>n>>x>>y;
+	c1=(Mod(y+mod-x)*B-x)/(B-A),c2=Mod(y+mod-x)-c1;
+	f=sol(N);s=CZT(f,N+1,calcD(N),N);
+	for(int i=0;i<s.size();i++)s[i]=s[i]*poww(B,1ll*N*(N+1+2ll*i*N)/2);
+	for(int i=1;i<s.size();i++)s[i]=s[i-1]*s[i];
+	cout<<calc_ans(n)<<'\n';
+}
+signed main(){
+	PD[0]=PND[0]=F{1,0};
+	for(int i=1;i<=N;i++)PD[i]=D*PD[i-1];
+	for(int i=1;i<=N;i++)PND[i]=PD[N]*PND[i-1];
+	int T;cin>>T;
+	while(T--)sol();
+	return 0;
+}

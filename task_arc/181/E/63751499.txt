@@ -1,0 +1,105 @@
+#include<bits/stdc++.h>
+using namespace std;
+const int N=2e5+5;
+mt19937_64 rnd(0x66ccff);
+typedef unsigned long long ull;
+int n,m,ie[N],fa[N],dfn[N],out[N];
+vector<pair<int,int> >g[N],h[N];
+ull va[N],a1[N],a2[N],Ans;
+bool ban[N];
+int ls[N*30],rs[N*30],mn[N*30],cnt,rt[N];
+struct edge{
+	int x,y;
+	ull z;
+}e[N];
+bool cmp(int x,int y){
+	return e[x].z<e[y].z;
+}
+int gf(int x){
+	return fa[x]==x?x:fa[x]=gf(fa[x]);
+}
+int up(int x,int y){
+	if(!x||!y)return x|y;
+	if(e[x].z<e[y].z)return x;
+	return y;
+}
+void ins(int &k,int l,int r,int x,int v){
+	if(!k)k=++cnt;
+	mn[k]=up(mn[k],v);
+	if(l==r)return;
+	int mid=l+r>>1;
+	if(x<=mid)ins(ls[k],l,mid,x,v);
+	else ins(rs[k],mid+1,r,x,v);
+}
+int merge(int x,int y,int l,int r){
+	if(!x||!y)return x|y;
+	if(l==r){
+		mn[x]=up(mn[x],mn[y]);
+		return x;
+	}
+	int mid=l+r>>1;
+	ls[x]=merge(ls[x],ls[y],l,mid);
+	rs[x]=merge(rs[x],rs[y],mid+1,r);
+	mn[x]=up(mn[ls[x]],mn[rs[x]]);
+	return x;
+}
+int query(int k,int l,int r,int x,int y){
+	if(x<=l&&r<=y)return 0;
+	int mid=l+r>>1,res=0;
+	if(x<=mid)res=up(res,query(ls[k],l,mid,x,y));
+	else res=up(res,mn[ls[k]]);
+	if(y>mid)res=up(res,query(rs[k],mid+1,r,x,y));
+	else res=up(res,mn[rs[k]]);
+	return res;
+}
+void dfs1(int x,int y){
+	dfn[x]=++dfn[0];
+	for(auto [v,w]:g[x])if(v!=y)dfs1(v,x);
+	out[x]=dfn[0];
+}
+void dfs2(int x,int y){
+	for(auto [v,w]:g[x])if(v!=y){
+		dfs2(v,x);
+		int u=query(rt[v],1,n,dfn[v],out[v]);
+		if(!u)ban[w]=true;
+		else a1[w]=Ans^va[w]^va[u];
+		rt[x]=merge(rt[x],rt[v],1,n);
+	}
+	for(auto [v,w]:h[x])ins(rt[x],1,n,dfn[v],w);
+}
+void solve(){
+	for(int i=1;i<=cnt;++i)ls[i]=rs[i]=mn[i]=0;
+	for(int i=0;i<=n;++i)fa[i]=i,dfn[i]=out[i]=0,g[i].clear(),h[i].clear(),rt[i]=0;
+	for(int i=1;i<=m;++i)ie[i]=i,a1[i]=0;
+	Ans=0;
+	sort(ie+1,ie+m+1,cmp);
+	for(int i=1;i<=m;++i){
+		int u=ie[i];
+		int fx=gf(e[u].x),fy=gf(e[u].y);
+		if(fx==fy){
+			a1[u]=-1;
+			continue;
+		}
+		g[e[u].x].emplace_back(e[u].y,u);
+		g[e[u].y].emplace_back(e[u].x,u);
+		fa[fx]=fy;
+		Ans^=va[u];
+	}
+	dfs1(1,0);
+	for(int i=1;i<=m;++i)if(a1[i]==-1){
+		a1[i]=Ans;
+		h[e[i].x].emplace_back(e[i].y,i);
+		h[e[i].y].emplace_back(e[i].x,i);
+	}
+	dfs2(1,0);
+}
+int main(){
+	scanf("%d%d",&n,&m);
+	for(int i=1;i<=m;++i)scanf("%d%d",&e[i].x,&e[i].y),va[i]=rnd();
+	for(int i=1;i<=m;++i)e[i].z=1ull*(n+1)*e[i].y-e[i].x;
+	solve();
+	for(int i=1;i<=m;++i)e[i].z=1ull*(n+1)*(n+1-e[i].x)-(n+1-e[i].y),a2[i]=a1[i];
+	solve();
+	for(int i=1;i<=m;++i)puts((a1[i]==a2[i]&&!ban[i])?"Yes":"No");
+	return 0;
+}

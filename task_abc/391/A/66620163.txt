@@ -1,0 +1,48 @@
+#include <bits/stdc++.h>
+using namespace std;
+#include <bits/stdc++.h>
+typedef long long ll;
+
+int main() {
+  string s;
+  cin >> s;
+  
+  if (s == "N") {
+    cout << "S" << endl;
+  }
+  else if (s == "E") {
+    cout << "W" << endl;
+  }
+  else if (s == "W") {
+    cout << "E" << endl;
+  }
+  else if (s == "S") {
+    cout << "N";
+  }
+  else if (s == "NE") {
+    cout << "SW" << endl;
+  }
+  else if (s == "SW") {
+    cout << "NE" << endl;
+  }
+  else if (s == "NW") {
+    cout << "SE" << endl;
+  }
+  else if (s == "SE") {
+    cout << "NW" << endl;
+  }
+}
+
+/*memo*/
+//シグマfomula
+//https://hiraocafe.com/note/sigmaformula.html
+//数値型をstring型にしたいときに使う
+//to_string()
+//要素を逆並びにする
+//reverse(vec.begin(), vec.end())
+//N個の整数から続いたK個の整数を選ぶ
+//N-K+1
+//要素を小さい順にする
+//sort(vec.begin(), vec.end())
+//replace（aをbに置き換える）
+// replace(v.begin(), v.end(), a, b)

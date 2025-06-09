@@ -1,0 +1,35 @@
+#include<bits/stdc++.h>
+using namespace std;
+const int N = 2E5+10;
+int dp[N][5];
+vector<int> g[N];
+int ans=-1;
+void dfs(int u,int fa){
+	for(auto j:g[u]){
+		if(j==fa) continue;
+		dfs(j,u);
+	}
+	dp[u][0]=1;
+	for(int i=1;i<=4;i++) dp[u][i]=-1E9;
+	for(auto j:g[u]){
+		if(j==fa) continue;
+		for(int k =3;k>=0;k--){
+			dp[u][k+1] = max(dp[u][k+1],dp[u][k] + max(dp[j][0],dp[j][3]));
+		}
+	}
+	ans=max(ans,dp[u][1]);
+	ans=max(ans,dp[u][4]);
+} 
+int main(){
+	int n;
+	cin>>n;
+	for(int i=1;i<n;i++){
+		int x,y;
+		cin>>x>>y;
+		g[x].push_back(y);
+		g[y].push_back(x);
+	}
+	dfs(1,-1);
+	if(ans==2) ans=-1; 
+	cout<<ans;
+}

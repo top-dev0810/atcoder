@@ -1,0 +1,42 @@
+#include<bits/stdc++.h>
+#define LL long long
+using namespace std;
+
+const int N = 1e4 + 9;
+
+const LL mod = 1e9 + 7;
+
+int n, A;
+
+LL fac[N], h[N], g[N];
+
+LL qp(LL a, LL b)
+{
+    LL r = 1;
+    while (b)
+    {
+        if (b & 1)
+            r = r * a % mod;
+        a = a * a % mod, b >>= 1;
+    }
+    return r;
+}
+
+int main()
+{
+    scanf("%d%d", &n, &A);
+    fac[0] = 1;
+    for (int i = 1;i <= n;++ i)
+        fac[i] = fac[i - 1] * i % mod;
+    g[0] = 1;
+    for (int i = 1;i <= n;++ i)
+    {
+        h[i] = g[i - 1] * qp((i - 1) * (A + 1) % mod + 1, mod - 2) % mod;
+        for (int j = 0;j <= i;++ j)
+            g[i] = (g[i] + h[j] * j % mod * g[i - j]) % mod;
+        g[i] = g[i] * qp(i, mod - 2) % mod;
+    }
+    printf("%lld\n", g[n] * fac[n] % mod);
+
+    return 0;
+}

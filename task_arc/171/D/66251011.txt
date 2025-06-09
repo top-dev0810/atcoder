@@ -1,0 +1,76 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define mid ((l+r)>>1)
+#define ls(p) (p<<1)
+#define rs(p) (p<<1|1)
+#define lowbit(i) ((i)&(-i))
+#define double long double
+const int inf=1e18;
+const int mod=998244353;
+int fast(int x,int k,int mod)
+{
+	int ret=1;
+	while(k)
+	{
+		if(k&1) ret=ret*x%mod;
+		x=x*x%mod;
+		k>>=1;
+	}
+	return ret;
+}
+void solve()
+{
+	int mod,base,n,m;
+	cin>>mod>>base>>n>>m;
+	typedef array<int,2> pr;
+	// vector<pr> a(m+1);
+	vector<vector<int> > eg(n+1);
+	vector f(n+1,vector<int>(n+1));
+	for(int i=1;i<=m;++i)
+	{
+		int l,r;cin>>l>>r;
+		f[l-1][r]=f[r][l-1]=1;
+	}
+	int S=(1<<(n+1));
+	vector<int> dp(S+1,mod+1),vis(S+1);
+	dp[0]=0;
+	auto check=[&](int s) -> bool
+	{
+		for(int k=0;k<=n;++k)
+		{
+			if((s&(1<<k))==0) continue;
+			for(int j=0;j<=n;++j)
+			{
+				if((s&(1<<j))==0) continue;
+				if(f[k][j]) return 1;
+			}
+		}
+		return 0;
+	};
+	for(int s=1;s<S;++s)
+	{
+		vis[s]=check(s);
+	}
+	for(int s=1;s<S;++s)
+	{
+		for(int sub=s;;sub=(sub-1)&s)
+		{
+			if(vis[sub]) continue;
+			dp[s]=min(dp[s],dp[s^sub]+1);
+			if(sub==0) break;
+		}
+	}
+	if(dp[S-1]<=mod) cout<<"Yes\n";
+	else cout<<"No\n";
+
+}
+signed main()
+{
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	int T=1;
+	// cin>>T;
+	while(T--) solve();
+	return 0;
+}

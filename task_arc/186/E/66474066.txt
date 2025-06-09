@@ -1,0 +1,148 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define int ll
+typedef long long ll;
+typedef unsigned long long ull;
+
+#define mk make_pair
+#define fi first
+#define se second
+typedef pair<int,int> pii;
+typedef pair<double,double> pdd;
+
+#define ReadIn(s) freopen(s,"r",stdin)
+#define OutPut(s) freopen(s,"w",stdout)
+
+#define btpcll(x) __builtin_popcountll(x)
+#define btpc(x) __builtin_popcount(x)
+
+#define eb emplace_back
+#define sz(x) (int)(x.size())
+
+template<typename T>
+void read(T &x){
+	x=0;char c=getchar();T neg=0;
+	while(!isdigit(c)) neg|=!(c^'-'),c=getchar();
+	while(isdigit(c)) x=(x<<3)+(x<<1)+(c^48),c=getchar();
+	if(neg) x=(~x)+1;
+}
+template<typename T,typename ...Args>
+void read(T &x,Args &...args) {
+	read(x);read(args...);
+}
+
+const int M=3e5+10;
+const int inf=0x3f3f3f3f3f3f3f3f;
+const double eps=1e-10;
+const int p=998244353;
+
+bool Mst;
+//in this
+
+using poly=vector<int>;
+
+int fr[M];
+int ifr[M];
+int inv[M];
+
+int ksm(int x,int y) {
+	int res=1;
+	for(;y;y>>=1,x=x*x%p) if(y&1) res=res*x%p;
+	return res;
+}
+inline int INV(int x) {
+	return ksm(x,p-2);
+}
+
+void Init(int M=M-1) {
+	fr[0]=ifr[0]=1;inv[1]=1;
+	for(int i=1;i<=M;i++) fr[i]=fr[i-1]*i%p;
+	ifr[M]=INV(fr[M]);
+	for(int i=M-1;i;i--) ifr[i]=ifr[i+1]*(i+1)%p,inv[i+1]=ifr[i+1]*fr[i]%p;
+}
+inline int C(int n,int m) {
+	if(n<m||n<0||m<0) return 0;
+	return fr[n]*ifr[m]%p*ifr[n-m]%p;
+}
+
+poly Mul(poly a,poly b,int d=-1) {
+	poly c(sz(a)+sz(b)-1);
+	if(d!=-1) c.resize(d+1);
+	for(int i=0;i<sz(a);i++) {
+		for(int j=0;j<sz(b);j++) {
+			if(i+j>=sz(c)) break;
+			(c[i+j]+=a[i]*b[j])%=p;
+		}
+	}
+	
+	return c;
+}
+
+poly ksm(poly x,int y,int d=-1) {
+	poly res(d+1,0);res[0]=1;
+	for(;y;y>>=1,x=Mul(x,x,d)) if(y&1) res=Mul(res,x,d);
+	return res;
+}
+
+int n;
+int m;
+int k;
+int b[M];
+
+poly tr0,tr1,fin;
+poly tmp;
+
+void solve() {
+	read(n,m,k);
+	for(int i=1;i<=m;i++) read(b[i]);
+	
+	tr0.resize(n+1);
+	fin.resize(n+1);
+	
+	for(int i=1;i<=n;i++) tr0[i]=ifr[i];
+	tr0=ksm(tr0,k-1,n);
+	for(int i=1;i<=n;i++) fin[i]=tr0[i]*fr[i]%p;
+	for(int i=n;i;i--) tr0[i]=tr0[i-1]*fr[i-1]%p;tr0[0]=0;
+	
+	tr1.resize(n+1);
+	
+	for(int i=1;i<=n;i++) tr1[i]=ifr[i];
+	tr1=ksm(tr1,k-2,n);
+	for(int i=n;i;i--) tr1[i]=tr1[i-1]*fr[i-1]%p*(k-1)%p;tr1[0]=0;
+	
+	tmp.resize(n+1);
+	
+	for(int i=1;i<=n;i++) tmp[i]=(ksm(k-1,i-1)-ksm(k-2,i-1)+p)%p; 
+
+	tr1=Mul(tr1,tmp,n);
+	
+	int c0=0;
+	int c1=0;
+	for(int i=1;i<m;i++) {
+		if(b[i]==b[i+1]) c0++;
+		else c1++;
+	}
+	
+	auto ans=Mul(Mul(ksm(tr0,c0,n),ksm(tr1,c1,n),n),fin,n);
+	ans.resize(n+1);
+	
+	cout<<ans[n];
+	
+}
+
+//
+bool Med;
+
+signed main() {
+	
+	Init();
+	
+	solve();
+	
+	cerr<<"\n";
+	cerr<<"Memory:"<<(&Mst-&Med)/1024.0/1024<<" MB\n";
+	cerr<<"Time:"<<clock()/1.0/CLOCKS_PER_SEC*1000.0<<" ms\n";
+
+	return 0;
+}

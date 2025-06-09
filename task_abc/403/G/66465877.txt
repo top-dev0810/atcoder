@@ -1,0 +1,163 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+
+const int N = 3e5 + 10,MOD=1000000000;
+
+typedef long long ll;
+
+ll n, m,k,res;
+int cnt, root;
+struct node {
+    int ls, rs;
+    int key, pri;
+    int sz;
+    ll sum, odd;
+    bool is;
+    bool f;
+}tr[N];
+
+void newnode(int x)
+{
+    cnt++;
+    tr[cnt].ls = tr[cnt].rs = 0;
+    tr[cnt].sz = 1;
+    tr[cnt].key = x;
+    tr[cnt].pri = rand();
+    tr[cnt].sum = x;
+}
+void pushdown(int u)
+{
+    if (tr[u].f) {
+        tr[tr[u].ls].f ^= 1;
+        tr[tr[u].rs].f ^= 1;
+        tr[u].odd = tr[u].sum - tr[u].odd;
+        tr[u].is ^= 1;
+        tr[u].f = 0;
+    }
+}
+//void pushdown(int u) {
+//    if (tr[u].f) {
+//        if (tr[u].ls) {
+//            tr[tr[u].ls].f ^= 1;
+//            tr[tr[u].ls].is = !tr[tr[u].ls].is;
+//            tr[tr[u].ls].odd = tr[tr[u].ls].sum - tr[tr[u].ls].odd;
+//        }
+//        if (tr[u].rs) {
+//            tr[tr[u].rs].f ^= 1;
+//            tr[tr[u].rs].is = !tr[tr[u].rs].is;
+//            tr[tr[u].rs].odd = tr[tr[u].rs].sum - tr[tr[u].rs].odd;
+//        }
+//        tr[u].f = false;
+//    }
+//}
+void update(int u)
+{
+    tr[u].sz = tr[tr[u].ls].sz + tr[tr[u].rs].sz+1;
+    tr[u].sum = tr[tr[u].ls].sum + tr[tr[u].rs].sum + tr[u].key;
+    pushdown(tr[u].ls), pushdown(tr[u].rs);
+    tr[u].odd = tr[tr[u].ls].odd + tr[tr[u].rs].odd;
+    if (tr[u].is) tr[u].odd += tr[u].key;
+}
+void Split(int u, int x, int& L, int& R)
+{
+    if (u == 0) {
+        L = R = 0;
+        return;
+    }
+    pushdown(u);
+    if (tr[u].key <= x) {
+        L = u;
+        Split(tr[u].rs, x, tr[u].rs, R);
+    }
+    else {
+        R = u;
+        Split(tr[u].ls, x, L, tr[u].ls);
+    }
+    update(u);
+}
+int Merge(int L, int R)
+{
+    if (L == 0 || R == 0) return L + R;
+    pushdown(L);
+    pushdown(R);
+    if (tr[L].pri > tr[R].pri) {
+        tr[L].rs = Merge(tr[L].rs, R);
+        update(L);
+        return L;
+    }
+    else {
+        tr[R].ls = Merge(L, tr[R].ls);
+        update(R);
+        return R;
+    }
+}
+ll getVal(ll x)
+{
+    return (x + k) % MOD + 1;
+}
+void print(int u)
+{
+    if (!u) return;
+    print(tr[u].ls);
+    cout << tr[u].key << " ";
+    print(tr[u].rs);
+}
+//void pro(ll x,int y)
+//{
+//    int L, R;
+//    Split(root, x, L, R);
+//    int sz = tr[L].sz;
+//    newnode(x);
+//    if ((sz + 1) & 1) tr[cnt].is = 1,tr[cnt].odd=x;
+//    tr[R].f ^= 1;
+//    int tem = Merge(L, cnt);
+//    root = Merge(tem, R);
+//    pushdown(root);
+//    k = tr[root].odd;
+//
+//    return;
+//}
+void pro(ll x) {
+    int L, R;
+    Split(root, x, L, R);
+
+    // 计算L中大于x的数量
+    int pos = tr[L].sz + 1;
+    bool new_is = (pos % 2 == 1);
+
+    newnode(x);
+    tr[cnt].is = new_is;
+    if (new_is) tr[cnt].odd = x;
+
+    // 合并新节点
+    root = Merge(L, cnt);
+    tr[R].f ^= 1;
+    root = Merge(root, R);
+
+    //// 翻转右半部分
+    //if (tr[root].sz > 1) {
+    //    Split(root, x, L, R);
+    //    if (tr[R].sz > 0) {
+    //        tr[R].f ^= 1;
+    //        tr[R].is = !tr[R].is;
+    //        tr[R].odd = tr[R].sum - tr[R].odd;
+    //    }
+    //    root = Merge(L, R);
+    //}
+    pushdown(root);
+    k = tr[root].odd;
+}
+
+int main()
+{
+    cin >> n;
+    for (int i = 1; i <= n; i++) {
+        cin >> m;
+        ll tem = getVal(m);
+        pro(tem);
+        cout << k <<endl;
+    }
+
+    return 0;
+}

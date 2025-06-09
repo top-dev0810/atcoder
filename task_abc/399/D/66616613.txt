@@ -1,0 +1,39 @@
+#include <bits/stdc++.h>
+#define rep(i,n) for(int i=0; i<(int)(n); i++)
+#define ll long long
+using namespace std;
+
+int main(){
+    int t; cin>>t;
+    while(t--){
+        int n; cin>>n;
+        vector<int> a(2*n);
+        rep(i, 2*n) cin>>a[i];
+
+        map<pair<int,int>, vector<int>> mp;
+        set<int> st;
+        for(int i=1; i<2*n; i++){
+            int x = a[i-1], y = a[i];
+            if(x==y){
+                st.insert(x);
+            } else{
+                if(x > y) swap(x, y);
+                mp[{x,y}].push_back(i);
+            }
+        }
+        int ans = 0;
+        for(auto [k,v]: mp){
+            int sz = v.size();
+            if(sz==3){
+                ans++;
+            } else if(sz==2 && !st.count(k.first) && !st.count(k.second)){
+                if(v[0] + 1 < v[1]){
+                    ans++;
+                }
+            }
+        }
+        cout<<ans<<endl;
+            
+        
+    }
+}

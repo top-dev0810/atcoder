@@ -1,0 +1,35 @@
+#include<bits/stdc++.h>
+using namespace std;
+using LL=long long;typedef unsigned long long ULL;
+const int N=5005,P=998244353;
+int n,m,r,fa[N],f[N],invf[N],d[N];ULL h[N];char s[N];vector<int>G[N];
+int pow(int a,int b){
+	int ans=1;
+	while(b){if(b&1)ans=(LL)ans*a%P;a=(LL)a*a%P,b>>=1;}
+	return ans;
+}
+ULL shift(ULL x){return x^=3272972,x^=x<<13,x^=x>>7,x^=x<<17,x^3272972;}
+void init(){
+	f[0]=1;for(int i=1;i<=n;++i)f[i]=(LL)f[i-1]*i%P;
+	invf[n]=pow(f[n],P-2);
+	for(int i=n-1;i>=0;--i)invf[i]=(LL)invf[i+1]*(i+1)%P;
+}
+int C(int n,int m){return (LL)f[n]*invf[n-m]%P*invf[m]%P;}
+void dfs(int u){
+	d[u]=h[u]=1;
+	unordered_map<ULL,int>c;
+	for(int v:G[u])dfs(v),d[u]=(LL)d[u]*d[v]%P,h[u]+=shift(h[v]),++c[h[v]];
+	int s=0;
+	for(auto[x,y]:c)d[u]=(LL)d[u]*C(s+y,y)%P,s+=y;
+}
+int main(){
+	ios::sync_with_stdio(false),cin.tie(0);
+	cin>>n;
+	for(int i=1;i<=n;++i)cin>>s[i];m=1,r=1;
+	init();
+	for(int i=1;i<=n;++i){
+		if(s[i]=='(')G[r].push_back(++m),fa[m]=r,r=m;
+		else r=fa[r];
+	}
+	dfs(1);return cout<<d[1]<<"\n",0;
+}

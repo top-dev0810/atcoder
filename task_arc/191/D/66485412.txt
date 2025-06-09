@@ -1,0 +1,132 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define endl '\n'
+#define rep(i, a, b) for(int i = (a); i <= (b); i++)
+#define per(i, a, b) for(int i = (a); i >= (b); i--)
+#define rept(i, a, ne) for(int i = (a); ~i ; i=ne[i])
+#define debug(x) cout<<#x<<": "<<x<<endl
+#define fi first
+#define sec second
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+typedef long long LL;
+typedef long double  LD;
+typedef unsigned long long ULL;
+typedef vector<int> VI;
+typedef pair<int,int>PII;
+
+const int N=2e5+10;
+vector<int>e[N],ne[N];
+LL d[4][N];
+bool bo[N];
+bool isin[N];
+int n,m,s,t;
+int di[N];
+void op(vector<int>e[N],LL d[N],int s)
+{
+    rep(i,1,n)
+    bo[i]=0;
+    rep(i,1,n)
+    d[i]=INT_MAX;
+    queue<int>q;
+    q.push(s);
+    bo[s]=1;
+    int num=0;
+    while(q.size())
+    {   
+        int sz=q.size();
+        rep(i,1,sz)
+        {
+            auto x=q.front();
+            d[x]=num;
+            q.pop();
+            for(auto y:e[x])
+            {
+                if(bo[y])continue;
+                bo[y]=1;
+                q.push(y);
+            }  
+        }
+        num++;
+    }
+}
+
+void slove()
+{
+    cin>>n>>m>>s>>t;
+    rep(i,1,m)
+    {
+        int x,y;
+        cin>>x>>y;
+        e[x].push_back(y);
+        e[y].push_back(x);
+        di[x]++;
+        di[y]++;
+    }
+    op(e,d[0],s);
+    op(e,d[1],t);
+    vector<PII>ve;
+    rep(i,1,n)
+    {
+        ve.push_back({d[0][i]+d[1][i],i});
+    }
+    sort(ve.begin(),ve.end());
+    int l=ve[0].fi;
+    if(l+1<n&&ve[l+1].fi<=l+1)
+    {
+        cout<<l+ve[l+1].fi<<endl;
+        return;
+    }
+    rep(i,0,l)
+    {
+        if(di[ve[i].sec]>2&&ve[i].sec!=s&&ve[i].sec!=t)
+        {
+            cout<<l+l+2<<endl;
+            return;
+        }
+        isin[ve[i].sec]=1;
+    }
+    rep(i,1,n)
+    {
+        for(auto j:e[i])
+        if(isin[i]==0||isin[j]==0)
+        ne[i].push_back(j);
+    }
+
+    op(ne,d[2],s);
+    op(ne,d[3],t);
+    LL mi=INT_MAX;
+    rep(i,1,n)
+    {
+        mi=min(mi,d[2][i]+d[3][i]+l);
+        if(di[i]>2)
+        {
+            mi=min(mi,l*2+d[2][i]*4+4);
+            mi=min(mi,l*2+d[3][i]*4+4);
+        }
+    }
+    if(mi==INT_MAX)
+    cout<<-1<<endl;
+    else
+    cout<<mi<<endl;
+}
+
+int main()
+{
+    // freopen("test.in","r",stdin);
+    // freopen("test.out","w",stdout);
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+//	cout << fixed << setprecision(9);
+    int t=1;
+	// cin>>t;
+
+    while(t--)
+    {
+        slove();
+    }
+
+
+    return 0;
+}
+//#pragma GCC optimize(2)

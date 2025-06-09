@@ -1,0 +1,55 @@
+    #include <bits/stdc++.h>
+    #define int long long
+    #define ll long long
+    #define eb emplace_back
+    using namespace std;
+    const ll mod = 1e9;
+    #define pb push_back
+
+    ll exp(ll x, ll n, ll m) {
+        assert(n >= 0);
+        x %= m;
+        ll res = 1;
+        while (n > 0) {
+            if (n % 2 == 1) {
+                res = res * x % m;
+            }
+            x = x * x % m;
+            n /= 2;
+        }
+        return res;
+    }
+
+    void unique(vector<int> &b) {
+        sort(b.begin(), b.end());
+        auto it = unique(b.begin(), b.end());
+        b.erase(it, b.end());
+    }
+
+    #define getsum(v) accumulate(v.begin(), v.end(), 0LL)
+    #define read(v) for (auto &ele : v) cin >> ele;
+    #define show(v,begin) for(int showj = begin ; showj<v.size() ;++showj ) cout << v[showj] <<" ";
+    #define read2d(v) for (auto &row : v) for (auto &x : row) cin >> x;
+    #define all(s) (s).begin(),(s).end()
+    #define pairii pair<int,int>
+
+    void yes(bool a){cout<<(a?"yes":"no")<<"\n";} 
+    void YES(bool a){cout<<(a?"YES":"NO")<<endl;}
+    void Yes(bool a){cout<<(a?"Yes":"No")<<endl;}
+
+    signed main() {
+        ios::sync_with_stdio(false);
+        cin.tie(0);
+        string s ; cin >> s  ;   
+        int n = s.length() ;  
+        for(int i = 1 ; i<n ;  ++i){
+            int t = 0 ;    
+            while(i<n && s[i]=='-'){
+                t++ ;  
+                i++ ;  
+            }
+            cout<<t<<" "  ; 
+        }
+
+        return 0;
+    }

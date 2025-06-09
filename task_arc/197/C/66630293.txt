@@ -1,0 +1,57 @@
+#include <bits/stdc++.h>
+using namespace std;
+const int M = 1e5 + 5, N = 3e6;
+int n, a[M], b[M];
+
+bitset<N + 1> vis, vis2;
+int tr[N << 2];
+#define ls (p << 1)
+#define rs (p << 1 | 1)
+#define mid (l + r >> 1)
+void maintain(int p) { tr[p] = tr[ls] + tr[rs]; }
+void build(int p = 1, int l = 1, int r = N) {
+    if (l == r) return void(tr[p] = 1);
+    build(ls, l, mid), build(rs, mid + 1, r);
+    maintain(p);
+}
+void update(int x, int p = 1, int l = 1, int r = N) {
+    if (l == r) return assert(tr[p] = 1), void(tr[p] = 0);
+    if (x <= mid) update(x, ls, l, mid);
+    else update(x, rs, mid + 1, r);
+    maintain(p);
+}
+int bsearch(int x, int p = 1, int l = 1, int r = N) {
+    if (l == r) return l;
+    int vl = tr[ls], vr = tr[rs];
+    if (vl >= x) return bsearch(x, ls, l, mid);;
+    return bsearch(x - vl, rs, mid + 1, r);
+}
+void output(int p = 1, int l = 1, int r = N) {
+    if (l == r) {
+        if (l <= 10) cout << tr[p];
+        return;
+    }
+    output(ls, l, mid), output(rs, mid + 1, r);
+}
+
+int main() {
+    ios::sync_with_stdio(false), cin.tie(0);
+    cin >> n;
+    build();
+    // output(), cout << '\n';
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i] >> b[i];
+        if (a[i] <= N && !vis2[a[i]]) {
+            for (int j = 1; j * a[i] <= N; j++) {
+                if (vis[j * a[i]]) continue;
+                vis[j * a[i]] = 1;
+                update(j * a[i]);
+                // cout << "update " << j*a[i] << '\n';
+            }
+            vis2[a[i]] = 1;
+        }
+        // output(), cout << '\n';
+        cout << bsearch(b[i]) << '\n';
+    }
+    return 0;
+}

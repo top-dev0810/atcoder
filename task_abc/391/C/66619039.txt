@@ -1,0 +1,45 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+  
+  int N,Q,Count = 0;
+  cin >> N >> Q;
+  
+  vector<int> V(N,1),P(N);
+  
+  for(int i = 0 ; i < N ; i++){
+    P[i] = i;
+  }
+  
+  for(int i = 0 ; i < Q ; i++){
+    
+    int X;
+    cin >> X;
+    
+    if(X == 1){
+      
+      int p,h;
+      cin >> p >> h;
+      
+      V[P[p-1]]--;
+      if(V[P[p-1]] == 1){
+        Count--;
+      }
+      
+      P[p-1] = h-1;
+      
+      V[P[p-1]]++;
+      if(V[P[p-1]] == 2){
+        Count++;
+      }
+    }
+    
+    else{
+      cout << Count << endl;
+    }
+    
+  }
+  
+  return 0;
+}

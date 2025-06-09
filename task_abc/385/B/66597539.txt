@@ -1,0 +1,81 @@
+# include<bits/stdc++.h>
+// # include<atcoder/all>
+// using namespace atcoder;
+using namespace std;
+# define rep(i,n) for (int i = 0; i < (n); i++)
+// const int inf = 1073741823;
+// const long long INF = 1LL<<60;
+int main() {
+    int  h,w,x,y;cin>>h>>w>>x>>y;
+    --x;--y;
+    vector<string> map(h);
+    rep(i,h){
+        cin>>map[i];
+    }
+    string t;cin>>t;
+    int ans = 0;
+    for(char ch:t){
+        if(ch=='U'){
+            if(x!=0){
+                if(map[x-1][y]=='#'){
+                    continue;
+                }else{
+                    if(map[x-1][y]=='@'){
+                        map[x-1][y]='.';
+                        ans++;
+                    }
+                    x -=1;
+                }
+            }else{
+                continue;
+            }   
+        }
+        if(ch=='D'){
+            if(x!=h-1){
+                if(map[x+1][y]=='#'){
+                    continue;
+                }else{
+                    if(map[x+1][y]=='@'){
+                        map[x+1][y]='.';
+                        ans++;
+                    }
+                    x +=1;
+                }
+            }else{
+                continue;
+            }   
+        }
+        if(ch=='L'){
+            if(y!=0){
+                if(map[x][y-1]=='#'){
+                    continue;
+                }else{
+                    if(map[x][y-1]=='@'){
+                        map[x][y-1]='.';
+                        ans++;
+                    }
+                    y -= 1;
+                }
+            }else{
+                continue;
+            }   
+        }
+        if(ch=='R'){
+            if(y!=w-1){
+                if(map[x][y+1]=='#'){
+                    continue;
+                }else{
+                    if(map[x][y+1]=='@'){
+                        map[x][y+1]='.';
+                        ans++;
+                    }
+                    y += 1;
+                }
+            }else{
+                continue;
+            }   
+        }
+    }
+    cout << x+1 << " "<< y+1 <<" "<< ans << endl;
+    return 0;
+}

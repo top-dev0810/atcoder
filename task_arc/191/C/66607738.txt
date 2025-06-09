@@ -1,0 +1,45 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+
+int mod = 1e9 + 7;
+int power(int x, int y)
+{
+    int z = 1;
+    x = x % mod;
+    while (y > 0)
+    {
+        if (y & 1)
+            z = (z * x) % mod;
+        y = y >> 1;
+        x = (x * x) % mod;
+    }
+    return z;
+}
+
+bool isPrime(int n)
+{
+    for (int i = 2; i * i <= n; ++i)
+    {
+        if (n % i == 0)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+signed main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    int t;
+    cin >> t;
+    while (t--)
+    {
+        int n;
+        cin >> n;
+        cout << (n + 1) << " " << (n * n) << "\n";
+    }
+    return 0;
+}

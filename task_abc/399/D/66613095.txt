@@ -1,0 +1,62 @@
+#include<bits/stdc++.h>
+#define ll long long
+#define vll vector<ll>
+#define vvll vector<vector<ll>>
+using namespace std;
+int main(){
+    ll T;
+    cin >> T;
+    for(ll t=1;t<=T;t++){
+        ll N;
+        cin >> N;
+        vector<ll> A(2*N+20);
+        for(ll i=1;i<=2*N;i++){
+            cin >> A[i];
+        }
+        vector<bool> ng(N+2,false); //隣接しているか
+        set<pair<ll,ll>> ans;
+        vector<bool> C(N+2,false); //以前に出現したか
+        vvll L(N+2,vll(2,0)); //可能性のあるペアの数字
+        for(ll i=1;i<=2*N;i++){
+            if(C[A[i]]==false){
+                C[A[i]]=true;
+                if(A[i]==A[i+1]){
+                    ng[A[i]]=true;
+                    continue;
+                }
+                if(i==1){
+                    L[A[i]][1]=A[i+1];
+                }
+                else{
+                    L[A[i]][0]=A[i-1];
+                    L[A[i]][1]=A[i+1];
+                }
+            }
+            else{
+                if(ng[A[i]]==true){
+                    continue;
+                }
+                //前後の数字チェックしたい
+                for(ll j=-1;j<=1;j+=2){
+                    if(j==1 && i==2*N){
+                        continue;
+                    }
+                    if(ng[A[i+j]]==true){
+                        continue;
+                    }
+                    for(ll k=0;k<=1;k++){
+                        if(L[A[i]][k]==A[i+j]){
+                            if(k==1 && j==-1 && A[i-2]==A[i]){
+                                continue;
+                            }
+                            //cout << i << "文字目" << A.at(i) << "と" << A.at(i+j) << endl;
+                            ans.insert(minmax(A[i],A[i+j]));
+                        }
+                    }
+                }
+            }
+        }
+        cout << (ll)(ans.size()) << endl;
+    }
+    return 0;
+}

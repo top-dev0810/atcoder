@@ -1,0 +1,41 @@
+#include "bits/stdc++.h"
+using namespace std; 
+
+const int N = 200010; 
+char s[N]; 
+int pre[N]; 
+int n;
+// pre[l] number of zeros
+
+
+// l - 1 - pre[l-1]: number of 1 in l-1
+// l - r: pre[r] - pre[l-1]: number of zeros
+// r + 1 - n: n - r - (pre[n] - pre[r]) number of 1 in r+1-n
+
+// ops: l - 1 - pre[l-1] + pre[r] - pre[l-1] + n - r - pre[n] + pre[r]
+// l - 1 - 2 pre[l-1]
+// n - r - pre[n] + 2 pre[r]
+
+// enumerate l, find minimum r
+void solve(){
+    scanf("%s", s + 1); 
+    for(int i=1;i<=n;i++){
+        pre[i] = pre[i-1] + 1 - (s[i] - '0'); 
+    }
+    int ans = n - pre[n], mn = n; 
+    for(int i=n;i>=1;i--){
+        mn = min(mn, n - i - pre[n] + 2 * pre[i]); 
+        ans = min(ans, i - 1 - 2 * pre[i-1] + mn);
+    }
+    printf("%d\n", ans); 
+}
+
+int main(){
+    int t; 
+    cin>>t; 
+    while(t--){
+        cin>>n; 
+        solve(); 
+    }
+    return 0; 
+}

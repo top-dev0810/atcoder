@@ -1,0 +1,30 @@
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+
+int n, a[200010], t[200010];
+unordered_map <int, bool> b;
+
+int32_t main () {
+	scanf("%d", &n);
+	for (int i = 1; i <= n; i++)
+		scanf("%d", &a[i]);
+	for (int l = 1, r = 0; l <= n; l += 2) {
+		r = max(r, l - 1);
+		while (a[r + 1] == a[r + 2] && !b[a[r + 1]] && r + 2 <= n)
+			b[a[r + 1]] = true, r += 2;
+		t[l] = r;
+		b[a[l]] = false;
+	}
+	for (int l = 2, r = 1; l <= n; l += 2) {
+		r = max(r, l - 1);
+		while (a[r + 1] == a[r + 2] && !b[a[r + 1]] && r + 2 <= n)
+			b[a[r + 1]] = true, r += 2;
+		t[l] = r;
+		b[a[l]] = false;
+	}
+	int ans = 0;
+	for (int i = 1; i <= n; i++)
+		ans = max(ans, t[i] - i + 1);
+	printf("%d\n", ans);
+}

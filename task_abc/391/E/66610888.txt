@@ -1,0 +1,76 @@
+#include<bits/stdc++.h>
+#define int long long
+using namespace std;
+const int N=2e6+10;
+int tr[N][14];
+string s;
+int n;
+int qp(int x,int y){
+	int res=1;
+	while(y){
+		if(y&1){
+			res*=x;
+		}
+		x*=x;
+		y>>=1;
+	}
+	return res;
+}
+int change(int u,int high){
+	if(high==n){
+		return 1;
+	}
+	int a=tr[u*3-2][high+1],b=tr[u*3-1][high+1],c=tr[u*3][high+1];
+	int ta=u*3-2,tb=u*3-1,tc=u*3;
+	int suma=change(ta,high+1),sumb=change(tb,high+1),sumc=change(tc,high+1);
+	if(tr[u][high]==1){
+		if(a==1&&b==1&&c==1){
+			return min({suma+sumb,suma+sumc,sumb+sumc});
+		}
+		else if(a==1&&b==1&&c==0){
+			return min(suma,sumb);
+		}
+		else if(a==1&&b==0&&c==1){
+			return min(suma,sumc);
+		}
+		else if(a==0&&b==1&&c==1){
+			return min(sumb,sumc);
+		}
+	}
+	else if(tr[u][high]==0){
+		if(a==0&&b==0&&c==0){
+			return min({suma+sumb,suma+sumc,sumb+sumc});
+		}
+		else if(a==1&&b==0&&c==0){
+			return min(sumb,sumc);
+		}
+		else if(a==0&&b==1&&c==0){
+			return min(suma,sumc);
+		}
+		else if(a==0&&b==0&&c==1){
+			return min(suma,sumb);
+		}
+	}
+}
+signed main(){
+	scanf("%lld",&n);
+	cin>>s;
+	for(int i=0;i<qp(3,n);i++){
+		tr[i+1][n]=s[i]-'0';
+	}
+	for(int high=n;high>=1;high--){
+		for(int i=1;i<=qp(3,high);i++){
+			tr[(i+2)/3][high-1]+=tr[i][high];
+			if(i%3==0){
+				if(tr[(i+2)/3][high-1]>=2){
+					tr[(i+2)/3][high-1]=1;
+				}
+				else{
+					tr[(i+2)/3][high-1]=0;
+				}
+			} 
+		}
+	}
+	printf("%lld",change(1,0));
+	return 0;
+}

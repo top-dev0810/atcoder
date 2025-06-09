@@ -1,0 +1,28 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+
+int main() {
+   ll AN,x,y,T1,T2;
+   double P,z;
+   cin >> x >> y;
+   AN = 0;
+   for(ll i = 0; i < 6; i++){
+        for(ll j = 0; j < 6; j++){
+            T1 = i + j + 2;
+            if(T1 >= x){
+                AN++;
+                continue;
+            }
+            T2 = i - j;
+            if(T2 < 0) T2 = T2 * (-1);
+            if(T2 >= y) AN++;
+        }
+    }
+    z = (double) AN;
+    P = (double) AN / 36;
+    cout << fixed << setprecision(16);
+    cout << P << endl;
+    return 0;
+}

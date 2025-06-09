@@ -1,0 +1,33 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+  int n;
+  cin >> n;
+  vector<char> s(n);
+  
+  queue<int> que;
+  for(int i = 0; i < n; i++) {
+    char x;
+    cin >> x;
+    s[i] = x;
+    if(x == '/') {
+      que.emplace(i);
+    }
+  }
+  int ans = 0;
+  while(que.size()) {
+    int num = 1;
+    int y = que.front();
+    que.pop();
+    while(true){
+      int r = y - num;
+      int l = y + num;
+      if(r < 0 || n <= l) break;
+      if(s[r] != '1' || s[l] != '2') break;
+      num++;
+    }
+    ans = max(ans, 2*(num-1)+1);
+  }
+  cout << ans << endl;
+}

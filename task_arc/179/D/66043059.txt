@@ -1,0 +1,98 @@
+#include "bits/stdc++.h"
+ 
+using namespace std;
+#define int long long
+int dpdown[200001][4];
+int dpup[200001][4];
+vector<int> adj[200001];
+void dfs(int i,int pr){
+    dpdown[i][0] = 0;
+    int ma = 0;
+    for(auto j:adj[i]){
+        if(j==pr)continue;
+        dfs(j,i);
+        dpdown[i][0]+=dpdown[j][0]+2;
+        ma = max(ma,(dpdown[j][0]+2)-(dpdown[j][1]+1));
+    }
+    dpdown[i][1] = dpdown[i][0]-ma;
+}
+void reroot1(int i,int pr){
+    int ma1 = (i!=1?(dpup[i][0]+2)-(dpup[i][1]+1):0) , ma2 = 0;
+    int sum = (i!=1?dpup[i][0]+2:0);
+    for(auto j:adj[i]){
+        if(j==pr)continue;
+        sum+=dpdown[j][0]+2;
+        int cur = (dpdown[j][0]+2)-(dpdown[j][1]+1);
+        if(cur>ma1){
+            ma2 = ma1;
+            ma1 = cur;
+        }else if(cur>ma2){
+            ma2 = cur;
+        }
+    }
+    for(auto j:adj[i]){
+        if(j==pr)continue;
+        dpup[j][0] = sum-dpdown[j][0]-2;
+        dpup[j][1] = dpup[j][0];
+        if(ma1==(dpdown[j][0]+2)-(dpdown[j][1]+1)){
+            dpup[j][1]-=ma2;
+        }else dpup[j][1]-=ma1;
+        reroot1(j,i);
+    }
+}
+void dfs2(int i,int pr){
+    dpdown[i][2] = 0;
+    int ma = 0;
+    for(auto j:adj[i]){
+        if(j==pr)continue;
+        dfs2(j,i);
+        dpdown[i][2]+=min(dpdown[j][1]+1,dpdown[j][2]+2);
+        ma = max(ma,min(dpdown[j][1]+1,dpdown[j][2]+2)-(dpdown[j][3]+1));
+    }
+    dpdown[i][3] = dpdown[i][2]-ma;
+}
+long long ans =1e9;
+void reroot2(int i,int pr){
+    int ma1 = (i!=1?(min(dpup[i][1]+1,dpup[i][2]+2))-(dpup[i][3]+1):0) , ma2 = 0;
+    int sum = (i!=1?min(dpup[i][1]+1,dpup[i][2]+2):0);
+    for(auto j:adj[i]){
+        if(j==pr)continue;
+        sum+=min(dpdown[j][1]+1,dpdown[j][2]+2);
+        int cur = (min(dpdown[j][1]+1,dpdown[j][2]+2))-(dpdown[j][3]+1);
+        if(cur>ma1){
+            ma2 = ma1;
+            ma1 = cur;
+        }else if(cur>ma2){
+            ma2 = cur;
+        }
+    }
+    ans = min(ans,sum-ma1);
+    for(auto j:adj[i]){
+        if(j==pr)continue;
+        dpup[j][2] = sum-(min(dpdown[j][1]+1,dpdown[j][2]+2));
+        dpup[j][3] = dpup[j][2];
+        if(ma1==(min(dpdown[j][1]+1,dpdown[j][2]+2))-(dpdown[j][3]+1)){
+            dpup[j][3]-=ma2;
+        }else dpup[j][3]-=ma1;
+        reroot2(j,i);
+    }
+}
+signed main(){
+    ios_base::sync_with_stdio(false);cin.tie(0);
+    int n;
+    cin>>n;
+    for(int i = 1;i<n;i++){
+        int a,b;cin>>a>>b;
+        adj[a].push_back(b);
+        adj[b].push_back(a);
+    }
+    dfs(1,0);
+    reroot1(1,0);
+    dfs2(1,0);
+    reroot2(1,0);
+    cout<<ans<<endl;
+    // for(int i = 1;i<=n;i++){
+    //     cout<<dpdown[i][0]<<" "<<dpdown[i][1]<<endl;
+    //     cout<<dpup[i][0]<<" "<<dpup[i][1]<<endl;
+    // }
+}

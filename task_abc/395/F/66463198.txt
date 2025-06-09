@@ -1,0 +1,60 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define rep(i, n) for (int i = 0; i < (int)(n); i++)
+#define all(x) (x).begin(), (x).end()
+using ll = long long;
+const ll MOD = 998244353;
+#include<atcoder/all>
+using namespace atcoder;
+//395F
+
+ll n,x;
+ll prel,prer;
+vector<ll> U;
+vector<ll> D;
+bool DP(ll ans){
+    prel=0LL;
+    prer=10000000000LL;
+    rep(i,n){
+        ll u = U[i], d = D[i];
+        ll l=0, r=ans;
+        l=max(l,prel-x);
+        r=min(r,prer+x);
+        r=min(r, u);
+        l=max(ans-min(ans-prel+x,d),l);
+        r=min(ans-max(ans-prer-x,0LL),r);
+        if (l > r) return false;
+        prel = l;
+        prer = r;
+    }
+    return true;
+    
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cin >> n >> x;
+    U.resize(n);
+    D.resize(n);
+    rep(i,n){
+        ll u,d;
+        cin >> u >> d;
+        U[i]=u;
+        D[i]=d;
+    }
+    ll l=0, r=10000000000LL;
+    while (r-l>1) {
+        ll mid = (l + r) / 2;
+        if (DP(mid)) {
+            l = mid;
+        } else {
+            r = mid;
+        }
+    }
+    ll sum=0;
+    rep(i,n){
+        sum+= U[i] + D[i];
+    }
+    cout << sum - l*n << endl;
+}

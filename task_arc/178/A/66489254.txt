@@ -1,0 +1,24 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int a[200200], b[200200];
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	int n, m;
+	cin >> n >> m;
+	for(int i = 0; i < m; cin >> a[i], ++ i);
+	sort(a, a + m);
+	if(a[0] == 1 || a[m - 1] == n) {
+		cout << -1;
+		return 0;
+	}
+	iota(b, b + n, 1);
+	for(int i = 0; i < m; ++ i) {
+		swap(b[a[i]], b[a[i] - 1]);
+	}
+	for(int i = 0; i < n; cout << b[i] << ' ', ++ i);
+}

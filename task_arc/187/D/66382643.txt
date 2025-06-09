@@ -1,0 +1,82 @@
+/*
+ * @Author: wanggk
+ * @Date: 2025-06-01 15:58:25
+ */
+#include<bits/stdc++.h>
+#define For(i,il,ir) for(int i=(il);i<=(ir);++i)
+#define Rof(i,ir,il) for(int i=(ir);i>=(il);--i)
+using namespace std;
+typedef long long ll;
+const int maxn=5e5+10;
+const int inf=0x7f7f7f7f;
+
+int n;
+int h[maxn<<1],V;
+int a[maxn],b[maxn];
+
+struct node{
+    int l,r;
+    mutable int v;
+    bool operator < (node R)const{
+        return l<R.l;
+    }
+};
+set<node> st;
+multiset<int> res;
+
+set<node>::iterator split(int pos)
+{
+    if(pos>V) return st.end();
+    
+    node tmp=(node){pos,pos,0};
+    set<node>::iterator it=st.lower_bound(tmp);
+
+    if(it!=st.end() && (it->l)==pos) return it; --it;
+    if((it->r)<pos) return st.end();
+
+    node t1=*it,t2=*it;
+    t1.r=pos-1,t2.l=pos;
+    res.insert(h[t1.v]-h[t1.r]);
+    st.erase(it);st.insert(t1);
+    return st.insert(t2).first;
+}
+void modify(int l,int r,int x)
+{
+    if(l>r) return;
+    set<node>::iterator itr=split(r+1),itl=split(l);
+    if(r+1>V) itr=st.end();
+    for(auto it=itl;it!=itr;it++){
+        if((it->v)>=x){ itr=it,r=(it->l)-1; break; }
+        else res.erase(res.find(h[it->v]-h[it->r]));
+    }
+    st.erase(itl,itr);
+    if(l<=r){
+        st.insert((node){l,r,x});
+        res.insert(h[x]-h[r]);
+    }
+}
+signed main()
+{
+    scanf("%d",&n);
+    For(i,1,n) scanf("%d",&a[i]),h[++V]=a[i];
+    For(i,1,n) scanf("%d",&b[i]),h[++V]=b[i];
+
+    sort(h+1,h+1+V);
+    V=unique(h+1,h+1+V)-h-1;
+    h[++V]=2e9;
+
+    For(i,1,V) st.insert((node){i,i,i}),res.insert(0);
+    res.erase(res.find(0));
+    For(i,1,n)
+    {
+        a[i]=lower_bound(h+1,h+1+V,a[i])-h;
+        b[i]=lower_bound(h+1,h+1+V,b[i])-h;
+        if(a[i]>b[i]) swap(a[i],b[i]);
+
+        modify(1,a[i],a[i]);
+        modify(a[i]+1,b[i],b[i]);
+        modify(b[i]+1,V,V);
+        printf("%d\n",*res.begin());
+    }
+    return 0;
+}

@@ -1,0 +1,73 @@
+#include <bits/stdc++.h>
+
+#define all(x) (x).begin(), (x).end()
+using ll = long long;
+using pii = std::array<int, 2>;
+using pll = std::array<ll, 2>;
+using vi = std::vector<int>;
+using vl = std::vector<ll>;
+
+using namespace std;
+
+struct item {
+    ll suw;
+    int suc;
+    int c;
+};
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    mt19937 rng(10);
+    int n = 1e5;
+    cin >> n;
+    vi a(n), b(n);
+    vl c;
+    for (auto& el : a) {
+        cin >> el;
+        c.push_back(el);
+    }
+    for (auto& el : b) {
+        cin >> el;
+        c.push_back(el);
+    }
+    sort(all(c));
+    c.resize(unique(all(c)) - c.begin());
+    int nn = c.size();
+    for (auto& el : a) el = lower_bound(all(c), el) - c.begin();
+    for (auto& el : b) el = lower_bound(all(c), el) - c.begin();
+    int k = 1e4;
+    cin >> k;
+    vector<vector<pii> > qr(n);
+    for (int i = 0; i < k; ++i) {
+        int x, y;
+        cin >> x >> y;
+        qr[--x].push_back({y, i});
+    }
+    vl ans(k), w(nn), tmp(n);
+    vi cnt(nn), todo;
+    vector<item> mem(nn);
+    for (int i = 0; i < nn; ++i) mem[i].c = c[i];
+    for (int len = 0; len < n; ++len) {
+        todo.push_back(a[len]);
+        if (qr[len].empty()) continue;
+        for (auto el : todo) {
+            w[el] += c[el];
+            ++cnt[el];
+        }
+        todo.clear();
+        mem[0].suw = w[0];
+        mem[0].suc = cnt[0];
+        for (int i = 1; i < nn; ++i) {
+            mem[i].suw = mem[i - 1].suw + w[i];
+            mem[i].suc = mem[i - 1].suc + cnt[i];
+        }
+        sort(all(qr[len]));
+        for (int j = 0; j < qr[len].back()[0]; ++j)
+            tmp[j] = (j ? tmp[j - 1] : 0) + mem.back().suw - 2 * mem[b[j]].suw +
+                     (2 * mem[b[j]].suc - len - 1ll) * mem[b[j]].c;
+        for (auto [y, id] : qr[len]) ans[id] = tmp[y - 1];
+    }
+    for (auto el : ans) cout << el << '\n';
+}

@@ -1,0 +1,67 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <bits/stdc++.h>
+
+using namespace std;
+mt19937 RNG(chrono::steady_clock::now().time_since_epoch().count());
+
+#define fastio ios_base::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL);
+
+#define debug(x) cerr << #x << " = " << x << endl;
+
+void solve() 
+{
+    int n = 0, x = 0, val = 0, mini = -1000000000, val2 = 0;
+    long double val3 = 0, ans = 0;
+    cin >> n >> x;
+    val = (1 << n);
+    vector<vector<long double>> dp(x + 1, vector<long double> (val, mini));
+    vector<long double> prob(n, 0);
+    vector<int> sc(n, 0), cost(n, 0);
+
+    for(int i = 0; i < n; i++)
+    {
+        cin >> sc[i] >> cost[i] >> prob[i];
+        prob[i] /= 100.0;
+    }
+
+    for(int i = 0; i <= x; i++)
+    {
+        dp[i][0] = 0.0;
+        for(int j = 1; j < val; j++)
+        {
+            for(int k = 0; k < n; k++)
+            {
+                if((1 << k) & j)
+                {
+                    val2 = j & ~(1 << k);
+                    val3 = (i >= cost[k]) ? (prob[k] * (sc[k] + dp[i - cost[k]][val2]) + (1 - prob[k]) * dp[i - cost[k]][j]) : 0;
+                    dp[i][j] = max(dp[i][j], val3);
+                }
+            }
+        }
+    }
+
+    for(int i = 0; i < val; i++)
+    {
+        ans = max(ans, dp[x][i]);
+    }
+    cout << ans << '\n';
+}
+
+int main() {
+    auto begin = chrono::high_resolution_clock::now();
+    fastio;
+    // freopen("input.txt", "r", stdin);
+    // freopen("output.txt", "w", stdout);
+    int t = 1;
+    //cin >> t;
+    cout << fixed << setprecision(15);
+    while(t--)
+    {
+        solve();
+    }
+    auto end = chrono::high_resolution_clock::now();
+    auto elapsed = chrono::duration_cast<std::chrono::nanoseconds>(end - begin);
+    cerr << "Time measured: " << elapsed.count() * 1e-9 << " seconds.\n"; 
+    return 0;
+}

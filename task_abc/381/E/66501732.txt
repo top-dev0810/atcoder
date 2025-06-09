@@ -1,0 +1,51 @@
+#include<bits/stdc++.h>
+#define int long long
+#define F first
+#define S second
+#define pb push_back
+#define popp pop_back
+#define in insert
+#define endl "\n"
+//#define mid (l+r)/2
+using namespace std;
+const int N=2e5+5;
+int n,q,pref[N][3],id[N][3];
+
+int query(int l  , int r){
+    if(pref[r][3]-pref[l-1][3]==0) return 0;
+    int ll=0,rr=r-l+1,mid=(ll+rr+1)/2;
+    while(ll<rr){
+          bool can=1;
+          int nxt=id[mid+pref[l-1][1]][1];
+          if(nxt==0 || nxt>r) can=0;
+          int nxt2=id[pref[nxt][3]+1][3];
+          if(nxt2==0 || nxt2>r) can=0;
+          if(pref[r][2]-pref[nxt2][2]<mid) can=0;
+          if(can) ll=mid;
+          else rr=mid-1;
+          mid=(ll+rr+1)/2;
+    }
+    return 2*mid+1;
+}
+int32_t main(){
+    ios_base::sync_with_stdio(false);cin.tie(nullptr);cout.tie(nullptr);
+    cin>>n>>q;
+    string s;cin>>s;
+    s='!'+s;
+    for(int i=1;i<=n;i++){
+        for(int j=1;j<=3;j++){
+            pref[i][j]=pref[i-1][j];
+        }
+        if(s[i]=='1') pref[i][1]++,id[pref[i][1]][1]=i;
+        if(s[i]=='2') pref[i][2]++,id[pref[i][2]][2]=i;
+        if(s[i]=='/') pref[i][3]++,id[pref[i][3]][3]=i;
+
+    }
+    while(q--){
+          int l,r;cin>>l>>r;
+          cout<<query(l,r)<<endl;
+    }
+    return 0;
+}
+
+

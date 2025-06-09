@@ -1,0 +1,52 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define endl '\n'
+#define paii pair<int,int>
+
+struct node{
+    int x,y,w;
+
+    bool operator<(const node x1)const{
+        return w > x1.w;
+    }
+};
+
+
+void solve(){
+
+    int n;
+    cin >> n;
+    vector<int> a(n+1);
+    for (int i = 1; i <= n; ++i) {
+        cin >> a[i];
+    }
+    int ans = 0;
+    int last = 0;
+    int now = 0;
+    bool ji = 0;
+    for (int i = 1; i < n; ++i) {
+        if (a[i] > a[i+1]){
+            if (ji){
+                continue;
+            }
+            ans += last * now;
+            last = now;
+            now = 0;
+            ji = 1;
+        }else{
+            now++;
+            ji = 0;
+        }
+    }
+    cout << ans + (last * now) << endl;
+}
+
+signed main(){
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    int t = 1;
+    while(t--){
+        solve();
+    }
+}

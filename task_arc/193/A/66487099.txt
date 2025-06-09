@@ -1,0 +1,271 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define rep(i, N) for (int i=0;i<N;i++)
+#define SORT(array, class, member) sort(array.begin(), array.end(), [&](const class l, const class r){ return l.member<r.member;})
+#define scan(n) scanf("%d", &n)
+#define outYes(BOOL) cout << ((BOOL)? "Yes": "No") << endl
+#define int_max 0x7FFFFFFF
+#define uint_max 0xFFFFFFFF
+#define lli_max 0x7FFFFFFFFFFFFFFF
+#define ulli_max 0xFFFFFFFFFFFFFFFF
+#define int_min 0x80000000
+#define lli_min 0x8000000000000000
+#define BIG_PRIME_NUM1 998244353
+
+typedef unsigned int uint;
+typedef unsigned long long int ulli;
+typedef long long int lli;
+typedef pair<int, int> int_pair;
+typedef struct __sa{
+    int num;
+    int idx;
+}SA;
+typedef struct __pos{
+    int x;
+    int y;
+    int idx;
+}P;
+
+int MOVE[4][2]={{0, -1}, {1, 0}, {0, 1}, {-1, 0}};
+#ifndef segment_tree_h
+#define segment_tree_h 0
+
+#include <stdlib.h>
+
+#ifndef BIT_CALC_H
+#define BIT_CALC_H 0
+
+#define getBit(x, y) (((x)>>(y))&1)
+#define setBit(x, y) ((x)|((unsigned long long int)1<<(y)))
+#define resetBit(x, y) ((x)&(~((unsigned long long int)1<<(y))))
+#define reverseBit(x, y) ((x)^((unsigned long long int)1<<(y)))
+
+unsigned char popcount(unsigned long long int x){
+    unsigned char cnt=0;
+    while (x!=0){
+        cnt+=(x&1);
+        x=x>>1;
+    }
+    return cnt;
+}
+
+int getMaxBit(unsigned long long int x){
+	int cnt=0;
+	while (((unsigned long long int)1<<(cnt+1))<=x){
+		cnt++;
+	}
+	return cnt;
+}
+
+int getMinBit(unsigned long long int x){
+	int cnt=0;
+	while (getBit(x, cnt)==0){
+		cnt++;
+	}
+	return cnt;
+}
+#endif
+
+template<typename T>
+struct Seg{
+    T* array;
+    const int capacity;
+    const int start_idx;
+    const int height;
+    const T reset_data;
+    int size;
+    T (*callback_func)(T l, T r);
+    void set(int idx, T value);
+    void remove(int idx);
+    T get(int idx);
+    T get2(int real_idx);
+    T get3(int y, int x);
+    T top();
+    T getInterval(int l, int r);
+    void check(int check_idx);
+};
+
+template<typename T>
+Seg<T> createSegTree(int size, T reset_data, T (*callback)(T, T));
+
+template<typename T>
+Seg<T> createSegTree(int size, T reset_data, T (*callback)(T, T)){
+    int c=1;
+    int height=0;
+    while (c<size){
+        c*=2;
+        height++;
+    }
+    c*=2;
+    height++;
+    T* array_ptr=(T*)malloc(c*sizeof(T));
+    T* p=array_ptr;
+    for (int i=0;i<c;i++){
+        *p=reset_data;
+        p++;
+    }
+    Seg<T> tmp={array_ptr, c, c/2-1, height, reset_data, size, callback};
+    return tmp;
+}
+
+template<typename T>
+void Seg<T>::set(int idx, T value){
+    array[start_idx+idx]=value;
+    check(start_idx+idx);
+}
+
+template<typename T>
+void Seg<T>::remove(int idx){
+    array[start_idx+idx]=reset_data;
+    check(start_idx+idx);
+}
+
+template<typename T>
+T Seg<T>::get(int idx){
+    return array[start_idx+idx];
+}
+
+template<typename T>
+T Seg<T>::get2(int real_idx){
+    return array[real_idx];
+}
+
+template<typename T>
+T Seg<T>::get3(int y, int x){
+    return get2((1<<y)-1+x);
+}
+
+template<typename T>
+T Seg<T>::top(){
+    return array[0];
+}
+
+template<typename T>
+T Seg<T>::getInterval(int l, int r){
+	T res=reset_data;
+	while (l<r){
+		int x, y, d;
+		if (l==0){
+			int bit_cnt=getMaxBit(r);
+			x=0;
+			y=height-1-bit_cnt;
+			d=1<<bit_cnt;
+		}else {
+			int bit_cnt=getMinBit(l);
+			d=1<<bit_cnt;
+			x=l/d;
+			y=height-1-bit_cnt;
+			if (l+d>r){
+				int sub=r-l;
+				int bit_cnt2=getMaxBit(sub);
+				d=1<<bit_cnt2;
+				x=l/d;
+				y=height-1-bit_cnt2;
+			}
+		}
+		T tmp=get3(y, x);
+		res=callback_func(res, tmp);
+		l+=d;
+	}
+	return res;
+}
+
+template<typename T>
+void Seg<T>::check(int check_idx){
+    if (check_idx==0){
+        return;
+    }
+    if (check_idx%2==1){
+        array[(check_idx-1)/2]=callback_func(array[check_idx], array[check_idx+1]);
+    }else{
+        array[(check_idx-1)/2]=callback_func(array[check_idx-1], array[check_idx]);
+    }
+    check_idx=(check_idx-1)/2;
+    check(check_idx);
+}
+#endif
+
+typedef struct _data{
+	int L, R, W;
+	int idx;
+}Data;
+
+int check(int l, int r){
+	return min(l, r);
+}
+
+bool sortL(Data l, Data r){
+	if (l.L == r.L){
+		return l.R > r.R;
+	}else{
+		return l.L < r.L;
+	}
+}
+
+bool sortR(Data l, Data r){
+	if (l.R == r.R){
+		return l.L < r.L;
+	}else{
+		return l.R < r.R;
+	}
+}
+
+int main(void){
+	int N;
+	cin >> N;
+	Data data[N];
+	for (int i = 0; i < N; i++){
+		cin >> data[i].W;
+		data[i].idx = i;
+	}
+	for (int i = 0; i < N; i++){
+		cin >> data[i].L >> data[i].R;
+		data[i].L--; data[i].R--;
+	}
+	sort(data, data + N, sortL);
+	int buket[N];
+	Seg<int> segL = createSegTree(2 * N, int_max, check);
+	Seg<int> segR = createSegTree(2 * N, int_max, check);
+	for (int i = 0; i < N; i++){
+		buket[data[i].idx] = i;
+		segL.set(data[i].L, min(segL.get(data[i].L), data[i].W));
+		segR.set(data[i].R, min(segR.get(data[i].R), data[i].W));
+	}
+
+	int Q;
+	cin >> Q;
+	while (Q--){
+		int s, t;
+		cin >> s >> t;
+		s--; t--;
+		s = buket[s];
+		t = buket[t];
+		if (s > t){
+			int tmp = s;
+			s = t;
+			t = tmp;
+		}
+		ulli least = data[s].W + data[t].W;
+		if (data[s].R < data[t].L){
+			cout << least << endl;
+		}else if (data[t].R <= data[s].R){
+			ulli MIN_A = min(segL.getInterval(data[s].R + 1, 2 * N), segR.getInterval(0, data[s].L));
+			if (MIN_A == int_max){
+				cout << -1 << endl;
+			}else{
+				cout << least + MIN_A << endl;
+			}
+		}else{
+			ulli MIN_A = min(segL.getInterval(data[t].R + 1, 2 * N), segR.getInterval(0, data[s].L));
+			ulli MIN_B = (ulli)segL.getInterval(data[s].R + 1, 2 * N) + (ulli)segR.getInterval(0, data[t].L);
+			//cout << MIN_A << " " << MIN_B << endl;
+			if (MIN_A == int_max && MIN_B >= int_max){
+				cout << -1 << endl;
+			}else{
+				cout << least + min(MIN_A, MIN_B) << endl;
+			}
+		}
+	}
+	return 0;
+}

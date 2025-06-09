@@ -1,0 +1,64 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main()
+{
+    int H, W, D;
+    cin >> H >> W >> D;
+    vector<string> S(H);
+    for (int i = 0; i < H; i++)
+    {
+        cin >> S[i];
+    }
+    vector<vector<int>> dist(H, vector<int>(W, 1e9));
+    queue<pair<int, int>> que;
+    for (int i = 0; i < H; i++)
+    {
+        for (int j = 0; j < W; j++)
+        {
+            if (S[i][j] == 'H')
+            {
+                dist[i][j] = 0;
+                que.emplace(i, j);
+            }
+        }
+    }
+    vector<int> dy = {-1, 0, 1, 0};
+    vector<int> dx = {0, 1, 0, -1};
+    while (!que.empty())
+    {
+        auto [y, x] = que.front();
+        que.pop();
+        for (int i = 0; i < 4; i++)
+        {
+            int ny = y + dy[i];
+            int nx = x + dx[i];
+
+            if (ny < 0 || ny >= H || nx < 0 || nx >= W)
+            {
+                continue;
+            }
+            if (S[ny][nx] == '#')
+            {
+                continue;
+            }
+            if (dist[ny][nx] == 1e9)
+            {
+                dist[ny][nx] = dist[y][x] + 1;
+                que.emplace(ny, nx);
+            }
+        }
+    }
+    int ans = 0;
+    for (int i = 0; i < H; i++)
+    {
+        for (int j = 0; j < W; j++)
+        {
+            if (dist[i][j] <= D)
+            {
+                ans++;
+            }
+        }
+    }
+    cout << ans;
+}

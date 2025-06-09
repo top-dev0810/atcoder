@@ -1,0 +1,19 @@
+#include<bits/stdc++.h>
+using namespace std;
+int n,cnt,col[25],w[6][6];
+vector<int>S1,S2,S3,S4;
+signed main(){
+	cin>>n;
+	if(n<=3) return puts("No"),0;
+	puts("Yes");
+	if(n==5) return cout<<"2 1 4 4\n4 3 1\n1 3\n2\n",0;
+	int x1=n/4+(n%4>0),x2=n/4+(n%4>1),x3=n/4+(n%4>2),x4=n/4;
+	for(int i=1;i<=x1;++i) col[++cnt]=1;
+	for(int i=1;i<=x2;++i) col[++cnt]=2;
+	for(int i=1;i<=x3;++i) col[++cnt]=3;
+	for(int i=1;i<=x4;++i) col[++cnt]=4;
+	for(int i=1;i<=4;++i) for(int j=1;j<=4;++j) w[i][j]=3;
+	w[1][2]=w[2][1]=w[3][4]=w[4][3]=1,w[1][4]=w[4][1]=w[2][3]=w[3][2]=2;
+	for(int i=1;i<=n;++i,cout<<"\n")
+		for(int j=i+1;j<=n;++j) cout<<w[col[i]][col[j]]<<" ";
+}

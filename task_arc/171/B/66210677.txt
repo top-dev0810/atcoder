@@ -1,0 +1,76 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define mid ((l+r)>>1)
+#define ls(p) (p<<1)
+#define rs(p) (p<<1|1)
+#define lowbit(i) ((i)&(-i))
+#define double long double
+const int inf=1e18;
+const int mod=998244353;
+int fast(int x,int k,int mod)
+{
+	int ret=1;
+	while(k)
+	{
+		if(k&1) ret=ret*x%mod;
+		x=x*x%mod;
+		k>>=1;
+	}
+	return ret;
+}
+void solve()
+{
+	int n;cin>>n;
+	vector<int> a(n+1),p(n+1);
+	for(int i=1;i<=n;++i)
+	{
+		p[i]=i;
+		cin>>a[i];
+		if(a[i]<i)
+		{
+			cout<<0<<'\n';
+			return;
+		}
+	}
+	vector<int> vis(n+1),b(n+1),del(n+1);
+	for(int i=n;i>=1;--i)
+	{	
+		if(a[i]==i) continue;
+		else del[i]=1;
+		if(del[a[i]])
+		{
+			cout<<0<<'\n';
+			return;
+		}
+		vis[p[a[i]]]=1;
+		b[i]=p[a[i]];
+		p[a[i]]=i;
+	}
+	int tot=0;
+	int ans=1;
+	for(int i=1;i<=n;++i)
+	{
+		if(!vis[i]) ++tot;
+		if(a[i]==i)
+		{
+			ans=ans*tot%mod;
+			tot--;
+		}
+	}
+	cout<<ans<<'\n';
+	// for(int i=1;i<=n;++i)
+	// {
+	// 	cout<<b[i]<<' ';
+	// }
+
+}
+signed main()
+{
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	int T=1;
+	// cin>>T;
+	while(T--) solve();
+	return 0;
+}

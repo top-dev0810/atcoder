@@ -1,0 +1,42 @@
+#include <bits/stdc++.h> 
+using namespace std;
+int a[200005],b[200005],id[200005];
+int main (){
+	int n,m,flag=0;
+	cin>>n>>m;
+	for(int i=1;i<=n;i++){
+		cin>>a[i];
+	}
+	for(int i=1;i<=m;i++){
+		cin>>b[i];
+	}
+	int id2=0;
+	for(int i=1;i<=m;i++){
+		for(int j=id2+1;j<=n;j++){
+			if(b[i]==a[j]){
+				id[i]=j;
+				id2=j;
+				break;
+			}
+		}
+		if(id[i]==0){
+			puts("No");
+			return 0;
+		}
+	}
+	id2=n+1;
+	for(int i=m;i>=1;i--){
+		for(int j=id2-1;j>=1;j--){
+			if(b[i]==a[j]){
+				id2=j;
+				if(id[i]!=j){
+					puts("Yes");
+					return 0;
+				}
+				break;
+			}
+		}
+	}
+	puts("No");
+	return 0;
+}

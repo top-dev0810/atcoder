@@ -1,0 +1,52 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define MAXN 300010
+int n,m,head[MAXN],tot,fa[MAXN];
+int edge[MAXN*2],Next[MAXN*2];
+int sz[MAXN],vis[MAXN];
+void add(int x,int y)
+{
+	edge[++tot]=y;
+	Next[tot]=head[x];
+	head[x]=tot;
+}
+int find(int x)
+{
+	if(fa[x]==x)return x;
+	return fa[x]=find(fa[x]);
+}
+void join(int x,int y)
+{
+	int f1=find(x),f2=find(y);
+	if(f1!=f2)sz[f2]+=sz[f1],fa[f1]=f2;
+}
+int main(){
+	scanf("%d%d",&n,&m);
+	for(int i=1;i<=n;i++)
+		fa[i]=i,sz[i]=1;
+	for(int i=1;i<=m;i++)
+	{
+		int u,v;
+		scanf("%d%d",&u,&v);
+		add(u,v),add(v,u);
+	}
+	int sum=1;
+	vis[1]=1;
+	for(int u=1;u<=n;u++)
+	{
+		if(!vis[u])
+			vis[u]=1,sum++;
+		for(int i=head[u];i;i=Next[i])
+		{
+			int v=edge[i];
+			if(!vis[v]){
+				vis[v]=1;
+				sum++;
+			}
+			if(v<u)join(v,u);
+		}
+		if(sz[find(1)]!=u)printf("-1\n");
+		else printf("%d\n",sum-u);
+	}
+	return 0;
+}

@@ -1,0 +1,35 @@
+#include <iostream>
+#include <vector>
+
+int main(void){
+
+   int player_num_total;
+   std::cin >> player_num_total;
+
+   std::vector<int> point_each_player(player_num_total);
+   for(int it__player = 0; it__player < player_num_total; it__player++){
+      std::cin >> point_each_player.at(it__player);
+   }
+
+   int rank_now = 1;
+   int point_now = 100;
+   std::vector<int> rank_each_player(player_num_total);
+   while(rank_now <= player_num_total){
+      int player_this_rank_num = 0;
+      for(int it__player = 0; it__player < player_num_total; it__player++){
+         if(point_each_player.at(it__player) == point_now){
+            rank_each_player.at(it__player) = rank_now;
+            player_this_rank_num++;
+         }
+      }
+      rank_now += player_this_rank_num;
+      point_now--;
+   }
+
+   for(int it__player = 0; it__player < player_num_total; it__player++){
+      std::cout << rank_each_player.at(it__player) << std::endl;
+   }
+
+   return 0;
+
+}

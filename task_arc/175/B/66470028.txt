@@ -1,0 +1,38 @@
+#include<bits/stdc++.h>
+using namespace std;
+using ll=int64_t;
+int main(){
+  ll n,m,x,y,c=0,j,z=0;
+  string s;
+  cin>>n>>x>>y>>s;
+  m=n*2;
+  vector<ll> v(m+1,0),w(m+1,0);
+  for(j=0;j<m;j++){
+    if(s[j]=='(') v[j+1]=v[j]+1;
+    else v[j+1]=v[j]-1;
+  }
+  if(v[m]<0){
+    z+=-v[m]/2*y;
+    for(j=0;j<m;j++){
+      if(s[j]==')') s[j]='(',c++;
+      if(c==-v[m]/2) break;
+    }
+  }
+  else if(v[m]>0){
+    z+=v[m]/2*y;
+    for(j=m-1;j>=0;j--){
+      if(s[j]=='(') s[j]=')',c++;
+      if(c==v[m]/2) break;
+    }
+  }
+  c=0;
+  for(j=0;j<m;j++){
+    if(s[j]=='(') w[j+1]=w[j]+1;
+    else w[j+1]=w[j]-1,c=min(c,w[j+1]);
+  }
+  if(c<0){
+    if(x>y*2) z+=(-c+1)/2*y*2;
+    else z+=(-c+1)/2*x;
+  }
+  cout<<z<<endl;
+}

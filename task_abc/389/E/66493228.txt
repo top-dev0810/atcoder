@@ -1,0 +1,53 @@
+// clang-format off
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+#define rep(i, n) for (int i = 0; i < (int)(n); i++)
+#define debug(x) rep(_i,x.size())cout<<x[_i]<<" \n"[_i==(int)x.size()-1];
+template<typename T> bool chmax(T &a,T b){if(a<b){a=b;return true;}return false;}
+template<typename T> bool chmin(T &a,T b){if(a>b){a=b;return true;}return false;}
+// clang-format on
+
+int main()
+{
+    ll n, m;
+    cin >> n >> m;
+    vector<ll> p(n);
+    rep(i, n) cin >> p[i];
+    ll l = 0, r = m + 1;
+    while (r - l > 1)
+    {
+        ll mid = (r + l) / 2;
+        __int128_t sum = 0;
+        bool ok = true;
+        rep(i, n)
+        {
+            ll k = (mid / p[i] + 1) / 2;
+            if (k != 0 && m / p[i] / k / k == 0)
+            {
+                ok = false;
+                break;
+            }
+            sum += p[i] * k * k;
+            if (sum > m)
+            {
+                ok = false;
+                break;
+            }
+        }
+        if (ok)
+            l = mid;
+        else
+            r = mid;
+    }
+    __int128_t sum = 0;
+    ll ans = 0;
+    rep(i, n)
+    {
+        ll k = (l / p[i] + 1) / 2;
+        sum += p[i] * k * k;
+        ans += k;
+    }
+    ans += (m - sum) / (l + 1);
+    cout << ans << endl;
+}

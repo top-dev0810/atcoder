@@ -1,0 +1,48 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+const ll mod = 998244353;
+
+const ll Max = 4e6;
+ll fact[Max], ifact[Max];
+
+ll mod_inverse(ll x) {
+    ll result = 1;
+    ll power = mod - 2;
+    while (power > 0) {
+        if (power % 2 == 1) {
+            result = (result*x) % mod;
+        }
+        x = x*x % mod;
+        power /= 2;
+    }
+    return result;
+}
+
+void init_comb() {
+    fact[0] = 1;
+    for (int i = 1; i < Max; i++) fact[i] = fact[i-1] * i % mod;
+    ifact[Max-1] = mod_inverse(fact[Max-1]);
+    for (int i = Max-2; i >= 0; i--) ifact[i] = ifact[i+1] * (i+1) % mod;
+}
+
+ll comb(ll n, ll k) {
+    if (n < 0 || k < 0 || k > n) return 0;
+
+    ll result = fact[n] * ifact[k] % mod * ifact[n-k] % mod;
+    return result;
+}
+
+int main() {
+    ll a, b, c, d;
+    cin >> a >> b >> c >> d;
+    init_comb();
+
+    ll ans = 0;
+    for (ll i = 0; i <= c; i++) {
+        ll Num = comb(a+b+i, b) * comb(c+d-i-1, d-1) % mod;
+        ans = (ans+Num) % mod;
+    }
+    cout << ans << endl;
+    return 0;
+}

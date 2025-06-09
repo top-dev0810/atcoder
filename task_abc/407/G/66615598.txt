@@ -1,0 +1,141 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define ll            long long int
+const int maxN = 1e6+5;
+int n;
+#define sz(x) (int)x.size()
+struct MCMF {
+    struct edge {
+        int to, cap, flow;
+        ll cost;
+        int backEdge;
+    };
+
+    int n, src, sink;
+    vector<vector<edge>> adj;
+    vector<int> state, par, from_edge;
+    vector<ll> dis;
+
+    MCMF(int n) : n(n), adj(n + 1), state(n + 1), par(n + 1), from_edge(n + 1), dis(n + 1) {};
+
+    void addEdge(int u, int v, int cap, ll cost) {
+        adj[u].push_back({v, cap, 0, cost, sz(adj[v])});
+        adj[v].push_back({u, 0, 0, -cost, sz(adj[u]) - 1});
+    }
+
+    pair<int, ll> spfa() {
+        for(int i = 0; i <= n; i++) {
+            state[i] = 2; dis[i] = 1e17; par[i] = -1;
+        }
+        state[src] = 1; dis[src] = 0;
+        deque<int> dq;
+        dq.push_back(src);
+        while(!dq.empty()) {
+            int u = dq.front();
+            dq.pop_front();
+            state[u] = 0;
+            for(int i = 0; i < sz(adj[u]); i++) {
+                auto& e = adj[u][i];
+                if(e.flow == e.cap || dis[e.to] <= dis[u] + e.cost)
+                    continue;
+                dis[e.to] = dis[u] + e.cost;
+                par[e.to] = u;
+                from_edge[e.to] = i;
+                if(state[e.to] == 1) continue;
+                if(!state[e.to] || (!dq.empty() && dis[dq.front()] > dis[e.to])) {
+                    dq.push_front(e.to);
+                }
+                else {
+                    dq.push_back(e.to);
+                }
+                state[e.to] = 1;
+            }
+        }
+
+        if(dis[sink] == 1e17) return {0, 0};
+
+        int flow = 1e9, cur = sink;
+        ll cost = 0;
+        while(cur != src) {
+            flow = min(flow, adj[par[cur]][from_edge[cur]].cap - adj[par[cur]][from_edge[cur]].flow);
+            cur = par[cur];
+        }
+        cur = sink;
+        while(cur != src) {
+            adj[par[cur]][from_edge[cur]].flow += flow;
+            adj[cur][adj[par[cur]][from_edge[cur]].backEdge].flow -= flow;
+            cost += adj[par[cur]][from_edge[cur]].cost * flow;
+            cur = par[cur];
+        }
+        return make_pair(flow, cost);
+    }
+
+    pair<int, ll> minCostMaxFlow(int _src, int _sink) {
+        src = _src; sink = _sink;
+        int flow = 0;
+        ll cost = 0;
+        while(1) {
+            auto z = spfa();
+            int cur_flow = z.first;
+            ll cur_cost = z.second;
+            if(cur_flow == 0) break;
+            flow += cur_flow;
+            cost += cur_cost;
+        }
+        return {flow, cost};
+    }
+};
+int dx[] = {1, -1, 0, 0};
+int dy[] = {0, 0, 1, -1};
+
+void doWork() {
+    int m;
+    cin >> n >> m;
+    vector<vector<ll>> a(n+1, vector<ll>(m+1));
+    ll sum =0;
+    for(int i = 1; i<=n; ++i){
+        for(int j = 1; j<=m; ++j){
+            cin >> a[i][j];
+            sum+=a[i][j];
+        }
+    }
+    auto idx = [&](int i, int j)->int{
+        return (i-1)*m+j;
+    };
+    int src = n*m+1, mid = src+1, sink = mid+1;
+    MCMF mcmf(sink);
+    for(int i = 1;i<=n; ++i){
+        for(int j = 1; j<=m; ++j){
+            int t = (i&1)^(j&1);
+            if(t){
+                mcmf.addEdge(mid, idx(i, j), 1, 0);
+                for(int k = 0; k<4; ++k){
+                    int ni = i+dx[k], nj = j+dy[k];
+                    if(ni<=0||nj<=0||ni>n||nj>m) continue;
+                    mcmf.addEdge(idx(i, j), idx(ni, nj), 1, a[i][j]+a[ni][nj]);
+                }
+            }
+            else{
+                mcmf.addEdge(idx(i, j), sink, 1, 0);
+            }
+        }
+    }
+    ll ans = sum, sub = 0;
+    for(int i =0; i<n*m; ++i){
+        mcmf.addEdge(src, mid, 1, 0);
+        sub+=mcmf.minCostMaxFlow(src, sink).second;
+        ans = max(ans, sum-sub);
+    }
+    cout << ans << '\n';
+}
+
+int32_t main()
+{
+    ios_base::sync_with_stdio(0); cin.tie(0);
+
+    int tt = 1;
+    // cin >> tt;
+    while (tt--) doWork();
+    return 0;
+}

@@ -1,0 +1,14 @@
+#include <bits/stdc++.h>
+using namespace std;
+int main() {
+  int A, B;
+  cin >> A >> B;
+  int intAB = A / B; // 切り捨て
+  double doubleAB = (double)A / (double)B;
+  if (doubleAB - intAB >= 0.5) {
+    cout << intAB + 1 << endl;
+  } else {
+    cout << intAB << endl;
+  }
+  return 0;
+}

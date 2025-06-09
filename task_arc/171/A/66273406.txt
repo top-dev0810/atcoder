@@ -1,0 +1,40 @@
+#include<bits/stdc++.h>
+using namespace std;
+const int N=1e4+10;
+int t,n,a,b; 
+int main(){
+	cin>>t;
+	while(t--) {
+		cin>>n>>a>>b;
+		if(a>n) {
+			cout<<"No\n";
+			continue;
+		}
+		if(a<=n/2) {
+			long long s=a*(n-a)+((n-2*a)+1)/2*(n-a);
+			if(b>s) {
+				cout<<"No\n";
+				continue;
+			} else {
+				if(b<=s) {
+					cout<<"Yes\n";
+					continue;
+				}
+			}
+		} else {
+			if(a>n/2 && a<=n) {
+				long long s=(n-a)*(n-a);
+				if(b>s) {
+					cout<<"No\n";
+					continue;
+				} else {
+					if(b<=s) {
+						cout<<"Yes\n";
+						continue;
+					}
+				}
+			}
+		}
+	}
+	return 0;
+}

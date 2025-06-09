@@ -1,0 +1,28 @@
+#include<bits/stdc++.h>
+#define mk make_pair
+#define sec second
+#define endl '\n'
+#define fi first
+
+using namespace std;
+typedef pair<int,int> pii;
+
+const int N=2e5+10;
+int n,m,flag[N],p[N],len;
+
+int main(){
+	ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+	cin>>n>>m;
+	for(int i=1,x,y;i<=m;++i){
+		cin>>x>>y;--x;--y;int c=(x+y)%n;
+		if(!flag[c]){flag[c]=1;p[++len]=c;}
+	}
+	for(int i=0;i<n&&len<m;++i) if(!flag[i]) p[++len]=i;
+	cout<<n*m<<endl;
+	for(int i=1;i<=m;++i){
+		for(int j=0;j<n;++j){
+			cout<<j+1<<' '<<(p[i]+n-j)%n+1<<endl;
+		}
+	}
+	return 0;
+}

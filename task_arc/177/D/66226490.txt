@@ -1,0 +1,132 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+typedef long long lnt;
+
+const int N = 2e5 + 7, M = 998244353;
+
+int ksm(int x, int y = M - 2, int res = 1) {
+    for (; y; x = (lnt) x * x % M, y /= 2) {
+        if (y & 1) {
+            res = (lnt) res * x % M;
+        }
+    }
+    return res;
+}
+
+int n, m;
+
+int a[N];
+int b[N];
+int c[N];
+int d[N];
+int e[N];
+int p[N];
+int f[N];
+int s[N];
+int ans = 1;
+int z;
+
+inline void add(int i, int x) {
+    if (s[i] == 0) {
+        -- z;
+    } else {
+        ans = (lnt) ans * ksm(s[i]) % M;
+    }
+    s[i] += x;
+    if (s[i] >= M) {
+        s[i] -= M;
+    }
+    cout << (z ? 0 : (lnt) ans * x % M) << ' ';
+    if (s[i] == 0) {
+        ++ z;
+    } else {
+        ans = (lnt) ans * s[i] % M;
+    }
+}
+
+int sta[N], stt;
+
+void INIT() { }
+
+void WORK() {
+    cin >> n >> m;
+    for (int i = 1; i <= n; ++ i) {
+        cin >> a[i];
+        b[i] = a[i];
+    }
+    sort(b + 1, b + n + 1);
+    for (int i = 1; i <= n; ++ i) {
+        c[p[i] = lower_bound(b + 1, b + n + 1, a[i]) - b] = i;
+    }
+    b[0] = -1e9 - 7;
+    b[n + 1] = 2e9 + 7;
+    
+    int res = 0;
+    d[n] = 1;
+    for (int i = 1; i <= n; ++ i) {
+        f[i] = f[i - 1];
+        if (b[i] - b[i - 1] > m) {
+            ++ d[i - 1];
+            ++ d[i];
+            stt = 0;
+            res = 0;
+            ++ f[i];
+        } else {
+            if (c[i] > c[i - 1]) {
+                ++ d[i];
+            } else {
+                ++ d[i - 1];
+                while (stt && stt[sta][c] > i[c]) {
+                    -- stt;
+                    ++ res;
+                }
+            }
+            e[i] = res;
+        }
+        sta[ ++ stt] = i;
+    }
+    res = 0;
+    stt = 0;
+    for (int i = n; i >= 1; -- i) {
+        if (b[i + 1] - b[i] > m) {
+            stt = 0;
+            res = 0;
+        } else {
+            if (c[i] < c[i + 1]) {
+                while (stt && stt[sta][c] > i[c]) {
+                    -- stt;
+                    ++ res;
+                }
+            }
+            e[i] += res;
+        }
+        sta[ ++ stt] = i;
+    }
+    z = f[n];
+    for (int i = 1; i <= n; ++ i) {
+        int x = ksm(2, p[i][e], p[i][d]);
+        add(p[i][f], x);
+    }
+    cout << '\n';
+}
+
+//#define filename ""
+
+int main() {
+    #ifdef filename
+    freopen(filename ".in", "r", stdin);
+    freopen(filename ".out", "w", stdout);
+    #endif
+    cin.tie(0); cout.tie(0);
+    ios::sync_with_stdio(0);
+    
+    INIT();
+    int Turn = 1;
+    //cin >> Turn;
+    while (Turn -- ) {
+        WORK();
+    }
+    return 0;
+}

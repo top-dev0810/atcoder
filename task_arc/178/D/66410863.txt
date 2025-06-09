@@ -1,0 +1,309 @@
+#include <bits/stdc++.h>
+
+// what the fuck
+template<typename T, int N>
+struct NDVector { using type = std::vector<typename NDVector<T, N - 1>::type>; };
+template<typename T>
+struct NDVector<T, 1> { using type = std::vector<T>; };
+
+// A tensor is essentially a vector of tensors. (or multidimensional array)
+template<typename T, int N>
+using Tensor = typename NDVector<T, N>::type;
+
+/**
+ * Create a multidimensional vector with the given dimension sizes.
+ *
+ * In particular, create_vector(N) = create_tensor(N), create_matrix(N, M) = create_tensor(N, M).
+ * If you have some weird multidimensional DP, you can create the DP table by doing:
+ *      dp = create_tensor(5, 5, 5, 5, 5);
+ *
+ * Be careful, for a large number of dimensions, this uses a lot of memory and is very cache unfriendly.
+ */
+template<typename T>
+std::vector<T> create_tensor(int N) {
+    return std::vector<T>(N);
+}
+template <typename T, typename... ArgTypes>
+Tensor<T, sizeof...(ArgTypes) + 1> create_tensor(int N, ArgTypes... args) {
+    auto under = create_tensor<T>(args...);
+    return std::vector(N, under);
+}
+
+/**
+ * Create a matrix of the given dimensions.
+ */
+template<typename T>
+Tensor<T, 2> create_matrix(int N, int M) {
+    return create_tensor<T>(N, M);
+}
+
+/**
+ * Frequently used definitions, like Vector, Matrices, pairs of ints, pairs, triples, etc.
+ */
+template<typename T>
+using Vector = Tensor<T, 1>; // I could use std::vector<T>, but this is just too cool.
+template<typename T>
+using Matrix = Tensor<T, 2>;
+
+template<typename T1, typename T2>
+using Pair = std::pair<T1, T2>;
+using PairII = Pair<int, int>;
+using PairLL = Pair<long long, long long>;
+
+template<typename T1, typename T2, typename T3>
+using Triple = std::tuple<T1, T2, T3>;
+
+/**
+ * Read a vector from input. Set start to 1 if you want it to be 1-indexed.
+ */
+template<typename T>
+Vector<T> read_vector(int N, int start = 0) {
+    Vector<T> v(start + N);
+    for (int i = start; i < (int)v.size(); i++) {
+        std::cin >> v[i];
+    }
+    return v;
+}
+
+/**
+ * Read a matrix from input. Set start_l to make lines 1-indexed. Same thing for start_c.
+ */
+template<typename T>
+Matrix<T> read_matrix(int N, int M, int start_l = 0, int start_c = 0) {
+    Matrix<T> matr = create_matrix<T>(N + start_l, M + start_c);
+
+    for (int l = start_l; l < N + start_l; l++)
+        for (int c = start_c; c < M + start_c; c++)
+            std::cin >> matr[l][c];
+
+    return matr;
+}
+
+/**
+ * Print a tensor to the output stream. Prints all indices between i and j, and the elements 
+ * are separated by the given separator.
+ *
+ * To generalize, for each dimension, you give the bounds that you want to print and the separator
+ * between each order. To print a matrix, you would do:
+ *
+ *      print_tensor(matr, std::cout, 0, N - 1, "\n", 0, M - 1, " ");
+ */
+template<typename T>
+void print_tensor(Tensor<T, 1>& tens, std::ostream&fout, int i, int j, const char* sep) {
+    for (int t = std::max(i, 0); t <= j && t < (int)tens.size(); t++) {
+        fout << tens[t];
+        if (t + 1 <= j)
+            fout << sep;
+    }
+}
+
+template<typename T, typename... Sizes>
+void print_tensor(
+        Tensor<T, sizeof...(Sizes) / 3 + 1>& tens,
+        std::ostream& fout, 
+        int i, int j, const char* sep, Sizes... sizes) {
+    for (int t = std::max(i, 0); t <= j && t < (int)tens.size(); t++) {
+        print_tensor<T>(tens[t], fout, sizes...);
+        if (t + 1 <= j)
+            fout << sep;
+    }
+}
+
+/**
+ * Print a vector to the given output stream with given bounds and separator.
+ */
+template<typename T>
+void print_vector(std::vector<T>& v, std::ostream& fout, int i = 0, int j = (1 << 30), const char* sep = " ") {
+    print_tensor<T>(v, fout, i, j, sep);
+}
+
+/**
+ * Read a vector of pairs. Set start to 1 if you want this to be 1-indexed.
+ */
+template<typename T1, typename T2>
+Vector<Pair<T1, T2>> read_pairvec(int N, int start = 0) {
+    Vector<Pair<T1, T2>> input = Vector<Pair<T1, T2>>(start + N);
+    for (int i = start; i < start + N; i++)
+        std::cin >> input[i].first >> input[i].second;
+    return input;
+}
+
+/**
+ * Read a vector of triples. Set start to 1 if you want this to be 1-indexed.
+ *
+ * If you need higher order tuples, like quadruples, you're better off using a matrix instead.
+ */
+template<typename T1, typename T2, typename T3>
+Vector<Triple<T1, T2, T3>> read_triplevec(int N, int start = 0) {
+    Vector<Triple<T1, T2, T3>> input = Vector<Triple<T1, T2, T3>>(start + N);
+    for (int i = start; i < N + start; i++) {
+        T1 a;
+        T2 b;
+        T3 c;
+        std::cin >> a >> b >> c;
+        input[i] = {a, b, c};
+    }
+    return input;
+}
+
+/**
+ * Removes duplicates from vector. Assumes it is sorted.
+ */
+template<typename T>
+void deduplicate(Vector<T>& v) {
+    v.resize(std::unique(v.begin(), v.end()) - v.begin());    
+}
+
+/**
+ * Solve a testcase of the problem. You will code your solution here instead of main.
+ */
+void solve_test();
+
+/**
+ * Call this function if you have a problem with multiple testcases.
+ */
+void multitest_problem() {
+    int T;
+    std::cin >> T;
+
+    while (T--) solve_test();
+}
+
+int main() {
+    std::cin.tie(NULL);
+    std::iostream::sync_with_stdio(false);
+
+    // Choose one of the following functions, depending on the problem type.
+    solve_test();
+    //multitest_problem();
+
+    return 0;
+}
+
+/**
+ * Classic modulos. The third one is not const in case you need dynamic modulo operations.
+ */
+const int MOD = 998244353;
+//const int MOD = 1000000007;
+//int MOD = 1234;
+
+/**
+ * Modulo class that encapsulates all the modulo operations. Addition, multiplication, subtraction.
+ */
+struct Modulo {
+    int val;
+    
+    Modulo(long long v = 0) { v %= MOD; if (v < 0) v += MOD; val = v; }
+    
+    Modulo& operator+=(Modulo const& x) { 
+        val = val + x.val;
+        if (val >= MOD)
+            val = val - MOD;
+        return *this;
+    }
+    Modulo& operator-=(Modulo const& x) { 
+        val = val - x.val;
+        if (val < 0)
+            val = val + MOD;
+        return *this;
+    }
+    Modulo& operator*=(Modulo const& x) { 
+        val = (long long)val * x.val % MOD;
+        return *this;
+    }
+
+    friend Modulo operator+(Modulo a, Modulo const b) { return a += b; }
+    friend Modulo operator-(Modulo a, Modulo const b) { return a -= b; }
+    friend Modulo operator-(Modulo const b) { return 0 - b; }
+    friend Modulo operator*(Modulo a, Modulo const b) { return a *= b; }
+    friend std::ostream& operator<<(std::ostream& fout, Modulo const x) { return fout << x.val; }
+
+    friend bool operator==(Modulo const a, Modulo const b) { return a.val == b.val; }
+    friend bool operator!=(Modulo const a, Modulo const b) { return a.val != b.val; }
+};
+
+/**
+ * Binary exponentiation of modulo numbers.
+ */
+Modulo lgput(Modulo b, long long e) {
+    Modulo ac = 1;
+    while (e > 0) {
+        if (e % 2 == 1)
+            ac = ac * b;
+        b = b * b;
+        e /= 2;
+    }
+    return ac;
+}
+
+/**
+ * Compute the inverse of the given modulo number.
+ * 
+ * XXX: MOD must be a prime number. Otherwise you have to do some crazy stuff.
+ */
+Modulo inverse(Modulo a) {
+    return lgput(a, MOD - 2);
+}
+
+void solve_test() {
+    int N, M;
+    std::cin >> N >> M;
+
+    auto A = read_vector<int>(M);
+    Vector<int> pos(N + 1, -1);
+    for (int i = 0; i < M; i++)
+        pos[A[i]] = i;
+
+    auto dp = create_matrix<Modulo>(M + 1, M + 1);
+
+    if (pos[0] == -1) {
+        for (int i = 0; i <= M; i++)
+            dp[i][i] = 1;
+    } else {
+        dp[pos[0]][pos[0] + 1] = 1;
+    }
+
+    auto add_rectangle = [&](Tensor<Modulo, 2>& sp,
+            int l1, int r1, int l2, int r2, Modulo val) {
+        sp[l1][r1] += val;
+        if (r2 + 1 <= M) sp[l1][r2 + 1] -= val;
+        if (l2 + 1 <= M) sp[l2 + 1][r1] -= val;
+        if (l2 + 1 <= M && r2 + 1 <= M) sp[l2 + 1][r2 + 1] += val;
+    };
+
+    auto add_point = [&](Tensor<Modulo, 2>& sp, int l, int c, Modulo val) {
+        add_rectangle(sp, l, c, l, c, val);
+    };
+
+    int wildcards = (pos[0] == -1);
+    for (int i = 1; i < N; i++) {
+        auto newdp = create_matrix<Modulo>(N + 1, N + 1); 
+
+        for (int l = 0; l <= M; l++)
+            for (int r = l; r <= M; r++) {
+                if (pos[i] != -1) {
+                    int ll = std::min(l, pos[i]);
+                    int rr = std::max(r, pos[i] + 1);
+                    add_point(newdp, ll, rr, dp[l][r]);
+                } else {
+                    add_rectangle(newdp, 0, r, l, r, dp[l][r]);
+                    add_rectangle(newdp, l, r, l, N, dp[l][r]);
+                }
+            }
+        
+        for (int l = 0; l < M; l++)
+            for (int r = 0; r <= M; r++)
+                    newdp[l + 1][r] += newdp[l][r];
+        for (int l = 0; l <= M; l++)
+            for (int r = 0; r < M; r++)
+                newdp[l][r + 1] += newdp[l][r];
+
+        if (pos[i] == -1)
+            wildcards++;
+        dp = newdp;
+    }
+
+    std::cout << dp[0][M];
+}
+
+

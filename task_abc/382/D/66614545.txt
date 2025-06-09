@@ -1,0 +1,37 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define rep(i,n) for (int i=0; i<n; i++)
+
+int main()
+{
+    int n, m;
+    cin >> n >> m;
+
+    vector<vector<int>> a;
+    auto f = [&] (auto f, int i, vector<int> b) {
+        if (b.size() == n) { 
+            a.push_back(b);
+            return;
+        }
+        if (!i) {
+            for (int j=1; j<=m-10*(n-1-i); j++) {
+                b.push_back(j);
+                f(f,i+1,b);
+                b.pop_back();
+            }
+        } else {
+            for (int j=b[i-1]+10; j<=m-10*(n-1-i); j++) {
+                b.push_back(j);
+                f(f,i+1,b);
+                b.pop_back();
+            }
+        }
+    };
+    f(f,0,vector<int>());
+    cout << a.size() << endl;
+    rep(i,a.size()) {
+        rep(j,n) cout << a[i][j] << ' ';
+        cout << endl;
+    }
+    return 0;
+}

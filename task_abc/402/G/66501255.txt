@@ -1,0 +1,152 @@
+#include<bits/stdc++.h>
+using namespace std;
+using ll=__int128;
+using ull=unsigned long long ;
+
+const ll maxn=1e6+5,maxpq=10,maxdep=60;
+ll fact[maxpq+5];
+ll s[maxpq+5][maxpq+5]={
+    {0,1},
+    {0,-1,1},
+    {0,1,-3,2},
+    {0,0,1,-2,1},
+    {0,-1,0,10,-15,6},
+    {0,0,-1,0,5,-6,2},
+    {0,1,0,-7,0,21,-21,6},
+    {0,0,2,0,-7,0,14,-12,3},
+    {0,-3,0,20,0,-42,0,60,-45,10},
+    {0,0,-3,0,10,0,-14,0,15,-10,2},
+    {0,5,0,-33,0,66,0,-66,0,55,-33,6}
+};
+ll den[maxpq+5]={1,2,6,4,30,12,42,24,90,20,66};
+
+ll memo[maxdep][4][4];
+
+inline void init_memo(){
+    memset(memo,-1,sizeof(memo));
+}
+
+inline ll ipow(ll a,ll n){
+    ll res=1;
+    while(n){
+        if(n&1) res=res*a;
+        a=a*a;
+        n>>=1;
+    }
+    return res;
+}
+
+inline ll com(ll n,ll m){
+    if(m<0 || m>n) return 0;
+    if(m==n || m==0) return 1;
+    ll res=fact[n]/(fact[n-m]*fact[m]);
+    return res;
+}
+
+
+inline ll get_S(ll p,ll x){
+    ll res=0;
+    for(ll i=0;i<=p+1;i++) res+=s[p][i]*ipow(x,i);
+    //if(res%den[p]!=0) printf("!!!\n");
+    res/=den[p];
+    return res;
+}
+
+inline ll gfs(ll n,ll m,ll a,ll b,ll p,ll q,ll dep){
+    if(memo[dep][p][q]!=-1) {
+        //printf("dep=%lld n,m,a,b=%lld,%lld,%lld,%lld\n",dep,n,m,a,b);
+        return memo[dep][p][q];
+    }
+    if(n<=0) return memo[dep][p][q]=0;
+    if(q==0) return memo[dep][p][q]=get_S(p,n);
+    if(a>=m || b>=m || b<0) {  //归约步骤
+        ll a1=a/m,b1=b/m;
+        if(b<0 && b%m!=0) b1--;
+        ll a2=a%m;
+        ll b2=(b%m+m)%m;
+        ll ans=0;
+        for(ll j=0;j<=q;j++){
+            for(ll t=0;t<=j;t++){
+                ans+=com(q,j)*com(j,t)*ipow(a1,t)*ipow(b1,j-t)*gfs(n,m,a2,b2,p+t,q-j,dep+1);
+            }
+        }
+        memo[dep][p][q]=ans;
+        return ans;
+    }else { //递归计算步骤
+        ll K=(a*(n-1)+b)/m;
+        ll ans=ipow(K,q)*get_S(p,n);
+        if(a<=0) return memo[dep][p][q]=ans;
+        ll delta=0;
+        for(ll i=0;i<=q-1;i++){
+            for(ll j=0;j<=p+1;j++){
+                if(s[p][j]!=0){
+                    ll t=gfs(K,a,m,m-b+a-1,i,j,dep+1);
+                    //if(com(q,i)*t%s[p][j]!=0) printf("！\n");
+                    delta+=com(q,i)*t*s[p][j];
+                }
+            }
+        }
+        delta/=den[p];
+        ans-=delta;
+        memo[dep][p][q]=ans;
+        return ans;
+    }
+    return 0;       //guard
+}
+
+istream& operator >> (istream &in,ll &x) {
+    long long t;
+    in>>t;
+    x=t;
+    return in;
+}
+
+ostream& operator << (ostream &out, const ll &x) {
+        long long t=x;
+        out<<t;
+        return out;
+}
+
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);
+    //预计算一些值
+    fact[0]=1;
+    for(ll i=1;i<=maxpq;i++) fact[i]=fact[i-1]*i;
+
+    ll T;cin>>T;
+    while(T--)
+    {
+        ll n,m,a,b1,b2;
+        cin>>n>>m>>a>>b1>>b2;
+        if(b1>b2) swap(b1,b2);
+        if(a==0) {
+            cout<<n*b1*b2<<"\n";
+            continue;
+        }
+        ll res1=a*a*(n-1)*n/2*(2*n-1)/3+a*b2*n*(n-1)/2+a*b1*n*(n-1)/2+b1*b2*n;
+
+        init_memo();
+        ll res2=a*gfs(n,m,a,b2,1,1,0)+b1*gfs(n,m,a,b2,0,1,0);
+        ll res3=gfs(n,m,a,b2,0,2,0);
+
+        init_memo();
+        res2+=a*gfs(n,m,a,b1,1,1,0)+b2*gfs(n,m,a,b1,0,1,0);
+        res2*=m;
+        ll delta;
+        ll X=(a*(n-1)+b2)/m;
+        ll dX_1=min((X*m-b1+a-1)/a,n);
+        ll dX_2=min((X*m-b2+a-1)/a,n);
+
+        init_memo();
+        delta=-gfs(X,a,m,-b1+a-1,1,1,0);
+        init_memo();
+        delta+=gfs(X,a,m,-b2+a-1,1,1,0)-X*(dX_1-dX_2);
+        res3+=delta;
+        res3*=m*m;
+        ll ans=res1-res2+res3;
+        cout<<ans<<"\n";
+    }
+
+    return 0;
+}

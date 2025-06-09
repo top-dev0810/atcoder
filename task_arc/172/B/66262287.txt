@@ -1,0 +1,45 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+typedef long long ll;
+typedef pair<ll,ll> P;
+typedef long double ld;
+
+#define pb push_back
+#define fi first
+#define se second
+#define all(vl) vl.begin(),vl.end()
+#define forn(mp,it) for(it = mp.begin();it!=mp.end();it++)
+#define FOR(i,a,n) for(ll i=a;i<ll(n);i++)
+#define FORE(i,a,n) FOR(i,a,n+1)
+#define FORD(i,n,a) for(ll i = n;i>=a;i--)
+
+const double one = 1.0;
+const double PI = 3.14159265/*358979323846*/;
+const ld eps = 1e-14;
+const ll INF = 1e18;
+/*
+const ll mod1 = 1000000007;
+const ll hash_time1 = 1877;
+const ll hash_time2 = 3343;
+*/
+const ll maxn = 2e5 + 10;
+const ll mod = 998244353;
+
+int main()
+{
+ 	ios_base::sync_with_stdio(0);
+ 	cin.tie(0);
+ 	cout.tie(0);
+ 	ll n,k,l;
+ 	cin >> n >> k >> l;
+ 	ll ans = 1,p=  l;
+ 	FORE(i,1,n)
+ 	{
+	 	if(i <= n-k +1)ans *= max(0ll,p--);
+	 	else ans *= max(0ll,l-n+k);
+	 	ans %= mod;
+	 }
+	cout << ans << endl;
+ 	return 0;
+}

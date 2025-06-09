@@ -1,0 +1,35 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+  bool ok = true;
+  int ans=0;
+  int N,M;
+  cin >> N >> M;
+  vector<vector<char>> vec(N, vector<char>(N));
+  for (int i=0;i<N;i++) {
+    for (int j=0;j<N;j++) {
+      cin>>vec.at(i).at(j);
+    }
+  }
+  vector<vector<char>> data(N, vector<char>(N));
+  for (int i=0;i<M;i++) {
+    for (int j=0;j<M;j++) {
+      cin>>data.at(i).at(j);
+    }
+  }
+  for (int k=0;k<=N-M;k++) {
+    for (int i=0;i<=N-M;i++) {
+      ok = true;
+      for (int j=0;j<M;j++) {
+        for (int l=0;l<M;l++) {
+          if (vec.at(k+j).at(i+l) != data.at(j).at(l)) ok = false;
+        }
+      }
+      if (ok == true) {
+        cout << k+1 << " " << i+1 << endl;
+        return 0;
+    }
+  }
+}
+}

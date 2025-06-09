@@ -1,0 +1,95 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+const int mod = 998244353;
+int inv2 = 499122177;
+vector<int> fwt_xor(vector<int> a, vector<int> b)
+{
+    int lim = 1;
+    while (lim < max(a.size(), b.size()))
+        lim *= 2;
+    int n = lim;
+    while (a.size() < lim)
+        a.push_back(0);
+    while (b.size() < lim)
+        b.push_back(0);
+    auto fwtxor = [&](vector<int> &a, int op)
+    {
+        for (int i = 1; i < n; i <<= 1)
+        {
+            for (int p = i << 1, j = 0; j < n; j += p)
+            {
+                for (int k = 0; k < i; k++)
+                {
+                    int X = a[j + k], Y = a[i + j + k];
+                    a[j + k] = (X + Y);
+                    a[i + j + k] = (X - Y);
+                    (a[j + k] *= op) %= mod, (a[i + j + k] *= op) %= mod;
+                }
+            }
+        }
+    };
+    fwtxor(a, 1);
+    fwtxor(b, 1);
+    for (int i = 0; i < n; i++)
+    {
+        a[i] = a[i] * b[i];
+        a[i] %= mod;
+    }
+    fwtxor(a, inv2);
+    for (auto &it : a)
+    {
+        if (it < 0)
+            it += mod;
+    }
+    return a;
+}
+void sol()
+{
+    int n, m;
+    cin >> n >> m;
+    vector<int> f(1 << m);
+    for (int i = 1; i <= n; i++)
+    {
+        string s;
+        cin >> s;
+        int sum = 0;
+
+        for (int j = 0; j < m; j++)
+        {
+            s[j] -= '0';
+            sum |= (s[j] << j);
+        }
+        f[sum]++;
+    }
+    vector<int> g(1 << m);
+    auto get = [&](int x)
+    {
+        int cnt = 0;
+        while (x)
+        {
+            x -= x & -x;
+            cnt++;
+        }
+        return cnt;
+    };
+    for (int i = 0; i < (1 << m); i++)
+    {
+        g[i] = min(get(i), m - get(i));
+    }
+    vector<int> a = fwt_xor(f, g);
+    int ans = 1e9;
+    for (int i = 0; i < (1 << m); i++)
+    {
+        ans = min(ans, a[i]);
+    }
+    cout << ans;
+}
+signed main()
+{
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    sol();
+    return 0;
+}

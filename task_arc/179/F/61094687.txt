@@ -1,0 +1,651 @@
+#include "bits/stdc++.h"
+using namespace std;
+
+#pragma GCC optimize("O3,unroll-loops")
+// #pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
+
+/* 
+find my code templates at https://github.com/galencolin/cp-templates
+also maybe subscribe please thanks 
+*/
+
+#define send {ios_base::sync_with_stdio(false);}
+#define help {cin.tie(NULL);}
+#define f first
+#define s second
+#define getunique(v) {sort(v.begin(), v.end()); v.erase(unique(v.begin(), v.end()), v.end());}
+#define all(v) v.begin(), v.end()
+#define rall(v) v.rbegin(), v.rend()
+
+typedef long double ld;
+typedef unsigned long long ull;
+
+using ll = long long;
+// using ll = int;
+// #pragma warning("int")
+//
+using vl = vector<ll>;
+using vvl = vector<vl>;
+using pl = pair<ll, ll>;
+using pd = pair<ld, ld>;
+
+#define F(i, n) for (ll i = 0; i < n; i++)
+
+#include <ext/pb_ds/assoc_container.hpp> 
+#include <ext/pb_ds/tree_policy.hpp>
+// #include <bits/extc++.h>
+
+using namespace std;
+using namespace __gnu_pbds; 
+
+template <typename num_t>
+using ordered_set = tree<num_t, null_type, less<num_t>, rb_tree_tag, tree_order_statistics_node_update>;
+
+const string PAIR_LEFT = "(";
+const string PAIR_RIGHT = ")";
+const string IT_LEFT = "[";
+const string IT_RIGHT = "]";
+const string PAIR_SEP = ", ";
+const string IT_SEP = ", ";
+
+// const string PAIR_LEFT = "(";
+// const string PAIR_RIGHT = ")";
+// const string IT_LEFT = "[";
+// const string IT_RIGHT = "]";
+// const string PAIR_SEP = " ";
+// const string IT_SEP = " ";
+
+// const string PAIR_LEFT = "{";
+// const string PAIR_RIGHT = "}";
+// const string IT_LEFT = "{";
+// const string IT_RIGHT = "}";
+// const string PAIR_SEP = ", ";
+// const string IT_SEP = ", ";
+
+// benq - print any container + pair
+template<typename T, typename = void> struct is_iterable : false_type {};
+template<typename T> struct is_iterable<T, void_t<decltype(begin(declval<T>())),decltype(end(declval<T>()))>> : true_type {};
+template<typename T> typename enable_if<is_iterable<T>::value&&!is_same<T, string>::value,ostream&>::type operator<<(ostream &cout, T const &v);
+template<typename A, typename B> ostream& operator<<(ostream &cout, pair<A, B> const &p) { return cout << PAIR_LEFT << p.f << PAIR_SEP << p.s << PAIR_RIGHT; }
+template<typename T> typename enable_if<is_iterable<T>::value&&!is_same<T, string>::value,ostream&>::type operator<<(ostream &cout, T const &v) {
+    cout << IT_LEFT; 
+    for (auto it = v.begin(); it != v.end();) {
+        cout << *it;
+        if (++it != v.end()) cout << IT_SEP;
+    }
+    return cout << IT_RIGHT;
+}
+template<typename A, typename B> istream& operator>>(istream& cin, pair<A, B> &p) {
+    cin >> p.first;
+    return cin >> p.second;
+}
+
+template<typename T> void debug(string s, T x) {cerr << "\033[1;34m" << s << "\033[0;32m = \033[35m" << x << "\033[0m\n";}
+template<typename T, typename... Args> void debug(string s, T x, Args... args) {for (int i=0, b=0; i<(int)s.size(); i++) if (s[i] == '(' || s[i] == '{') b++; else
+        if (s[i] == ')' || s[i] == '}') b--; else if (s[i] == ',' && b == 0) {cerr << "\033[1;34m" << s.substr(0, i) << "\033[0;32m = \033[35m" << x << "\033[31m | "; debug(s.substr(s.find_first_not_of(' ', i + 1)), args...); break;}}
+template<typename T> void debug_nameless(T x) {cerr << "\033[35m" << x << "\033[0m\n";}
+template<typename T, typename... Args> void debug_nameless(T x, Args... args) {cerr << "\033[35m" << x << "\033[31m | "; debug_nameless(args...);}
+
+#ifdef galen_colin_local
+#define pr(...) debug(#__VA_ARGS__, __VA_ARGS__)
+#define prs(...) debug_nameless(__VA_ARGS__)
+const bool local_ = true;
+#else
+#define pr(...) 135
+#define prs(...) 135
+const bool local_ = false;
+#endif
+
+mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+// mt19937_64 rng(61378913);
+/* usage - just do rng() */
+
+void usaco(string filename) {
+// #pragma message("be careful, freopen may be wrong")
+    freopen((filename + ".in").c_str(), "r", stdin);
+    freopen((filename + ".out").c_str(), "w", stdout);
+}
+
+// #include <atcoder/all>
+// using namespace atcoder;
+
+// const ld pi = 3.14159265358979323846;
+// const ll mod = 1000000007;
+const ll mod = 998244353;
+// ll mod;
+
+namespace number_theory {
+	ll gcd(ll x, ll y) {
+	  if (x == 0) return y;
+	  if (y == 0) return x;
+	  return gcd(y, x % y);
+	}
+	bool isprime(ll n) { 
+	  if (n <= 1) return false; 
+	  if (n <= 3) return true; 
+	  
+	  if (n % 2 == 0 || n % 3 == 0) return false; 
+	  
+	  for (ll i = 5; i * i <= n; i += 6) 
+		if (n % i == 0 || n % (i+2) == 0) 
+		  return false; 
+	  
+	  return true; 
+	} 
+	 
+	bool prime[15000105]; 
+	void sieve(int n) { 
+	  for (ll i = 0; i <= n; i++) prime[i] = 1;
+	  for (ll p = 2; p * p <= n; p++) { 
+		if (prime[p] == true) { 
+		  for (ll i = p * p; i <= n; i += p) 
+			prime[i] = false; 
+		} 
+	  } 
+	  prime[1] = prime[0] = 0;
+	} 
+	 
+	vector<ll> primelist;
+	bool __primes_generated__ = 0;
+	 
+	void genprimes(int n) {
+	  __primes_generated__ = 1;
+	  sieve(n + 1);
+	  for (ll i = 2; i <= n; i++) if (prime[i]) primelist.push_back(i);
+	}
+	 
+	vector<ll> factors(ll n) {
+	  if (!__primes_generated__) {
+		cerr << "Call genprimes you dope" << endl;
+		exit(1);
+	  }
+	  vector<ll> facs;
+	 
+	  for (ll i = 0; primelist[i] * primelist[i] <= n && i < primelist.size(); i++) {
+		if (n % primelist[i] == 0) {
+		  while (n % primelist[i] == 0) {
+			n /= primelist[i];
+			facs.push_back(primelist[i]);
+		  }
+		}
+	  }
+	  if (n > 1) {
+		facs.push_back(n);
+	  }
+	  sort(facs.begin(), facs.end());
+	  return facs;
+	}
+	
+	vector<ll> getdivs(ll n) {
+    vector<ll> divs;
+    for (ll i = 1; i * i <= n; i++) {
+      if (n % i == 0) {
+        divs.push_back(i);
+        divs.push_back(n / i);
+      }
+    }
+
+    getunique(divs);
+    return divs;
+  }
+}
+using namespace number_theory;
+namespace modop {
+    template<typename T>
+	void add(T &a, ll b) {
+        a += b;
+        if (a >= mod) a -= mod;
+    }
+    template<typename T>
+    void sub(T &a, ll b) {
+        a -= b;
+        if (a < 0) a += mod;
+    }
+	ll mpow(ll base, ll exp) {
+	  ll res = 1;
+	  while (exp) {
+		if (exp % 2 == 1){
+			res = (res * base) % mod;
+		}
+		exp >>= 1;
+		base = (base * base) % mod;
+	  }
+	  return res;
+	}
+	ll minv(ll base) {
+	  return mpow(base, mod - 2);
+	}
+    inline ll mul(ll x) {
+        return x;
+    }
+    template<typename... Args>
+    inline ll mul(ll x, Args... rest) {
+        return x * mul(rest...) % mod;
+    }
+	
+	const ll FACTORIAL_SIZE = 2.1e6;
+	ll fact[FACTORIAL_SIZE], ifact[FACTORIAL_SIZE];
+	bool __factorials_generated__ = 0;
+	void gen_factorial(ll n) {
+		__factorials_generated__ = 1;
+		fact[0] = fact[1] = ifact[0] = ifact[1] = 1;
+		
+		for (ll i = 2; i <= n; i++) {
+			fact[i] = (i * fact[i - 1]) % mod;
+		}
+		ifact[n] = minv(fact[n]);
+		for (ll i = n - 1; i >= 2; i--) {
+			ifact[i] = ((i + 1) * ifact[i + 1]) % mod;
+		}
+	}
+	ll nck(ll n, ll k) {
+		if (!__factorials_generated__) {
+			cerr << "Call gen_factorial you dope" << endl;
+			exit(1);
+		}
+		if (k < 0 || n < k) return 0;
+		ll den = (ifact[k] * ifact[n - k]) % mod;
+		return (den * fact[n]) % mod;
+	}
+}
+using namespace modop;
+
+
+
+ll n, m, q, k, l, r, x, y, z;
+vl a, b, c;
+string s, t;
+
+void ckmax(ll &a, ll b) {
+    a = max(a, b);
+}
+ll score(string t) {
+    // pr(t);
+    vl c(3);
+    ll r = 0;
+    for (ll i = 0; i < n; i++) {
+        if (s[i] == 'A') {
+            c[t[i] - '1'] += 2;
+        } else {
+            c[1]++;
+            c[t[i] - '1']++;
+            assert(c[1] == c[t[i] - '1']);
+        }
+        if (c[0] == c[1] && c[1] == c[2]) ++r;
+    }
+    return r;
+}
+
+namespace sslow {
+    const ll N = 55;
+    ll dp[N][N][N][N];
+    ll solve() {
+        ll m = 2 * n + 1;
+        F(i, n + 1) F(a, m) F(b, m) F(c, m) dp[i][a][b][c] = -1e9;
+        dp[0][0][0][0] = 0;
+        for (ll i = 0; i < n; i++) {
+            F(a, m) F(b, m) F(c, m) {
+                if (s[i] == 'A') {
+                    {
+                        ll t = dp[i][a][b][c];
+                        if (a + 2 == b && b == c) ++t;
+                        ckmax(dp[i + 1][a + 2][b][c], t);
+                    }
+                    {
+                        ll t = dp[i][a][b][c];
+                        if (a == b + 2 && b + 2 == c) ++t;
+                        ckmax(dp[i + 1][a][b + 2][c], t);
+                    }
+                    {
+                        ll t = dp[i][a][b][c];
+                        if (a == b && b == c + 2) ++t;
+                        ckmax(dp[i + 1][a][b][c + 2], t);
+                    }
+                } else {
+                    {
+                        ll t = dp[i][a][b][c];
+                        if (a + 1 == b + 1 && b + 1 == c) ++t;
+                        if (a != b) t = -1e9;
+                        ckmax(dp[i + 1][a + 1][b + 1][c], t);
+                    }
+                    {
+                        ll t = dp[i][a][b][c];
+                        if (a == b + 1 && b + 1 == c + 1) ++t;
+                        if (b != c) t = -1e9;
+                        ckmax(dp[i + 1][a][b + 1][c + 1], t);
+                    }
+                }
+            }
+        }
+        ll ans = -1e9;
+        F(a, m) F(b, m) F(c, m) ckmax(ans, dp[n][a][b][c]);
+        return ans;
+    }
+}
+namespace slow {
+    const ll N = 5005;
+    ll dp[N][4 * N + 1];
+    ll& f(ll i, ll d) {
+        return dp[i][2 * N + d];
+    }
+    ll solve() {
+        ll m = 2 * n;
+        F(i, n + 1) for (ll d = -m; d <= m; d++) f(i, d) = -1e9;
+        f(0, 0) = 0;
+        for (ll i = 0; i < n; i++) {
+            for (ll d = -m; d <= m; d++) {
+                if (s[i] == 'A') {
+                    {
+                        ll t = f(i, d);
+                        if (d + 2 == 0) ++t;
+                        ckmax(f(i + 1, d + 2), t);
+                    }
+                    if (d == 2) {
+                        ll t = f(i, d);
+                        ckmax(f(i + 1, -2), t);
+                    }
+                    if (i + 1 < n && s[i + 1] == 'A') {
+                        ll t = f(i, d);
+                        if (d - 2 == 0) ++t;
+                        ckmax(f(i + 2, d - 2), t);
+                    }
+                } else {
+                    {
+                        ll t = f(i, d);
+                        if (d - 1 == 0) ++t;
+                        ckmax(f(i + 1, d - 1), t);
+                    }
+                }
+            }
+        }
+        ll ans = -1e9;
+        for (ll d = -m; d <= m; d++) ckmax(ans, f(n, d));
+        return ans;
+    }
+}
+namespace slow2 {
+    const ll N = 5005;
+    map<ll, ll> dp[N];
+    void upd(ll i, ll d, ll v) {
+        if (!dp[i].count(d)) dp[i][d] = v;
+        else dp[i][d] = max(dp[i][d], v);
+    }
+    ll solve() {
+        for (ll i = 0; i <= n; i++) dp[i].clear();
+        dp[0][0] = 0;
+        ll S = 0;
+        for (ll i = 0; i < n; i++) {
+            vector<pl> v;
+            for (auto [d, t]: dp[i]) v.push_back({d, t});
+            ll m = 0;
+            for (auto [d, t]: v) m = max(m, t);
+            ll l = v.size(), r = 0;
+            for (ll i = 0; i < v.size(); i++) {
+                if (v[i].s == m) {
+                    l = min(l, i);
+                    r = max(r, i);
+                }
+            }
+            for (ll p = 0; p < v.size(); p++) {
+                if (p < l) {
+                    dp[i].erase(v[p].f);
+                }
+            }
+            v = vector<pl>();
+            vl all;
+            for (auto [d, t]: dp[i]) v.push_back({d, t}), all.push_back(t);
+            for (ll i = 0; i < v.size(); i++) {
+                if (i < 2 || v[i].s - v[i - 1].s != v[i - 1].s - v[i - 2].s) ++S;
+            }
+            // S += dp[i].size();
+            // pr(i, n, C, S, v.size(), v);
+            // pr(i, s[i], s[i + 1], v.size(), v);
+            for (auto [d, _t]: dp[i]) {
+                if (s[i] == 'A') {
+                    {
+                        ll t = _t;
+                        if (d + 2 == 0) ++t;
+                        upd(i + 1, d + 2, t);
+                    }
+                    if (d == 2) {
+                        ll t = _t;
+                        upd(i + 1, -2, t);
+                    }
+                    if (i + 1 < n && s[i + 1] == 'A') {
+                        ll t = _t;
+                        if (d - 2 == 0) ++t;
+                        upd(i + 2, d - 2, t);
+                    }
+                } else {
+                    {
+                        ll t = _t;
+                        if (d - 1 == 0) ++t;
+                        upd(i + 1, d - 1, t);
+                    }
+                }
+            }
+        }
+        ll ans = -1e9;
+        for (auto [d, x]: dp[n]) ckmax(ans, x);
+        // pr(n, S);
+        return ans;
+    }
+}
+namespace smart {
+    vl sc;
+    vector<array<ll, 3>> par;
+    const ll N = 2e6 + 17;
+    ll F[8 * N + 1];
+    ll& f(ll i) {
+        return F[4 * N + i];
+    }
+    bool upd(ll d, ll v, ll pa, ll pb, ll pc) {
+        sc.push_back(-1);
+        par.push_back({-1, -1});
+        if (f(d) != -1) {
+            ll t = f(d);
+            sc.back() = sc[t];
+            par.back() = par[t];
+        }
+        f(d) = sc.size() - 1;
+        ll t = f(d);
+        if (v > sc[t]) {
+            sc[t] = v;
+            par[t] = {pa, pb, pc};
+            return 1;
+        }
+        return 0;
+    }
+    string solve() {
+        sc.clear();
+        par.clear();
+        ll m = 2 * n + 7;
+        for (ll i = -2 * m; i <= 2 * m; i++) f(i) = -1;
+        upd(0, 0, -1, -1, -1);
+        ll d = 0;
+        vector<vector<array<ll, 5>>> at(n + 1);
+        ll mx = 0;
+        vl lt;
+        // pr(s);
+        set<ll> coord;
+        coord.insert(0);
+        for (ll i = 0; i <= n; i++) {
+            for (auto [v, t, pa, pb, pc]: at[i]) {
+                assert(-2 * m <= v - d && v - d <= 2 * m);
+                coord.insert(v - d);
+                if (upd(v - d, t, pa, pb, pc)) lt.push_back(v - d - 6);
+                mx = max(mx, t);
+            }
+            if (i == n) break;
+            // pr(i, d, at[i], lt);
+            // pr(i, coord);
+            // vl V;
+            // for (ll i = -m; i <= 2 * m; i++) if (f(i) != -1) V.push_back(sc[f(i)]);
+            // pr(i, pt, f(pt), mx, V);
+            while (1) {
+                if (sc[f(*coord.begin())] < mx) {
+                    f(*coord.begin()) = -1;
+                    coord.erase(coord.begin());
+                } else break;
+            }
+            if (s[i] == 'A') {
+                if (f(2 - d) != -1) at[i + 1].push_back({-2, sc[f(2 - d)], f(2 - d), 2, i});
+                if (i + 1 < n && s[i + 1] == 'A') {
+                    ll v = *coord.begin(), t = f(v);
+                    // assert(t != -1);
+                    at[i + 2].push_back({v + d - 2, sc[t], t, 3, i});
+                    if (f(2 - d) != -1) at[i + 2].push_back({0, sc[f(2 - d)] + 1, f(2 - d), 3, i});
+
+                    getunique(lt);
+                    reverse(all(lt));
+                    // pr(lt);
+                    for (ll x: lt) {
+                        if (f(x + 6) != -1) {
+                            at[i + 2].push_back({x + d + 4, sc[f(x + 6)], f(x + 6), 3, i});
+                        }
+                    }
+                    lt.clear();
+                }
+                d += 2;
+                if (f(-d) != -1) at[i + 1].push_back({0, sc[f(-d)] + 1, f(-d), 0, i});
+            } else {
+                --d;
+                if (f(-d) != -1) at[i + 1].push_back({0, sc[f(-d)] + 1, f(-d), 1, i});
+            }
+        }
+        ll ms = -1e9;
+        for (ll i: coord) {
+            // pr(i, f(i), sc[f(i)]);
+            ckmax(ms, sc[f(i)]);
+        }
+        string ans = "";
+        // pr(sc);
+        // pr(mp, sc, par);
+        for (ll i: coord) if (sc[f(i)] == ms) {
+            vector<pl> ops;
+            ll t = f(i);
+            while (par[t][0] != -1) {
+                ops.push_back({par[t][2], par[t][1]});
+                t = par[t][0];
+            }
+            reverse(all(ops));
+
+            ll r = 0, p = 0;
+            for (ll i = 0; i < n; i++) {
+                if (p < ops.size() && ops[p].f == i) {
+                    ll x = ops[p].s;
+                    if (x == 0) ans += '1' + r;
+                    else if (x == 1) ans += '1' + (2 - r);
+                    else if (x == 2) ans += '2', r = 2 - r;
+                    else ans += '1' + (2 - r), ans += '2', i++;
+                    ++p;
+                } else {
+                    if (s[i] == 'A') ans += '1' + r;
+                    else ans += '1' + (2 - r);
+                }
+            }
+            // pr(s, ops, ans);
+
+            break;
+        }
+        // pr(n, S);
+        // pr(s, ms, coord, ans);
+        return ans;
+    }
+}
+
+namespace opt {
+    void precomp() {
+        
+    }
+    void stress() {
+        for (ll it = 0; it < 1e12; it++) {
+            n = 1 + rng() % 1000;
+            s = string(n, 'A');
+            ll f;
+            ll k = 0, ct = k;
+            for (char &c: s) {
+                if (ct == k) {
+                    ct = 0;
+                    f = rng() % 5;
+                    k = 1 + rng() % 50;
+                }
+                c = 'B' - (f == 0 ? 0 : rng() % f == 0);
+                ++ct;
+            }
+
+            string sa = smart::solve();
+            ll ans = score(sa), jur = slow2::solve();
+            if (ans != jur) {
+                pr(n, s, ans, jur);
+                assert(ans == jur);
+            }
+
+            if (it % 1000 == 0) pr(it);
+        }
+    }
+}
+using namespace opt;
+
+const bool run = local_ ? 1 : 1;
+const bool TC = 1;
+void solve(int tc = 0) {
+    cin >> n >> s;
+
+    string ans = smart::solve();
+    cout << ans << '\n';
+    pr(score(ans));
+
+    if (local_) {
+        ll jur = slow2::solve();
+        pr(jur);
+    }
+}
+
+int main() {
+    #ifdef galen_colin_local
+        auto begin = std::chrono::high_resolution_clock::now();
+    #endif
+    
+    send help
+
+    #ifndef galen_colin_local
+        // usaco("cbs");
+    #endif
+    
+    // usaco("cowland");
+    
+    // freopen("tc.txt", "r", stdin);
+    // freopen("tc.txt", "w", stdout);
+    // freopen("tc2.cpp", "w", stdout);
+    // freopen("in.txt", "r", stdin);
+    // freopen("out.txt", "w", stdout);
+
+    cout << setprecision(15) << fixed;
+    cerr << setprecision(4) << fixed;
+
+    
+
+    precomp();
+
+    if (!run) {
+        stress();
+        return 0;
+    }
+
+    int tc = 1;
+    // if (local_)
+    // if (run)
+    if (TC) cin >> tc;
+    for (int t = 0; t < tc; t++) {
+        pr(t); prs(string(50, '-'));
+        solve(t);
+        prs(string(50, '-') + "\n");
+    }
+    
+    #ifdef galen_colin_local
+        auto end = std::chrono::high_resolution_clock::now();
+        cerr << setprecision(4) << fixed;
+        cerr << "Execution time: " << std::chrono::duration_cast<std::chrono::duration<double>>(end - begin).count() << " seconds" << endl;
+    #endif
+}

@@ -1,0 +1,68 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+using pp = pair<ll, pair<int, int>>;
+int main() {
+  int N, K;cin >> N >> K;
+  ll INF = (1LL << 60);
+  vector<vector<ll>> C(N, vector<ll>(N, INF));
+  for (int i = 0;i < N;i++) for (int j = 0;j < N;j++) cin >> C[i][j];
+  vector<vector<ll>> dp(1<<K, vector<ll>(N, INF));
+  for (int i = 0;i < K;i++) dp[1<<i][i]=0;
+  for (int bit = 1;bit < (1<<K);bit++)  {
+    for (int sbit = bit-1; ;sbit=(sbit-1)&bit) {
+      for (int v = 0;v < N;v++) dp[bit][v] = min(dp[bit][v], dp[sbit][v]+dp[bit^sbit][v]);
+      if (sbit == 0) break;
+    }
+    priority_queue<pair<ll, int>, vector<pair<ll, int>>, greater<pair<ll, int>>> pq;
+    for (int v = 0;v < N;v++) pq.push({dp[bit][v], v});
+    while (!pq.empty()) {
+      auto [cst, v] = pq.top();pq.pop();
+      if (dp[bit][v] < cst) continue;
+      for (int nv = 0;nv < N;nv++) {
+        if (cst+C[v][nv] < dp[bit][nv]) {
+          dp[bit][nv] = cst + C[v][nv];
+          pq.push({dp[bit][nv], nv});
+        }
+      }
+    }
+  }
+  
+   vector<vector<vector<ll>>> dp2(1<<K, vector<vector<ll>>(N, vector<ll>(N, INF)));
+    vector<vector<ll>> dist(N, vector<ll>(N, INF));
+    for (int a = 0;a < N;a++) for (int b = 0;b < N;b++) dist[a][b] = C[a][b];
+    for (int k = 0;k < N;k++) for (int a = 0;a < N;a++) for (int b = 0;b < N;b++) dist[a][b]=min(dist[a][b], dist[a][k]+dist[k][b]);
+    for (int i = 0;i < K;i++) dp2[1<<i][i][i] = 0;
+    for (int bit = 1;bit < (1<<K);bit++) {
+      for (int sbit = bit-1; ; sbit=(sbit-1)&bit) {
+        for (int i = 0;i < N;i++) for (int j = 0;j < N;j++) {
+          dp2[bit][i][j] = min(dp2[bit][i][j], dp2[sbit][i][j]+dp[bit^sbit][i]);
+        }
+        if (sbit == 0) break;
+      }
+      priority_queue<pp, vector<pp>, greater<pp>> pq;
+      for (int i = 0;i < N;i++) for (int j = 0;j < N;j++) {
+        dp2[bit][i][j] = min(dp2[bit][i][j], dist[i][j]+dp[bit][i]);
+        pq.push({dp2[bit][i][j], {i, j}});
+      }
+      while (!pq.empty()) {
+        auto [cst, pr] = pq.top();pq.pop();
+        
+        int a = pr.first;int b = pr.second;
+        if (dp2[bit][a][b] < cst) continue;
+       
+        for (int nv = 0;nv < N;nv++) {
+          if (cst+C[a][nv] < dp2[bit][nv][b]) {
+            dp2[bit][nv][b] = cst + C[a][nv];
+            pq.push({dp2[bit][nv][b], {nv, b}});
+          }
+        }
+      }
+    }
+    int Q;cin >> Q;
+    while (Q--) {
+      int s, t;cin >> s >> t;
+      s--;t--;
+      cout << dp2.back()[s][t] << endl;
+    }
+}

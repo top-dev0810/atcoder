@@ -1,0 +1,43 @@
+ #include<bits/stdc++.h>
+using namespace std;
+#define N 200005
+int n,m,e,v1,cnt;
+
+vector<int> g[N];
+bool v[N];
+
+void dfs(int x) {
+    
+    v[x] = 1;
+    cnt++;
+    for(int j : g[x]) {
+        if(!v[j]) dfs(j);
+    }
+}
+
+int main() {
+	cin>>n>>m;
+	for(int i=1;i<=m;i++){
+		cin>>e>>v1;
+		g[e].push_back(v1);
+		g[v1].push_back(e);
+	}
+	if(n!=m){
+		cout<<"No";
+		return 0;
+	}
+	for(int i = 1; i <= n; i++) {
+        if(g[i].size() != 2) {
+            cout << "No";
+            return 0;
+        }
+    }
+    cnt=0;
+    dfs(1);
+    if(cnt==n){
+        cout<<"Yes";
+    }
+    else{
+        cout<<"No";
+    }
+}

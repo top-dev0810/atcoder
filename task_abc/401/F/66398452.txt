@@ -1,0 +1,76 @@
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MAXN = 2e5+5;
+
+int n1, n2;
+int d1, d2, dmax;
+int dis1[MAXN], dis2[MAXN];
+int d11, d12, d21, d22;
+int a[MAXN], b[MAXN];
+vector<int> e1[MAXN], e2[MAXN];
+ll ans;
+ll sa[MAXN];
+//e:当前 dfs 的树。
+//d:起点到 u 的距离。
+//maxd:上文中的 a 或者 b。
+//c:求出的端点。
+void dfs(int u, int fa, vector<int> *e, int *d, int *maxd, int *c)
+{
+	d[u] = d[fa]+1;
+	maxd[u] = max(maxd[u], d[u]);
+	if(d[u] > d[*c]) *c = u;
+	for(auto v : e[u])
+	{
+		if(v == fa) continue;
+		dfs(v, u, e, d, maxd, c);
+	}
+}
+
+int main()
+{
+	scanf("%d", &n1);
+	for(int i = 1;i < n1;i++)
+	{
+		int u, v;
+		scanf("%d%d", &u, &v);
+		e1[u].push_back(v);
+		e1[v].push_back(u);
+	}
+	dis1[0] = -1;
+	dfs(1, 0, e1, dis1, a, &d11);
+	dfs(d11, 0, e1, dis1, a, &d12);
+	d1 = dis1[d12];
+	dfs(d12, 0, e1, dis1, a, &d11);//记住第二个端点也要 dfs 一便。
+	
+	scanf("%d", &n2);
+	for(int i = 1;i < n2;i++)
+	{
+		int u, v;
+		scanf("%d%d", &u, &v);
+		e2[u].push_back(v);
+		e2[v].push_back(u);
+	}
+	dis2[0] = -1;
+	dfs(1, 0, e2, dis2, b, &d21);
+	dfs(d21, 0, e2, dis2, b, &d22);
+	d2 = dis2[d22];
+	dfs(d22, 0, e2, dis2, b, &d21);
+
+	dmax = max(d1, d2);
+
+	sort(a + 1, a + n1 + 1); a[n1+1] = 0x3f3f3f3f; a[0] = INT_MIN;//a[n1+1] 赋值是为了防止下面 cur 不断的加。
+	sort(b + 1, b + n2 + 1, greater<int>() );
+
+	for(int i = n1;i >= 1;i--) sa[i] = sa[i+1] + a[i];
+    //求出 a 的后缀和 sa.
+	for(int i = 1, cur = 0;i <= n2;i++)
+	{
+		while(a[cur] + b[i] + 1 <= dmax) cur++;
+        //类似于滑动窗口的东西
+		ans += (ll)(cur - 1LL) * (ll)dmax + (ll)(n1 - cur + 1LL) * (ll)(b[i] + 1LL) + sa[cur];
+	}
+	printf("%lld\n", ans);
+
+	return 0;
+}

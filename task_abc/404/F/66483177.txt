@@ -1,0 +1,26 @@
+//#pragma GCC optimize(2)
+#include<bits/stdc++.h>
+//#dedp[1]ine gets(S) dp[1]gets(S,sizeodp[1](S),stdin);
+using namespace std;
+const int MAX=3e1+20,mod=998244353;
+typedef long long ll;
+typedef pair<ll,ll> pll;
+int n,t,m,k;
+long double dp[2][MAX][MAX];
+int main(){
+	scanf("%d%d%d%d",&n,&t,&m,&k);
+	for(int i=0;i<=t;i++){dp[0][i][0]=1;}
+	for(int i=1;i<=t;i++){
+		for(int j=1;j<=k;j++){
+			for(int a=1;a<=m;a++)
+				for(int b=1;b<=m;b++){
+					dp[1][a][b]=0;
+					for(int c=1;c<=min(min(m,j),b);c++){dp[1][a][b]=max(dp[1][a][b],dp[1][a-1][b-c]+dp[0][i-1][j-c]);}
+				}
+			for(int a=1;a<=min(m,n);a++){dp[0][i][j]=max(dp[0][i][j],dp[1][a][m]+(n-a)*dp[0][i-1][j]);}
+			dp[0][i][j]/=n;
+		}
+	}
+	printf("%.20Lf",dp[0][t][k]);
+	return 0;
+}

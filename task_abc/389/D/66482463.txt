@@ -1,0 +1,31 @@
+#include <bits/stdc++.h>
+
+#define ll long long
+#define endl "\n"
+using namespace std;
+
+void solve()
+{
+    ll n;
+    cin >> n;
+    ll cnt = 0;
+    for (int i = 1; i < n; i++)
+    {
+        cnt += floor(sqrt(n * n - (i + 0.5) * (i + 0.5)) - 0.5);
+    }
+    ll ans = 4 * cnt + 4 * (n - 1) + 1;
+    cout << ans << endl;
+}
+
+int main()
+{
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    ll t = 1;
+    // cin >> t;
+    while (t--)
+    {
+        solve();
+    }
+    return 0;
+}

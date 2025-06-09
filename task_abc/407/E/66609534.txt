@@ -1,0 +1,30 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+
+const int MAXN=4e5+5;
+int T;
+signed main(){
+	cin>>T;
+	while(T--){
+		int ans=0,n,a[MAXN];
+		memset(a,0,sizeof a);
+		cin>>n;
+		priority_queue<int> q;
+		for(int i=1;i<=2*n;i++){
+			cin>>a[i];
+			if(i>1){
+				q.push(a[i]);
+			}else{
+				ans+=a[i];
+			}
+			if(!q.empty()&&q.size()>i/2){
+				ans+=q.top();
+				q.pop();
+			}
+		}
+		cout<<ans<<endl;
+	}
+
+}
+

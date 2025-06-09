@@ -1,0 +1,111 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define st first
+#define nd second
+typedef long long ll;
+typedef pair<int,int> pii;
+typedef pair<ll,ll> pll;
+typedef long double ld;
+const int maxn = 2*(1e+5)+9;
+const int base = (1 << 19);
+int pre[base*2] , p[maxn];
+int odj[base*2];
+int N , M;
+int ilew[maxn];
+int A[maxn];
+ll inv = 0;
+
+ll Qpre(int X)
+{
+    X+=base;
+    ll res =0 ;
+    while(X)
+    {
+        res += pre[X];
+        X = (X >> 1);
+    }
+    return res;
+}
+
+void Upre(int l ,int r)
+{
+    l += base;
+    r += base;
+    l--;
+    r++;
+    while((l >> 1) != (r >> 1))
+    {
+        if((l&1) == 0)pre[l+1]++;
+        if((r&1))pre[r-1]++;
+        l = (l >> 1);
+        r = (r >> 1); 
+    }
+}
+
+void prep()
+{
+    for(int i = 1; i <= N ; i++)
+    {
+        ilew[i] = Qpre(p[i]);
+        inv += ilew[i];
+        Upre(1 , max(1, p[i]-1));
+    }
+}
+
+void U(int l ,int r)
+{
+    l += base;
+    r += base;
+    l--;
+    r++;
+    while((l >> 1) != (r >> 1))
+    {
+        if((l&1) == 0)odj[l+1]++;
+        if((r&1))odj[r-1]++;
+        l = (l >> 1);
+        r = (r >> 1); 
+    }
+}
+
+ll Q(int X)
+{
+    ll res =0 ;
+    X += base;
+    while(X)
+    {
+        res += odj[X];
+        X = (X >> 1);
+    }
+    return res;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cin >> N ;
+    for(int i = 1; i <= N ; i++)cin >> p[i];
+    cin >> M ;
+    for(int i = 1; i <= M ; i++)cin >> A[i];
+
+    prep();
+
+    int lst = 0;
+    for(int i = 1; i <= M ; i++)
+    {
+        while(lst < A[i])
+        {
+            lst++;
+            U(i , i+ilew[lst]-1);
+        }
+
+        inv -= Q(i);
+
+        cout << inv << '\n';
+    }
+    
+
+
+    return 0;
+
+}

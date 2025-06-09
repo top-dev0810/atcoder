@@ -1,0 +1,96 @@
+//#pragma GCC optimize(2)
+#include<bits/stdc++.h>
+
+using namespace std;
+
+typedef long long LL;
+typedef unsigned long long ULL;
+typedef pair<int,int>PII;
+
+#define rep(x, y, z) for(LL x = (y); x <= (z); ++x)
+#define per(x, y, z) for(LL x = (y); x >= (z); --x)
+#define fi first
+#define se second
+#define ls (u<<1)
+#define rs (u<<1|1)
+#define all(ss) ss.begin(),ss.end()
+#define pb push_back
+#define vi vector<int>
+#define vii vector<vector<int>>
+#define vl vector<LL>
+#define vll vector<vector<LL>>
+#define i128 __int128
+
+int const mod=1e9+7;
+int const B=507;
+double const eps=1e-6;
+//int const mod=998244353;
+//const LL mod1=1e9+21,mod2=1e9+1e8+9;	//不大众的模数
+//const LL base1=61,base2=31;	//不大众的底数
+int const N=1e6+7,M=2e6+7;
+int const INF=0x3f3f3f3f;
+LL const INFF=0x3f3f3f3f3f3f3f3f;
+
+int n,m,K,tot;
+int a[N],vis[N];
+int f[N][2];
+
+
+int dfs(int opt){
+	int s=0,p=1;
+	//0第一个人 1第二个人 2牌在桌子上
+	for(int i=0;i<tot;i++,p*=3)  s+=vis[i]*p; //状压，记录状态
+	int &res=f[s][opt]; 
+	if(res!=-1) return res; //记忆化搜索
+	
+	for(int i=0;i<tot;i++){ //12
+		if(vis[i]==opt){ //当前人有牌
+			vis[i]=2; //放回桌子上
+			for(int j=0;j<tot;j++){ //12
+				if(vis[j]==2&&a[i]>a[j]){//从桌子上回收一张牌
+					vis[j]=opt; //从桌子上收回一张牌
+					//注意这里要将vis[i] vis[j]回溯
+					if(!dfs(opt^1)) return vis[i]=opt,vis[j]=2,res=1;
+					vis[j]=2; //回溯
+				}
+			}
+			//注意这里要将vis[i]回溯
+			if(!dfs(opt^1)) return vis[i]=opt,res=1;
+			vis[i]=opt;
+		}
+	}
+	
+	return res=0;
+}
+
+
+void solve(){
+	cin>>n>>m>>K;
+	for(int i=0;i<n;i++,tot++) cin>>a[tot],vis[tot]=0; //第一个人
+	for(int i=0;i<m;i++,tot++) cin>>a[tot],vis[tot]=1; //第二个人
+	for(int i=0;i<K;i++,tot++) cin>>a[tot],vis[tot]=2; //桌子上的牌
+	memset(f,-1,sizeof f);
+	//第一个先手
+	cout<<(dfs(0)?"Takahashi":"Aoki")<<"\n";
+}
+
+void init(){
+
+}
+
+int main()
+{
+// 	freopen("in.txt","r",stdin);
+//	freopen("out.txt","w",stdout);
+    //std::ios::sync_with_stdio(false);   cin.tie(0); cout.tie(0);
+    //init();
+    int T=1;
+    //cin>>T;
+    //scanf("%d",&T);
+
+   	for(int i=1;i<=T;i++){
+	   	solve();
+	}
+
+	return 0;
+}

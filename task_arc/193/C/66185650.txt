@@ -1,0 +1,57 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long
+const int mod=998244353,N=405;
+int h,w,c;
+ll f[N][N][3][2],fc[N],iv[N],pw[2][N];
+void init(int n){
+    iv[0]=iv[1]=fc[0]=pw[0][0]=pw[1][0]=1;
+    for(int i=2;i<=n;i++) iv[i]=iv[mod%i]*(mod-mod/i)%mod;
+    for(int i=1;i<=n;i++) fc[i]=fc[i-1]*i%mod,iv[i]=iv[i-1]*iv[i]%mod,pw[0][i]=pw[0][i-1]*c%mod,pw[1][i]=pw[1][i-1]*(c-1)%mod;
+}
+inline ll C(int n,int m){
+    return fc[n]*iv[m]%mod*iv[n-m]%mod;
+}
+void trans(int i,int j,int st,int col,bool nx){
+    for(int k=1;k<=(nx?i:j);k++){
+        ll pr=nx?f[i-k][j][nx][0]*C(i,k)%mod:f[i][j-k][nx][0]*C(j,k)%mod;
+        f[i][j][st][col]+=pr*(pw[col][k]+mod-(c-col)%mod)%mod;
+		if(k<(nx?i:j)){
+			pr=nx?f[i-k][j][nx][1]*C(i,k)%mod:f[i][j-k][nx][1]*C(j,k)%mod;
+			f[i][j][st][col]+=pr*(c-col)%mod;
+		}
+        f[i][j][st][col]%=mod;
+    }
+}
+ll buc[N][N],ans;
+int main(){
+    scanf("%d%d%d",&h,&w,&c);
+    init(max(h,w));
+    for(int i=0;i<=h;i++){
+        for(int j=0;j<=w;j++){
+            for(int st=0;st<3;st++){
+                for(int col=0;col<2;col++){
+					if(i==0||j==0){
+						f[i][j][st][col]=1;continue;
+					}
+					if(st!=1) trans(i,j,st,col,1);
+					if(st!=0) trans(i,j,st,col,0);
+					if(st==2)
+						for(int k=1;k<j;k++){
+							ll W=buc[i][k]*C(j,k)%mod*(c-col)%mod;
+							(f[i][j][st][col]+=W)%=mod;
+							if(i==h&&j==w&&!col) (ans+=W)%=mod;
+						}
+					if(st==2) (f[i][j][st][col]+=c-col)%=mod;
+                    if(st==2&&col){
+                        for(int k=i+1;k<=h;k++)
+                            (buc[k][j]+=C(k,i)*f[i][j][st][col]%mod)%=mod;
+                    }
+                }
+            }
+        }
+    }
+	(ans+=c)%=mod;
+    printf("%lld\n",ans);
+    return 0;
+}

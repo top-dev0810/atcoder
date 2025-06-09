@@ -1,0 +1,33 @@
+#include <bits/stdc++.h>
+using namespace std;
+void dfs(int cur,int current,vector<int> &Ans,vector<int> &Ans2,vector<int> &m,int N){
+  if(cur==N){
+    for(auto d : Ans){
+      Ans2.push_back(d);
+    }
+    
+    return;
+  }
+  for(int i=current;i<=m[cur];i++){
+    Ans.push_back(i);
+    dfs(cur+1,i+10,Ans,Ans2,m,N);
+    Ans.pop_back();
+  }
+}
+int main(){
+  int N,M;
+  cin>>N>>M;
+  vector<int> m(N);
+  int cur=M;
+  for(int i=N-1;i>=0;i--){
+    m[i]=cur;
+    cur-=10;
+  }
+  vector<int> Ans,Ans2;
+  dfs(0,1,Ans,Ans2,m,N);
+  cout<<Ans2.size()/N<<endl;
+  for(int i=0;i<Ans2.size();i++){
+    cout<<Ans2[i]<<" ";
+    if((i+1)%(N)==0) cout<<endl;
+  }
+}

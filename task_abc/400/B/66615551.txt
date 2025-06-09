@@ -1,0 +1,24 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll=long long;
+using ld=long double;
+using vl = vector<long long>;
+using vi = vector<int>;
+using vvl = vector<vector<long long>>;
+using vvi = vector<vector<int>>;
+using vs = vector<string>;
+
+int main(){
+  int N,M;
+  cin>>N>>M;
+  ll X=0,tmp;
+  for(int i=0;i<=M;i++){
+    for(int j=0;j<=i;j++){
+      if(j==0)tmp=1;
+      else tmp*=N;
+    }
+    X+=tmp;
+    if(X>1e9){cout<<"inf";return 0;}
+  }
+  cout<<X;
+}

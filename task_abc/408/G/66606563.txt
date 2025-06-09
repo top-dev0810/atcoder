@@ -1,0 +1,20 @@
+#include<bits/stdc++.h>
+#define int long long
+using namespace std;
+int t,a,b,c,d,p,q;
+void gcd(int a,int b,int &p,int &q,int c,int d){
+	if(a<b&&c>d) p=1,q=1;
+	else{
+		gcd(d%c,c,q,p,b-(d/c)*a,a);
+		q+=(d/c)*p;
+	}
+}
+signed main(){
+	cin>>t;
+	while(t--){
+		cin>>a>>b>>c>>d;
+		gcd(a,b,p,q,c,d);
+		cout<<q<<"\n";
+	}
+	return 0;
+}

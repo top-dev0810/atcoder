@@ -1,0 +1,103 @@
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int MOD = 998244353;
+#ifdef int
+#define inf 0x3f3f3f3f3f3f3f3f
+#else
+#define inf 0x3f3f3f3f
+#endif
+const long long infll = 0x3f3f3f3f3f3f3f3f;
+#define pii pair<int, int>
+#define mkp(x,y) make_pair(x,y)
+
+#ifndef LOCAL
+#define SUBMIT
+#endif
+
+#ifdef SUBMIT
+#define endl '\n'
+//#define cin Fastio ::cin
+//#define cout Fastio ::cout
+#endif
+
+template<typename T>
+void read(vector<T> &vec)
+{
+    for(auto &x:vec)
+    {
+        cin>>x;
+    }
+}
+
+int qpow(int n,int k)
+{
+    int res=1;
+    while(k)
+    {
+        if(k&1)(res*=n)%=MOD;
+        (n*=n)%=MOD;
+        k>>=1;
+    }
+    return res;
+}
+
+int dp[40][40][910];
+
+int ans[910];
+
+void work()
+{
+    int n,q;
+    cin>>n>>q;
+    for(int i=0;i<=n;i++)
+    for(int j=0;j<=n;j++)dp[i][j][0]=1;
+    for(int i=1;i<=n;i++)
+    for(int j=1;j<=n;j++)
+    for(int k=0;k<=i*j;k++)
+    {
+        if(k==0)continue;
+        if(k==i*j&&i>=2&&j>=2)
+        {
+            dp[i][j][k]=1;
+            continue;
+        }
+        for(int x=0;x<i-1;x++)
+        for(int y=0;y<j-1;y++)
+        {
+            if((i-x)*(j-y)<=k)dp[i][j][k]|=dp[x][y][k-(i-x)*(j-y)];
+        }
+    }
+    for(int i=0;i<=n;i++)
+    {
+        for(int j=0;j<=n;j++)
+        {
+            for(int k=0;k<=n*n;k++)
+            {
+                ans[k]|=dp[i][j][n*n-k];
+            }
+        }
+    }
+    while(q--)
+    {
+        int x;
+        cin>>x;
+        cout<<(ans[x]?"Yes\n":"No\n");
+    }
+}
+
+signed main()
+{
+#ifndef cin
+#ifdef SUBMIT
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#endif
+#endif
+    int t=1;
+    // cin>>t;
+    while(t--)
+    {
+        work();
+    }
+}

@@ -1,0 +1,45 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+#define fi first
+#define se second
+
+const int N=1e6+5;
+int n,m,tot=0,pr[N],sf[N],hd=0,Q;
+ll tl,tr,L[N],R[N],p[N],ans[N];
+set<pair<ll,int> > ql,qr;
+
+int main(){
+  /*2025.4.25 H_W_Y AT_arc174_f [ARC174F] Final Stage dp + 博弈 + 差分*/
+  ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);
+  cin>>n;
+  for(int i=1;i<=n;i++) cin>>L[i]>>R[i];
+
+  tot=2,sf[1]=2,pr[2]=1,p[2]=L[n],hd=1;
+  ql.insert({L[n],1});
+  for(int i=n-1;i>=1;i--){
+	tl+=L[i],tr+=R[i];
+    while(qr.size()&&(*qr.begin()).fi<=tr-tl){
+	  int x=(*qr.begin()).se,y=sf[x];qr.erase(qr.begin());
+      if(!sf[y]){sf[x]=0;continue;}
+	  if(!pr[x]) hd=sf[y];
+	  
+	  pr[sf[y]]=pr[x],sf[pr[x]]=sf[y];
+	  if(sf[y]) ql.erase({p[sf[y]]-p[y],y});
+	  if(pr[x]) ql.erase({p[x]-p[pr[x]],pr[x]});
+	  if(pr[x]&&sf[y]) ql.insert({p[sf[y]]-p[pr[x]],pr[x]});
+	}
+	swap(tl,tr),swap(ql,qr);
+	sf[++tot]=hd,pr[hd]=tot,p[tot]=-tl,hd=tot;
+	ql.insert({p[sf[tot]]-p[tot],tot});
+  }
+  
+  for(int x=hd;x;x=sf[x]) ++m,ans[m]=p[x]+(m&1?tl:tr);
+  cin>>Q;
+  while(Q--){
+	ll x,pos;cin>>x;
+	pos=upper_bound(ans+1,ans+m+1,x)-ans-1;
+	cout<<(pos==m?"Draw":(pos&1?"Bob":"Alice"))<<'\n';
+  }
+  return 0;
+}

@@ -1,0 +1,48 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+using ll = long long;
+#define rep(i, n) for(int i = 0; i < n; i++)
+
+int main() {
+	int N;
+	cin >> N;
+	vector<int> p(N), vl(N), vr(N);
+	rep(i, N) cin >> p[i], p[i]--;
+	string s;
+	cin >> s;
+	ll MOD = 998244353, al = 1, ar = 1;
+	rep(i, N) {
+		int j = p[i];
+		int k = (j + 1) % N;
+		if(vl[k]) {
+			if(s[j] == '?') al = al * 2 % MOD;
+			vl[j] = 1;
+		}
+		else {
+			if(s[j] == 'R') {
+				al = 0;
+				break;
+			}
+			vl[j] = 1;
+		}
+	}
+	rep(i, N) {
+		int j = p[i];
+		int k = (j + 1) % N;
+		if(vr[j]) {
+			if(s[j] == '?') ar = ar * 2 % MOD;
+			vr[k] = 1;
+		}
+		else {
+			if(s[j] == 'L') {
+				ar = 0;
+				break;
+			}
+			vr[k] = 1;
+		}
+	}
+	ll ans = (al + ar) % MOD;
+	cout << ans << endl;
+}
+	

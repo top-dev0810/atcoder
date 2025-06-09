@@ -1,0 +1,91 @@
+#include<bits/stdc++.h>//by yaoxiaotian
+using namespace std;
+#define ll long long
+#define pb push_back
+const int N=1000005;
+int t,n;
+char a[N],b[N];
+vector<int>A,B;
+int main(){
+    scanf("%d",&t);
+    while(t--){
+        scanf("%d%s%s",&n,a+1,b+1);
+        int s[2]={0,0},t[2]={0,0};
+        A.clear(),B.clear();
+        for(int i=1;i<=n;i++){
+            if(a[i]=='1'){
+                if(!s[0]) s[0]=i;
+                else A.pb(i-t[0]);
+                t[0]=i;
+            }
+        }
+        for(int i=1;i<=n;i++){
+            if(b[i]=='1'){
+                if(!s[1]) s[1]=i;
+                else B.pb(i-t[1]);
+                t[1]=i;
+            }
+        }
+        int S=(t[0]-s[0])-(t[1]-s[1]),K=s[1]-s[0];
+        if(S<0){
+            printf("-1\n");
+            continue;
+        }
+        int p1=0,p2=0,ans=1e9,res,len;
+        for(;p1<A.size()&&p2<B.size();p1++)
+            if(A[p1]>B[p2]) p2++;
+        if(p2==B.size()){
+            res=S/2+abs(K-S/2);
+            if(S%2){
+                if(K-S/2<=0) res++;
+            }
+            ans=min(ans,res);
+        }
+       
+        for(int c=0;c<2;c++){
+            for(int d=0;d<2;d++){
+                if(S<c+d) continue;
+                if((S-c-d)%2) continue;
+                p1=0,p2=0,len=0;
+                bool ok=0;
+                for(;p1<A.size()&&p2<B.size();p1++){
+                    if(A[p1]==B[p2]&&len%2==c){
+                        ok=1;break;
+                    }
+                    if(A[p1]>B[p2]) len+=A[p1]-B[p2],p2++;
+                    else len+=A[p1];
+                }
+                if(!ok) continue;
+                int q1=(int)A.size()-1,q2=(int)B.size()-1;len=ok=0;
+                for(;q1>=0&&q2>=0;q1--){
+                    if(A[q1]==B[q2]&&len%2==d){
+                        ok=1;break;
+                    }
+                    if(A[q1]>B[q2]) len+=A[q1]-B[q2],q2--;
+                    else len+=A[q1];
+                }
+                if(!ok) continue;
+                if(p1>q1||p2>q2) continue;
+				if(p1==q1&&p2!=q2) continue;
+                len=0,p1++,p2++,q1--,q2--;
+                for(;p1<=q1&&p2<=q2;p1++){
+                    if(A[p1]==B[p2]&&len%2==0){
+                        len=0,p2++;continue;
+                    }
+                    if(A[p1]>B[p2]) len+=A[p1]-B[p2],p2++;
+                    else len+=A[p1];
+                }
+                if(p2>q2){
+                    res=(S-c-d)/2+d;
+                    int mv=K-res;
+                    res+=abs(mv);
+                    if(c) res++;
+                    ans=min(ans,res);
+                }
+            }
+        }
+        if(ans==1e9) printf("-1\n");
+        else printf("%d\n",ans);
+    }
+    return 0;
+}

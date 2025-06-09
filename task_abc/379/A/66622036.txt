@@ -1,0 +1,14 @@
+#include<iostream>
+using namespace std;
+int main()
+{
+    int n,a,b,c;
+    cin >> n;
+    c=n % 10;
+    n /= 10;
+    b=n % 10;
+    n /= 10;
+    a=n % 10;
+    cout << b*100+c*10+a << " " << c*100+a*10+b;
+    return 0;
+}

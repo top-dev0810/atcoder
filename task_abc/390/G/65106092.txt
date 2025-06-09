@@ -1,0 +1,174 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+static const int MOD = 998244353;
+static const int G   = 3; // primitive root
+
+// fast exponentiation mod
+long long modexp(long long a, long long e){
+    long long r = 1 % MOD;
+    a %= MOD;
+    while(e){
+        if(e & 1) r = (r * a) % MOD;
+        a = (a * a) % MOD;
+        e >>= 1;
+    }
+    return r;
+}
+
+// In‐place iterative NTT.  If invert=true, computes the inverse transform.
+void ntt(vector<int>& a, bool invert) {
+    int n = a.size();
+    // bit‑reverse permutation
+    for(int i = 1, j = 0; i < n; i++) {
+        int bit = n >> 1;
+        for(; j & bit; bit >>= 1) j ^= bit;
+        j |= bit;
+        if(i < j) swap(a[i], a[j]);
+    }
+    // Cooley‑Tuk DL decomposition
+    for(int len = 1; len < n; len <<= 1) {
+        // wlen = primitive root^( (MOD‑1)/(2*len) )
+        long long wlen = modexp(G, (MOD - 1) / (2LL * len));
+        if(invert) {
+            wlen = modexp(wlen, MOD - 2);
+        }
+        for(int i = 0; i < n; i += (len << 1)) {
+            long long w = 1;
+            for(int j = 0; j < len; j++) {
+                int u = a[i + j];
+                int v = int((a[i + j + len] * w) % MOD);
+                int x = u + v;
+                if(x >= MOD) x -= MOD;
+                int y = u - v;
+                if(y < 0) y += MOD;
+                a[i + j]         = x;
+                a[i + j + len]   = y;
+                w = (w * wlen) % MOD;
+            }
+        }
+    }
+    if(invert) {
+        long long inv_n = modexp(n, MOD - 2);
+        for(int &x : a) x = int((x * inv_n) % MOD);
+    }
+}
+
+// multiply A(x)*B(x), return result truncated to degree < keepN
+vector<int> multiply(const vector<int>& A, const vector<int>& B, int keepN) {
+    if(A.empty() || B.empty()) return {};
+    int asz = (int)A.size();
+    int bsz = (int)B.size();
+    int need = asz + bsz - 1;
+    int n = 1;
+    while(n < need) n <<= 1;
+    vector<int> fa(A.begin(), A.end()), fb(B.begin(), B.end());
+    fa.resize(n);  fb.resize(n);
+    ntt(fa, false);
+    ntt(fb, false);
+    for(int i = 0; i < n; i++){
+        fa[i] = int((long long)fa[i] * fb[i] % MOD);
+    }
+    ntt(fa, true);
+    if(need > keepN) need = keepN;
+    fa.resize(need);
+    return fa;
+}
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N;
+    cin >> N;
+
+    // 1) Factorials and inverse factorials
+    vector<int> fact(N+1), ifact(N+1);
+    fact[0] = 1;
+    for(int i = 1; i <= N; i++){
+        fact[i] = int((long long)fact[i-1] * i % MOD);
+    }
+    ifact[N] = int(modexp(fact[N], MOD-2));
+    for(int i = N; i > 0; i--){
+        ifact[i-1] = int((long long)ifact[i] * i % MOD);
+    }
+
+    // 2) Count how many numbers have digit‑length d=1..6, and sum of those numbers
+    static int g[7];
+    static long long Xsum[7];
+    for(int d = 1; d <= 6; d++){
+        int lo = (d == 1 ? 1 : (int)pow(10, d-1));
+        int hi = min(N, (int)pow(10, d) - 1);
+        if(lo > hi){
+            g[d] = 0;
+            Xsum[d] = 0;
+        } else {
+            g[d] = hi - lo + 1;
+            long long cnt = g[d];
+            // sum of arithmetic progression lo..hi = (lo+hi)*cnt/2
+            long long s = ( (long long)lo + hi ) % MOD;
+            s = s * (cnt % MOD) % MOD;
+            s = s * ((MOD+1)/2) % MOD;  // multiply by modular inverse of 2
+            Xsum[d] = s;
+        }
+    }
+    // precompute 10^d mod
+    static int P[7];
+    for(int d = 0; d <= 6; d++){
+        P[d] = int(modexp(10, d));
+    }
+
+    // 3) Build Q_d(z) = (1 + 10^d z)^{g[d]} for each d
+    vector<vector<int>> polys;
+    for(int d = 1; d <= 6; d++){
+        if(g[d] == 0) continue;
+        int gd = g[d];
+        // Precompute powers of P[d]
+        vector<int> powP(gd+1);
+        powP[0] = 1;
+        for(int i = 1; i <= gd; i++){
+            powP[i] = int((long long)powP[i-1] * P[d] % MOD);
+        }
+        // Build coefficients C(gd,i)*P[d]^i
+        vector<int> poly(gd+1);
+        for(int i = 0; i <= gd; i++){
+            long long c = fact[gd];
+            c = (c * ifact[i]) % MOD;
+            c = (c * ifact[gd - i]) % MOD;
+            poly[i] = int(c * powP[i] % MOD);
+        }
+        polys.push_back(move(poly));
+    }
+
+    // 4) Multiply them all into F(z), truncating to degree < N
+    vector<int> F = {1};
+    for(auto &q : polys){
+        F = multiply(F, q, N);
+    }
+    if((int)F.size() < N) F.resize(N, 0);
+
+    // 5) For each digit‐length L, divide out (1 + 10^L z) and form E_L
+    long long answer = 0;
+    for(int L = 1; L <= 6; L++){
+        if(g[L] == 0) continue;
+        int Pd = P[L];
+        // c[k] = coeff of F(z) / (1 + Pd z)
+        vector<int> c(N);
+        c[0] = F[0];
+        for(int k = 1; k < N; k++){
+            long long v = F[k] - (long long)Pd * c[k-1] % MOD;
+            if(v < 0) v += MOD;
+            c[k] = int(v);
+        }
+        // E_L = sum_{k=0..N-1} c[k]*k!*(N-1-k)!
+        long long EL = 0;
+        for(int k = 0; k < N; k++){
+            EL = (EL + (long long)c[k] * fact[k] % MOD * fact[N-1-k]) % MOD;
+        }
+        // add contribution of all L‑digit x
+        answer = (answer + Xsum[L] * EL) % MOD;
+    }
+
+    cout << answer << "\n";
+    return 0;
+}

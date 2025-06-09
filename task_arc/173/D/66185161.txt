@@ -1,0 +1,153 @@
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int MOD = 998244353;
+#ifdef int
+#define inf 0x3f3f3f3f3f3f3f3f
+#else
+#define inf 0x3f3f3f3f
+#endif
+const long long infll = 0x3f3f3f3f3f3f3f3f;
+#define pii pair<int, int>
+#define mkp(x,y) make_pair(x,y)
+
+#ifndef LOCAL
+#define SUBMIT
+#endif
+
+#ifdef SUBMIT
+#define endl '\n'
+//#define cin Fastio ::cin
+//#define cout Fastio ::cout
+#endif
+
+template<typename T>
+void read(vector<T> &vec)
+{
+    for(auto &x:vec)
+    {
+        cin>>x;
+    }
+}
+
+int qpow(int n,int k)
+{
+    int res=1;
+    while(k)
+    {
+        if(k&1)(res*=n)%=MOD;
+        (n*=n)%=MOD;
+        k>>=1;
+    }
+    return res;
+}
+
+int n,m;
+
+vector<pii>vec[4010];
+
+int dis[4010],cnt[4010],inque[4010];
+
+bool spfa_s()
+{
+    queue<int>que;
+    memset(dis,0x3f,sizeof dis);
+    memset(cnt,0,sizeof cnt);
+    memset(inque,0,sizeof inque);
+    dis[1]=0;
+    que.push(1);
+    while(!que.empty())
+    {
+        int now=que.front();
+        que.pop();
+        inque[now]=0;
+        cnt[now]++;
+        if(cnt[now]>n)
+        {
+            return 1;
+        }
+        for(auto [to,d]:vec[now])
+        {
+            if(dis[to]>dis[now]+d)
+            {
+                dis[to]=dis[now]+d;
+                if(!inque[to])
+                {
+                    inque[to]=1;
+                    que.push(to);
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+bool spfa_l()
+{
+    queue<int>que;
+    memset(dis,0xbf,sizeof dis);
+    memset(cnt,0,sizeof cnt);
+    memset(inque,0,sizeof inque);
+    dis[1]=0;
+    que.push(1);
+    while(!que.empty())
+    {
+        int now=que.front();
+        que.pop();
+        inque[now]=0;
+        cnt[now]++;
+        if(cnt[now]>n)
+        {
+            return 1;
+        }
+        for(auto [to,d]:vec[now])
+        {
+            if(dis[to]<dis[now]+d)
+            {
+                dis[to]=dis[now]+d;
+                if(!inque[to])
+                {
+                    inque[to]=1;
+                    que.push(to);
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+void work()
+{
+    cin>>n>>m;
+    for(int i=1;i<=m;i++)
+    {
+        int x,y;
+        char ch;
+        cin>>x>>y>>ch;
+        vec[x].push_back(mkp(y,ch=='('?1:-1));
+    }
+    if((spfa_l()+spfa_s())&1)
+    {
+        cout<<"No\n";
+    }
+    else
+    {
+        cout<<"Yes\n";
+    }
+}
+
+signed main()
+{
+#ifndef cin
+#ifdef SUBMIT
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+#endif
+#endif
+    int t=1;
+    t=1;
+    while(t--)
+    {
+        work();
+    }
+}

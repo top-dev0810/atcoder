@@ -1,0 +1,112 @@
+#include<bits/stdc++.h>
+#define int long long
+using namespace std;
+namespace fast_IO {//我向众神祈祷，回应我的只有心跳
+#define IOSIZE 100000
+	char ibuf[IOSIZE], obuf[IOSIZE], *p1 = ibuf, *p2 = ibuf, *p3 = obuf;
+#define getchar() ((p1==p2)and(p2=(p1=ibuf)+fread(ibuf,1,IOSIZE,stdin),p1==p2)?(EOF):(*p1++))
+#define putchar(x) ((p3==obuf+IOSIZE)&&(fwrite(obuf,p3-obuf,1,stdout),p3=obuf),*p3++=x)
+#define isdigit(ch) (ch>47&&ch<58)
+#define isspace(ch) (ch<33)
+	template<typename T> inline T read() { T s = 0; int w = 1; char ch; while (ch = getchar(), !isdigit(ch) and (ch != EOF)) if (ch == '-') w = -1; if (ch == EOF) return false; while (isdigit(ch)) s = s * 10 + ch - 48, ch = getchar(); return s * w; }
+	template<typename T> inline bool read(T &s) { s = 0; int w = 1; char ch; while (ch = getchar(), !isdigit(ch) and (ch != EOF)) if (ch == '-') w = -1; if (ch == EOF) return false; while (isdigit(ch)) s = s * 10 + ch - 48, ch = getchar(); return s *= w, true; }
+	template<typename T> inline void print(T x) { if (x < 0) putchar('-'), x = -x; if (x > 9) print(x / 10); putchar(x % 10 + 48); }
+	inline bool read(char &s) { while (s = getchar(), isspace(s)); return true; }
+	inline bool read(char *s) { char ch; while (ch = getchar(), isspace(ch)); if (ch == EOF) return false; while (!isspace(ch)) *s++ = ch, ch = getchar(); *s = '\000'; return true; }
+	inline void print(char x) { putchar(x); }
+	inline void print(char *x) { while (*x) putchar(*x++); }
+	inline void print(const char *x) { for (int i = 0; x[i]; i++) putchar(x[i]); }
+	inline bool read(std::string& s) { s = ""; char ch; while (ch = getchar(), isspace(ch)); if (ch == EOF) return false; while (!isspace(ch)) s += ch, ch = getchar(); return true; }
+	inline void print(std::string x) { for (int i = 0, n = x.size(); i < n; i++) putchar(x[i]); }
+	inline bool read(bool &b) { char ch; while(ch=getchar(), isspace(ch)); b=ch^48; return true; }
+	inline void print(bool b) { putchar(b+48); }
+	template<typename T, typename... T1> inline int read(T& a, T1&... other) { return read(a) + read(other...); }
+	template<typename T, typename... T1> inline void print(T a, T1... other) { print(a), print(other...); }
+	struct Fast_IO { ~Fast_IO() { fwrite(obuf, p3 - obuf, 1, stdout); } } io;
+	template<typename T> Fast_IO& operator >> (Fast_IO &io, T &b) { return read(b), io; }
+	template<typename T> Fast_IO& operator << (Fast_IO &io, T b) { return print(b), io; }
+#define cout io
+#define cin io
+#define endl '\n'
+} using namespace fast_IO;
+const int maxn=2e5;
+const int mod=998244353;
+int n,m,a[maxn+5],b[maxn+5];
+int pre[maxn+5],inv[maxn+5],pos[maxn+5],ans;
+int ksm(int x,int y){
+	int res=1;
+	while(y){
+		if(y&1)res=res*x%mod;
+		y>>=1;x=x*x%mod;
+	}
+	return res;
+}
+inline int C(int n,int m){return n>=m?pre[n]*inv[m]%mod*inv[n-m]%mod:0;}
+struct matrix{
+	int a[4][4];
+	void init(){memset(a,0,sizeof(a));a[0][0]=a[1][1]=a[2][2]=a[3][3]=1;}
+	void clear(){memset(a,0,sizeof(a));}
+	int*operator[](int i){return a[i];}
+	matrix(){memset(a,0,sizeof(a));}
+};
+matrix operator*(matrix A,matrix B){
+	matrix res;
+	for(int i=0;i<4;i++)for(int j=0;j<4;j++)for(int k=0;k<4;k++)(res[i][j]+=A[i][k]*B[k][j])%=mod;
+	return res;
+}
+matrix ksm(matrix x,int y){
+	matrix res;res.init();
+	while(y){
+		if(y&1)res=res*x;
+		y>>=1;x=x*x;
+	}
+	return res;
+}
+int Inv,tot,cnt;
+int frac(int x,int y){return y==tot?x*Inv%mod:x*ksm(y,mod-2)%mod;}
+int id(int x,int y){return (x<<1)|y;}
+inline void mo(int &x){x=x>=mod?x-mod:x;}
+signed main(){
+	pre[0]=inv[0]=1;for(int i=1;i<=maxn;i++)pre[i]=pre[i-1]*i%mod;
+	inv[maxn]=ksm(pre[maxn],mod-2);for(int i=maxn-1;i>=1;i--)inv[i]=inv[i+1]*(i+1)%mod;
+	cin>>n>>m;
+	for(int i=1;i<=n;i++)cin>>a[i],pos[a[i]]=i,b[i]=1;
+	matrix Ans;
+	tot=n*(n-1)/2%mod,cnt=ksm(tot,m);
+	Inv=ksm(tot,mod-2);
+	Ans[0][0]=0,Ans[0][1]=0,Ans[0][2]=0,Ans[0][3]=(n-1)*cnt%mod;
+	for(int mid=2,cnt0=0,cnt1=n;mid<=n;mid++){
+		int P=pos[mid-1];
+		if(1<=P-1)mo(Ans[0][id(b[P-1],b[P])]+=mod-cnt);
+		if(P+1<=n)mo(Ans[0][id(b[P],b[P+1])]+=mod-cnt);
+		b[P]=0;
+		if(1<=P-1)mo(Ans[0][id(b[P-1],b[P])]+=cnt);
+		if(P+1<=n)mo(Ans[0][id(b[P],b[P+1])]+=cnt);
+		cnt1--,cnt0++;
+		matrix base;
+		base[0][0]=frac((C(n-2,2)+2*(cnt0-2)+1)%mod,tot),base[0][1]=frac(cnt1,tot),base[0][2]=frac(cnt1,tot),base[0][3]=0;
+		base[1][0]=frac(cnt0-1,tot),base[1][1]=frac((C(n-2,2)+(cnt0-1)+(cnt1-1))%mod,tot),base[1][2]=frac(1,tot),base[1][3]=frac(cnt1-1,tot);
+		base[2][0]=frac(cnt0-1,tot),base[2][1]=frac(1,tot),base[2][2]=frac((C(n-2,2)+(cnt0-1)+(cnt1-1))%mod,tot),base[2][3]=frac(cnt1-1,tot);
+		base[3][0]=0,base[3][1]=frac(cnt0,tot),base[3][2]=frac(cnt0,tot),base[3][3]=frac((C(n-2,2)+2*(cnt1-2)+1)%mod,tot);
+		matrix Res=Ans*ksm(base,m);
+		(ans+=Res[0][1]+Res[0][2])%=mod;
+	}
+	cout<<ans;
+	return 0;
+}
+//只用求出00,01,10,11变成01/10的方案数即可(总方案*概率)
+//00-->00(没交换,两位交换0)
+//00-->01(第二位交换1)
+//00-->10(第一位交换1)
+
+//01-->00
+//01-->01
+//01-->11
+
+//10-->00
+//10-->10
+//10-->11
+
+//11-->01
+//11-->10
+//11-->11

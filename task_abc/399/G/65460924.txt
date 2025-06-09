@@ -1,0 +1,88 @@
+#include<bits/stdc++.h>
+using i64 = long long;
+const int mod = 998244353;
+std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+i64 ksm(i64 b , i64 p){
+  i64 r = 1LL;
+  while(p > 0LL){
+    if(p & 1LL) r = r * b % mod;
+    p >>= 1LL;
+    b = b * b % mod;
+  }
+  return r;
+}
+int main(){
+  std::ios::sync_with_stdio(0);
+  std::cin.tie(nullptr);
+
+  int N , M , C;
+  std::cin >> N >> M >> C;
+
+  std::vector<int> A(C);
+  for(int i = 0; i < C; i++){
+    std::cin >> A[i];
+  }
+
+  std::vector<int> S(C + 1);
+  for(int i = 0; i < C; i++){
+    S[i + 1] = S[i] + A[i];
+  }
+
+  auto calc = [&] (i64 x){
+    return (x % mod + mod) % mod;
+  };
+
+  std::vector<std::vector<i64>> mat(S[C] , std::vector<i64> (N));
+  for(int i = 0; i < M; i++){
+    int u , v , c;
+    std::cin >> u >> v >> c;
+
+    u--;
+    v--;
+    c--;
+
+    i64 w = calc(rng()) , b = calc(rng());
+    for(int j = S[c]; j < S[c + 1]; j++ , b = calc(w * b)){
+      mat[j][u] = calc(mat[j][u] + b);
+      mat[j][v] = calc(mat[j][v] - b);
+    }
+  }
+
+  std::vector<std::vector<i64>> base(N , std::vector<i64> (N));
+  std::vector<i64> tm(N);
+  std::fill(tm.begin() , tm.end() , -1);
+
+  auto add = [&] (std::vector<i64> ct , i64 t){
+    for(int i = 0; i < N; i++){
+      if(ct[i] == 0) continue;
+      if(t > tm[i]){
+        i64 inv = ksm(ct[i] , mod - 2LL);
+        for(int j = i; j < N; j++){
+          ct[j] = calc(ct[j] * inv);
+        }
+        std::swap(t , tm[i]);
+        std::swap(ct , base[i]);
+      }
+      if(t == -1){
+        return ;
+      }
+      i64 v = ct[i];
+      for(int j = i; j < N; j++){
+        ct[j] = calc(ct[j] - base[i][j] * v);
+      }
+    }
+  }; //动态高斯消元
+
+  int ans = 0;
+  for(int i = 0; i < C; i++){
+    for(int j = S[i]; j < S[i + 1]; j++){
+      add(mat[j] , i);
+    }  
+    auto res = tm;
+    std::sort(res.begin() , res.end());
+    ans += res[1] + 1;
+  }
+
+  std::cout << ans << '\n';
+  return 0;
+}

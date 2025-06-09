@@ -1,0 +1,183 @@
+#include <bits/stdc++.h>
+#define rep(i, n) for (int i = 0; i < (int)(n); i++)
+#define rrep(i, n) for (int i = (int)(n - 1); i >= 0; i--)
+#define all(x) (x).begin(), (x).end()
+#define sz(x) int(x.size())
+using namespace std;
+using ll = long long;
+constexpr int INF = 1e9;
+constexpr ll LINF = 1e18;
+string YesNo(bool cond) {
+    return cond ? "Yes" : "No";
+}
+string YESNO(bool cond) {
+    return cond ? "YES" : "NO";
+}
+template <class T>
+bool chmax(T& a, const T& b) {
+    if (a < b) {
+        a = b;
+        return true;
+    }
+    return false;
+}
+template <class T>
+bool chmin(T& a, const T& b) {
+    if (b < a) {
+        a = b;
+        return true;
+    }
+    return false;
+}
+template <typename T, class F>
+T bisect(T ok, T ng, const F& f) {
+    while (abs(ok - ng) > 1) {
+        T mid = min(ok, ng) + (abs(ok - ng) >> 1);
+        (f(mid) ? ok : ng) = mid;
+    }
+    return ok;
+}
+template <typename T>
+T floor_div(const T a, const T b) {
+    assert(b != 0);
+    return a / b - static_cast<T>((a ^ b) < 0 && a % b != 0);
+}
+template <typename T>
+T ceil_div(const T a, const T b) {
+    assert(b != 0);
+    return a / b + static_cast<T>((a ^ b) >= 0 && a % b != 0);
+}
+template <typename T>
+bool a_mul_b_eq_c(const T a, const T b, const T c) {
+    return c % a == 0 && b == c / a;
+}
+template <typename T>
+bool a_mul_b_le_c(const T a, const T b, const T c) {
+    return b <= floor_div(c, a);
+}
+template <typename T>
+bool a_mul_b_lt_c(const T a, const T b, const T c) {
+    return a_mul_b_le_c(a, b, c) && !a_mul_b_eq_c(a, b, c);
+}
+template <typename T>
+bool a_mul_b_ge_c(const T a, const T b, const T c) {
+    return !a_mul_b_lt_c(a, b, c);
+}
+template <typename T>
+bool a_mul_b_gt_c(const T a, const T b, const T c) {
+    return !a_mul_b_le_c(a, b, c);
+}
+template <class T>
+vector<T> make_vec(size_t a) {
+    return vector<T>(a);
+}
+template <class T, class... Ts>
+auto make_vec(size_t a, Ts... ts) {
+    return vector<decltype(make_vec<T>(ts...))>(a, make_vec<T>(ts...));
+}
+template <typename T>
+istream& operator>>(istream& is, vector<T>& v) {
+    for (int i = 0; i < int(v.size()); i++) {
+        is >> v[i];
+    }
+    return is;
+}
+template <typename T>
+ostream& operator<<(ostream& os, const vector<T>& v) {
+    for (int i = 0; i < int(v.size()); i++) {
+        os << v[i];
+        if (i < sz(v) - 1) os << ' ';
+    }
+    return os;
+}
+
+long long pow_mod(long long x, long long n, long long m) {
+    assert(0 <= n && 1 <= m);
+    if (m == 1) return 0;
+    ll r = 1, y = x % m;
+    while (n) {
+        if (n & 1) r = __int128_t(r) * y % m;
+        y = __int128_t(y) * y % m;
+        n >>= 1;
+    }
+    return r;
+}
+bool is_prime(ll n) {
+    if (n <= 1) return false;
+    if (n == 2) return true;
+    if (n % 2 == 0) return false;
+    long long d = n - 1;
+    while (d % 2 == 0) d /= 2;
+    constexpr long long bases[7] = {2,      325,     9375,      28178,
+                                    450775, 9780504, 1795265022};
+    for (long long a : bases) {
+        long long t = d;
+        long long y = pow_mod(a, t, n);
+        while (t != n - 1 && y != 1 && y != n - 1) {
+            y = __int128_t(y) * y % n;
+            t <<= 1;
+        }
+        if (y != n - 1 && t % 2 == 0) {
+            return false;
+        }
+    }
+    return true;
+}
+ll primitive_root(ll m) {
+    if (m == 2) return 1;
+    if (m == 167772161) return 3;
+    if (m == 469762049) return 3;
+    if (m == 754974721) return 11;
+    if (m == 998244353) return 3;
+    ll divs[50] = {};
+    divs[0] = 2;
+    ll cnt = 1;
+    ll x = (m - 1) / 2;
+    while (x % 2 == 0) x /= 2;
+    for (ll i = 3; (long long)(i)*i <= x; i += 2) {
+        if (x % i == 0) {
+            divs[cnt++] = i;
+            while (x % i == 0) {
+                x /= i;
+            }
+        }
+    }
+    if (x > 1) {
+        divs[cnt++] = x;
+    }
+    for (ll g = 2;; g++) {
+        bool ok = true;
+        for (ll i = 0; i < cnt; i++) {
+            if (pow_mod(g, (m - 1) / divs[i], m) == 1) {
+                ok = false;
+                break;
+            }
+        }
+        if (ok) return g;
+    }
+}
+int solve() {
+    ll n;
+    cin >> n;
+    if (n == 1) {
+        cout << 20250126 << ' ' << 1 << '\n';
+        return 0;
+    }
+    ll m = n + 1;
+    while (!is_prime(m)) {
+        m += n;
+    }
+    ll g = primitive_root(m);
+    ll a = pow_mod(g, (m - 1) / n, m);
+    assert(1 <= a && a <= LINF);
+    assert(1 <= m && m <= LINF);
+    // for (int k = 1; k < n; k++) assert(pow_mod(a, k, m) != 1);
+    // assert(pow_mod(a, n, m) == 1);
+    cout << a << ' ' << m << '\n';
+    return 0;
+}
+int main() {
+    int tt;
+    cin >> tt;
+    while (tt--) solve();
+}

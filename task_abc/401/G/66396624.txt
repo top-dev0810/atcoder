@@ -1,0 +1,55 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+vector <int> e[310];
+int n, m, E;
+int fa[310];
+bool b[310];
+ll x[310][2], y[310][2];
+int ans = 0;
+
+__float128 p(__float128 x) {return x * x;}
+__float128 calc(int i, int j) {return p(x[i][0] - x[j][1]) + p(y[i][0] - y[j][1]);}
+
+bool dfs(int x) {
+	for (auto y : e[x])
+		if (!b[y]) {
+			b[y] = true;
+			if (!fa[y] || dfs(fa[y])) {
+				fa[y] = x;
+				return true;
+			}
+		}
+	return false;
+}
+
+int main() {
+	scanf("%d", &n);
+	for (int i = 1 ; i <= n ; i++)
+		scanf("%lld%lld", &x[i][0], &y[i][0]);
+	for (int i = 1 ; i <= n ; i++)
+		scanf("%lld%lld", &x[i][1], &y[i][1]);
+	__float128 L = 0, R = 2e18;
+	while (L < R - 1e-8) {
+		__float128 mid = (L + R) / 2.0;
+		__float128 Mid = (__float128) mid * mid;
+//		printf("%.15Lf %.15Lf %.15Lf\n\n", mid, L, R);
+		for (int i = 1 ; i <= n ; i++)
+			for (int j = 1 ; j <= n ; j++)
+				if (calc(i, j) <= Mid + 1e-10) e[i].push_back(j);
+		memset(fa, 0, sizeof(fa));
+		bool flag = true;
+		for (int i = 1 ; i <= n ; i++) {
+			memset(b, false, sizeof(b));
+			if (!dfs(i)) flag = false;
+		}
+		if (flag) R = mid;
+		else L = mid;
+		for (int i = 1 ; i <= n ; i++)
+			e[i].clear();
+	}
+    long double l = L;
+	printf("%.15Lf\n", l);
+	return 0;
+}

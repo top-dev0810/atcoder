@@ -1,0 +1,30 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+#define rep(i, n) for (int i = 0; i < (int)(n); i++)
+
+
+int main() {
+   int n, c;
+   cin >> n >> c;
+   vector<int> a(n);
+   rep(i,n) cin >> a[i];
+   ll ans = 0, s = 0, mn = 0, mx = 0;
+   rep(i,n) ans += a[i];
+   if(c > 0) {
+      rep(i,n) {
+         s += a[i];
+         mn = min(mn, s);
+         mx = max(mx, s-mn);
+      }
+      ans += mx*(c-1);
+   }else {
+      rep(i,n) {
+         s += a[i];
+         mx = max(mx, s);
+         mn = min(mn, s-mx);
+      }
+      ans += mn*(c-1);
+   }
+   cout << ans << endl;
+}

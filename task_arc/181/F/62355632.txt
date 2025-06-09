@@ -1,0 +1,93 @@
+#include <bits/stdc++.h>
+using namespace std;
+using lint = long long;
+using pi = array<lint, 2>;
+#define sz(v) ((int)(v).size())
+#define all(v) (v).begin(), (v).end()
+#define cr(v, n) (v).clear(), (v).resize(n);
+
+lint solve(vector<int> a) {
+	map<int, int> prv;
+	int n = sz(a);
+	vector<lint> sum(n + 1);
+	for (int i = 1; i <= n; i++)
+		sum[i] = sum[i - 1] + a[i - 1];
+	vector<lint> dp(n);
+	auto cost = [&](int l, int r, int v) {
+		lint ans = 1ll * v * (r - l) - (sum[r] - sum[l]);
+		return abs(ans);
+	};
+	for (int i = 1; i < n; i++) {
+		prv[a[i - 1]] = i - 1;
+		dp[i] = 1e18;
+		if (a[i - 1] < a[i])
+			dp[i] = dp[i - 1];
+		if (prv.count(a[i]))
+			dp[i] = min(dp[i], dp[prv[a[i]]] + cost(prv[a[i]], i, a[i]));
+	}
+	return dp[n - 1];
+}
+
+int main() {
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int n;
+	cin >> n;
+	vector<int> a(n);
+	for (auto &x : a)
+		cin >> x;
+	int p = 0;
+	vector<map<int, int>> gph(1);
+	vector<int> num = {a[0]};
+	vector<int> dep = {0};
+	vector<array<int, 3>> edges;
+	for (int i = 1; i < n; i++) {
+		if (num[p] == a[i])
+			continue;
+		if (!gph[p].count(a[i])) {
+			gph[p][a[i]] = sz(num);
+			gph.push_back(map<int, int>());
+			gph[sz(num)][num[p]] = p;
+			num.push_back(a[i]);
+			dep.push_back(dep[p] + 1);
+		}
+		edges.push_back({p, gph[p][a[i]], i});
+		p = gph[p][a[i]];
+	}
+	for (auto &[a, b, c] : edges) {
+		if (a > b)
+			swap(a, b);
+	}
+	sort(all(edges));
+	lint ans = 0;
+	set<pi> real;
+	for (int i = 0; i < sz(edges);) {
+		int j = i;
+		while (j < sz(edges) && pi{edges[j][0], edges[j][1]} == pi{edges[i][0], edges[i][1]})
+			j++;
+		if (j % 2 == i % 2) {
+			for (int k = i; k < j; k += 2)
+				ans += edges[k + 1][2] - edges[k][2];
+		} else {
+			real.insert({edges[i][0], edges[i][1]});
+			real.insert({edges[i][1], edges[i][0]});
+		}
+		i = j;
+	}
+	p = 0;
+	vector<int> seq = {0};
+	for (int i = 1; i < n; i++) {
+		int pos = seq.back();
+		if (num[p] != a[i]) {
+			int j = gph[p][a[i]];
+			if (real.count({p, j})) {
+				pos = dep[j];
+			}
+			p = j;
+		}
+		seq.push_back(pos);
+	}
+	ans += solve(seq);
+	cout << ans << "\n";
+}

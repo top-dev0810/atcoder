@@ -1,0 +1,36 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define psi pair<string,int>//0*,1+
+const int N=2007;
+string s[2][N];
+int a[N];
+int n,m,k,cnt,ans,pos,sum,mx=-1e9,x,y,q,f,opt,w,l,r,mid;
+void dfs(int x){
+	if(s[0][x].size()||s[1][x].size())return;
+	if(x==1||x==11||x==111||x==1111){
+		int m=x;
+		while(x)s[0][m]+='1',s[1][m]+='1',x/=10;
+		return;
+	}
+	for(int i=2;i*i<=x;i++){
+		if(x%i==0){
+			dfs(i),dfs(x/i);string t1='('+s[1][i]+')',t2='('+s[1][x/i]+')';
+			if(s[0][i].size()&&s[0][i].size()<t1.size())t1=s[0][i];
+			if(s[0][x/i].size()&&s[0][x/i].size()<t2.size())t2=s[0][x/i];
+			if(!s[0][x].size()||t1.size()+t2.size()+1<s[0][x].size())s[0][x]=t1+'*'+t2;
+		}
+	}
+	for(int i=1;i<=x/2;i++){
+		dfs(i),dfs(x-i);string t1=s[1][i],t2=s[1][x-i];
+		if(s[0][i].size()&&s[0][i].size()<t1.size())t1=s[0][i];
+		if(s[0][x-i].size()&&s[0][x-i].size()<t2.size())t2=s[0][x-i];
+		if(!s[1][x].size()||t1.size()+t2.size()+1<s[1][x].size())s[1][x]=t1+'+'+t2;
+	}
+}
+signed main(){
+	cin>>n,dfs(n);
+	if(s[0][n].size()&&s[0][n].size()<s[1][n].size())cout<<s[0][n];
+	else cout<<s[1][n];
+	return 0;
+}

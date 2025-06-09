@@ -1,0 +1,209 @@
+#include<bits/stdc++.h>
+using namespace std;
+using vi=vector<int>;
+using pi=pair<int,int>;
+using vp=vector<pi>;
+using ll=long long;
+using LL=__int128;
+using db=double;
+
+#define rep(i,a,b) for(int i=(a);i<=(b);++i)
+#define dec(i,a,b) for(int i=(a);i>=(b);--i)
+#define SZ(x) int(x.size())
+#define pb push_back 
+#define ep emplace_back
+#define File(x) {freopen(x".in","r",stdin);freopen(x".out","w",stdout);}
+#define fi first
+#define se second
+#define bit(s,i) (((s)>>(i))&1)
+#define Bit(i) (1<<(i))
+#define look_time cerr<<(1.0*clock()/CLOCKS_PER_SEC);
+#define ppt(x) __builtin_popcount(x)
+
+template<class T> bool chkmin(T &x,const T &y) {
+    return (y<x)?(x=y,true):false;
+}
+template<class T> bool chkmax(T &x,const T &y) {
+    return (y>x)?(x=y,true):false;
+}
+int read() {
+    int x;scanf("%d",&x);return x;
+}
+
+const int MAXN=2.5e5+50;//!!
+int n,a[MAXN];
+
+int dp[MAXN];
+
+int tg[MAXN];
+
+int ans[MAXN];
+int output[MAXN];
+
+
+const int inf=1e9+7;
+
+namespace ds {
+    // int w[MAXN];  
+    // bitset<MAXN> vis;
+    int Lp,Rp,N;
+    // void init(int l,int r) {
+    //     Lp=l,Rp=r,N=r-l+1;
+    //     rep(i,1,N) w[i]=dp[i+Lp-1],vis.reset(i);
+    // }
+    // void mdf(int pos) {
+    //     pos-=Lp-1;
+    //     rep(i,pos,N) w[i]--;
+    // }
+    // void insert(int pos) {
+    //     vis.set(pos);
+    // }
+    // int qrymax() {
+    //     int ret=-inf;
+    //     rep(i,1,N) if(vis[i]) chkmax(ret,w[i]);
+    //     return ret;
+    // }
+
+    #define ls (k<<1)
+    #define rs (k<<1|1)
+    int s[MAXN<<2],ad[MAXN<<2];
+    void upd(int k) {
+        s[k]=max(s[ls],s[rs]);
+    }
+    void apply(int k,int z) {
+        s[k]+=z,ad[k]+=z;
+    }
+    void push_down(int k) {
+        if(ad[k]) apply(ls,ad[k]),apply(rs,ad[k]),ad[k]=0;
+    }
+    void Modify(int k,int l,int r,int x,int y,int z) {
+        if(l>=x&&r<=y) return apply(k,z);
+        push_down(k);int mid=l+r>>1;
+        if(x<=mid) Modify(ls,l,mid,x,y,z);
+        if(y>=mid+1) Modify(rs,mid+1,r,x,y,z);
+        return upd(k);
+    }
+    void Update(int k,int l,int r,int x) {
+        if(l==r) {
+            int i=x;
+            s[k]=ad[k]+dp[i+Lp-1];
+            return ;
+        }
+        push_down(k);
+        int mid=l+r>>1;
+        if(x<=mid) Update(ls,l,mid,x);
+        else Update(rs,mid+1,r,x);
+        return upd(k);
+    }
+    void Build(int k,int l,int r) {
+        ad[k]=0;//!
+        if(l==r) {
+            int i=l;
+            s[k]=-inf;//!
+            return ;
+        }
+        int mid=l+r>>1;
+        Build(ls,l,mid);
+        Build(rs,mid+1,r);
+        return upd(k);
+    }
+    void init(int l,int r) {
+        Lp=l,Rp=r,N=r-l+1;
+        Build(1,1,N);
+    }
+    void mdf(int pos) {
+        pos-=Lp-1;
+        if(pos<=N) Modify(1,1,N,pos-Lp+1,N,-1);
+    }
+    int qrymax() {
+        return s[1];
+    }
+    void insert(int pos) {
+        return Update(1,1,N,pos-Lp+1);
+    }
+    #undef ls
+    #undef rs
+};
+
+int C[MAXN];
+void solve() {
+    n=read();
+    rep(i,1,n) a[i]=read();
+    
+
+    
+
+    rep(i,0,n) tg[i]=-inf;//!
+
+    struct {
+        int s[MAXN];
+        void init() {fill(s,s+n+1,0);}
+        int lowbit(int x) {return x&(-x);}
+        void insert(int x) {for(x++;x<=n;x+=lowbit(x)) s[x]++;}
+        void erase(int x) {for(x++;x<=n;x+=lowbit(x)) s[x]--;}
+        int qry(int x) {int rs=0;for(x++;x;x&=x-1) rs+=s[x];return rs;}
+    }fenwick;
+    
+    auto lixianfenzhisuanfa=[&](int l,int r,auto &&cdq) ->void{
+        if(l==r) {
+            if(dp[l]<a[l]) dp[l]=-inf;
+            return ;
+        }
+        int mid=l+r>>1;
+        cdq(l,mid,cdq);
+
+        rep(i,l,r) {
+            fenwick.insert(a[i]);
+            C[i]=fenwick.qry(a[i]-1);//!
+        }
+        rep(i,l,r) fenwick.erase(a[i]);//!
+
+        vi lp,rp;//
+        rep(i,l,mid) lp.pb(i);
+        rep(i,mid+1,r) rp.pb(i);
+        sort(lp.begin(),lp.end(),[&](auto i,auto j){return a[i]<a[j];});
+        sort(rp.begin(),rp.end(),[&](auto i,auto j){return a[i]<a[j];}); 
+        auto it=lp.begin();
+
+        ds::init(l,mid);
+        for(auto i:rp) {
+            while(it!=lp.end()&&a[*it]<a[i]) ds::insert(*it),ds::mdf((*it)+1),it++;//suffix -1//!!
+            chkmax(dp[i],C[i]+ds::qrymax());
+        }
+
+        return cdq(mid+1,r,cdq);
+    };
+    fenwick.init();
+    lixianfenzhisuanfa(1,n,lixianfenzhisuanfa);
+
+    // DP("tungtungtungsahuar");
+
+    
+
+    fenwick.init();
+    dec(i,n,1) {
+        fenwick.insert(a[i]);
+        if(dp[i]>=a[i]) {
+            int base=dp[i]+fenwick.qry(a[i]);
+            chkmax(tg[base],n+base-a[i]);
+        }
+    }
+
+    rep(i,1,n) chkmax(tg[i],tg[i-1]),chkmax(ans[i],tg[i]-i);
+    
+
+    
+    dec(i,n,0) chkmax(ans[i],ans[i+1]);//we need==i,ans>=
+    rep(i,0,n) chkmax(output[ans[i]],i);
+    dec(i,n,0) chkmax(output[i],output[i+1]);
+    rep(i,1,n) {
+        printf("%d ",n-output[i]);
+    }
+    return ;
+}
+
+int main() {
+    // File("a")
+    solve();
+    return 0;
+}

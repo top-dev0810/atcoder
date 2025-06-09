@@ -1,0 +1,73 @@
+#include<bits/stdc++.h>
+#define ll long long
+#define N 500005
+#define mod 998244353
+using namespace std;
+inline ll qmi(ll a,ll b,ll p) {
+	ll res = 1%p,t = a;
+	while(b) {
+		if(b&1) res=res*t%p;
+		t=t*t%p;
+		b>>=1;
+	}
+	return res;
+}
+ll n,i,j,a[N],jc[N],inv[N],b[N],t,ls[N],rs[N],cnt[N],alls=1,cntt;
+inline ll C(ll n,ll m) {
+	if(n<m||n<0||m<0) return 0;
+	return jc[n]*inv[m]%mod*inv[n-m]%mod;
+}
+inline ll solve(ll x,ll y) {
+	x -= (y+1);
+	return C(x-1,y);
+}
+int main() {
+	ios::sync_with_stdio(false);
+	cin>>n;
+	jc[0]=1;
+	for(i=1; i<=n; i++) jc[i]=jc[i-1]*i%mod;
+	inv[n]=qmi(jc[n],mod-2,mod);
+	for(i=n; i>=1; i--) inv[i-1]=inv[i]*i%mod;
+	for(i=1; i<=n; i++) cin>>a[i];
+	a[n+1]=a[1];
+	for(i=1; i<=n; i++) if(a[i]!=a[i+1]) break;
+	if(i==n+1) {
+		cout<<jc[n]<<endl;
+		return 0;
+	}
+	for(j=i+1; j<=n; j++) b[++t]=a[j];
+	for(j=1; j<=i; j++) b[++t]=a[j];
+	for(i=1; i<=n; i++) a[i]=b[i];
+	for(i=1; i<=n; i++) {
+		if(!ls[a[i]]) ls[a[i]]=i;
+		rs[a[i]]=i;
+		cnt[a[i]]++;
+	}
+	for(i=1; i<=n; i++) if(ls[i]&&rs[i]-ls[i]+1!=cnt[i]) return cout<<0<<endl,0;
+	for(i=1; i<=n; i++) {
+		alls &= (cnt[i]==1);
+		if(cnt[i]>=3) break;
+	}
+	if(alls) return cout<<1<<endl,0;
+	if(i>n) return cout<<0<<endl,0;
+	for(i=1; i<=n; i++) if(cnt[i]) cntt++;
+	if(cntt==n-2) {
+		if(n==4) {
+			cout<<24<<endl;
+			return 0;
+		}
+		ll ans = 4*(n-2)*n%mod;
+		if(n!=4&&n%2==0) ans=ans*qmi(2,mod-2,mod)%mod;
+		cout<<ans<<endl;
+		return 0;
+	}
+	ll ans = 0;
+	for(i=1; i<=cntt; i++) {
+		ll ball = cntt-i+1;
+		if(i==1) ball+=0;
+		else ball+=1;
+		ans = (ans+jc[n-cntt]*solve(ball,n-cntt-1))%mod;
+	}
+	cout<<(jc[n-1]*inv[cntt-1]%mod-ans+mod)*n%mod<<endl;
+	return 0;
+}

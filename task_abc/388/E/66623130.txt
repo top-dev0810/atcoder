@@ -1,0 +1,99 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+const ll MOD = 1e9;
+// const ll MAX = 2*1e5 +10;
+#define f first
+#define s second
+const ll MAX = 1e3 + 10;
+
+
+void init_code()
+{
+#ifndef ONLINE_JUDGE
+  freopen("input.txt", "r", stdin);
+  freopen("output.txt", "w", stdout);
+  freopen("Error.txt","w",stderr);
+#endif    
+}
+
+//1d vector input
+template <typename T>
+void input_v1D(vector<T>& v) {
+    for (auto& x : v)
+        cin >> x;
+}
+
+//2d vector input
+template <typename T>
+void input_v2D(vector<vector<T>> &v,ll n,ll m){
+   for(ll i=0;i<n;i++)
+      for(ll j=0;j<m;j++)
+         cin>>v[i][j];
+}
+
+//graph edge input
+template<typename T>
+void input_g2D(vector<vector<T>> &g,ll n){
+   for(ll i=0;i<n;i++){
+      ll x,y;
+      cin>>x>>y;
+      --x,--y;
+      g[x].push_back(y);
+      g[y].push_back(x);
+   }
+}
+
+void solve()
+{ 
+
+  int ans = 0;
+  int n;
+  cin>>n;
+
+  vector<int> v(n);
+  vector<bool> visited(n,false);
+  input_v1D(v);
+
+  int i = 0;
+  int j = n/2;
+
+  while(i<n && j<n){
+
+   if(!visited[i] && 1LL*2*v[i] <= 1LL*v[j] ){
+      visited[i] = true;
+      visited[j] = true;
+      ans++;
+      i++;
+
+      while(i<n && visited[i])
+         i++;
+   }
+ 
+   while(i + 1 > j)
+    j++;
+
+   j++;
+
+
+  }
+
+  cout<<ans<<endl;
+}
+
+int main(){
+   
+   ios::sync_with_stdio(false);
+   cin.tie(nullptr);
+   init_code(); 
+    // 
+   
+   ll t; 
+   // cin>>t;
+   t = 1;
+
+   while(t--){
+      solve();
+   }
+
+}

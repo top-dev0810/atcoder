@@ -1,0 +1,52 @@
+#include <bits/stdc++.h>
+using namespace std;
+const int N = 2020;
+typedef long long ll;
+const ll mod = 998244353;
+ll L[N][N], R[N][N], s[N];int a[N];
+int main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr); cout.tie(nullptr);
+    int n, m; cin >> n >> m;
+    for (int i = 1;i <= n;i++) cin >> a[i];
+    L[0][m + 1] = 1;
+    for (int i = 1;i <= n;i++)
+    {
+        if (a[i] != -1)
+        {
+            for (int j = 1;j <= m + 1;j++) L[i][min(a[i], j)] += L[i - 1][j];
+        }
+        else
+        {
+            for (int j = 1;j <= m + 1;j++)s[j] = L[i - 1][j] + s[j - 1];
+            for (int k = 1;k <= m;k++)L[i][k] += mod + s[m + 1] - s[k - 1];
+            for (int j = 1;j <= m;j++)L[i][j] += L[i - 1][j] * (m - j) % mod;
+        }
+        for (int j = 1;j <= m + 1;j++) L[i][j] %= mod;
+    }
+    R[n + 1][0] = 1;
+    for (int i = n;i >= 1;i--)
+    {
+        if (a[i] != -1)
+        {
+            for (int j = 0;j <= m;j++) R[i][max(a[i], j)] += R[i + 1][j];
+        }
+        else
+        {
+            s[0] = R[i + 1][0];
+            for (int j = 1;j <= m;j++) s[j] = R[i + 1][j] + s[j - 1];
+            for (int k = 1;k <= m;k++) R[i][k] += s[k];
+            for (int j = 1;j <= m;j++) R[i][j] += R[i + 1][j] * (j - 1) % mod;
+        }
+        for (int j = 0;j <= m;j++) R[i][j] %= mod;
+    }
+    ll ans = 0; // 呱 呱
+    for (int i = 1;i <= n;i++)
+        for (int j = 1;j <= m;j++)R[i][j] = (R[i][j] + R[i][j - 1]) % mod;
+    for (int i = 1;i <= n;i++)
+        for (int v = m + 1;v >= 1;v--)
+            ans += L[i - 1][v] * R[i][v - 1] % mod;
+    cout << ans % mod << '\n';
+    return 0;
+}

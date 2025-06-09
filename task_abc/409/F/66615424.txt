@@ -1,0 +1,242 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define IOS ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);
+#define LL long long
+#define ULL unsigned long long
+#define I128 __int128_t
+#define linf 1e18
+#define PLL pair<LL, LL>
+#define ld long double
+#define PII pair<int, int>
+const int N = 2e5 + 10;
+mt19937 rnd(chrono::steady_clock::now().time_since_epoch().count());
+namespace my128
+{
+    using i128 = __int128_t;
+    i128 abs(const i128& x) { return x > 0 ? x : -x; }
+    auto& operator>>(istream& it, i128& j)
+    {
+        string val;
+        it >> val;
+        i128 ans = 0;
+        bool f = 0;
+        for (char c : val)
+        {
+            if (c == '-')
+                f = 1;
+            else if (c >= '0' && c <= '9')
+                ans = ans * 10 + c - '0';
+        }
+        j = f ? -ans : ans;
+        return it;
+    }
+    auto& operator<<(ostream& os, const i128& j)
+    {
+        string ans;
+        function<void(i128)> write = [&](i128 x)
+        {
+            if (x < 0) ans += '-', x = -x; if (x > 9) write(x / 10); ans += x % 10 + '0';
+        };
+        write(j);
+        return os << ans;
+    }
+}
+using namespace my128;
+template <class T>
+constexpr T power(T a, LL b)
+{
+    T res = 1;
+    for (; b; b /= 2, a *= a)
+    {
+        if (b % 2)
+        {
+            res *= a;
+        }
+    }
+    return res;
+}
+template <int P>
+struct MInt
+{
+    LL x;
+    static LL Mod;
+    constexpr MInt() : x(0) {}
+    constexpr MInt(LL v) : x(norm(v% getMod())) {}
+    constexpr static LL getMod() { return P > 0 ? P : Mod; }
+    constexpr static void setMod(LL Mod_) { Mod = Mod_; }
+    constexpr LL norm(LL v) const
+    {
+        v %= getMod();
+        return v < 0 ? v + getMod() : v;
+    }
+    constexpr static LL mul_mod(LL a, LL b, LL mod)
+    {
+        return static_cast<LL>(static_cast<I128>(a) * b % mod);
+    }
+    constexpr MInt inv() const
+    {
+        assert(x != 0);
+        return power(*this, getMod() - 2);
+    }
+    constexpr MInt& operator*=(MInt rhs)&
+    {
+        x = mul_mod(x, rhs.x, getMod());
+        return *this;
+    }
+    constexpr MInt& operator+=(MInt rhs)&
+    {
+        x = norm(x + rhs.x);
+        return *this;
+    }
+    constexpr MInt& operator-=(MInt rhs)&
+    {
+        x = norm(x - rhs.x);
+        return *this;
+    }
+    friend constexpr bool operator==(MInt lhs, MInt rhs)
+    {
+        return lhs.x == rhs.x;
+    }
+    friend constexpr bool operator!=(MInt lhs, MInt rhs)
+    {
+        return lhs.x != rhs.x;
+    }
+    friend ostream& operator<<(ostream& os, const MInt<P>& m)
+    {
+        return os << m.x;
+    }
+};
+template <int P>
+MInt<P> operator*(MInt<P> lhs, const MInt<P>& rhs)
+{
+    return lhs *= rhs;
+}
+template <int P>
+MInt<P> operator*(MInt<P> lhs, LL rhs)
+{
+    return lhs *= rhs;
+}
+using Z = MInt<1000000007>;
+using X = MInt<998244353>;
+struct Comb
+{
+    vector<X> fac, invfac;
+    void init(int n)
+    {
+        fac.resize(n + 1);
+        invfac.resize(n + 1);
+        fac[0] = 1;
+        for (int i = 1; i <= n; i++)
+            fac[i] = fac[i - 1] * i;
+        invfac[n] = fac[n].inv();
+        for (int i = n - 1; i >= 0; i--)
+            invfac[i] = invfac[i + 1] * (i + 1);
+    }
+    X C(int n, int m)
+    {
+        if (m > n || m < 0)
+
+            return 0;
+        return fac[n] * invfac[m] * invfac[n - m];
+    }
+    X A(int n, int m)
+    {
+        if (m > n || m < 0)
+            return 0;
+        return fac[n] * invfac[n - m];
+    }
+    X catalan(int n)
+    {
+        if (n < 0)
+            return 0;
+        return C(2 * n, n) * X(n + 1).inv();
+    }
+} Co;
+#define int long long
+void solve()
+{
+    int n, q;
+    cin >> n >> q;
+    vector<PII> A(n + 1);
+    vector<int> E(n + 1);
+    for (int i = 1;i <= n;i++)
+    {
+        auto& [a, b] = A[i];
+        cin >> a >> b;
+    }
+    iota(E.begin(), E.end(), 0);
+    auto find = [&](auto find, int u)->int
+    {
+        if (E[u] != u) E[u] = find(find, E[u]);
+        return E[u];
+    };
+    auto merge = [&](int u, int v)->bool
+    {
+        u = find(find, u);
+        v = find(find, v);
+        if (u != v)
+        {
+            E[u] = v;
+            return true;
+        }
+        return false;
+    };
+    auto check = [&](int u, int v)->bool
+    {
+        u = find(find, u);
+        v = find(find, v);
+        if (u != v) return false;
+        return true;
+    };
+    auto dis = [&](PII a, PII b)->int
+    {
+        return abs(a.first - b.first) + abs(a.second - b.second);
+    };
+    priority_queue<array<int, 3>, vector<array<int, 3>>, greater<array<int, 3>>> pq;
+    for (int i = 1;i <= n;i++)
+        for (int j = i + 1;j <= n;j++)
+            pq.push({ dis(A[i], A[j]), i, j });
+    while (q--)
+    {
+        int op;
+        cin >> op;
+        if (op == 1)
+        {
+            int x, y;
+            cin >> x >> y;
+            E.push_back(E.size());
+            A.push_back({ x,y });
+            for (int i = 1;i < A.size() - 1;i++)
+                pq.push({ dis(A[i],A[A.size() - 1]) , i, (int)A.size() - 1 });
+        }
+        else if (op == 2)
+        {
+            int res = -1;
+            while (pq.size())
+            {
+                auto [w, u, v] = pq.top();
+                if (res != -1 && w != res) break;
+                pq.pop();
+                if (merge(u, v))
+                    res = w;
+            }
+            cout << res << "\n";
+        }
+        else
+        {
+            int u, v;
+            cin >> u >> v;
+            if (check(u, v)) cout << "Yes\n";
+            else cout << "No\n";
+        }
+    }
+}
+signed main()
+{
+    IOS;
+    int t = 1;
+    // cin >> t;
+    while (t--)
+        solve();
+    return 0;
+}

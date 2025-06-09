@@ -1,0 +1,20 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define int long long
+
+signed main(){
+	int T;
+	cin>>T;
+	while(T--){
+		int n;
+		cin>>n;
+		int ans  = 1 ;
+		for(int i=10;i<=1000000000;i*=10){
+			int B = i*i;
+			if(n>=B-i*2) ans ++;
+			if(n>=B-i) ans +=min(n,B+i-1) - (B-i)+1;
+		}cout<<ans<<'\n';
+	}	
+	return 0;
+}

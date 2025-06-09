@@ -1,0 +1,94 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define ll long long
+#define ull unsigned long long
+#define ld  long double
+
+using LL = long long; using ULL = unsigned long long;
+using VI = vector<int>; using VVI = vector<VI>; using VVVI = vector<VVI>;
+using VL = vector<LL>; using VVL = vector<VL>; using VVVL = vector<VVL>;
+using VB = vector<bool>; using VVB = vector<VB>; using VVVB = vector<VVB>;
+using VD = vector<double>; using VVD = vector<VD>; using VVVD = vector<VVD>;
+using VC = vector<char>; using VS = vector<string>; using VVC = vector<VC>;
+using PII = pair<int,int>; using PLL = pair<LL,LL>; using PDD = pair<double,double>; using PIL = pair<int,LL>;
+using MII = map<int,int>; using MLL = map<LL,LL>;
+using SI = set<int>; using SL = set<LL>;
+using MSI = multiset<int>; using MSL = multiset<LL>;
+template<class T> using MAXPQ = priority_queue<T>;
+template<class T> using MINPQ = priority_queue< T, vector<T>, greater<T> >;
+
+const ll MOD = 1000000007;
+const ll MOD2 = 998244353;
+const ll INF = 1LL << 60;
+#define PI  3.14159265358979323846
+
+#define FOR(i, a, b) for(int i = (a); i < (b); ++i)
+#define REP(i, n) FOR(i, 0, n)
+#define EACH(e, v) for(auto &e : v)
+#define RITR(it, v) for(auto it = (v).rbegin(); it != (v).rend(); ++it)
+#define ALL(v) v.begin(),v.end()
+
+vector<ll> x8={1,1,1,0,0,-1,-1,-1},y8={1,0,-1,1,-1,1,0,-1};
+int dx4[4]={1,-1,0,0}, dy4[4]={0,0,1,-1};
+
+/*
+memo
+-uf,RMQ(segtree),BIT,BIT2,SegTree,SegTreeLazy
+-isprime,Eratosthenes,gcdlcm,factorize,divisors,modpow,moddiv
+nCr(+modnCr,inverse,extend_euclid.powmod),tobaseB,tobase10
+-dijkstra,Floyd,bellmanford,sccd,topological,treediamiter
+-compress1,compress2,rotate90
+
+-co,ci,fo1,fo2,fo3,fo4
+-bitsearch,binaryserach
+-bfs
+-SegTreedec,SegTreeLazydec
+*/
+
+VVL G;
+VL dp,sum;
+void dfs(ll u, ll par){
+    ll res = 0;
+    VL kiyo;
+    for(auto v : G[u]){
+        if(v!=par){
+            dfs(v,u);
+            kiyo.push_back(dp[v]);
+        }
+    }
+    if(G[u].size()>=4){
+        sort(kiyo.rbegin(),kiyo.rend());
+        for(ll i = 0; i < 3; i++) res += kiyo[i]; 
+        dp[u] = res+1;
+        if(kiyo.size()>=4){
+            for(ll i = 0; i < 4; i++) sum[u] += kiyo[i];
+            sum[u]++;
+        }
+    }
+}
+
+
+
+int main(){
+    cin.tie(0);
+    ios_base::sync_with_stdio(0);
+    ll N; cin >> N;
+    ll M = 0;
+    G = VVL(N);
+    dp = VL(N,0),sum = VL(N,0);
+    for(ll i = 0; i < N-1; i++){
+        ll a,b; cin >> a >> b;
+        a--,b--;
+        G[a].push_back(b);
+        G[b].push_back(a);
+    }    
+    
+    dfs(0,-1);
+    //ll ans = 0;
+    for(ll i = 0; i < N; i++) M = max(dp[i],M);
+    for(ll i = 0; i < N; i++) M = max(sum[i],M);
+
+    if(!M) cout << -1 << '\n';
+    else cout << 3*M+2 << '\n';
+}

@@ -1,0 +1,442 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll=long long;
+using ull=unsigned long long;
+using P=pair<ll,ll>;
+template<typename T>using minque=priority_queue<T,vector<T>,greater<T>>;
+template<typename T>bool chmax(T &a,const T &b){return (a<b?(a=b,true):false);}
+template<typename T>bool chmin(T &a,const T &b){return (a>b?(a=b,true):false);}
+template<typename T1,typename T2>istream &operator>>(istream &is,pair<T1,T2>&p){is>>p.first>>p.second;return is;}
+template<typename T1,typename T2,typename T3>istream &operator>>(istream &is,tuple<T1,T2,T3>&a){is>>std::get<0>(a)>>std::get<1>(a)>>std::get<2>(a);return is;}
+template<typename T,size_t n>istream &operator>>(istream &is,array<T,n>&a){for(auto&i:a)is>>i;return is;}
+template<typename T>istream &operator>>(istream &is,vector<T> &a){for(auto &i:a)is>>i;return is;}
+template<typename T1,typename T2>void operator++(pair<T1,T2>&a,int n){a.first++,a.second++;}
+template<typename T1,typename T2>void operator--(pair<T1,T2>&a,int n){a.first--,a.second--;}
+template<typename T>void operator++(vector<T>&a,int n){for(auto &i:a)i++;}
+template<typename T>void operator--(vector<T>&a,int n){for(auto &i:a)i--;}
+#define overload3(_1,_2,_3,name,...) name
+#define rep1(i,n) for(int i=0;i<(int)(n);i++)
+#define rep2(i,l,r) for(int i=(int)(l);i<(int)(r);i++)
+#define rep(...) overload3(__VA_ARGS__,rep2,rep1)(__VA_ARGS__)
+#define reps(i,l,r) rep2(i,l,r)
+#define all(x) x.begin(),x.end()
+#define pcnt(x) __builtin_popcountll(x)
+#define fin(x) return cout<<(x)<<'\n',static_cast<void>(0)
+#define yn(x) cout<<((x)?"Yes\n":"No\n")
+#define uniq(x) sort(all(x)),x.erase(unique(all(x)),x.end())
+template<typename T>
+inline int fkey(vector<T>&z,T key){return lower_bound(z.begin(),z.end(),key)-z.begin();}
+ll myceil(ll a,ll b){return (a+b-1)/b;}
+template<typename T,size_t n,size_t id=0>
+auto vec(const int (&d)[n],const T &init=T()){
+  if constexpr (id<n)return vector(d[id],vec<T,n,id+1>(d,init));
+  else return init;
+}
+#ifdef LOCAL
+#include<debug.h>
+#define SWITCH(a,b) (a)
+#else
+#define debug(...) static_cast<void>(0)
+#define debugg(...) static_cast<void>(0)
+#define SWITCH(a,b) (b)
+template<typename T1,typename T2>ostream &operator<<(ostream &os,const pair<T1,T2>&p){os<<p.first<<' '<<p.second;return os;}
+#endif
+struct Timer{
+  clock_t start;
+  Timer(){
+    start=clock();
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cout<<fixed<<setprecision(16);
+  }
+  inline double now(){return (double)(clock()-start)/1000;}
+  #ifdef LOCAL
+  ~Timer(){
+    cerr<<"time:";
+    cerr<<now();
+    cerr<<"ms\n";
+  }
+  #endif
+}timer;
+void SOLVE();
+int main(){
+  int testcase=1;
+  //cin>>testcase;
+  for(int i=0;i<testcase;i++){
+    SOLVE();
+  }
+}
+#include<type_traits>
+#include<concepts>
+template<typename T>
+constexpr std::enable_if_t<std::numeric_limits<T>::digits<=32,int>msb(T n){return n==0?-1:31-__builtin_clz(n);}
+template<typename T>
+constexpr std::enable_if_t<(std::numeric_limits<T>::digits>32),int>msb(T n){return n==0?-1:63-__builtin_clzll(n);}
+
+template<typename T>
+constexpr std::enable_if_t<std::numeric_limits<T>::digits<=32,int>lsb(T n){return n==0?-1:__builtin_ctz(n);}
+template<typename T>
+constexpr std::enable_if_t<(std::numeric_limits<T>::digits>32),int>lsb(T n){return n==0?-1:__builtin_ctzll(n);}
+
+template<typename T>
+constexpr std::enable_if_t<std::is_integral_v<T>,T>floor_pow2(T n){return n==0?0:T(1)<<msb(n);}
+
+template<typename T>
+constexpr std::enable_if_t<std::is_integral_v<T>,T>ceil_pow2(T n){return n<=1?1:T(1)<<(msb(n-1)+1);}
+
+template<std::integral T>
+constexpr T safe_div(T a,T b){return a/b-(a%b&&(a^b)<0);}
+template<std::integral T>
+constexpr T safe_ceil(T a,T b){return a/b+(a%b&&(a^b)>0);}
+template<typename M,int L=5>
+struct SparseTable{
+  using S=typename M::S;
+private:
+  std::vector<S>dat,prefix,suffix;
+  std::vector<std::vector<S>>sp;
+public:
+  SparseTable(){}
+  SparseTable(std::vector<S>a):dat(a){
+    int n=a.size();
+    n=(n+(1<<L)-1)&~((1<<L)-1);
+    a.resize(n,M::e());
+    prefix=suffix=a;
+    std::vector<S>d2(n>>L,M::e());
+    for(int i=0;i<d2.size();i++){
+      for(int j=0;j<(1<<L);j++)d2[i]=M::op(d2[i],a[(i<<L)+j]);
+    }
+    for(int i=0;i<(n>>L);i++){
+      for(int j=1;j<(1<<L);j++)prefix[(i<<L)+j]=M::op(prefix[(i<<L)+j-1],prefix[(i<<L)+j]);
+    }
+    for(int i=(n>>L)-1;i>=0;i--){
+      for(int j=(1<<L)-1;j>=1;j--)suffix[(i<<L)+j-1]=M::op(suffix[(i<<L)+j-1],suffix[(i<<L)+j]);
+    }
+    int d=(d2.size()==1?1:32-__builtin_clz(d2.size()-1));
+    sp.resize(d,d2);
+    for(int i=1;i<d;i++){
+      int w=1<<i;
+      for(int j=w;j<=d2.size();j+=w*2){
+        for(int k=j-2;k>=j-w;k--)sp[i][k]=M::op(d2[k],sp[i][k+1]);
+        int r=std::min<int>(d2.size(),j+w);
+        for(int k=j+1;k<r;k++)sp[i][k]=M::op(sp[i][k-1],d2[k]);
+      }
+    }
+  }
+  S prod(int l,int r)const{
+    if(l==r)return M::e();
+    r--;
+    int lid=l>>L,rid=r>>L;
+    if(lid==rid){
+      S ret=M::e();
+      for(int i=l;i<=r;i++)ret=M::op(ret,dat[i]);
+      return ret;
+    }
+    else{
+      lid++;
+      rid--;
+      S mid=M::e();
+      if(lid==rid)mid=sp[0][lid];
+      else if(lid<rid){
+        int s=msb(lid^rid);
+        mid=M::op(sp[s][lid],sp[s][rid]);
+      }
+      return M::op(suffix[l],M::op(mid,prefix[r]));
+    }
+  }
+};
+template<typename M>
+struct SegmentTree{
+  using S=typename M::S;
+private:
+  int n,z;
+  std::vector<S>dat;
+public:
+  SegmentTree():n(0),z(0),dat(){}
+  SegmentTree(int n):n(n),z(ceil_pow2(n)),dat(ceil_pow2(n)*2,M::e()){}
+  SegmentTree(const std::vector<S>&a):n(a.size()),z(ceil_pow2((int)a.size())){
+    dat.resize(z*2,M::e());
+    for(int i=0;i<n;i++)dat[i+z]=a[i];
+    for(int i=z-1;i>=1;i--)dat[i]=M::op(dat[i*2],dat[i*2+1]);
+  }
+  inline S get(int i)const{return dat[i+z];}
+  void set(int i,S x){
+    assert(0<=i&&i<n);
+    i+=z;
+    dat[i]=x;
+    i>>=1;
+    while(i){
+      dat[i]=M::op(dat[i*2],dat[i*2+1]);
+      i>>=1;
+    }
+  }
+  S prod(int l,int r)const{
+    assert(0<=l&&l<=r&&r<=n);
+    l+=z,r+=z;
+    S left=M::e(),right=M::e();
+    while(l<r){
+      if(l&1)left=M::op(left,dat[l++]);
+      if(r&1)right=M::op(dat[--r],right);
+      l>>=1,r>>=1;
+    }
+    return M::op(left,right);
+  }
+  inline S all_prod()const{return dat[1];}
+  template<typename Func>
+  int max_right(int l,const Func&f){
+    if(l==n)return n;
+    l+=z;
+    S now=M::e();
+    do{
+      while((~l)&1)l>>=1;
+      S nxt=M::op(now,dat[l]);
+      if(f(nxt))now=nxt,l++;
+      else{
+        while(l<z){
+          l<<=1;
+          nxt=M::op(now,dat[l]);
+          if(f(nxt))now=nxt,l++;
+        }
+        return l-z;
+      }
+    }while(l!=(l&-l));
+    return n;
+  }
+  template<typename Func>
+  int min_left(int r,const Func&f){
+    if(r==0)return 0;
+    r+=z;
+    S now=M::e();
+    do{
+      r--;
+      while(r>1&&(r&1))r>>=1;
+      S nxt=M::op(dat[r],now);
+      if(f(nxt))now=nxt;
+      else{
+        while(r<z){
+          r=(r<<1)+1;
+          nxt=M::op(dat[r],now);
+          if(f(nxt))now=nxt,r--;
+        }
+        return r-z+1;
+      }
+    }while(r!=(r&-r));
+    return 0;
+  }
+  friend std::ostream &operator<<(std::ostream &os,const SegmentTree&seg){
+    os<<"{";
+    for(int i=0;i<seg.n;i++)os<<seg.dat[i+seg.z]<<",}"[i+1==seg.n];
+    if(seg.n==0)os<<"}";
+    return os;
+  }
+};
+template<typename M>
+struct LazySegmentTree{
+private:
+  using S=typename M::S;
+  using F=typename M::F;
+  int n,z;
+  int log2n;
+  std::vector<S>dat;
+  std::vector<F>lazy;
+  inline void propagate(int i,const F&f){
+    dat[i]=M::mapping(f,dat[i],1<<(log2n-msb(i)));
+    lazy[i]=M::composition(f,lazy[i]);
+  }
+  inline void push(int i){
+    if(i<z){
+      propagate(i*2,lazy[i]);
+      propagate(i*2+1,lazy[i]);
+      lazy[i]=M::id();
+    }
+  }
+  inline void update(int i){
+    dat[i]=M::op(dat[i*2],dat[i*2+1]);
+  }
+  inline void path_push(int i){
+    int l=lsb(i);
+    for(int j=log2n;j>l;j--)push(i>>j);
+  }
+  inline void path_update(int i){
+    int l=lsb(i);
+    i>>=(l+1);
+    while(i){
+      update(i);
+      i>>=1;
+    }
+  }
+public:
+  LazySegmentTree():n(0),z(0),log2n(0){}
+  explicit LazySegmentTree(int n_):n(n_),z(ceil_pow2(n_)){
+    log2n=msb(z);
+    dat.resize(z*2,M::e()),lazy.resize(z*2,M::id());
+  }
+  explicit LazySegmentTree(const std::vector<S>&init):n(init.size()),z(ceil_pow2((int)init.size())){
+    log2n=msb(z);
+    dat.resize(z*2,M::e()),lazy.resize(z*2,M::id());
+    for(int i=0;i<n;i++)dat[i+z]=init[i];
+    for(int i=z-1;i>=1;i--)update(i);
+  }
+  void set(int i,const S&x){
+    i+=z;
+    for(int j=log2n;j>0;j--)push(i>>j);
+    dat[i]=x;
+    i>>=1;
+    while(i){
+      update(i);
+      i>>=1;
+    }
+  }
+  S get(int i){
+    i+=z;
+    for(int j=log2n;j>0;j--)push(i>>j);
+    return dat[i];
+  }
+  void apply(int l,int r,const F&f){
+    l+=z,r+=z;
+    path_push(l),path_push(r);
+    int l2=l,r2=r;
+    while(l<r){
+      if(l&1)propagate(l++,f);
+      if(r&1)propagate(--r,f);
+      l>>=1,r>>=1;
+    }
+    path_update(l2),path_update(r2);
+  }
+  S prod(int l,int r){
+    l+=z,r+=z;
+    path_push(l),path_push(r);
+    S left=M::e(),right=M::e();
+    while(l<r){
+      if(l&1)left=M::op(left,dat[l++]);
+      if(r&1)right=M::op(dat[--r],right);
+      l>>=1,r>>=1;
+    }
+    return M::op(left,right);
+  }
+  inline S all_prod()const{return dat[1];}
+  std::vector<S>get_all(){
+    for(int i=1;i<z;i++)push(i);
+    return std::vector<S>(dat.begin()+z,dat.begin()+z+n);
+  }
+  friend std::ostream &operator<<(std::ostream&os,const LazySegmentTree&seg){
+    std::vector<F>lazy2(seg.lazy);
+    for(int i=0;i<seg.n;i++)lazy2[i+seg.z]=M::id();
+    for(int i=1;i<seg.z;i++){
+      lazy2[i*2]=M::composition(lazy2[i],lazy2[i*2]);
+      lazy2[i*2+1]=M::composition(lazy2[i],lazy2[i*2+1]);
+    }
+    os<<"{";
+    for(int i=0;i<seg.n;i++)os<<M::mapping(lazy2[i+seg.z],seg.dat[i+seg.z],1)<<",}"[i+1==seg.n];
+    if(seg.n==0)os<<"}";
+    return os;
+  }
+};
+template<typename T,T E=std::numeric_limits<T>::max()>
+struct MonoidMin{
+  using S=T;
+  using F=std::nullptr_t;
+  static inline S op(const S&x,const S&y){return x<y?x:y;}
+  static inline S e(){return E;}
+  static inline S mapping(F,const S&x,long long){return x;}
+  static inline F composition(F,F){return nullptr;}
+  static inline F id(){return nullptr;}
+  static inline void revS(S&x){}
+  static inline S pow(const S&x,long long p){return x;}
+};
+template<typename T,T E=std::numeric_limits<T>::min()>
+struct MonoidMax{
+  using S=T;
+  using F=std::nullptr_t;
+  static inline S op(const S&x,const S&y){return x<y?y:x;}
+  static inline S e(){return E;}
+  static inline S mapping(F,const S&x,long long){return x;}
+  static inline F composition(F,F){return nullptr;}
+  static inline F id(){return nullptr;}
+  static inline void revS(S&x){}
+  static inline S pow(const S&x,long long p){return x;}
+};
+template<typename T>
+struct RangeAddRangeMin{
+  static_assert(std::is_arithmetic_v<T>);
+  using S=T;
+  using F=T;
+  static inline S op(const S&x,const S&y){return x<y?x:y;}
+  static inline S e(){return std::numeric_limits<S>::max()/2;}
+  static inline S mapping(const F&f,const S&x,long long){return x+f;}
+  static inline F composition(const F&f,const F&g){return f+g;}
+  static inline F id(){return 0;}
+  static inline void revS(S&x){}
+  static inline S pow(const S&x,long long){return x;}
+};
+struct Monoid{
+  using S=pair<int,int>;
+  static S op(S x,S y){return min(x,y);}
+  static S e(){return {1e9,-1};}
+};
+vector<int>solve(vector<int>a,vector<pair<int,int>>query){
+  int n=a.size(),q=query.size();
+  vector<int>ord(q);
+  iota(all(ord),0);
+  sort(all(ord),[&](int l,int r){return query[l].second<query[r].second;});
+  SparseTable<Monoid>sp([&](){vector<pair<int,int>>init(n);rep(i,n)init[i]={-a[i],i};return init;}());
+  vector<int>res(q,2e9);
+  stack<int>st,st2;
+  st2.push(-1);
+  int nr=0;
+  LazySegmentTree<RangeAddRangeMin<ll>>seg(n);
+  for(int i:ord){
+    auto [l,r]=query[i];
+    while(nr<r){
+      while(!st.empty()){
+        int id=st.top();
+        if(a[id]>a[nr]){
+          st.pop();
+          seg.set(id,2e9);
+        }
+        else break;
+      }
+      while(!st2.empty()){
+        int idx=st2.top();
+        if(idx==-1)break;
+        if(a[idx]<a[nr]){
+          st2.pop();
+          int pl=st2.top();
+          seg.apply(pl+1,idx+1,a[nr]-a[idx]);
+          // debug(idx,pr,nr,a[nr]-a[idx]);
+        }
+        else break;
+      }
+      if(nr>0)seg.set(nr-1,a[nr-1]+a[nr]);
+      // seg.apply(0,nr,a[nr]);
+      st2.push(nr);
+      st.push(nr++);
+    }
+    auto [mx,mxidx]=sp.prod(l,r);
+    mx=-mx;
+    debug(seg);
+    if(mxidx>=r-2)continue;
+    res[i]=mx+seg.prod(mxidx+1,r-1);
+  }
+  return res;
+}
+void SOLVE(){
+  int n,q;
+  cin>>n>>q;
+  vector<int>a(n);
+  cin>>a;
+  SparseTable<MonoidMax<int>>sp(a);
+  vector<pair<int,int>>query(q);
+  cin>>query;
+  rep(i,q)query[i].first--;
+  vector<int>ans1(q);
+  rep(i,q)ans1[i]=a[query[i].first]+a[query[i].second-1]+sp.prod(query[i].first+1,query[i].second-1);
+  vector<int>ans2=solve(a,query);
+  rep(i,q){
+    auto [l,r]=query[i];
+    query[i]={n-r,n-l};
+  }
+  reverse(all(a));
+  vector<int>ans3=solve(a,query);
+  debug(ans1,ans2,ans3);
+  rep(i,q)cout<<min({ans1[i],ans2[i],ans3[i]})<<'\n';
+}

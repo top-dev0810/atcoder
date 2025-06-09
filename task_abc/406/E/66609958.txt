@@ -1,0 +1,45 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+
+const int maxn = 63, mod  = 998244353;
+
+long long dp[maxn][maxn], cnt[maxn][maxn];
+
+long long N, K;
+
+inline int cal() {
+    long long ans = 0, cntt = 0, pls = 0;
+    for(int i = maxn - 1; i > -1; i--) {
+        if(N & (1ll << i)){
+            if(K < cntt)
+                break;
+            ans = (ans + dp[i][K - cntt] + cnt[i][K - cntt] * pls % mod) % mod;
+            cntt++;
+            pls = (pls + (1ll << i) % mod) % mod;
+        }
+    }
+    if(cntt == K)
+        ans = (ans + N) % mod;
+    return ans;
+}
+
+int main() {
+    cnt[1][0] = 1;
+    cnt[1][1] = 1;
+    dp[1][1] = 1;
+    cnt[0][0] = 1;
+    for(int i = 2; i < maxn; i++){
+        cnt[i][0] = 1;
+        for(int k = 1; k < maxn; k++) {
+            dp[i][k] = (dp[i - 1][k] + (1ll << (i - 1)) % mod * cnt[i - 1][k - 1] % mod + dp[i - 1][k - 1]) % mod;
+            cnt[i][k] = (cnt[i - 1][k] + cnt[i - 1][k - 1]) % mod;
+        }
+    }
+    int t;
+    cin >> t;
+    while(t--) {
+        cin >> N >> K;
+        cout << cal() << endl;
+    }
+}

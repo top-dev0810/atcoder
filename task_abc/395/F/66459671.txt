@@ -1,0 +1,66 @@
+#include "bits/stdc++.h"
+
+using namespace std;
+
+typedef long long ll;
+typedef unsigned long long ull;
+typedef long double ld;
+typedef pair<int, int> P;
+typedef pair<P, P> PP;
+using cd = complex<double>;
+const double PI = acos(-1);
+#define fi first
+#define si second
+#define TxtIO   freopen("input.in","r",stdin); freopen("output.out","w",stdout);
+
+ll n, x;
+const ll max_n = 2e5 + 5;
+ll U[max_n], D[max_n];
+
+bool is_valid(ll h, ll x) {
+	for (int i = 0; i < n; i ++) {
+		if (U[i] + D[i] < h) return false;
+	}
+	
+	ll lo = 0, hi = 1e10;
+	for (int i = 0; i < n; i ++) {
+		ll diff = U[i] + D[i] - h;
+		ll Ui = U[i];
+		if (diff > D[i]) {
+			Ui -= diff - D[i];
+			diff -= diff - D[i];
+		}
+		
+		ll curr_lo = max(0LL, Ui - diff), curr_hi = Ui;
+		lo = max(0LL, lo - x);
+		hi = min((ll)1e10, hi + x);
+		lo = max(lo, curr_lo);
+		hi = min(hi, curr_hi);
+		if (lo > hi) return false;
+	}
+	return true;
+}
+
+void solve(){
+	cin >> n >> x;
+	for (int i = 0; i < n; i ++) cin >> U[i] >> D[i];
+	ll tot = 0;
+	for (int i = 0; i < n; i ++) tot += U[i] + D[i];
+	
+	ll lo = 0, hi = 1e10;
+	while (lo + 1 < hi) {
+		ll mid = lo + (hi - lo) / 2;
+		if (is_valid(mid, x)) lo = mid;
+		else hi = mid;
+	}
+	cout << tot - lo * n;
+}
+
+int main(){
+	ios_base::sync_with_stdio(false);
+	cin.tie(0), cout.tie(0);
+	int t=1;
+	// cin>>t;
+	while(t--) solve();
+	return 0;
+}

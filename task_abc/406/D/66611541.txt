@@ -1,0 +1,66 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define endl '\n'
+#define paii pair<int,int>
+
+struct node{
+    int x,y,w;
+
+    bool operator<(const node x1)const{
+        return w > x1.w;
+    }
+};
+
+
+void solve(){
+
+    int n , m , q;
+    cin >> n >> m >> q;
+    set<paii> se;
+    vector<vector<int>> a(n+1);
+    vector<vector<int>> b(m+1);
+    for (int i = 1; i <= q; ++i) {
+        int x , y;
+        cin >> x >> y;
+        a[x].push_back(y);
+        b[y].push_back(x);
+    }
+    cin >> q;
+    while(q--){
+        int x , y;
+        cin >> x >> y;
+        int ans = 0;
+        if (x == 1){
+            for (auto u : a[y]) {
+                if (se.count({y,u})){
+                    continue;
+                }
+                se.insert({y,u});
+                ans++;
+            }
+            a[y].clear();
+        }else{
+            for (auto u : b[y]) {
+                if (se.count({u,y})){
+                    continue;
+                }
+                se.insert({u,y});
+                ans++;
+            }
+            b[y].clear();
+        }
+        cout << ans << endl;
+    }
+
+
+}
+
+signed main(){
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    int t = 1;
+    while(t--){
+        solve();
+    }
+}

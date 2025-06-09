@@ -1,0 +1,1109 @@
+///////////////////////////////////////////////////////////////////////
+////////// SCROLL ALL THE WAY DOWN FOR PROBLEM SPECIFIC CODE //////////
+///////////////////////////////////////////////////////////////////////
+
+#include <bits/stdc++.h>
+using namespace std;
+
+////////////// DEBUG UTILS /////////////////
+#ifndef ONLINE_JUDGE
+  #include "../../../../lib/debug/debug.h"
+  #define debug(...) \
+  if(DEBUG_CASENUM < 0 || DEBUG_CASENUM == CASENUM) { \
+    dbg(__VA_ARGS__); \
+  }
+#else
+  #define debug(...) {}
+  #define dbg(...) {}
+  #define expect(cond,...) {assert(cond);}
+  #define ARRAY_BOUNDS_CHECK_SKIP
+  #define STACK_TRACE_SKIP
+  #define STD_FORMAT_SKIP
+#endif
+
+//////////// LIBRARY CODE IF ANY ///////////
+#line 17 "array.h"
+
+// An Array wraps a vector
+
+struct Permutation {
+  int n;
+  std::vector<int> v;
+
+  Permutation(int _n):n(_n),v(_n) {
+    for(int i=0;i<n;i++) v[i] = i;
+  }
+
+  Permutation(const Permutation& that) {
+    __copyFrom(that);
+  }
+
+  Permutation& operator=(const Permutation& that) {
+    if(&that == this) {
+      return *this;
+    }
+    __copyFrom(that);
+    return *this;
+  }
+
+  Permutation(Permutation&& that) {
+    __moveFrom(std::move(that));
+  }
+
+  Permutation& operator=(Permutation&& that) {
+    if(&that == this) {
+      return *this;
+    }
+    __moveFrom(std::move(that));
+    return *this;
+  }
+
+  ~Permutation() {
+  }
+
+  inline int& operator()(int idx) {
+    return v[idx];
+  }
+
+  inline const int& operator()(int idx) const {
+    return v[idx];
+  }
+
+  inline int size() const {
+    return n;
+  }
+
+  /// Input = [3,1,0,2], Output = [2, 1, 3, 0]
+  void inverse() {
+    std::vector<int> temp(n);
+    for(int i=0;i<n;i++) temp[v[i]] = i;
+    for(int i=0;i<n;i++) v[i] = temp[i];
+  }
+
+  void reverse() {
+    std::reverse(v.begin(), v.end());
+  }
+
+  long long int inversionCount() const {
+    if(n == 0) return 0;
+
+    std::vector<int> W = v;
+    std::vector<int> temp(n);
+    return invCount(temp, W, 0, n-1);
+  }
+
+  private:
+
+  void __copyFrom(Permutation const& that) {
+    n = that.n;
+    v = that.v;
+  }
+
+  void __moveFrom(Permutation&& that) {
+    std::swap(n, that.n);
+    std::swap(v, that.v);
+  }
+
+  long long int invCount(std::vector<int>& temp, std::vector<int>& W, int lo, int hi) const {
+    assert(hi >= lo);
+    if(lo == hi) {
+      return 0;
+    }
+
+    int mid = (lo+hi)/2;
+    long long int a = invCount(temp, W, lo, mid);
+    long long int b = invCount(temp, W, mid+1, hi);
+    long long int c = sortAndGetInvCount(temp, W, lo, mid, hi);
+    return a + b + c;
+  }
+
+  // Merge Sort elements of W in range [lo, hi] assuming [lo, mid] and [mid+1, hi] are sorted
+  long long int sortAndGetInvCount(std::vector<int>& temp, std::vector<int>& W, int lo, int mid, int hi) const {
+    int l = lo;
+    int r = mid+1;
+    int cnt = lo;
+    long long int ret = 0;
+
+    while(l <= mid && r <= hi) {
+      if(W[l] < W[r]) {
+        temp[cnt++] = W[l++];
+      } else {
+        assert(W[l] > W[r]); // no dups
+        temp[cnt++] = W[r++];
+        ret += (mid+1 - l);
+      }
+    }
+
+    while(r <= hi) temp[cnt++] = W[r++];
+    while(l <= mid) temp[cnt++] = W[l++];
+    for(int i=lo;i<=hi;i++) W[i] = temp[i];
+    return ret;
+  }
+};
+
+ostream& operator<<(ostream& os, Permutation const& v) {
+  os<<v.size()<<" vals. [ ";
+  for(int i=0;i<v.size();i++) {
+    if(i)os<<", ";
+    os<<v(i);
+  }
+  os<<" ]";
+  return os;
+}
+
+template<typename T>
+class Array1 {
+
+  template<typename> struct is_array1 : std::false_type {};
+  template<typename> struct is_array2 : std::false_type {};
+
+  template<typename W> struct is_array1<Array1<W>> : std::true_type {
+    typedef W type;
+  };
+
+  template<typename W> struct is_array2<Array1<Array1<W>>> : std::true_type {
+    typedef W type;
+  };
+
+  template<typename W> struct not_array1 : std::true_type {
+    typedef W type;
+  };
+
+  template<typename W> struct not_array1<Array1<W>> : std::false_type {};
+
+  typedef typename std::vector<T>::iterator iterator;
+  typedef typename std::vector<T>::const_iterator const_iterator;
+
+  private:  
+  int loIdx;
+  std::vector<T> data;
+  bool throwOnOob;
+  T specialVal;
+
+  public:
+  //////////////////// Constructors /////////////////
+  Array1() {
+    init(0, -1);
+  }
+
+  Array1(std::initializer_list<T> values) {
+    init(0, -1 + (int)values.size());
+    data.assign(values.begin(), values.end());
+  }
+
+  Array1(const std::vector<T>& values) {
+    init(0, -1 + (int)values.size());
+    data.assign(values.begin(), values.end());
+  }
+
+  Array1(int size) {
+    init(0, size-1);
+  }
+
+  Array1(int size, const T& value) {
+    init(0, size-1);
+    std::fill(data.begin(), data.end(), value);
+  }
+
+  Array1(int size, std::function<T()> reader) {
+    init(0, size-1);
+    for(int i=0;i<size;i++)
+      data[i] = reader();
+  }
+
+  ///////////////// Settings ////////////////
+  Array1& oobSpecialVal() {
+    // Consider propagating in n-d array case for n>1.
+   throwOnOob = false;
+   return *this;
+  }
+
+  ///////////////// Accessors ////////////////
+  inline T& operator()(int idx) {
+    if(isOOB(idx)) {
+      return specialVal;
+    }
+    return data[idx-loIdx];
+  }
+
+  inline T& operator()(long long int idx) {
+    if(isOOB(idx)) {
+      return specialVal;
+    }
+    return data[idx-loIdx];
+  }
+
+  inline T& operator()(auto idx) {
+    if(isOOB(idx.mask - loIdx)) {
+      return specialVal;
+    }
+    // idx is of type BitMask
+    return data[idx.mask-loIdx];
+  }
+
+  inline const T& operator()(int idx) const {
+    if(isOOB(idx)) {
+      return specialVal;
+    }
+    return data[idx-loIdx];
+  }
+
+  inline const T& operator()(long long int idx) const {
+    if(isOOB(idx)) {
+      return specialVal;
+    }
+    return data[idx-loIdx];
+  }
+
+  inline const T& operator()(auto idx) const {
+    if(isOOB(idx.mask - loIdx)) {
+      return specialVal;
+    }
+    // idx is of type BitMask
+    return data[idx.mask-loIdx];
+  }
+  
+  // returns W& if T = Array1<W>
+  inline typename is_array1<T>::type& operator()(int row, int col) {
+    if(isOOB(row)) {
+      return specialVal.operator()(col);
+    }
+    return data[row-loIdx].operator()(col);
+  }
+  
+  inline const typename is_array1<T>::type& operator()(int row, int col) const {
+    if(isOOB(row)) {
+      return specialVal.operator()(col);
+    }
+    return data[row-loIdx].operator()(col);
+  }
+
+  // returns W& if T = Array1<Array1<W>>
+  inline typename is_array2<T>::type& operator()(int row, int col, int z) {
+    if(isOOB(row)) {
+      return specialVal.operator()(col, z);
+    }
+    return data[row-loIdx].operator()(col, z);
+  }
+
+  // returns W& if T = Array1<Array1<W>>
+  inline typename is_array2<T>::type& operator()(int row, int col, int z) const {
+    if(isOOB(row)) {
+      return specialVal.operator()(col, z);
+    }
+    return data[row-loIdx].operator()(col, z);
+  }
+
+  inline bool isOOB(int idx) const {
+#ifndef ARRAY_BOUNDS_CHECK_SKIP
+    if(idx < loIdx || idx >= loIdx + size()) {
+      if(throwOnOob) {
+        std::ostringstream oss;
+        oss<< "Out of bounds error" << std::endl;
+        oss<< "idx = " << idx << std::endl;
+        oss<< "Range = [" << loIdx << " to " << loIdx + size() << ")" << std::endl;
+        oss<< "\nStacktrace\n";
+        oss<< "----------\n";
+        oss<<std::stacktrace::current()<<std::endl;
+        throw std::runtime_error(oss.str());
+      } else {
+        return true;
+      }
+    }
+#endif        
+    return false;
+  }
+
+  ///////////////// State //////////////
+  
+  inline int size() const {
+    return data.size();
+  }
+
+  inline Array1::const_iterator begin() const {
+    return data.begin();
+  }
+
+  inline Array1::iterator begin() {
+    return data.begin();
+  }
+
+  inline Array1::const_iterator end() const {
+    return data.end();
+  }
+
+  inline Array1::iterator end() {
+    return data.end();
+  }
+
+  bool operator==(const Array1<T>& that) const {
+    return loIdx == that.loIdx && data == that.data;
+  }
+
+  inline T& first() {
+    return data[0];
+  }
+
+  inline const T& back() const {
+    return data.back();
+  }
+
+  inline T& back() {
+    return data.back();
+  }
+
+  inline bool empty() {
+    return size() == 0;
+  }
+
+  void printLine(std::ostream& os) const {
+    for(auto x : *this) {
+      os<<x<<" ";
+    }
+    os<<std::endl;
+  }
+
+  /////////////// Readonly Algorithms /////////////////
+
+  // TODO: Make this (start, step, filter) and call the method `stepUntil()`. Introduce `doUntil()`
+  // Returns smallest x>=0 such that func(*this(start+x)) is true
+  // If no such x exists, returns [loIdx + size()].
+  int firstAscending(int start, std::function<bool(const T&, int idx)> func) const {
+    assert(start >= loIdx);
+    int n = size();
+    for(int i=start-loIdx;i<n; i++)
+      if(func(data[i], i+loIdx))
+        return i + loIdx;
+    return n + loIdx;
+  }
+
+  // Returns smallest x>=0 such that func(*this(start-x)) is true
+  // If no such x exists, returns [loIdx - 1].
+  int firstDescending(int start, std::function<bool(const T&, int idx)> func) const {
+    int n = size();
+    assert(start < loIdx+n);
+    for(int i=start-loIdx;i>=0; i--)
+      if(func(data[i], i+loIdx))
+        return i + loIdx;
+    return -1 + loIdx;
+  }
+
+  T max() const {
+    return *max_element(begin(), end());
+  }
+
+  T min() const {
+    return *min_element(begin(), end());
+  }
+
+  int lower_bound_idx(T needle) const {
+   return loIdx + (std::lower_bound(data.begin(), data.end(), needle) - data.begin());
+  }
+
+  T lower_bound(T needle, T notFound) const {
+   int x = std::lower_bound(data.begin(), data.end(), needle) - data.begin();
+    if(x == size())
+      return notFound;
+    return data[x];
+  }
+
+  long long xorSum() const {
+    long long ret = 0;
+    int sz = size();
+    for(int i=0;i<sz;i++)
+      ret ^= data[i];
+    return ret;
+  }
+
+  long long sum() const {
+    long long ret = 0;
+    int sz = size();
+    for(int i=0;i<sz;i++)
+      ret += data[i];
+    return ret;
+  }
+
+  // Returns  an array of accumulated sum, starting with a value of 0.
+  // ret(loIdx) = 0, ret(loIdx+1) = this(loIdx), ret(loIdx+2) = this(loIdx) + this(loIdx+1) ...
+  Array1<T> cumsum() const {
+    Array1<T> ret = Array1<T>(1,0).withLoIndex(loIdx);
+    int sz = size();
+    for(int i=0;i<sz;i++)
+      ret.push_back(ret.back() + data[i]);
+    return ret;
+  }
+
+  template<typename X>
+  X reduce(X identity, std::function<X(X, const T&)> accumulator) {
+    X ret = identity;
+    for(const auto& t : data) {
+      ret = accumulator(ret, t);
+    }
+    return ret;
+  }
+
+  Array1<T> subArray(int lo, int hiExclusive) {
+    assert(lo >= loIdx && hiExclusive >= lo && hiExclusive <= lo + size());
+    Array1<T> out(hiExclusive-lo);
+    for(int i=lo;i<hiExclusive;i++)
+      out(i-lo) = data[loIdx + i];
+    return out;
+  }
+
+  //////////////// Manipulations ///////////////////
+
+  Array1<T>& concat(Array1<T> const& that) {
+    for(T const& elem : that) {
+      push_back(elem);
+    }
+    return *this;
+  }
+
+  void resize(int x) {
+    data.resize(x);
+  }
+
+  // Allow indexing to start from 'lo'
+  Array1<T>& withLoIndex(int lo) {
+    loIdx = lo;
+    return *this;
+  }
+
+  Array1<T>& fill(T value) {
+    std::fill(data.begin(), data.end(), value);
+    return *this;
+  }
+
+  Array1<T>& reverse() {
+    std::reverse(begin(), end());
+    return *this;
+  }
+
+  Array1<T>& reverse(Permutation& p) {
+    std::reverse(begin(), end());
+    p.reverse();
+    return *this;
+  }
+
+  Array1<T>& rotateLeft(int n) {
+    n %= size();
+    if(n<0) n+=size();
+    if(n>0) rotate(data.begin(), data.begin() + n, data.end());
+    return *this;
+  }
+
+  Array1<T>& next_permutation() {
+    std::next_permutation(data.begin(), data.end());
+    return *this;
+  }
+
+  Array1<T>& uniq() {
+    data.erase(unique(data.begin(), data.end()), data.end());
+    return *this;
+  }
+
+  Array1<int> compressCoordinates() {
+    std::map<T, int> index;
+    for(T& val : *this) index[val]=0;
+    int count = 0;
+    for(auto& [_,v] : index) v = count++;
+
+    for(int i=0;i<size();i++)
+      data[i] = index[data[i]];
+    return *this;
+  }
+
+  Array1<T>& sort(Permutation& p, std::function<bool(T,T)> cmp) {
+    std::vector<std::pair<T, int>> v(size());
+    for(int i=0;i<size();i++)
+      v[i] = std::make_pair(std::move(data[i]), p(i)); 
+
+    auto cmp1 = [=](std::pair<T,int> a, std::pair<T,int> b) {
+      bool leftLt = cmp(a.first, b.first);
+      if(leftLt) return true;
+      bool rightLt = cmp(b.first, a.first);
+      if(rightLt) return false;
+      return a.second < b.second;
+    };
+    std::sort(v.begin(), v.end(), cmp1);
+
+    for(int i=0;i<size();i++)
+      data[i] = std::move(v[i].first);
+    for(int i=0;i<size();i++)
+      p(i) = v[i].second;
+
+    return *this;
+  }
+
+  Array1<T>& sort(Permutation& p) {
+    std::vector<std::pair<T, int>> v(size());
+    for(int i=0;i<size();i++)
+      v[i] = std::make_pair(std::move(data[i]), p(i)); 
+
+    std::sort(v.begin(), v.end());
+
+    for(int i=0;i<size();i++)
+      data[i] = std::move(v[i].first);
+    for(int i=0;i<size();i++)
+      p(i) = v[i].second;
+
+    return *this;
+  }
+
+  Array1<T>& sort() {
+    std::sort(begin(), end());
+    return *this;
+  }
+
+  Array1<T>& sort(std::function<bool(T,T)> cmp) {
+    std::sort(begin(), end(), cmp);
+    return *this;
+  }
+
+  Array1<T>& push_back(const T& value) {
+    data.push_back(value);
+    return *this;
+  }
+
+  Array1<T>& push_back(T&& value) {
+    data.push_back(std::move(value));
+    return *this;
+  }
+
+  Array1<T>& pop_back() {
+    data.pop_back();
+    return *this;
+  }
+
+  Array1<T>& insert(int pos, const T& value) {
+    data.insert(data.begin() + (pos-loIdx), value);
+    return *this;
+  }
+
+  /////////////// COPY and MOVE constructors //////////////
+  Array1& operator=(std::initializer_list<T> values) {
+    init(0, -1 + (int)values.size());
+    data.assign(values.begin(), values.end());
+    return *this;
+  }
+
+  Array1(const Array1& that) {
+    __copyFrom(that);
+  }
+
+  Array1& operator=(const Array1& that) {
+    if(&that == this) {
+      return *this;
+    }
+    __copyFrom(that);
+    return *this;
+  }
+
+  Array1(Array1&& that) {
+    __moveFrom(std::move(that));
+  }
+
+  Array1& operator=(Array1&& that) {
+    if(&that == this) {
+      return *this;
+    }
+    __moveFrom(std::move(that));
+    return *this;
+  }
+
+  ~Array1() {
+  }
+
+  /////////////// COPY and MOVE constructors //////////////
+
+  private:
+  void init(int lo, int hi) {
+    if(lo > hi+1) {
+
+        std::ostringstream oss;
+        oss<< "Expected hi >= lo - 1. hi="<<hi<<" lo="<<lo <<std::endl;
+#ifndef ONLINE_JUDGE        
+        oss<< "\nStacktrace\n";
+        oss<< "----------\n";
+        oss<<std::stacktrace::current()<<std::endl;
+#endif        
+        throw std::runtime_error(oss.str());
+    }
+    loIdx = lo;
+    data = std::vector<T>(hi-lo+1);
+    throwOnOob = true;
+  }
+
+  void __copyFrom(const Array1<T>& that) {
+    loIdx = that.loIdx;
+    data = that.data;
+  }
+
+  void __moveFrom(Array1<T>&& that) {
+    std::swap(loIdx, that.loIdx);
+    std::swap(data, that.data);
+  }
+
+  friend bool operator<(const Array1<T>& left, const Array1<T>& right) {
+    if(left.loIdx == right.loIdx) {
+      return left.data < right.data;
+    }
+    return left.loIdx < right.loIdx;
+  }
+};
+
+template<class T> std::ostream& operator <<(std::ostream& os, const Array1<T>& v) {
+  os<<v.size()<<" vals. [ ";
+  for(int i=0;i<v.size();i++) {
+    if(i)os<<", ";
+    os<<v(i);
+  }
+  os<<" ]";
+  return os;
+}
+  
+#define AW Array1<W>
+#define AAW Array1<AW>
+#define AAAW Array1<AAW>
+#define AAAAW Array1<AAAW>
+#define AAAAAW Array1<AAAAW>
+
+template<typename W>
+static AW arrayfill(const W& val, int a) {
+  return AW(a,val);
+}
+
+template<typename W>
+static AAW arrayfill(const W& val, int a, int b) {
+  return AAW(a,AW(b,val));
+}
+
+template<typename W>
+static AAAW arrayfill(const W& val, int a, int b, int c) {
+  return AAAW(a,AAW(b,AW(c,val)));
+}
+
+template<typename W>
+static AAAAW arrayfill(const W& val, int a, int b, int c, int d) {
+  return AAAAW(a,AAAW(b,AAW(c,AW(d,val))));
+}
+
+template<typename W>
+static AAAAW arrayfill(const W& val, int a, int b, int c, int d,int e) {
+  return AAAAAW(a,AAAAW(b,AAAW(c,AAW(d,AW(e,val)))));
+}
+
+#undef AAAAAW
+#undef AAAAW
+#undef AAAW
+#undef AAW
+#undef AW
+
+#line 84 "segment_tree.h"
+
+template<typename Action, typename Output>
+class SegmentTree {
+private:
+  int n;
+  int originalN;
+  int originalN_roundedToPowerOf2;
+  std::vector<Output> output;
+  std::vector<Action> extraActions;
+  Output badOutput = Output::identity(0,0);
+
+public:
+  SegmentTree(int _n) {
+    originalN = _n;
+    for(int i=1;;i*=2) {
+      if(i >= _n) {
+        originalN_roundedToPowerOf2 = i;
+        n = 2*i;
+        break;
+      }
+    }
+    // initialize with dummy output/extra Actions to avoid empty args ctor usage
+    output = std::vector<Output>(n, badOutput);
+    extraActions = std::vector<Action>(n, Action::identity(0,0));
+    initializeIdentities(0, 0, originalN_roundedToPowerOf2 - 1);
+  }
+
+  void update(int lo, int hi, Action action) {
+    if(hi < lo) return;
+    update(0, 0, originalN_roundedToPowerOf2 - 1, lo, hi, action);
+  }
+
+  Output query(int lo, int hi) {
+    if(hi < lo) return Output::identity(lo, hi);
+    return query(0, 0, originalN_roundedToPowerOf2 - 1, lo, hi);
+  }
+
+  void print() {
+    dbg("Printing segtree", n, output.size());
+    dbg(output);
+    dbg(extraActions);
+  }
+
+  // Returns [hi, Output(0,hi-1), Output(0,hi)] if hi is first idx in [0, N-1] satisfying predicate
+  // Returns [N, output(0,N-1), output(0,N-1)] if no such hi exists.
+  //
+  // The second component is the output for all x in [0, hi-1]
+  // The third component is the output for all x in [0, hi]
+  // If no suitable hi exists, the both components is [0,N-1].
+  //
+  // The predicate should be monotonic, with at most one change in value
+  // and that change will be to jump from false to true.
+  std::tuple<int, Output, Output> firstPrefixWhere(std::function<bool(int hi, Output out)> predicate) {
+    // Invariant: tLeft < originalN
+    bool foundLeftPiece = false;
+    Output leftPiece = Output::identity(0,-1);
+    int root = 0, tLeft = 0, tRight = originalN_roundedToPowerOf2 - 1;
+    while(true) {
+      if(tLeft == tRight) {
+        Output cur = extraActions[root].apply(output[root]);
+        Output nLeftPiece = foundLeftPiece ? leftPiece.merge(cur) : cur;
+        // predicate(..) false =>  nLeftPiece = [0,N-1]
+        // predicate(..) true => nLeftPiece = [0,hi]
+        bool found = predicate(tLeft, nLeftPiece);
+        return {tLeft + !found, found ? leftPiece : nLeftPiece, nLeftPiece};
+      }
+
+      propagate(extraActions[root], root, tLeft, tRight);
+      int mid = (tLeft + tRight)/2;
+
+      // Maintain Invariant: tLeft < originalN
+      if(mid+1 >= originalN) {
+        root = 2*root+1;
+        tRight = mid;
+        continue;
+      }
+
+      int lroot = 2*root+1;
+      Output lout = extraActions[lroot].apply(output[lroot]);
+      Output nLeftPiece = foundLeftPiece ? leftPiece.merge(lout) : lout;
+      if(predicate(mid, nLeftPiece)) {
+        root = lroot;
+        tRight = mid;
+      } else {
+        leftPiece = nLeftPiece;
+        foundLeftPiece = true;
+        root = 2*root+2;
+        tLeft = mid+1;
+      }
+    }
+  }
+
+private:
+  void initializeIdentities(int root, int tLeft, int tRight) {
+    output[root] = Output::identity(tLeft, tRight);    
+    extraActions[root] = Action::identity(tLeft, tRight);
+    if(tLeft == tRight)
+      return;
+    int mid = (tLeft + tRight)/2;
+    initializeIdentities(2*root+1, tLeft, mid);
+    initializeIdentities(2*root+2, mid+1, tRight);
+  }
+
+  void propagate(Action& extras, int root, int tLeft, int tRight) {
+    int mid = (tLeft + tRight)/2;
+    auto [leftAction, rightAction] = extras.split(mid-tLeft+1);
+    output[root] = extras.apply(output[root]);
+    extras = Action::identity(tLeft, tRight);
+    extraActions[2*root+1] = extraActions[2*root+1].andThen(leftAction);
+    extraActions[2*root+2] = extraActions[2*root+2].andThen(rightAction);
+  }
+
+  Output query(int root, int tLeft, int tRight, int qLeft, int qRight) {
+    Action& extras = extraActions[root];
+    if(tLeft == qLeft && tRight == qRight) {
+      return extras.apply(output[root]);
+    }
+
+    int mid = (tLeft + tRight)/2;
+    
+    propagate(extras, root, tLeft, tRight);
+
+    if(qRight <= mid)
+      return query(2*root+1, tLeft, mid, qLeft, qRight);
+    else if(qLeft >= mid+1)
+      return query(2*root+2, mid+1, tRight, qLeft, qRight);
+    else {
+      Output left = query(2*root+1, tLeft, mid, qLeft, mid);
+      Output right = query(2*root+2, mid+1, tRight, mid+1, qRight);
+      return left.merge(right);
+    }
+  }
+
+  Output update(int root, int tLeft, int tRight, int qLeft, int qRight, Action action) {
+    Action& extras = extraActions[root];
+    if(tLeft == qLeft && tRight == qRight) {
+      extras = extras.andThen(action);
+      return extras.apply(output[root]);
+    }
+    
+    propagate(extras, root, tLeft, tRight);
+
+    // Avoid using default ctor
+    Output leftOutput = badOutput, rightOutput = badOutput;
+    int mid = (tLeft+tRight)/2;
+    if(qRight <= mid) {
+      leftOutput = update(2*root+1, tLeft, mid, qLeft, qRight, action);
+      rightOutput = query(2*root+2, mid+1, tRight, mid+1, tRight);
+    } else if(qLeft >= mid+1) {
+      rightOutput = update(2*root+2, mid+1, tRight, qLeft, qRight, action);
+      leftOutput = query(2*root+1, tLeft, mid, tLeft, mid);
+    } else {
+      auto [leftSplit, rightSplit] = action.split(mid+1-qLeft);
+      leftOutput = update(2*root+1, tLeft, mid, qLeft, mid, leftSplit);
+      rightOutput = update(2*root+2, mid+1, tRight, mid+1, qRight, rightSplit);
+    }
+    return output[root] = leftOutput.merge(rightOutput);
+  }
+};
+
+
+////////////// TYPEDEFS ///////////////////
+typedef long long int lint;
+typedef long long int pint; // used for pii type
+typedef pair<pint, pint> pii;
+typedef Array1<int> VI;
+typedef Array1<lint> VL;
+typedef Array1<pii> VP;
+typedef Array1<string> VS;
+typedef Array1<VI> VVI;
+typedef Array1<VL> VVL;
+typedef Array1<VS> VVS;
+typedef __int128 kint;
+template <typename T> using VV = Array1<T>;
+template <typename T> using VV2 = VV<VV<T>>;
+template <typename T> using VV3 = VV<VV<T>>;
+template <typename T> using VV4 = VV<VV<T>>;
+
+////////////// UPDATES ///////////////////
+template<class T> inline bool maxi(T& cur, const T& cand) {if(cand > cur) {cur = cand; return true;} return false;}
+template<class T> inline bool mini(T& cur, const T& cand) {if(cand < cur) {cur = cand; return true;} return false;}
+ 
+////////////// IO ////////////////////////
+int ri() {int x;if(scanf(" %d",&x) == EOF) return -1;return x;}
+lint rl() {lint x;if(scanf(" %lld",&x) == EOF) return -1; return x;}
+string rs(int n) {char buf[n+2]; scanf(" %s ",&buf); return string(buf);}
+pii rp() {pint x=rl(); pint y=rl(); return {x, y};}
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+ 
+////////// CONVENIENCE #DEFINES //////////
+#define fo(a,b) for(int a=0;a<b;++a)
+#define foi(x,a,b) for(int x=a;x<=b;++x)
+#define ALL(v) v.begin(),v.end()
+#define pb push_back
+#define todo expect(0==1,0);
+
+#define AA2(type, name, n1, n2) static type _a_##name[n1][n2];\
+  static Arr2<type,n1,n2> name = {_a_##name};
+#define AA22(type, name, n1, n2, val) static type _a_##name[n1][n2];\
+  static Arr2<type,n1,n2> name = {_a_##name, val, n1, n2};
+#define AA3(type, name, n1, n2, n3) static type _a_##name[n1][n2][n3];\
+  static Arr3<type,n1,n2,n3> name = {_a_##name};
+#define AA33(type, name, n1, n2, n3, val) static type _a_##name[n1][n2][n3];\
+  static Arr3<type,n1,n2,n3> name = {_a_##name, val, n1, n2, n3};
+#define AA4(type, name, n1, n2, n3, n4) static type _a_##name[n1][n2][n3][n4];\
+  static Arr4<type,n1,n2,n3,n4> name = {_a_##name};
+#define AA44(type, name, n1, n2, n3, n4, val) static type _a_##name[n1][n2][n3][n4];\
+  static Arr4<type,n1,n2,n3,n4> name = {_a_##name, val, n1, n2, n3, n4};
+
+// From https://trap.jp/post/1224/
+#define overload6(a, b, c, d, e, f, g, ...) g
+#define AA(...) overload6(__VA_ARGS__,AA4,AA3,AA2)(__VA_ARGS__)
+
+////////// CONSTANTS //////////
+const lint inf = (1LL<<61);
+
+///////////////////////////////////////////////////////////////////////
+///////////////////////// PROBLEM SPECIFIC CODE ///////////////////////
+/////////////////////// ONLY READ FROM HERE BELOW. ////////////////////
+//////////// ABOVE IS LIBRARY CODE WITH A READABLE API ////////////////
+///////////////////////////////////////////////////////////////////////
+
+#line 100 "MAIN.cc"
+
+//////////////////// INIT. One time computations ///////////////
+
+int CASENUM = -1;
+int DEBUG_CASENUM = 3;
+
+void init() {}
+
+struct OutputCost {
+  lint count;
+  lint cost;
+  lint sum;
+  lint size;
+
+  // Ensure range, if any, is merged.
+  // Only called for adjacent Outputs.
+  inline OutputCost merge(OutputCost that) {
+    return {
+      .count = count + that.count,
+      .cost = cost + that.cost + that.count * sum,
+      .sum = sum + that.sum,
+      .size = size + that.size,
+    };
+  }
+
+  // Treat as if input is 0s in [lo, hi]
+  static OutputCost identity(int lo, int hi) {
+    return {
+      .count = 0,
+      .cost = 0,
+      .sum = 0,
+      .size = hi-lo+1,
+    };
+  }
+};
+
+ostream& operator<<(ostream& os, OutputCost const& a) {
+  char buf[100];
+  sprintf(buf,"OutputCost(count %lld, cost %lld, sum %lld)",a.count, a.cost, a.sum);
+  os<<string(buf);
+  return os;
+}
+
+struct SetAction {
+  
+  bool isId;
+  lint value; 
+
+  static SetAction identity(int lo, int hi) {
+    return {true, 0};
+  }
+
+  // Check isId of both this and later.
+  inline SetAction andThen(SetAction later) {
+    if(later.isId) return *this;
+    return later;
+  }
+
+  // Check this->isId
+  inline OutputCost apply(OutputCost that) {
+    if(isId) return that;
+    return {
+      .count = value > 0 ? that.size : 0,
+      .cost = value > 0 ? that.size * (value + value*that.size)/2 : 0,
+      .sum = value > 0 ? that.size * value : 0,
+      .size = that.size,
+    };
+  }
+
+  inline std::pair<SetAction, SetAction> split(int leftLength) {
+    return {*this, *this};
+  }
+};
+
+ostream& operator<<(ostream& os, SetAction const& a) {
+  char buf[20];
+  sprintf(buf, "Set(%d)",a.value);
+  os<<string(buf);
+  return os;
+}
+
+struct Myset {
+  string name;
+  VL C;
+  int N;
+  Permutation perm;
+  SegmentTree<SetAction, OutputCost> tree;
+
+  int taken = 0;
+  lint total = 0;
+
+  Myset(string _name, VL const &_C) : 
+    name(_name), C(_C), tree(C.size()), N(C.size()), perm(C.size()) {
+    C.sort(perm);
+    perm.inverse();
+    tree.update(0, N-1, {false, 0});
+  }
+
+  void insert(int idx) {
+    idx = perm(idx);
+    total += C(idx);
+    taken++;
+    tree.update(idx, idx, {false, C(idx)});
+  }
+
+  lint cost(bool reverse) {
+    auto q = tree.query(0, N-1);
+    return q.cost - reverse * q.sum;
+  }
+
+  lint size() {
+    return taken;
+  }
+};
+
+struct SingleCase {
+
+  void solveCase() {
+    int n = ri();
+    VI A(n,&rl);
+    VI B(n,&rl);
+    VL cost(n,&rl);
+
+    Myset left("left", cost), right("right", cost);
+    VI third;
+    fo(i,n) {
+      int x = A(i)*2 + B(i);
+      if(x==0) continue;
+      else if(x==1) right.insert(i);
+      else if(x==2) left.insert(i);
+      else if(x==3) third.pb(i); 
+    }
+    auto cmp = [&](int lt, int rt) {
+      return cost(lt) > cost(rt);
+    };
+    third.sort(cmp);
+    lint thirdsum = 0;
+    for(auto idx : third) thirdsum += cost(idx);
+
+    lint ret = getCost(left, right, thirdsum);
+    for(auto &idx : third) {
+      left.insert(idx);
+      right.insert(idx);
+      thirdsum -= cost(idx);
+      mini(ret, getCost(left, right, thirdsum));
+    }
+    cout<<ret<<endl;
+  }
+
+  lint getCost(Myset &left, Myset &right, lint thirdsum) {
+    lint ret = 0
+      + right.cost(false) 
+      + left.cost(true) 
+      + thirdsum * (left.size() + right.size());
+    debug("getCost", thirdsum, ret);
+    return ret;
+  }
+};
+
+////////// MAIN LOOP. Support both: specify case count upfront or until EOF //////////
+
+const bool COUNTED_CASES=false;
+
+void doMain(bool countedCases) {
+  CASENUM=0;
+  int cases = countedCases ? ri() : (1<<30);
+  while(cases-- > 0) {
+    CASENUM++;
+#ifndef ONLINE_JUDGE
+    fprintf(stderr,"%s Case %d debug %s\n",string(40, '-').c_str(), CASENUM, string(40,'-').c_str());
+#endif
+    SingleCase().solveCase();
+    if(!countedCases) {
+      scanf(" ");
+      if(cin.peek() == EOF) break;
+    }
+  }
+}
+
+int main() {  
+  init();
+  doMain(COUNTED_CASES);
+}
+

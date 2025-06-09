@@ -1,0 +1,61 @@
+#include<bits/stdc++.h>
+#define ll long long
+using namespace std;
+const int N = 1000010;
+const int mod = 998244353;
+int n;
+string s, t;
+signed main()
+{
+    cin >> n >> s >> t;
+    int sb = 0, tb = 0, ans = 0, flagA=false;
+    if (s[0] == 'A' && t[0] == 'B') cout << -1 << '\n';
+    else if (s.back() == 'B' && t.back() == 'A') cout << -1 << '\n';
+    else
+    {
+        bool flag = false;
+        for (int i = 0;i < n;i++)
+        {
+            
+            if (s[i] == 'B' && t[i] == 'B')
+            {
+                tb = i;
+                continue;
+            }
+            if (s[i] == 'B') sb++;
+            if (t[i] == 'B')
+            {
+                tb = i;
+                if (sb) sb--, ans++;
+                else
+                {
+                    if (!flagA)
+                    {
+                        flag = true;
+                        break;
+                    }
+                    ans++;
+                }
+            }
+            if (s[i] == 'A') flagA = true;
+        }
+        if (flag) cout << -1 << '\n';
+        else if (sb)
+        {
+            if (tb)
+            {
+                for (int i = tb + 1;i < n;i++)
+                    if (s[i] == 'B') flag = true;
+                if (!flag) cout << ans + sb << '\n';
+                else cout << -1 << '\n';
+            }
+            else cout << -1 << '\n';
+        }
+        else cout << ans << '\n';
+    }
+
+    return 0;
+}
+/*
+
+*/

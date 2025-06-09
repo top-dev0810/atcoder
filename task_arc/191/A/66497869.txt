@@ -1,0 +1,50 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#ifdef LOCAL
+#include "debug.h"
+#define debug(...) cerr << "[" << #__VA_ARGS__ << "]:", debug_out(__VA_ARGS__)
+#else
+#define debug(...) 42
+#endif
+
+using i64 = long long;
+using vi = vector<int>;
+using pii = pair<int, int>;
+
+const int inf = 1000000007;
+const int maxn = 1100010;
+
+inline int read(){
+  int x=0,f=0; char ch=getchar();
+  while(!isdigit(ch)) f|=(ch==45),ch=getchar();
+  while(isdigit(ch)) x=(x<<3)+(x<<1)+(ch^48),ch=getchar();
+  return f?-x:x;
+}
+
+int main() {
+  int n, m;
+  scanf("%d %d", &n, &m);
+  static char s[maxn], t[maxn];
+  scanf("%s", s+1);
+  scanf("%s", t+1);
+  vi cnt(10, 0);
+  for (int i = 1; i <= m; ++i) cnt[t[i]-'0']++;
+  int num = cnt[t[m]-'0'];
+  for (int i = 9; i > 0; --i) {
+    for (int j = 1; j <= n && cnt[i] > 0; ++j) if (s[j]-'0' < i) {
+      s[j] = i+'0';
+      cnt[i]--;
+    }
+  }
+  if (cnt[t[m]-'0'] == num) {
+    for (int i = 1; i <= n; ++i) if (s[i] == t[m]) {
+      puts(s+1);
+      return 0;
+    }
+    s[n] = t[m];
+  }
+  puts(s+1);
+  return 0;
+}

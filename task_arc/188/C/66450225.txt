@@ -1,0 +1,126 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+#define fi first
+#define sc second
+#define pll pair<ll,ll>
+#define pii pair<int,int>
+#define all(x) (x).begin(),(x).end()
+#define TASK "main"
+const int nmax = 2e6 +7;
+int n;
+int m;
+vector<int> adj[nmax];
+
+struct dsu{
+    int par[nmax];
+    int sz[nmax];
+    int find(int u){
+        if(par[u] == u) return par[u];
+        return par[u] = find(par[u]);
+    }
+    void join(int u,int v){
+        int tmpu= u, tmpv = v;
+        u = find(u);
+        v = find(v);
+        if(u!=v){
+            adj[tmpu].push_back(tmpv);
+            adj[tmpv].push_back(tmpu);
+            par[u] = v;
+            // sz[v] += sz[u];
+        }
+    }
+    void init(int n){
+        for(int i = 1;i<=n;++i){
+            par[i] = i;
+            // sz[i] = 1;
+        }
+    }
+    // void snap(){
+    //     st.clear();
+    // }
+    // void roll(){
+    //     while(st.size()){
+    //         auto x = st.back();st.pop_back();
+    //         par[x.u] = paru;
+    //         par[x.v] = parv;
+    //         sz[x.u] = szu;
+    //         sz[x.v] = szv;
+    //     }
+    // }
+} dsu;
+int ans[nmax];
+int res[nmax];
+bool vis[nmax];
+
+// 111
+// 001
+void dfs(int u){
+    vis[u] = 1;
+    // cout << u << '\n';
+    if(u <= 1 * n){
+        ans[u] = 0;
+    } else if(u <= 2*n){
+        ans[u - n] = 1;
+    } else if(u<=3*n){
+        res[u - 2*n] = 0;
+    } else if(u <= 4*n){
+        res[u - 3*n] = 1;
+    }
+    for(int v:adj[u]){
+        if(!vis[v]){
+            dfs(v);
+        }
+    }
+}
+void solve(){
+    cin >> n >> m;
+
+    dsu.init(n * 4);
+    for(int i = 1;i<=m;++i){
+        int a,b,c;
+        cin >> a >> b >> c;
+        // c^=1;
+        if(c){
+            dsu.join(a, 3*n + b);
+            dsu.join(a + n, 2*n + b);
+        } else {
+            dsu.join(a, 2*n + b);
+            dsu.join(a + n, 3*n + b);
+        }
+        // f[1][a].push_back({c,b});
+        // f[2][b].push_back({c,a});
+    }
+    for(int i = 1;i<=n;++i){
+        if(dsu.find(i) == dsu.find(i + n)){
+            cout << -1;
+            return;
+        }
+        if(dsu.find(2*n + i) == dsu.find(3 *n + i)) {
+            cout << -1;
+            return;
+        }
+    }
+    for(int i = 1;i<=n;++i){
+        if(!vis[2*n + i] && ! vis[3*n + i]){
+            dfs(2 * n + i);
+        } 
+    }
+    for(int i =1;i<=n;++i) cout << (ans[i] ^ res[i]);
+    // xac dinh nhung thang nao co cung honest hoac liar.
+   
+    
+}
+
+
+int main(){
+    ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);
+    if(fopen(TASK ".inp","r")){
+    freopen(TASK ".inp","r",stdin);
+    freopen(TASK ".out","w",stdout);
+    }
+    solve();
+}
+
+
+

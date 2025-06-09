@@ -1,0 +1,72 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+using ll = int64_t;
+using ul = uint64_t;
+using vi = vector<int>;
+using vd = vector<double>;
+using vc = vector<char>;
+using vs = vector<string>;
+using vb = vector<bool>;
+using vl = vector<ll>;
+using vul = vector<ul>;
+using pii = pair<int,int>;
+using pci = pair<char,int>;
+using psi = pair<string,int>;
+using pll = pair<ll,ll>;
+using sei = set<int>;
+using sec = set<char>;
+using sel = set<ll>;
+using mii = map<int,int>;
+using mci = map<char,int>;
+using qi = queue<int>;
+using sti = stack<int>;
+using vvi = vector<vi>;
+using vvc = vector<vc>;
+using vvb = vector<vb>;
+using vvl = vector<vl>;
+using vpii = vector<pii>;
+using qpii = queue<pii>;
+using pqpii = priority_queue<pii>;
+using misi = map<int,sei>;
+
+void make_prime(vb &deleted,ll N) {
+  for (int i = 2; i*i <= N; i++) {
+    if (deleted[i]) continue;
+    for (int j = i*2; j <= N; j += i) {
+      deleted[j] = true;
+    }
+  }
+}
+
+ll my_pow(ll base,ll exponent) {
+  ll result = 1;
+  for (int i = 0; i < exponent; i++) {
+    result *= base;
+  }
+  return result;
+}
+
+int main() {
+  ll N,root_N;
+  cin >> N;
+  root_N = sqrt(N);
+  //素数を記録
+  vb deleted(2e6 + 9, false);
+  make_prime(deleted, 2e6 + 9);
+  vl prime;
+  for (int number = 2; number <= root_N; number++) {
+    if (!deleted[number]) prime.push_back(number);
+  }
+  //N以下の素数p^9の個数 + root_N以下のp * qの個数
+  int result = 0;
+  for (ll p : prime) {
+    if (p<=100&&my_pow(p,8) <= N) result++;
+  }
+  for (int i = 0; i < prime.size(); i++) {
+    int pos = upper_bound(prime.begin(), prime.end(), root_N/prime[i]) - prime.begin();
+    pos -= 1;
+    if (pos > i) result += pos - i;
+  }
+  cout << result << endl;
+}

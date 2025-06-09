@@ -1,0 +1,35 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define IOS cin.tie(nullptr)->sync_with_stdio(0),cin.exceptions(cin.failbit);
+#define lb(x) (x)&-(x)
+#define all(x) (x).begin(),(x).end()
+#define ll long long
+
+constexpr int maxN=2e5+5;
+
+int n,x[maxN];
+
+ll ans;
+
+vector<pair<int,ll>> adj[maxN];
+
+void dfs(int now,int last){
+    for(auto [v,w]:adj[now])if(v!=last){
+        dfs(v,now);
+        x[now]+=x[v];
+        ans+=abs(x[v])*w;
+    }
+}
+
+int main(){
+    IOS
+    cin>>n;
+    for(int i = 1;i<=n;i++)cin>>x[i];
+    for(int i = 1;i<n;i++){
+        int u,v,w;
+        cin>>u>>v>>w;
+        adj[u].emplace_back(v,w),adj[v].emplace_back(u,w);
+    }
+    dfs(1,1);
+    cout<<ans<<'\n';
+}

@@ -1,0 +1,15 @@
+#import<bits/stdc++.h>
+long n, m, k;
+using namespace std;
+string s;
+main()
+{
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	for(cin >> m; cin >> n >> m >> k; )
+		if(n < k | m - 1 > k)
+			s += "6248"[(n < k ? n : (n-k) % (m-k) + k) & 3], s += "\n";
+		else
+			s += "0\n";
+	cout << s;
+}

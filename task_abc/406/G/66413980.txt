@@ -1,0 +1,101 @@
+#include <bits/stdc++.h>
+
+int main()
+{
+    int n, c, d;
+    std::cin >> n >> c >> d;
+
+    // SlopeTrick
+    std::map<int, int> m{{0, 2 * c}};
+    int left_slope = c, right_slope = c;
+
+    // query[i]: turn i での操作の履歴
+    std::vector<std::stack<std::pair<int, int>>> query(n);
+
+    // turn id に m[key] に value を加える
+    auto add = [&](int id, int key, int value)
+    {
+        m[key] += value;
+        if (!m[key])
+            m.erase(key);
+        if (~id)
+            query[id].emplace(key, value);
+    };
+
+    std::vector<int> x(n);
+    for (int i : std::views::iota(0, n))
+    {
+        std::cin >> x[i];
+
+        // d|x - x[i]| を加算
+        add(i, x[i], 2 * d);
+        left_slope += d;
+        right_slope += d;
+
+        // 左端の傾きを c 以下にする
+        while (left_slope > c)
+        {
+            auto [key, value] = *m.begin();
+            int del = std::min(left_slope - c, value);
+            add(i, key, -del);
+            left_slope -= del;
+        }
+
+        // 右端の傾きを c 以下にする
+        while (right_slope > c)
+        {
+            auto [key, value] = *m.rbegin();
+            int del = std::min(right_slope - c, value);
+            add(i, key, -del);
+            right_slope -= del;
+        }
+    }
+
+    // 傾きが0になる点を探す
+    int X, slope = -left_slope;
+    for (const auto &[key, value] : m)
+    {
+        slope += value;
+        if (slope >= 0)
+        {
+            X = key;
+            break;
+        }
+    }
+
+    // 操作を逆順にたどり、各商品を受け取った場所を求める
+    std::vector<int> ans(n);
+    for (int i : std::views::iota(0, n) | std::views::reverse)
+    {
+        // 商品を受け取った場所を求める
+        // 基本的には一つあとの X の位置になる
+        // ただし、X が m の範囲外の場合は、X の位置を m の範囲内に収める（そこから歩いて X に到達している）
+        ans[i] = X = std::clamp(X, m.begin()->first, m.rbegin()->first);
+
+        // turn i の操作をリセットする
+        while (query[i].size())
+        {
+            auto [key, value] = query[i].top();
+            query[i].pop();
+            add(-1, key, -value);
+        }
+    }
+
+    // ans を元にコストの合計を計算する
+    std::int64_t sum = 0;
+    X = 0;
+    for (int i : std::views::iota(0, n))
+    {
+        // 歩くコスト
+        sum += abs(X - ans[i]) * std::int64_t(c);
+        // 商人を動かすコスト
+        sum += abs(x[i] - ans[i]) * std::int64_t(d);
+
+        X = ans[i];
+    }
+
+    std::cout << sum << '\n';
+    for (int x : ans)
+        std::cout << x << " ";
+    std::cout << '\n';
+}

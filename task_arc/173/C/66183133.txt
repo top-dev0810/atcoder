@@ -1,0 +1,91 @@
+#include<bits/stdc++.h>
+using namespace std;
+const int maxn=3e5;
+int n,a[maxn+5],b[maxn+5];
+struct node{
+	int ls,rs;
+	int ans;
+}tree[maxn*100];
+int tot;
+int new_node(int now){return tree[++tot]=tree[now],tot;}
+void pushup(int now){
+	tree[now].ans=tree[tree[now].ls].ans+tree[tree[now].rs].ans;
+}
+void build(int&now,int lef,int rig){
+	now=new_node(now);
+	if(lef==rig)return b[lef]=tree[now].ans=(lef!=1),void();
+	int mid=lef+rig>>1;
+	build(tree[now].ls,lef,mid);
+	build(tree[now].rs,mid+1,rig);
+	pushup(now);
+}
+void update(int&now,int lef,int rig,int to){
+	if(to<lef||to>rig)return;
+	now=new_node(now);
+	if(lef==rig){
+		tree[now].ans=(b[lef]==b[lef-1]);
+		return;
+	}
+	int mid=lef+rig>>1;
+	if(to<=mid)update(tree[now].ls,lef,mid,to);
+	else update(tree[now].rs,mid+1,rig,to);
+	pushup(now);
+}
+int query(int now,int lef,int rig,int l,int r){
+	if(l>r)return 0;
+	if(l<=lef&&rig<=r)return tree[now].ans;
+	int mid=lef+rig>>1;
+	int res=0;
+	if(l<=mid)res+=query(tree[now].ls,lef,mid,l,r);
+	if(mid<r)res+=query(tree[now].rs,mid+1,rig,l,r);
+	return res;
+}
+int pos[maxn+5],rt[maxn+5],ans[maxn+5];
+int check(int rt,int len,int pos){
+	int ans1,ans2;
+	int L=max(1,pos-len+1);
+	int R=min(n,pos+len-1);
+//	cout<<L<<","<<R<<"\n";
+	ans1=query(rt,1,n,L+1,pos-1),ans2=query(rt,1,n,pos+2,R);
+//	cout<<ans1<<","<<ans2<<"\n";
+	if(ans1||ans2)return true;
+	return false;
+}
+signed main(){
+//	freopen("01_random_case_03.in","r",stdin);
+//	freopen("1.out","w",stdout);
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	cin>>n;b[0]=1e9;
+	for(int i=1;i<=n;i++)cin>>a[i],pos[a[i]]=i;
+	build(rt[0],1,n);
+	for(int i=1;i<=n;i++){
+		rt[i]=rt[i-1];
+		b[pos[i]]=-1;
+		if(1<=pos[i]-1)update(rt[i],1,n,pos[i]);
+		if(pos[i]+1<=n)update(rt[i],1,n,pos[i]+1);
+	}
+	ans[1]=ans[n]=-1;
+	for(int len=3;len<=n;len+=2)if(a[1]==min({a[1],a[len-1],a[len]})||a[1]==max({a[1],a[len-1],a[len]})){
+		ans[1]=len;
+		break;
+	}
+	for(int len=3;len<=n;len+=2)if(a[n]==min({a[n],a[n-len+1],a[n-len+2]})||a[n]==max({a[n],a[n-len+1],a[n-len+2]})){
+		ans[n]=len;
+		break;
+	}
+//	cout<<check(rt[6],3,3);
+//	return 0;
+	for(int i=2;i<n;i++){
+		if((a[i]==min({a[i-1],a[i],a[i+1]})||a[i]==max({a[i-1],a[i],a[i+1]}))){ans[i]=3;continue;}
+		int lef=1,rig=(n-1)/2,res=-1;
+		while(lef<=rig){
+			int mid=lef+rig>>1;
+			if(check(rt[a[i]],mid*2+1,i))rig=mid-1,res=mid<<1|1;
+			else lef=mid+1;
+		}
+		ans[i]=res;
+	}
+	for(int i=1;i<=n;i++)cout<<ans[i]<<" ";
+	return 0;
+}
