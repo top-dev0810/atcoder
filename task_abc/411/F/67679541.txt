@@ -1,0 +1,52 @@
+#include <bits/stdc++.h>
+using namespace std ;
+const int N = 3e5+100 ;
+int n , m , q ;
+vector <int> fa(N) , siz(N) ;
+vector <pair<int,int>> vp(N) ;
+set <int> g[N] ;
+
+int find(int x){
+    if(fa[x] == x)return x ;
+    return fa[x] = find(fa[x]) ;
+}
+
+int main(){
+    cin >> n >> m ;
+    for(int i = 1 ; i <= n ; i ++){
+        fa[i] = i ; siz[i] = 1 ;
+    }
+    for(int i = 1 ; i <= m ; i ++){
+        int u , v ;
+        cin >> u >> v ;
+        g[u].insert(v) ;
+        g[v].insert(u) ;
+        vp[i] = {u,v} ;
+    }
+
+    cin >> q ;
+    while(q --){
+        int x ; cin >> x ;
+        auto [u,v] = vp[x] ;
+        int fu = find(u) , fv = find(v) ;
+        if(fu == fv){
+            cout << m << '\n' ;
+            continue ;
+        }
+        if(siz[fu] < siz[fv])
+            swap(fu,fv) ;
+        for(auto x : g[fv]){
+            g[x].erase(fv) ;
+            m -- ;
+            if(x != fu && g[fu].find(x) == g[fu].end()){
+                m ++ ;
+                g[fu].insert(x) ;
+                g[x].insert(fu) ;
+            }
+        }
+        siz[fu] += siz[fv] ;
+        fa[fv] = fu ;
+        g[fv].clear() ;
+        cout << m << '\n' ;
+    }
+}

@@ -1,0 +1,20 @@
+#include<bits/stdc++.h>
+using namespace std;
+long long n,m,x[500010],l[500010];
+int main(){
+	scanf("%lld %lld",&n,&m);
+	for(int i = 1;i<=n;i++){
+		scanf("%lld",&x[i]);
+	}
+	sort(x+1,x+n+1);
+	for(int i = 2;i<=n;i++){
+		l[i-1] = x[i]-x[i-1];
+	}
+	sort(l+1,l+n);
+	long long sum = 0;
+	for(int i = n-m;i>=1;i--){
+		sum+=l[i];
+	}
+	printf("%lld\n",sum);
+	return 0;
+}

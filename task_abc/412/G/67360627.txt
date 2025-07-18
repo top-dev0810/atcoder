@@ -1,0 +1,153 @@
+#include<bits/stdc++.h>
+#define int long long
+#define i28 __int128
+using namespace std;
+const int mod=998244353;
+//const int mod=13194139533313;
+int n,m,cnt;
+int a[210],le[210],ri[210];
+int b[210][210][2];
+int c[210][210];
+
+int qpow(int x,int k)
+{
+	int res=1;
+	while(k)
+	{
+		if(k&1) res=(i28)1*res*x%mod;
+		x=(i28)x*x%mod,k>>=1;
+	}
+	return res;
+}
+
+int gx(int n)
+{
+	int p=1;
+	for(int i=1;i<=n;i++)
+	{
+		int o=0;
+		for(int j=i;j<=n;j++)if(c[j][i]) o=j;
+		if(!o) return 0;
+		for(int j=1;j<=n;j++) swap(c[o][j],c[i][j]);
+		if(o!=i) p=mod-p;
+		p=p*c[i][i]%mod;
+		o=qpow(c[i][i],mod-2);
+		for(int j=1;j<=n;j++) c[i][j]=c[i][j]*o%mod;
+		for(int j=1;j<=n;j++)
+		{
+			if(j==i) continue;
+			for(int k=1;k<=n;k++)
+			{
+				if(k!=i)c[j][k]=(c[j][k]-c[i][k]*c[j][i]%mod+mod)%mod;
+			}
+			c[j][i]=0;
+		}
+	}
+	return p;
+}
+
+int v[210];
+int f[210],g[210],h[210];
+//f 最后的
+//h 所有的 x-xj
+//g 除了 x-xi 外的 x-xj 
+signed main()
+{
+	mt19937 rnd(time(0));
+	cin>>n>>m;
+	for(int i=1;i<=n;i++)
+	{
+//		a[i]=1;
+		cin>>a[i];
+		le[i]=ri[i-1]+1;
+		ri[i]=ri[i-1]+a[i];
+		for(int j=le[i];j<=ri[i];j++)
+		{
+			for(int k=j+1;k<=ri[i];k++)
+			{
+				int v=(i28)rnd()*rnd()%mod;
+				b[j][k][0]=v;
+				b[k][j][0]=mod-v;
+			}
+		}
+	}
+	if(ri[n]%2)
+	{
+		cout<<"-1\n";
+		return 0;
+	}
+	for(int i=1;i<=m;i++)
+	{
+		int x,y;
+//		x=2*i-1,y=2*i;
+		cin>>x>>y;
+		if(x>y) swap(x,y);
+		for(int j=le[x];j<=ri[x];j++)
+		for(int k=le[y];k<=ri[y];k++)
+		{
+			int v=(i28)rnd()*rnd()%mod;
+			b[j][k][1]=v,b[k][j][1]=mod-v;
+		}
+	}
+	for(int i=1;i<=ri[n];i++)
+	{
+		for(int j=1;j<=ri[n];j++)
+		{
+			int x=b[i][j][0],y=b[i][j][1];
+			if(x*2>mod) x=x-mod; 
+			if(y*2>mod) y=y-mod; 
+		}
+	}
+	for(int i=0;i<=ri[n];i++)
+	{
+		for(int j=1;j<=ri[n];j++)
+		{
+			for(int k=1;k<=ri[n];k++)
+			{
+				c[j][k]=(b[j][k][0]+(i28)b[j][k][1]*i%mod)%mod;
+				int o=c[j][k];
+				if(o*2>mod) o=o-mod;
+			}
+		}
+//		cout<<i<<" "<<v[i]<<endl;
+		v[i]=gx(ri[n]);
+//		cout<<i<<" "<<v[i]<<endl;
+	}
+	h[0]=1;
+	for(int i=0;i<=ri[n];i++)
+	{
+		for(int j=i;j>=0;j--)
+		{
+			h[j+1]=(h[j+1]+h[j])%mod;
+			h[j]=(i28)h[j]*(mod-i)%mod;
+		}
+	}
+	for(int i=0;i<=ri[n];i++)
+	{
+		int tmp=0,prod=1;
+		for(int j=0;j<=ri[n];j++) if(j!=i) prod=(i28)prod*(j-i+mod)%mod;
+		for(int j=ri[n]+1;j;j--)
+		{
+			tmp=(tmp+h[j])%mod;
+			g[j-1]=tmp;
+			tmp=(i28)tmp*i%mod;
+		}
+		prod=(i28)qpow(prod,mod-2)*v[i]%mod;
+		for(int j=0;j<=ri[n];j++)
+		{
+			f[j]=(f[j]+(i28)g[j]*prod%mod)%mod;
+		}
+	}
+	int ans=-1;
+	for(int j=0;j<=ri[n];j++) if(f[j]){ans=j/2;break;}
+	cout<<ans<<endl;
+}
+/*
+3 1
+3 0 3
+1 3
+
+
+
+
+*/s

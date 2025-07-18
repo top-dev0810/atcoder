@@ -1,0 +1,71 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+using a2 = array<ll, 2>;
+using a3 = array<ll, 3>;
+
+template <typename A>
+void chmin(A &l, const A &r) {
+    if (r < l)
+        l = r;
+}
+template <typename A>
+void chmax(A &l, const A &r) {
+    if (l < r)
+        l = r;
+}
+
+ll mod = 998244353;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    ll t;
+    cin >> t;
+    while (t--) {
+        ll h, w;
+        cin >> h >> w;
+        vector<string> v(h);
+
+        for (auto &x : v) cin >> x;
+
+        vector<vector<ll>> wa(h + 1, vector<ll>(w + 1, 0));
+
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                wa[i + 1][j + 1] = wa[i + 1][j] + wa[i][j + 1] - wa[i][j] + (v[i][j] == '#' ? -1 : 1);
+            }
+        }
+
+        vector<ll> cnt(h * w * 3);
+        ll ans = 0;
+        if (h < w) {
+            for (int i = 0; i <= h; i++) {
+                for (int j = i + 1; j <= h; j++) {
+                    for (int k = 0; k <= w; k++) {
+                        ans += cnt[wa[i][k] - wa[j][k] + h * w];
+                        cnt[wa[i][k] - wa[j][k] + h * w]++;
+                    }
+                    for (int k = 0; k <= w; k++) {
+                        cnt[wa[i][k] - wa[j][k] + h * w]--;
+                    }
+                }
+            }
+        } else {
+            for (int i = 0; i <= w; i++) {
+                for (int j = i + 1; j <= w; j++) {
+                    for (int k = 0; k <= h; k++) {
+                        ans += cnt[wa[k][i] - wa[k][j] + h * w];
+                        cnt[wa[k][i] - wa[k][j] + h * w]++;
+                    }
+                    for (int k = 0; k <= h; k++) {
+                        cnt[wa[k][i] - wa[k][j] + h * w]--;
+                    }
+                }
+            }
+        }
+        cout << ans << endl;
+    }
+    return 0;
+}

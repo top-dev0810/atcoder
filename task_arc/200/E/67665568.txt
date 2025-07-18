@@ -1,0 +1,37 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long
+#define pb push_back
+int t,n,m;
+const ll mod=998244353;
+ll qp(ll x,ll y){
+	ll res=1;
+	while(y){
+		if(y&1) res=res*x%mod;
+		x=x*x%mod,y>>=1;
+	}
+	return res;
+}
+int main(){
+	scanf("%d",&t);
+	while(t--){
+		scanf("%d%d",&n,&m),n--;
+		ll ans=qp(m+1,n),p=1ll*m*(m-1)/2%mod;
+		(ans+=p*(qp(4,n)+mod-qp(3,n))%mod)%=mod;
+		if(n>=2){
+			ans+=m*(qp(m+1,n)-(m-1)*(qp(3,n)+mod-qp(2,n))%mod-qp(2,n)+2*mod)%mod;
+			ans%=mod;
+		}
+		if(n>=3){
+			ll w=((__int128)m*(m-1)*(m-2)/6)%mod;
+			ll one=(qp(2,n)-1+mod)%mod;
+			ll two=(qp(3,n)+mod-2*one%mod+mod-1)%mod;
+			ll three=(qp(4,n)+mod-3*two%mod+mod-3*one%mod+mod-1)%mod;
+			ans+=w*three%mod;
+			ans%=mod;
+		}
+		ans=ans*qp(2,m)%mod;
+		printf("%lld\n",ans);
+	}
+	return 0;
+}

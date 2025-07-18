@@ -1,0 +1,61 @@
+#include<bits/stdc++.h>
+#define int long long
+using namespace std;
+int k,n,ans,d[110],len;
+int f(int x)
+{
+	int cnt=x;
+	for(int i=x;i>0;i/=10)
+	{
+		cnt=cnt*10+i%10;
+	}
+	return cnt;
+}
+int ff(int x)
+{
+	int cnt=x;
+	cnt/=10;
+	for(int i=x;i>0;i/=10)
+	{
+		cnt=cnt*10+i%10;
+	}
+	return cnt;
+}
+bool check(int x)
+{
+	len=1;
+	d[0]=x;
+	while(d[len-1]>=k)
+	{
+		d[len]=d[len-1]/k;
+		d[len-1]%=k;
+		len++;
+	}
+	for(int i=0,j=len-1;i<j;i++,j--)
+	{
+		if(d[i]!=d[j])
+		{
+			return false;
+		}
+	}
+	return true;
+}
+signed main()
+{
+	cin>>k>>n;
+	for(int i=1;i<=1000000;i++)
+	{
+		int now=f(i);
+		if(now<=n && check(now))
+		{
+			ans+=now;
+		}
+		now=ff(i);
+		if(now<=n && check(now))
+		{
+			ans+=now;
+		}
+	}
+	cout<<ans<<"\n";
+	return 0;
+}

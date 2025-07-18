@@ -1,0 +1,75 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+const int INF = 1e9 + 10;
+const int N = 8;
+
+vector<int> get_mask_set(int mask, int n) {
+  vector<int> ret;
+  for (int i = 0; i < n; i++) {
+    if (mask & (1 << i)) {
+      ret.push_back(i);
+    }
+  }
+  return ret;
+}
+
+int count_edge_between(int mask1, int mask2, int n, const vector<vector<bool>>& graph) {
+  auto set1 = get_mask_set(mask1, n), set2 = get_mask_set(mask2, n);
+  int ret = 0;
+  for (auto &x : set1) {
+    for (auto &y : set2) {
+      ret += graph[x][y];
+    }
+  }
+  return ret;
+}
+
+int main() {
+  int n, m;
+  cin >> n >> m;
+
+  vector graph(n, vector<bool>(n, false));
+  for (int i = 0; i < m; i++) {
+    int x, y;
+    cin >> x >> y;
+    x--;
+    y--;
+    graph[x][y] = graph[y][x] = true;
+  }
+
+  vector<int> dp(1 << n, INF);
+  for (int mask = 0; mask < (1 << n); mask++) {
+    if (__builtin_popcount(mask) < 3) continue;
+    auto mask_set = get_mask_set(mask, n);
+    do {
+      int res = 0;
+      int nn = mask_set.size();
+      for (int i = 0; i < nn; i++) {
+        for (int j = i + 1; j < nn; j++) {
+          int ii = mask_set[i], jj = mask_set[j];
+          if (j - i == 1 or (i == 0 and j == nn - 1)) {
+            res += !graph[ii][jj];
+            continue;
+          }
+          res += graph[ii][jj];
+        }
+      }
+      dp[mask] = min(dp[mask], res);
+    } while (next_permutation(mask_set.begin(), mask_set.end()));
+    for (int suba = mask; suba != 0; suba = (suba - 1) & mask) {
+      int subb = mask ^ suba;
+      dp[mask] = min(dp[mask], dp[suba] + dp[subb] + count_edge_between(suba, subb, n, graph));
+    }
+  }
+
+  // for (int mask = 0; mask < (1 << n); mask++) {
+  //   if (dp[mask] != INF) {
+  //     string mask_str = bitset<N>(mask).to_string();
+  //     cout << "dp[" << mask_str << "] = " << dp[mask] << '\n';
+  //   }
+  // }
+
+  cout << dp[(1 << n) - 1] << '\n';
+}

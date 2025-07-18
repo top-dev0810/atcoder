@@ -1,0 +1,62 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define all(a) (a).begin(), (a).end()
+#define st first
+#define se second
+typedef long long ll;
+typedef long double lb;
+typedef pair<ll, ll> ii;
+
+const int INF = 1e9;
+const ll LINF = 1e18;
+const int dx[4] = {0, 0, -1, 1};
+const int dy[4] = {-1, 1, 0 ,0};
+const int N = (int)5e5 + 4;
+const int MOD = 998244353;
+
+string s;
+int nxt = 1;
+int trie[N][2];
+ll dp[N], p2[N], sz[N];
+bool mask[N];
+
+int main() {
+	ios::sync_with_stdio(0);
+	cin.tie(0); cout.tie(0);
+
+//	freopen("test.inp","r",stdin);
+//	freopen("test.out","w",stdout);
+
+    p2[0] = 1;
+    for(int i = 1; i < N; i++) p2[i] = p2[i - 1] * 2 % MOD;
+
+    int t; cin >> t;
+    while(t--) {
+        cin >> s;
+        int n = (int)s.size();
+
+        vector<int> path = {1};
+        int v = 1;
+        for(char ch : s) {
+            int c = (ch == 'B');
+            if(!trie[v][c]) trie[v][c] = ++nxt;
+            v = trie[v][c];
+            path.push_back(v);
+        }
+        mask[v] = 1;
+        sz[v]++;
+
+        reverse(all(path));
+        for(int id : path) {
+            int l = trie[id][0];
+            int r = trie[id][1];
+            
+            dp[id] = (dp[l] * dp[r]) % MOD;
+            sz[id] = sz[l] + sz[r] + mask[id];
+            
+            if(mask[id]) dp[id] = (dp[id] + p2[sz[id] - 1]) % MOD;
+        }
+
+        cout << dp[1] << '\n';
+    }
+}

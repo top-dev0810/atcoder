@@ -1,0 +1,167 @@
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int N=5e5+5;
+int n,m,p;
+int xx[N];
+int tot = 0, head[N << 2];
+struct Edge {
+	int next, to;
+	long long dis;
+} edge[N << 4];
+inline void add_edge(int u, int v, long long w) {
+	edge[++tot].next = head[u];
+	edge[tot].to = v, edge[tot].dis = w;
+	head[u] = tot;
+}
+int cnt = 0;
+int lx[N*8],rx[N*8];
+namespace SegmentGraph {
+	int ls[N << 2], rs[N << 2];
+	int type, rt1, rt2;
+	void add(int u, int v, long long w,int l,int r) {
+			if (type == 0) add_edge(u, v, abs(xx[l]-xx[w]));
+			else add_edge(v, u, abs(xx[w]-xx[r]));
+	}
+	
+	void build(int &rt, int l, int r) {
+		if (l == r) return (void) (rt = l);
+		rt = ++cnt;
+		lx[rt]=l;
+		rx[rt]=r;
+		int mid = (l + r) >> 1;
+		build(ls[rt], l, mid), build(rs[rt], mid + 1, r);
+		if(type==0) add_edge(rt, ls[rt], 0), add_edge(rt, rs[rt],xx[mid+1]-xx[l]);
+		else 
+		{
+			add_edge(ls[rt],rt,xx[r]-xx[mid]), add_edge(rs[rt],rt,0);
+		}
+	}
+	
+	void modify(int x, int y, int u, long long w, int rt, int l, int r) {
+		if (x <= l && r <= y) return (void) add(u, rt, w,l,r);
+		int mid = (l + r) >> 1;
+		if (x <= mid) modify(x, y, u, w, ls[rt], l, mid);
+		if (y > mid) modify(x, y, u, w, rs[rt], mid + 1, r); 
+	}
+	
+	void point_to_point(int from, int to, long long dis) {
+		add_edge(from, to, dis);
+	}
+	void point_to_seg(int from, int l, int r, long long dis) {
+		type = 0;
+		modify(l, r, from, dis, rt1, 1, n);
+	}
+	void seg_to_point(int l, int r, int to, long long dis) {
+		type = 1;
+		modify(l, r, to, dis, rt2, 1, n);
+	}
+	void seg_to_seg(int l1, int r1, int l2, int r2, long long dis) {
+		int t = ++cnt,tt=++cnt;
+		seg_to_point(l1, r1, t, r1);
+		point_to_point(t,tt,xx[l2]-xx[r1]+dis);
+		point_to_seg(tt, l2, r2, l2);
+	}
+	
+	void init() {
+		cnt = n;
+		type = 0, build(rt1, 1, n);
+		type = 1, build(rt2, 1, n);
+	}
+}
+namespace SegmentGraph2{
+	int ls[N << 2], rs[N << 2];
+	int type, rt1=0, rt2=0;
+	void add(int u, int v, long long w,int l,int r) {
+		if (type == 0) add_edge(u, v, abs(xx[r]-xx[w]));
+		else add_edge(v, u, abs(xx[w]-xx[l]));
+	}
+	void build(int &rt, int l, int r) {
+		if (l == r) return (void) (rt = l);
+		rt = ++cnt;
+		lx[rt]=l;
+		rx[rt]=r;
+		int mid = (l + r) >> 1;
+		build(ls[rt], l, mid), build(rs[rt], mid + 1, r);
+		if(type==0) add_edge(rt, ls[rt],xx[r]-xx[mid]), add_edge(rt, rs[rt],0);
+		else add_edge(ls[rt],rt,0), add_edge(rs[rt],rt,xx[mid+1]-xx[l]);
+	}
+	
+	void modify(int x, int y, int u, long long w, int rt, int l, int r) {
+		if (x <= l && r <= y) return (void) add(u, rt, w,l,r);
+		int mid = (l + r) >> 1;
+		if (x <= mid) modify(x, y, u, w, ls[rt], l, mid);
+		if (y > mid) modify(x, y, u, w, rs[rt], mid + 1, r); 
+	}
+	
+	void point_to_point(int from, int to, long long dis) {
+		add_edge(from, to, dis);
+	}
+	void point_to_seg(int from, int l, int r, long long dis) {
+		type = 0;
+		modify(l, r, from, dis, rt1, 1, n);
+	}
+	void seg_to_point(int l, int r, int to, long long dis) {
+		type = 1;
+		modify(l, r, to, dis, rt2, 1, n);
+	}
+	void seg_to_seg(int l1, int r1, int l2, int r2, long long dis) {
+		int t = ++cnt,tt=++cnt;
+		seg_to_point(l1, r1, t, l1);
+		point_to_point(t,tt,xx[l1]-xx[r2]+dis);
+		point_to_seg(tt, l2, r2, r2);
+	}
+	void init() {
+		type = 0, build(rt1, 1, n);
+		type = 1, build(rt2, 1, n);
+	}
+}
+struct node {
+	int to, dis;
+	node() : to(0), dis(0) {}
+	node(int v, int w) : to(v), dis(w) {}
+	bool operator< (const node& a) const {return a.dis < dis;}
+};
+int dis[N * 5];
+void dijkstra(int s) {
+	priority_queue<node> q;
+	memset(dis, 0x3f, sizeof(dis));
+	dis[s] = 0, q.emplace(s, 0);
+	while (!q.empty()) {
+		int u = q.top().to, d = q.top().dis; q.pop();
+		if (dis[u] != d) continue;
+		for (int j = head[u]; j != 0; j = edge[j].next) {
+			int v = edge[j].to, w = edge[j].dis;
+			if (dis[v] > dis[u] + w) {
+				dis[v] = dis[u] + w;
+				q.emplace(v, dis[v]);
+			} 
+		}
+	}
+}
+signed main()
+{
+	cin>>n>>m;
+	for(int i=1;i<=n;i++)
+	{
+		cin>>xx[i];
+	}
+	SegmentGraph::init();
+	SegmentGraph2::init();
+	for(int i=1;i<=m;i++)
+	{
+		int l1,r1,l2,r2,w;
+		cin>>l1>>r1>>l2>>r2>>w;
+		if(r1<l2)
+		{
+			SegmentGraph::seg_to_seg(l1,r1,l2,r2,w);
+		}
+		else SegmentGraph2::seg_to_seg(l1,r1,l2,r2,w);
+	}
+	dijkstra(1);
+	for(int i=2;i<=n;i++)
+	{
+		cout<<(dis[i]>=1e18?-1:dis[i])<<" ";
+	}
+	return 0;
+}

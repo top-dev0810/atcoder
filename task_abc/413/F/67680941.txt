@@ -1,0 +1,32 @@
+#include <bits/stdc++.h>
+using namespace std;
+struct pos {
+	int x, y;
+}tp; queue<pos>q;
+long long n,m,k,t[3005][3005],d[3005][3005],ans;
+int dx[5] = {0,1,0,-1},dy[5]={1,0,-1,0};
+signed main(){
+	cin>>n>>m>>k; 
+	memset(d,-1,sizeof d);
+	for (int i=1;i<=k;i++){
+		long long l,r;
+		cin>>l>>r; 
+		d[l][r]=0;
+		q.push({l,r});
+	}
+	while(q.size()){
+		tp=q.front(); 
+		q.pop();
+		for (int i=0;i<4;++i){
+			if(d[tp.x+dx[i]][tp.y+dy[i]]!=-1) continue;
+			if(++t[tp.x+dx[i]][tp.y+dy[i]]!=2) continue;
+			d[tp.x+dx[i]][tp.y+dy[i]]=d[tp.x][tp.y]+1;
+			q.push({tp.x+dx[i],tp.y+dy[i]});
+					
+		}
+	}
+	for (int i=1;i<=n;i++)
+		for (int j=1;j<=m;j++)
+			if (d[i][j]!=-1) ans+=d[i][j];
+	cout<<ans<<endl;
+}

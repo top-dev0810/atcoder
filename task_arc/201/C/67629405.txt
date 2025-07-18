@@ -1,0 +1,85 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+const int N = 5e5 + 8;
+
+const unsigned MOD = 998244353;
+
+struct modint
+{
+	unsigned nm;
+	constexpr modint() : nm() { }
+	constexpr modint(unsigned x) : nm(x) { }
+	explicit operator bool() const { return nm; }
+	bool operator!() const { return !nm; }
+};
+
+constexpr bool operator==(modint x, modint y)
+{ return x.nm == y.nm; }
+constexpr modint operator+(modint x, modint y)
+{ x.nm += y.nm; if(x.nm >= MOD) x.nm -= MOD; return x; }
+constexpr modint& operator+=(modint& x, modint y)
+{ x.nm += y.nm; if(x.nm >= MOD) x.nm -= MOD; return x; }
+constexpr modint operator-(modint x, modint y)
+{ if(x.nm < y.nm) x.nm += MOD; x.nm -= y.nm; return x; }
+constexpr modint& operator-=(modint& x, modint y)
+{ if(x.nm < y.nm) x.nm += MOD; x.nm -= y.nm; return x; }
+constexpr modint operator*(modint x, modint y)
+{ return (unsigned)(1ull * x.nm * y.nm % MOD); }
+constexpr modint& operator*=(modint& x, modint y)
+{ return x = x * y; }
+constexpr modint operator-(modint x)
+{ return x.nm == 0 ? 0 : (MOD - x.nm); }
+constexpr modint operator+(modint x)
+{ return x; }
+
+modint pw[N];
+
+struct node
+{
+	node* ch[2];
+	modint res;
+	int cnt;
+	bool exist;
+	void pushup()
+	{
+		cnt = (ch[0] ? ch[0]->cnt : 0) + (ch[1] ? ch[1]->cnt : 0) + exist;
+		res = (ch[0] && ch[1] ? ch[0]->res * ch[1]->res : 0) + exist * pw[cnt - 1];
+	}
+	void* operator new(size_t);
+};
+
+char buf[sizeof(node) * N], *bptr = buf - sizeof(node);
+
+void* node::operator new(size_t)
+{ return bptr += sizeof(node); }
+
+void insert(node* p, const char* s)
+{
+	if(!s[0])
+		return p->exist = true, p->pushup();
+	int nxt = s[0] - 'A';
+	if(!p->ch[nxt])
+		p->ch[nxt] = new node;
+	insert(p->ch[nxt], ++s);
+	p->pushup();
+}
+
+char s[N];
+
+int main()
+{
+	int n;
+	scanf("%d", &n);
+	pw[0] = 1;
+	for(int i = 1; i <= n; i++)
+		pw[i] = pw[i - 1] + pw[i - 1];
+	node* rt = new node;
+	for(int i = 1; i <= n; i++)
+	{
+		scanf("%s", s);
+		insert(rt, s);
+		printf("%u\n", rt->res.nm);
+	}
+	return 0;
+}

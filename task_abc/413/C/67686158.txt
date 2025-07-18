@@ -1,0 +1,54 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define lowbit(x) x&(-x)
+#define pii pair<int,int>
+#define pll pair<long long,long long>
+#define i64 long long
+#define ui64 unsigned long long
+#define fi first 
+#define se second
+#define ios ios::sync_with_stdio(false),cin.tie(NULL), cout.tie(NULL)
+//一定一定一定一定要记得int*int 为int,int*i64不一定等于i64
+//全局int数组最大3e7
+//检查顺序：1.数组大小2.数据范围（会不会爆范围）3.循环是否对应（n,m）4.多测数组有没有清空
+const int mod=1;
+const int N=1;
+
+void sl(){
+    int n;
+    cin>>n;
+    queue<pll>q;
+    while(n--){
+        i64 x,a,b;
+        cin>>x;
+        if(x==1){
+            cin>>a>>b;
+            pll p={a,b};
+            q.push(p);
+        }else if(x==2){
+            i64 sum=0;
+            cin>>a;
+            while(q.empty()!=1&&q.front().fi<=a){
+                a-=q.front().fi;
+                sum+=(q.front().fi*q.front().se);
+                q.pop();
+            }
+            if(a!=0){
+                sum+=(q.front().se*a);
+                q.front().fi-=a;
+            }
+            cout<<sum<<'\n';
+        }
+
+    }
+}
+
+int main(){
+    ios;
+    int t=1;
+    //cin>>t;
+    while(t--){
+        sl();
+    }
+    return 0;
+}

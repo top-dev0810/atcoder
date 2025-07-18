@@ -1,0 +1,71 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define rep(i,a,n) for (int i=(a);i<(n);i++)
+#define per(i,a,n) for (int i=(n)-1;i>=(a);i--)
+#define pb push_back
+#define eb emplace_back
+#define mp make_pair
+#define all(x) (x).begin(),(x).end()
+#define fi first
+#define se second
+#define SZ(x) ((int)(x).size())
+typedef vector<int> VI;
+typedef basic_string<int> BI;
+typedef long long ll;
+typedef pair<int,int> PII;
+typedef double db;
+mt19937 mrand(random_device{}()); 
+const ll mod=1000000007;
+int rnd(int x) { return mrand() % x;}
+ll powmod(ll a,ll b) {ll res=1;a%=mod; assert(b>=0); for(;b;b>>=1){if(b&1)res=res*a%mod;a=a*a%mod;}return res;}
+ll gcd(ll a,ll b) { return b?gcd(b,a%b):a;}
+// head
+
+const int N=201000;
+int n;
+struct func {
+	ll t0,rg,rflat;
+	void clear() {
+		t0=0; rg=0; rflat=0;
+	}
+	void add(int R,int a,int b) {
+		// t = 0...R min(a, b-t)
+		rg+=R;
+		a=min(a,b);
+		t0+=a;
+		rflat += min(b-a,R);
+	}
+	ll query(ll v) {
+		assert(v<=rg);
+		if (v<=rflat) return t0;
+		else return t0-(v-rflat);
+	}
+}f1,f2,f3;
+void solve() {
+	scanf("%d",&n);
+	ll R=0;
+	f1.clear(); f2.clear(); f3.clear();
+	for (int i=0;i<n;i++) {
+		int a,b,c,d,e;
+		scanf("%d%d%d%d%d",&a,&b,&c,&d,&e);
+		int v=min({a,b,c});
+		// b[i]-v min(c[i]-v,d[i]) e[i]
+		f1.add(v,d,min(b,c));
+		f2.add(v,min(d,e),c);
+		f3.add(v,d,min(b+e,c));
+		R+=v;
+		ll tl=0,tr=R+1;
+		while (tl+1<tr) {
+			ll tmid=(tl+tr)/2;
+			if (f1.query(tmid)>=tmid&&f2.query(tmid)>=tmid
+				&&f3.query(tmid)>=2*tmid) tl=tmid; else tr=tmid;
+		}
+		printf("%lld\n",tl);
+	}
+}
+int _;
+int main() {
+	for (scanf("%d",&_);_;_--) {
+		solve();
+	}
+}

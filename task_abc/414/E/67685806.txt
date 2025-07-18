@@ -1,0 +1,56 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+#define endl '\n' 
+#define vi vector<int>
+#define vvi vector<vector<int>>
+#define pb push_back
+typedef pair<int, int> PII;
+typedef long long ll;
+#define rep(bg,ed, step) for (int i = bg; i <= ed; i += step)
+#define per(bg,ed, step) for (int j = bg; j >= ed; j -= step)
+const int INF = 1e18;
+const int N = 1e5 + 10;
+const int mod=998244353;
+const int inv2=(mod+1)/2;
+ll qmi(ll a, ll b, ll mod) {
+    ll res = 1;
+    a %= mod;
+    while (b) {
+        if (b & 1) res = res * a % mod;
+        a = a * a % mod;
+        b >>= 1;
+    }
+    return res;
+}
+void solve() {
+    int n;
+    cin>>n;
+    //求在1到n种  满足  a%b==c 的数对个数
+    //a的取值范围为 3到n  b的取值范围为 2到a-1 且不能整除a  c是唯一确定的
+    //b的个数是与a不能整除的个数
+    //容斥原理计算 很明显我不会   全部数减去 b整除a的数量
+    //b整除a 代表  a=bq<=N  q=N//B
+    int s=0;
+    int part1 = n%mod;
+    part1=part1*(part1+1)%mod*inv2%mod;
+    int part2=0;
+    for(int l=1,r;l<=n;l=r+1)
+    {
+        r=n/(n/l);
+        int len=(r-l+1)%mod;
+        int val=(n/l)%mod;
+        (part2+=len*val%mod)%=mod;
+    }
+    int ans=(part1-part2+mod)%mod;
+    cout<<ans<<endl;
+}
+
+signed main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    int t = 1;
+    //cin >> t;
+    while (t--) solve();
+    return 0;
+}

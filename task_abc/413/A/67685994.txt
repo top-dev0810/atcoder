@@ -1,0 +1,20 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+typedef pair<char, int> pp;
+const int M = 2e5 + 3;
+int a[M];
+int main() {
+    int n, m;
+    cin >> n >> m;
+    int k = 0;
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+        k += a[i];
+    }
+    if (m >= k)
+        cout << "Yes" << endl;
+    else
+        cout << "No" << endl;
+    return 0;
+}

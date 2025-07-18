@@ -1,0 +1,155 @@
+#include <bits/stdc++.h>
+using namespace std;
+bool ok1=false,ok2=false;
+int n;
+const int P=998244353;
+struct info{
+	long long v;
+	bool b;
+};
+inline info make_info(long long v,bool b){
+	info f;
+	f.v=v,f.b=b;
+	return f;
+}
+struct tag{
+	long long v;
+	bool b;
+	inline bool empty(){
+		return v==1;
+	}
+};
+inline tag make_tag(long long v,bool b){
+	tag f;
+	f.v=v,f.b=b;
+	return f;
+}
+info operator +(const info &a,const info &b){
+	return make_info((a.v*a.b+b.v*b.b)%P,true);
+}
+info operator +(const info &a,const tag &b){
+	return make_info(a.v*b.v%P,a.b||b.b);
+}
+tag operator +(const tag &a,const tag &b){
+	return make_tag(a.v*b.v%P,a.b||b.b);
+}
+struct node{
+	info v;
+	tag t;
+}d[800005];
+inline void build_tree(int p,int l,int r){
+	d[p].t=make_tag(1,false);
+	if(l==r){
+		d[p].v=make_info((ok2? n-l+1:l),false);
+		return;
+	}
+	int m=(l+r)/2;
+	build_tree(p*2,l,m);
+	build_tree(p*2+1,m+1,r);
+	d[p].v=d[p*2].v+d[p*2+1].v;
+}
+inline void modify_tree(int p,int l,int r,int s,int t,tag v){
+	if(l==s&&r==t){
+		d[p].v=d[p].v+v;
+		d[p].t=d[p].t+v;
+		return;
+	}
+	int m=(l+r)/2;
+	if(!d[p].t.empty()){
+		d[p*2].v=d[p*2].v+d[p].t;
+		d[p*2+1].v=d[p*2+1].v+d[p].t;
+		d[p*2].t=d[p*2].t+d[p].t;
+		d[p*2+1].t=d[p*2+1].t+d[p].t;
+		d[p].t=make_tag(1,false);
+	}
+	if(t<=m){
+		modify_tree(p*2,l,m,s,t,v);
+	} else if(s>m){
+		modify_tree(p*2+1,m+1,r,s,t,v);
+	} else{
+		modify_tree(p*2,l,m,s,m,v);
+		modify_tree(p*2+1,m+1,r,m+1,t,v);
+	}
+	d[p].v=d[p*2].v+d[p*2+1].v;
+}
+inline info query_tree(int p,int l,int r,int s,int t){
+	if(l==s&&r==t){
+		return d[p].v;
+	}
+	int m=(l+r)/2;
+	if(!d[p].t.empty()){
+		d[p*2].v=d[p*2].v+d[p].t;
+		d[p*2+1].v=d[p*2+1].v+d[p].t;
+		d[p*2].t=d[p*2].t+d[p].t;
+		d[p*2+1].t=d[p*2+1].t+d[p].t;
+		d[p].t=make_tag(1,false);
+	}
+	if(t<=m){
+		return query_tree(p*2,l,m,s,t);
+	} else if(s>m){
+		return query_tree(p*2+1,m+1,r,s,t);
+	} else{
+		return query_tree(p*2,l,m,s,m)+query_tree(p*2+1,m+1,r,m+1,t);
+	}
+}
+template<class T>
+struct BIT{
+	int n,c[200005];
+	inline void modify(int x,T s){
+		for(;x<=n;x+=(x&(-x))){
+			c[x]+=s;
+		}
+	}
+	inline T query(int x){
+		T s=0;
+		for(;x;x-=(x&(-x))){
+			s+=c[x];
+		}
+		return s;
+	}
+};
+BIT<int> c;
+int y[200005],f2[200005];
+inline long long calc(){
+	c.n=n;
+	for(int i=1;i<=n;i++){
+		c.c[i]=0;
+	}
+	build_tree(1,1,n);
+	long long ans=0;
+	for(int i=n;i>=1;i--){
+		info x=query_tree(1,1,n,1,y[i]);
+		(ans+=(ok1? n-i+1:i)*x.v*x.b%P)%=P;
+		(ans+=1LL*(f2[c.query(n)-c.query(y[i])]+P-1)%P*(ok1? n-i+1:i)%P*(ok2? n-y[i]+1:y[i])%P)%=P;
+		modify_tree(1,1,n,y[i],y[i],make_tag(1,true));
+		c.modify(y[i],1);
+		if(y[i]>1)
+			modify_tree(1,1,n,1,y[i]-1,make_tag(2,false));
+	}
+	return ans;
+}
+int main(){
+	cin>>n;
+	f2[0]=1;
+	for(int i=1;i<=n;i++){
+		f2[i]=f2[i-1]*2%P;
+	}
+	for(int i=1;i<=n;i++){
+		scanf("%d",&y[i]);
+	}
+	long long ans=calc();
+	reverse(y+1,y+n+1);
+	ok1=true;
+	((ans-=calc())+=P)%=P;
+	for(int i=1;i<=n;i++){
+		y[i]=n-y[i]+1;
+	}
+	ok2=true;
+	(ans+=calc())%=P;
+	reverse(y+1,y+n+1);
+	ok1=false;
+	((ans-=calc())+=P)%=P;
+	cout<<ans;
+	
+	return 0;
+}

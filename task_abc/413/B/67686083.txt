@@ -1,0 +1,174 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+#define ios ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+#define lowbit(x) ((x)&(-x))
+using i16 = short int;
+using u16 = unsigned short int;
+using u32 = unsigned int;
+using i64 = long long;
+using u64 = unsigned long long;
+using i128 = __int128;
+using u128 = unsigned __int128;
+
+// #define double long double
+// #define int long long
+// #define int __int128
+// #define getchar getchar_unlocked
+// #define putchar putchar_unlocked
+
+struct Fastio
+{
+	Fastio operator>>(string &str)
+    {
+        str = ""; 
+        char ch = getchar();
+        while (isspace(ch) and ch != EOF)ch = getchar();
+        while (!isspace(ch) and ch != EOF) str += ch, ch = getchar();
+        return *this;
+    }
+    
+    Fastio operator>>(char &ch)
+    {
+    	ch = getchar();
+    	while (isspace(ch) and ch != EOF)ch = getchar();
+        return *this;
+    }
+    
+    Fastio &operator<<(const string str)
+    {
+        *this << str.c_str();	//转化为char*
+        return *this;
+    }
+    template <typename T>
+    Fastio operator>>(T &x)
+    {
+        x = 0;
+        bool f = 0;
+        char c = getchar();
+        while (c < '0' || c > '9')
+        {
+        	if(c=='-')f = 1;
+        	c = getchar();
+        }
+        while (c >= '0' && c <= '9')
+            x = (x << 3) + (x << 1) + (c ^ 48), c = getchar();
+        if(f)x = -x;
+        return *this;
+    }
+    Fastio &operator<<(const char *str)
+    {
+        int cur = 0;
+        while (str[cur])
+            putchar(str[cur++]);
+        return *this;
+    }
+    Fastio &operator<<(const char str)
+    {
+        putchar(str);
+        return *this;
+    }
+    template <typename T>
+    Fastio &operator<<(T x)
+    {
+        if (x == 0)
+        {
+            putchar('0');
+            return *this;
+        }
+        if (x < 0)
+            putchar('-'), x = -x;
+        static char sta[45];
+        int top = 0;
+        while (x)
+            sta[++top] = x % 10, x /= 10;
+        while (top)
+            putchar(sta[top] + '0'), --top;
+        return *this;
+    }
+} io;//！！！又读取字符串，又读取数字的时候注意，用了快读后 cin 用不了
+//！！！输出数的时候千万不能数是溢出的
+//胆大心细，多想想原理,如果在线算法想不出，想想离线算法
+//一定要记住，假如有多组测试时，千万不要在每个测试里定义如pair<int,int>a[200005],会超时
+//		!!!万分小心!!!
+//要初始化的大数组要么限定大小，要么就开全局变量，全局变量记得初始化
+//		!!!万分小心!!!
+//前缀和要取模的时候，别用partial_sum()函数
+const double eps = 1e-9;
+const int mod = 1e9+7;
+mt19937 rnd(std::chrono::steady_clock::now().time_since_epoch().count());
+// mt19937_64 rnd(std::chrono::steady_clock::now().time_since_epoch().count());
+//2024 misaka;
+
+
+//2025 mikoto;
+
+void init()
+{
+	
+}
+
+inline void solve()
+{
+	int n;cin>>n;
+	string a[n+1];
+	for(int i=1;i<=n;i++)
+	{
+		cin>>a[i];
+	}
+	
+	set<string>t;
+	for(int i=1;i<=n;i++)
+	{
+		for(int j=1;j<=n;j++)
+		{
+			if(i==j)continue;
+			t.insert(a[i]+a[j]);
+		}
+	}
+	cout<<t.size()<<'\n';
+	
+	// deque<pair<i64,i64>>q;
+	// int q;cin>>q;
+	// for(int i=1;i<=q;i++)
+	// {
+		// int op;cin>>op;
+		// if(op==1)
+		// {
+			// i64 c,x;
+			// cin>>c>>x;
+			// q.push_back({c,x});
+		// }else if(op==2)
+		// {
+			// i64 k;cin>>k;
+			// i64 ans=0;
+			// while(!q.empty())
+			// {
+				// auto[num,x]=q.front();
+				// q.pop_front();
+				// if(num<=k)ans+=x*num,k-=num;
+				// else
+				// {
+					// ans+=k*x;
+					// q.push_front({num-k,x});
+				// }
+			// }
+			// cout<<ans<<'\n';
+		// }
+	// }
+}
+
+int main()
+{
+	// freopen("data.in","r",stdin);
+  	// freopen("std.out","w",stdout);
+  	// freopen("baoli.out","w",stdout);
+  	srand(time(0));
+	ios;	//注意交互题记得开同步流
+	init();
+	int T = 1;
+	//cin>>T;
+	//io>>T;
+	while(T--)solve();
+	return 0;
+}

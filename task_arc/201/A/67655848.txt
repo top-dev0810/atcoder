@@ -1,0 +1,55 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define all(a) (a).begin(), (a).end()
+#define st first
+#define se second
+typedef long long ll;
+typedef long double lb;
+typedef pair<ll, ll> ii;
+
+const int INF = 1e9;
+const ll LINF = 1e18;
+const int dx[4] = {0, 0, -1, 1};
+const int dy[4] = {-1, 1, 0 ,0};
+
+int n;
+
+int main() {
+	ios::sync_with_stdio(0);
+	cin.tie(0); cout.tie(0);
+
+//	freopen("test.inp","r",stdin);
+//	freopen("test.out","w",stdout);
+
+    int t; cin >> t;
+    while(t--) {
+        cin >> n;
+        ll div1 = 0, div2 = 0, cnt = 0;
+        for(int i = 1; i <= n; i++) {
+            ll a, b, c; cin >> a >> b >> c;
+            b = min(b, a + c) ;
+            c = min(c, b); 
+            a = min(a, b);
+
+            ll tmp = min(a, max(0ll, b - c));
+            div1 += tmp;
+            a -= tmp;
+            b -= tmp;
+
+            tmp = min(c, max(0ll, b - a));
+            div2 += tmp;
+            b -= tmp; 
+            c -= tmp;
+
+            cnt += b;
+        }
+
+        ll ans = min(div1, div2);
+        ll val = max(div1, div2) - min(div1, div2);
+        ans += min(val, cnt); 
+        cnt -= min(val, cnt);
+        ans += cnt / 2; 
+
+        cout << ans << '\n';
+    }
+}

@@ -1,0 +1,36 @@
+#include <bits/stdc++.h>
+#define rep(i,n) for(int i=0;i<(int)(n);i++)
+using namespace std;
+
+int main(){
+  int N,Q;
+  cin >> N >> Q;
+  vector<int> ball(Q);
+  vector<int> box(N);
+  rep(i,Q){
+    cin >> ball.at(i);
+    if(ball.at(i)>=1){
+      box.at(ball.at(i)-1)++;
+      if(i==Q-1){
+        cout << ball.at(i) << endl;
+      }
+      else{
+        cout << ball.at(i) << ' ';
+      }
+    }
+    if(ball.at(i)==0){
+      int min_box=min_element(box.begin(),box.end())-box.begin();
+      box.at(min_box)++;
+      if(i==Q-1){
+        cout << min_box +1 << endl;
+      }
+      else{
+        cout << min_box+1 << ' ';
+      }
+      
+    }
+    
+  }
+  
+  
+}

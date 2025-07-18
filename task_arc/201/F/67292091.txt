@@ -1,0 +1,60 @@
+#include<bits/stdc++.h>
+#define int long long
+using namespace std;
+typedef long long ll;
+typedef unsigned long long ull;
+typedef long double ld;
+inline int read(){
+	int num=0,sign=1;
+	char ch=getchar();
+	while(ch<'0'||ch>'9'){
+		if(ch=='-')
+			sign=-sign;
+		ch=getchar();
+	}
+	while(ch>='0'&&ch<='9'){
+		num=num*10+(int)ch-48;
+		ch=getchar();
+	}
+	return num*sign;
+}
+inline void write(int num){
+	if(num<0){
+		putchar('-');
+		num=-num;
+	}
+	if(num>9)
+		write(num/10);
+	putchar(num%10+'0');
+}
+int T;
+int n;
+array<int,5> a[200009];
+array<int,7> cur,empt;
+signed main(){
+	T=read();
+	while(T--){
+		n=read();
+		for(int i=1;i<=n;i++)
+			for(int j=0;j<5;j++)
+				a[i][j]=read();
+		cur=empt;
+		for(int i=1;i<=n;i++){
+			cur[0]+=min(a[i][0],min(a[i][1],a[i][2]));
+			cur[1]+=min(a[i][1],min(a[i][2],a[i][3]));
+			cur[2]+=min(a[i][2],min(a[i][3],a[i][4]));
+			
+			cur[3]+=min(a[i][0]+a[i][3],min(a[i][1],a[i][2]));
+			cur[4]+=min(a[i][1]+a[i][4],min(a[i][2],a[i][3]));
+			
+			cur[5]+=min(min(a[i][0],a[i][1])+min(a[i][3],a[i][4]),a[i][2]);
+			
+			cur[6]+=min(min(a[i][0]+a[i][3],a[i][1]+a[i][4]),min(a[i][1]+a[i][3],a[i][2]));
+		
+			write(min(min(cur[0],min(cur[1],cur[2])),min(min(cur[3],min(cur[4],cur[5]))/2,cur[6]/3)));
+			putchar(' ');
+		}
+		putchar('\n');
+	}
+	return 0;
+}

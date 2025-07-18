@@ -1,0 +1,44 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long
+#define pb push_back
+const int N=505;
+int t,n,rk;
+struct node{
+	int l,r;
+}a[N];
+bool vis[N],go[N][N];
+void dfs(int u){
+	if(vis[u]) return;
+	vis[u]=1,rk++;
+	for(int i=1;i<=n;i++) if(go[u][i]) dfs(i);
+}
+int main(){
+	scanf("%d",&t);
+	while(t--){
+		scanf("%d",&n);
+		for(int i=1;i<=n;i++){
+			scanf("%d%d",&a[i].l,&a[i].r);
+			for(int j=1;j<=n;j++) go[i][j]=0;
+		}
+		for(int i=1;i<=n;i++){
+			for(int j=1;j<=n;j++){
+				go[i][j]=0;
+				if(i==j) continue;
+				if(a[i].l<a[j].l&&a[i].r>a[j].r) go[i][j]=1;
+			}
+		}
+		for(int i=1;i<=n;i++){
+			rk=0;
+			for(int j=1;j<=n;j++) vis[j]=0;
+			dfs(i),printf("%d ",rk);
+			for(int j=1;j<=n;j++){
+				if(vis[j])
+					for(int k=1;k<=n;k++)
+						if(!vis[k]) go[k][j]=1;
+			}
+		}
+		printf("\n");
+	}
+	return 0;
+}

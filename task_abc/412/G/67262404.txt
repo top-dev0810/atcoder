@@ -1,0 +1,86 @@
+#include<bits/stdc++.h>
+#define int long long
+using namespace std;
+const int N=1000;
+const int p=998244353;
+int n,m;
+int a[N];
+int d[300][300];
+int bg[300][300];
+int ff[300][300];
+int cl[300][300];
+int dt[300];
+int ksm(int a,int b){
+	int ans=1;
+	for(;b;b>>=1,a=a*a%p) if(b&1) ans=ans*a%p;
+	return ans;
+}
+mt19937 rnd(chrono::steady_clock::now().time_since_epoch().count());
+int det(){
+	int ans=1;
+	for(int i=1;i<=n;i++){
+		if(!d[i][i]){
+			for(int j=i+1;j<=n;j++) if(d[j][i]) {swap(d[j],d[i]),ans=(p-ans)%p;break;}
+		}
+		int nw=d[i][i],nw2=ksm(nw,p-2);ans=ans*nw%p;
+		for(int j=i;j<=n;j++) d[i][j]=d[i][j]*nw2%p;
+		for(int j=i+1;j<=n;j++){
+			nw=d[j][i];
+			for(int k=i;k<=n;k++) d[j][k]=(d[j][k]-nw*d[i][k]%p+p)%p;
+		}
+	}
+	return ans;
+}
+signed main(){
+	cin>>n>>m;
+	for(int i=1;i<=n;i++) cin>>a[i],a[i]+=a[i-1];
+	for(int i=1,x,y;i<=m;i++){
+		cin>>x>>y;
+		ff[x][y]=ff[y][x]=1;
+	}
+	if(a[n]&1) return cout<<-1,0;
+	memset(bg,0x3f,sizeof bg);
+	for(int i=1;i<=n;i++){
+		for(int j=a[i-1]+1;j<=a[i];j++){
+			for(int k=j+1;k<=a[i];k++) bg[j][k]=bg[k][j]=0;
+			for(int k=1;k<i;k++) if(ff[i][k]){
+				for(int l=a[k-1]+1;l<=a[k];l++){
+					bg[l][j]=bg[j][l]=1;
+				}
+			}
+		}
+	}
+	n=a[n];
+	for(int i=1;i<=n;i++)
+		for(int j=i+1;j<=n;j++) cl[i][j]=rnd()%p,cl[j][i]=(p-cl[i][j])%p;
+	for(int v=0;v<=n;v++){
+		for(int i=1;i<=n;i++){
+			for(int j=1;j<=n;j++){
+				if(bg[i][j]>1) d[i][j]=0;
+				else if(bg[i][j]==0) d[i][j]=cl[i][j];
+				else d[i][j]=cl[i][j]*v%p;
+			}
+		}
+		dt[v]=det();
+	}
+	memset(d,0,sizeof d);
+	for(int i=0;i<=n;i++){
+		d[i][n+1]=dt[i];
+		for(int j=0,v=1;j<=n;j++,v=v*i%p) d[i][j]=v;
+	}
+	for(int i=0;i<=n;i++){
+		if(!d[i][i]){
+			for(int j=i+1;j<=n;j++) if(d[j][i]) {swap(d[j],d[i]);break;}
+		}
+		int yu=ksm(d[i][i],p-2);
+		for(int j=0;j<=n+1;j++) d[i][j]=d[i][j]*yu%p;
+		for(int j=0;j<=n;j++){
+			if(i==j) continue;
+			int op=(p-d[j][i])%p;
+			for(int k=0;k<=n+1;k++) d[j][k]=(d[j][k]+op*d[i][k]%p)%p;
+		}
+	}
+	for(int i=0;i<=n;i++) if(d[i][n+1]!=0) return cout<<i/2,0;
+	cout<<-1;
+	return 0;
+}

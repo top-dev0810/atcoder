@@ -1,0 +1,40 @@
+#include <bits/stdc++.h>
+using namespace std;
+constexpr int N = 3e5;
+int t;
+int n, m;
+int a[N + 5], b[N + 5];
+inline int getmod(int x) {
+	return x >= m ? x - m : x;
+}
+int check(int mid) {
+	int ret = 0;
+	for (int i = 1; i <= n; i++) {
+		int x = i + mid <= n ? b[i + mid] : b[i + mid - n] + m;
+		if (x < a[i]) return -1;
+		ret = max(ret, x - a[i]);
+	}
+	return ret;
+}
+int binary() {
+	int l = 0, r = n;
+	while (l < r) {
+		int mid = l + r >> 1;
+		~check(mid) ? r = mid : l = mid + 1;
+	}
+	return check(l);
+}
+void solve() {
+	scanf("%d%d", &n, &m);
+	for (int i = 1; i <= n; i++)
+		scanf("%d", &a[i]), a[i] = getmod(m - a[i]);
+	for (int i = 1; i <= n; i++) scanf("%d", &b[i]);
+	sort(a + 1, a + n + 1);
+	sort(b + 1, b + n + 1);
+	printf("%d\n", binary());
+}
+int main() {
+	scanf("%d", &t);
+	while (t--) solve();
+	return 0;
+}

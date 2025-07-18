@@ -1,0 +1,24 @@
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+int n,q,a[1010101],front=1;
+int pos(int x){return (x-front+n)%n+1;}
+int sop(int x){return (front+x-2+n)%n+1;}
+int main()
+{
+	cin>>n;
+	for(int i=1;i<=n;i++) a[i]=i;
+	cin>>q;
+	while(q--)
+	{
+		int op,p;cin>>op>>p;
+		if(op==1)
+		{
+			int x;cin>>x;
+			a[sop(p)]=x;
+		}
+		if(op==2) cout<<a[sop(p)]<<endl;
+		if(op==3) front+=p,front%=n;
+	}
+	return 0;
+}

@@ -1,0 +1,56 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define lowbit(x) ((x)&(~x))
+const int N=2e5+5;
+int T,n,a[N],b[N];
+int gcd(int x,int y){
+	if(!y) return x;
+	return gcd(y,x%y);
+}
+bool check(){
+	int A=-1,B,G;
+	for(int i=1;i<n;i++){
+		G=gcd(abs(b[i]),abs(b[i+1]));
+		int C=b[i]/G,D=b[i+1]/G;
+		if(C<0) C=-C,D=-D;
+		if(!~A) A=C,B=D;
+		else if(A!=C||B!=D) return false;
+	}return true;
+}
+signed main(){
+	cin>>T;
+	while(T--){
+		cin>>n;
+		int up=0,down=0;
+		for(int i=1;i<=n;i++){
+			cin>>a[i];
+			if(a[i]>0) up++;
+			else down++;
+		}
+		if(up==n||down==n){
+			for(int i=1;i<=n;i++) b[i]=a[i];
+			sort(b+1,b+n+1);
+		}else{
+			vector<int> A,B;
+			for(int i=1;i<=n;i++) if(a[i]>0) A.emplace_back(a[i]);else B.emplace_back(a[i]);
+			sort(A.begin(),A.end());sort(B.begin(),B.end(),greater<int>());
+			if(up!=down){
+				if(abs(up-down)!=1){
+					cout<<"No\n";
+					continue;
+				}
+				for(int i=1,j=0;i<=n;i+=2) if(up>down) b[i]=A[j++];else b[i]=B[j++];
+				for(int i=2,j=0;i<=n;i+=2) if(up>down) b[i]=B[j++];else b[i]=A[j++];
+			}else{
+				if(abs(A[0])>abs(B[0])){
+					for(int i=1;i<=n;i++) if(i&1) b[i]=B[(i-1)/2];else b[i]=A[(i-1)/2];
+				}else for(int i=1;i<=n;i++) if(i&1) b[i]=A[(i-1)/2];else b[i]=B[(i-1)/2];
+			}
+		}
+		// for(int i=1;i<=n;i++) cout<<b[i]<<' ';
+		// cout<<'\n';
+		puts(check()?"Yes":"No");
+	}
+	return 0;
+}

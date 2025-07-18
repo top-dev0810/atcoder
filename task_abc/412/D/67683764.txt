@@ -1,0 +1,75 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, M;
+    cin >> N >> M;
+
+    // 原圖邊集合，f[i][j] = true 表示有邊 (i<j)
+    bool f[8][8] = {};
+    for (int k = 0; k < M; ++k) {
+        int u, v;
+        cin >> u >> v;
+        --u; --v;
+        if (u > v) swap(u, v);
+        f[u][v] = true;
+    }
+
+    vector<int> perm(N);
+    iota(perm.begin(), perm.end(), 0);
+    
+
+    int answer = INT_MAX;
+
+    // 列舉所有頂點排列，作為 1 或 2 個 cycle 的候選
+    do {
+        bool g[8][8] = {};
+        for(int i = 0; i < N; ++i){
+            int u = perm[i];
+            int v = perm[(i + 1) % N];
+            if(u > v) swap(u, v);
+            g[u][v] = true;
+        }
+        
+        int diff = 0;
+        for(int i = 0; i < N; ++i)
+            for(int j = i + 1; j < N; ++j)
+                if(f[i][j] != g[i][j])
+                    diff++;
+        
+        answer = min(answer, diff);
+
+        // 兩個 cycle：把 perm 分為長度 d 和 N-d 兩段，各自閉環
+        for (int d = 3; d <= N-3; ++d) {
+            bool h[8][8] = {};
+            // 第一段 cycle 0..d-1
+            for (int i = 0; i < d; ++i) {
+                int u = perm[i];
+                int v = perm[(i+1) % d];
+                if (u > v) swap(u, v);
+                h[u][v] = true;
+            }
+            // 第二段 cycle d..N-1
+            int r = N - d;
+            for (int i = 0; i < r; ++i) {
+                int u = perm[d + i];
+                int v = perm[d + (i+1) % r];
+                if (u > v) swap(u, v);
+                h[u][v] = true;
+            }
+            // 比較 f 與 h
+            int diff2 = 0;
+            for (int i = 0; i < N; ++i)
+                for (int j = i+1; j < N; ++j)
+                    if (f[i][j] != h[i][j])
+                        ++diff2;
+            answer = min(answer, diff2);
+        }
+    } while (next_permutation(perm.begin(), perm.end()));
+
+    cout << answer << "\n";
+    return 0;
+}

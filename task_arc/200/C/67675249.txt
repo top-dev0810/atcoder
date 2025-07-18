@@ -1,0 +1,55 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define N 505
+int n,l[N],r[N];
+int p[N];
+inline int read(){
+	register int s = 0,w = 1;
+	char ch = getchar();
+	while(!isdigit(ch)){
+		if(ch == '-')w = -1;
+		ch = getchar();
+	}
+	while(isdigit(ch)){
+		s = (s << 3) + (s << 1) + (ch ^ 48);
+		ch = getchar();
+	}
+	return s * w;
+}
+void Readinit(){
+	n = read();
+	for(int i = 1; i <= n; i++){
+		l[i] = read();
+		r[i] = read();
+		p[i] = 0;
+	}
+}
+bool check(int i){
+	for(int j = 1; j <= n; j++){
+		if(l[j] < l[i] && r[i] < r[j] && p[j] == 0){
+			return false;
+		}
+	}
+	return true;
+}
+void solve(){
+	for(int k = n; k >= 1; k--){
+		for(int i = n; i >= 1; i--){
+			if(p[i])continue;
+			if(check(i)){
+				p[i] = k;
+				break;
+			}
+		}
+	}
+	for(int i = 1; i <= n; i++)printf("%d ", p[i]);
+	printf("\n");
+}
+signed main(){
+	int T = read();
+	while(T--){
+		Readinit();
+		solve();
+	}
+	return 0;
+}

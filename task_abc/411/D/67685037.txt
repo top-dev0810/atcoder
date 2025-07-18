@@ -1,0 +1,50 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+using P = pair<long long, long long>;
+#define rep(i, a, b) for(long long i = (a); i < (b); ++i)
+#define rrep(i, a, b) for(long long i = (a); i >= (b); --i)
+constexpr long long inf = 4e18;
+struct SetupIO {
+    SetupIO() {
+        ios::sync_with_stdio(0);
+        cin.tie(0);
+        cout << fixed << setprecision(30);
+    }
+} setup_io;
+int main(void) {
+    ll n, q;
+    cin >> n >> q;
+    vector<ll> t(q), p(q);
+    vector<string> s(q);
+    rep(i, 0, q) {
+        cin >> t[i] >> p[i];
+        if(t[i] == 2) {
+            cin >> s[i];
+        }
+    }
+    vector<string> added;
+    ll cur = 0;
+    rrep(i, q - 1, 0) {
+        if(t[i] == 1) {
+            if(cur == p[i]) {
+                cur = 0;
+            }
+        }
+        if(t[i] == 2) {
+            if(cur == p[i]) {
+                added.push_back(s[i]);
+            }
+        }
+        if(t[i] == 3) {
+            if(cur == 0) {
+                cur = p[i];
+            }
+        }
+    }
+    string ans = "";
+    rrep(i, ssize(added) - 1, 0) {
+        ans += added[i];
+    }
+    cout << ans << '\n';
+}

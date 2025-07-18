@@ -1,0 +1,32 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+#define int long long
+inline ll read()
+{
+   char a=getchar();
+   ll t=0,f=1;
+   while(a<'0'||a>'9'){if(a=='-')f=-1;a=getchar();};
+   while(a>='0'&&a<='9'){t=(t<<1)+(t<<3)+a-'0';a=getchar();};
+   return t*f;
+}
+signed main()
+{
+	string s, t;
+	cin >> s >> t;
+	bool st = true;
+	int n = s.size();
+	for(int i = 1 ; i <= n ; i ++){
+		if(isupper(s[i])){
+			auto x = s[i - 1];
+			if(t.find(x) == t.npos){
+				cout << "No" << endl;
+				return 0; 
+			}
+		}
+	}
+	cout << "Yes" << endl;
+
+}
+     
+

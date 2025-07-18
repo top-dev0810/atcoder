@@ -1,0 +1,63 @@
+#include<bits/stdc++.h>
+using namespace std;
+const int N=200015,M=N*2;
+int h[N],e[M],ne[M],idx;
+void add(int a,int b){
+	e[idx]=b;
+	ne[idx]=h[a];
+	h[a]=idx++;
+}
+int n,k;
+struct node{
+	int d,p,from;
+};
+int cnt[N][25];
+bool vis[M][25];
+int ans[N];
+int main(){
+	int t;
+	cin>>t;
+	while(t--){
+		cin>>n>>k;
+		for(int i=0;i<=n*2+5;i++){
+			for(int j=0;j<=k;j++){
+				vis[i][j]=0;
+			}
+		}
+		for(int i=0;i<=n;i++){
+			h[i]=-1; 
+			for(int j=0;j<=k;j++){
+				cnt[i][j]=0;
+			}
+			ans[i]=-1;
+		}
+		idx=0;
+		for(int i=2;i<=n;i++){
+			int a,b;
+			cin>>a>>b;
+			add(a,b),add(b,a);
+		}
+		queue<node>q;
+		q.push({0,1,0});
+		while(!q.empty()){
+			node t=q.front();
+			q.pop();
+			if(ans[t.p]<0&&t.d%k==0){
+				ans[t.p]=t.d/k;
+			}
+			if(cnt[t.p][t.d%k]>=2)continue;
+			cnt[t.p][t.d%k]++;
+			for(int i=h[t.p];i!=-1;i=ne[i]){
+				if((i^t.from)==1&&t.d%k!=0)continue;
+				int j=e[i];
+				if(!vis[i][(t.d+1)%k]){
+					vis[i][(t.d+1)%k]=1;
+					q.push({t.d+1,j,i});
+				}
+			}
+		}
+		for(int i=2;i<=n;i++)cout<<ans[i]<<' ';
+		puts("");
+	}
+	return 0;
+}

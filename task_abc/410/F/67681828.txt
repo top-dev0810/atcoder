@@ -1,0 +1,162 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+ll T, H, W;
+vector<vector<ll>> dp;
+vector<vector<ll>> in;
+ll out = 0;
+
+ll cnt[601000];
+bool done[601000];
+
+const int A = 300100;
+
+void Transposed_input() {
+    /// H > W 인 경우
+    /// 이 경우, 행과 열을 바꿔서 입력받아야 한다
+    in.resize(W);
+    dp.resize(W);
+    
+    for(int i=0;i<H;i++) {
+        string s;
+        
+        cin >> s;
+        for(int j=0;j<W;j++) {
+            in[j].push_back(s[j]);
+            dp[j].push_back(s[j]);
+        }
+    }
+    
+    swap(H, W);
+}
+
+void input() {
+    in.resize(H);
+    dp.resize(H);
+    
+    for(int i=0;i<H;i++) {
+        string s;
+        
+        cin >> s;
+        for(int j=0;j<W;j++) {
+            in[i].push_back(s[j]);
+            dp[i].push_back(s[j]);
+        }
+    }
+}
+
+ll get_dp(int x, int y) {
+    if(x < 0 || y < 0) return 0;
+    else return dp[x][y];
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+    
+    fill(done, done+601000, 0);
+    
+    cin >> T;
+    while(T--) {
+        dp.clear();
+        in.clear();
+        out = 0;
+        
+        cin >> H >> W;
+        if(H > W) {
+            Transposed_input();
+        }
+        else {
+            input();
+        }
+        
+        /// Case 1
+        /// dp 채우기
+        for(int i=0;i<H;i++) {
+            for(int j=0;j<W;j++) {
+                ll temp;
+                if(in[i][j] == '#') temp = 1;
+                else temp = -1;
+                dp[i][j] = get_dp(i-1, j) + get_dp(i, j-1) 
+                            - get_dp(i-1, j-1) + temp;
+                
+                if(dp[i][j] == 0) out++;
+                //cout << dp[i][j] << " ";
+            }
+            //cout << "\n";
+        }
+        //cout << "\n";
+        
+        //cout << out << "\n";
+        
+        /// Case 2
+        for(int i=0;i<H;i++) {
+            set<int> not_0; /// 초기화해야 하는 cnt 인덱스 목록
+            for(int j=0;j<W;j++) {
+                cnt[dp[i][j] + A] += 1;
+                
+                not_0.insert(dp[i][j]);
+            }
+            for(int x: not_0) {
+                out += cnt[x+A] * (cnt[x+A]-1) / 2;
+                
+                cnt[x+A] = 0;
+            }
+        }
+        //cout << out << "\n";
+        
+        /// Case 3
+        for(int j=0;j<W;j++) {
+            set<int> not_0; /// 초기화해야 하는 cnt 인덱스 목록
+            for(int i=0;i<H;i++) {
+                cnt[dp[i][j] + A] += 1;
+                
+                not_0.insert(dp[i][j]);
+            }
+            for(int x: not_0) {
+                out += cnt[x+A] * (cnt[x+A]-1) / 2;
+                
+                cnt[x+A] = 0;
+            }
+        }
+        //cout << out << "\n";
+        
+        /// Case 4
+        for(int i=0;i<H;i++) {
+            for(int k=i+1;k<H;k++) {
+                stack<int> not_0_2;
+                stack<int> not_0; /// 초기화해야 하는 cnt 인덱스 목록
+            
+                for(int j=0;j<W;j++) {
+                    cnt[dp[k][j] - dp[i][j] + A] += 1;
+                    
+                    not_0.push(dp[k][j] - dp[i][j]);
+                    not_0_2.push(dp[k][j] - dp[i][j]);
+                }
+                while(!not_0.empty()) {
+                    int x = not_0.top();
+                    not_0.pop();
+                    
+                    if(done[x+A]) continue;
+                    done[x+A] = 1;
+                    
+                    out += cnt[x+A] * (cnt[x+A]-1) / 2;
+                    
+                    cnt[x+A] = 0;
+                }
+                
+                while(!not_0_2.empty()) {
+                    int x = not_0_2.top();
+                    not_0_2.pop();
+                    
+                    done[x+A] = 0;
+                }
+            }
+        }
+        
+        cout << out << "\n";
+    }
+    return 0;
+}

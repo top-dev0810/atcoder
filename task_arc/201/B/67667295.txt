@@ -1,0 +1,33 @@
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+
+int t,n;
+vector<ll>v[100];
+ll w;
+
+
+int main(){
+    scanf("%d",&t);
+    while(t--){
+        for(int i=0;i<=70;i++)v[i].clear();
+        scanf("%d%lld",&n,&w);
+        for(int i=1;i<=n;i++){
+            int x,y;
+            scanf("%d%d",&x,&y);
+            v[x].push_back(y);
+        }
+        int p=-1; ll ans=0;
+        while(w){
+            p++;
+            v[p].push_back(0); v[p].push_back(0);
+            sort(v[p].begin(),v[p].end());
+            if(w&1){ans+=v[p].back();v[p].pop_back();}
+            for(int i=v[p].size()-1;i>=1;i-=2)v[p+1].push_back(v[p][i]+v[p][i-1]);
+            w>>=1;
+        }
+        printf("%lld\n",ans);
+    }
+    return 0;
+}

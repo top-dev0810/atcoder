@@ -1,0 +1,46 @@
+//#pragma GCC optimize(2, 3, "Ofast", "inline")
+#include "bits/stdc++.h"
+#define int long long
+#define ull unsigned long long
+#define PII pair<int, int>
+#define TIII tuple<int, int, int>
+#define LL __int128
+#define eps 1e-6
+using namespace std;
+mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
+//998244353 212370440130137957ll
+constexpr int N = 2e6 + 10, mod = 1e9 + 7, inf = 1e18;
+
+void solve()
+{
+    int n;
+    cin >> n;
+    int ans = 0;
+    for (int i = 0; i < n; i++)
+    {
+        int a, b;
+        cin >> a >> b;
+        ans += (b > a);
+    }
+    cout << ans << endl;
+}
+
+signed main()
+{
+    std::ios::sync_with_stdio(false);
+    cin.tie(nullptr), cout.tie(nullptr);
+    cout << fixed << setprecision(2);
+
+#ifndef ONLINE_JUDGE
+    freopen("in.txt", "rt", stdin);
+    freopen("out.txt", "wt", stdout);
+#endif
+
+    int Cases = 1;
+    //    cin >> Cases;
+    while (Cases--)
+    {
+        solve();
+    }
+    return 0;
+}

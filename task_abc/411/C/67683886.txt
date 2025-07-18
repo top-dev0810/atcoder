@@ -1,0 +1,55 @@
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+const ll N = 5e5 + 9;
+ll n, q;
+bool isB[N];
+ll ans = 0;
+
+void work(ll a) {
+    isB[a] = !isB[a];
+    if (a == 1) {
+        if (isB[a]) {
+            if (!isB[a + 1])
+                ans++;
+        }
+        else {
+            if (!isB[a + 1])
+                ans--;
+        }
+    } 
+    else if (a == n) {
+        if (isB[a]) {
+            if (!isB[a - 1])
+                ans++;
+        }
+        else {
+            if (!isB[a - 1])
+                ans--;
+        }
+    }
+    else {
+        if(isB[a]) {
+            if (!isB[a - 1] && !isB[a + 1])
+                ans++;
+            else if (isB[a - 1] && isB[a + 1])
+                ans--;
+        } 
+        else if(!isB[a]) {
+            if (isB[a - 1] && isB[a + 1])
+                ans++;
+            else if (!isB[a - 1] && !isB[a + 1])
+                ans--;
+        } 
+    }
+    printf("%lld\n", ans);
+}
+int main() {
+    scanf("%lld %lld", &n, &q);
+    for (ll i = 0; i < q; i++) {
+        ll a; scanf("%lld", &a);
+        work(a);
+    }
+    return 0;
+}

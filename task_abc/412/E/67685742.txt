@@ -1,0 +1,115 @@
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+#define sws std::ios::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL);
+#define int long long int
+#define float long double
+#define ld long double
+#define ll long long
+#define pb push_back
+#define ff first
+#define ss second
+#define vi vector<int>
+#define vl vector<ll>
+#define vpii vector<pair<int, int>> 
+#define vvi vector<vector<int>>
+#define vvf vector<vector<long double>>
+#define pii pair<int, int>
+#define all(x) x.begin(), x.end()
+#define rall(x) x.rbegin(), x.rend()
+#define rep(i, x, n) for(int i = x; i < n; i++)
+#define in(v) for(auto & x : v) cin >> x;
+#define outi(v) for(auto x : v) cout << x << ' ';
+#define tiii tuple<int, int, int>
+#define tam(x) ((int)x.size())
+ 
+const int MAXN = 1e3+1;
+const float LLINF = INT64_MAX;
+const float EPS = 1e-7;
+int MOD = 1e9+7;
+const int LOG = 30;
+const ld PI = acos(-1);
+const int MINF = INT32_MIN;
+vector<pair<int, int>> dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}}; 
+
+int log0(int n){
+
+    int ans = 0;
+
+    while((n / 10)){
+
+        ans++;
+        n /= 10;
+    }
+
+    return ans;
+}
+void solve(){
+
+    int l, r; cin >> l >> r;
+
+    vi primos;
+    vector<bool> criv(1e7+1);
+
+    for(int i = 2; i < 1e7+1; i++){
+
+        if(criv[i]) continue;
+
+        primos.pb(i);
+
+        for(int j = i; j < 1e7+1; j += i) criv[j] = true;
+    }
+
+    int prims = 0, ans = 1;
+
+    criv = vector<bool>(1e7+1, false);
+    for(auto x : primos){
+
+        for(int i = (((l+1 + x - 1) / x) * x) - l - 1; i < r-l; i+=x){
+
+            if(i+l+1 == x) prims++;
+            criv[i] = true;
+        }
+        
+        int pot = 0, pot1 = 0;
+
+        int aux = l, aux1 = 1;
+
+        while(aux >= aux1*x && log0(aux) >= log0(aux1)+log0(x)){
+
+            aux1*=x;
+            pot++;
+        }
+
+        aux = r; aux1 = 1;
+
+        while(aux >= aux1*x && log0(aux) >= log0(aux1)+log0(x) ){
+
+            aux1*=x;
+            pot1++;
+        }
+
+        // if(pot1 != pot) cout << x << " " << pot1 << " " << pot << '\n';
+        ans += max(1LL, pot1) - max(1LL, pot);
+    }
+
+    for(int i = 0; i < r-l; i++) prims += (!criv[i] ? 1 : 0);
+
+    // cout << prims << '\n';
+    cout << ans + (prims) << '\n';
+}
+ 
+ 
+int32_t main() { 
+    sws;
+    
+    int t = 1;
+    // cin >> t;
+ 
+    while(t--)
+        solve();
+    
+ 
+    return 0;
+}

@@ -1,0 +1,30 @@
+#include <bits/stdc++.h>
+using namespace std;
+int main() {
+  int N;
+  cin >> N;
+  vector<char> vec(0);
+  int counter = 0;
+  bool can = true;
+  for(int i = 0; i < N; i++){
+    char c;
+    int l;
+    cin >> c >> l;
+    counter += l;
+    if(counter > 100){
+      can = false;
+      break;
+    }
+    for(int j = 0; j < l; j++){
+      vec.push_back(c);
+    }
+  }
+  if(can){
+    for(int i = 0; i < counter; i++){
+    cout << vec.at(i);
+  }
+  }
+  else{
+    cout << "Too Long" << endl;
+  }
+}

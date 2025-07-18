@@ -1,0 +1,33 @@
+#include<bits/stdc++.h>
+using namespace std;
+int test,v[200010],w[200010],n;
+vector<long long> tong[70];
+long long f[70][200010],W;
+int main()
+{
+	scanf("%d",&test);
+	for(;test--;)
+	{
+		scanf("%d%lld",&n,&W);
+		for(int i=0;i<=60;i++) tong[i].clear();
+		for(int i=1;i<=n;i++) scanf("%d%d",&v[i],&w[i]);
+		for(int i=1;i<=n;i++) tong[v[i]].push_back(w[i]);
+		long long ans=0;
+		for(int i=0;i<60;i++)
+		{
+			if(tong[i].empty()) continue;
+			int sixe=tong[i].size();
+//			if(sixe==0) continue;
+			sort(tong[i].begin(),tong[i].end());
+			reverse(tong[i].begin(),tong[i].end());
+//			if(tong[i].size()>2) printf("%d %d\n",i,tong[i].size()),assert(false);
+			int st=-1;
+			if(W&(1LL<<((long long)i))) st=0,ans+=tong[i][0];
+			if(sixe%2!=st+1) tong[i+1].push_back(tong[i][sixe-1]);
+			for(int j=st+1;j<sixe-1;j+=2) tong[i+1].push_back(tong[i][j]+tong[i][j+1]);
+			tong[i].clear();
+		}
+		printf("%lld\n",ans);
+	}
+	return 0;
+}

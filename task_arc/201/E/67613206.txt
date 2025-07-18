@@ -1,0 +1,81 @@
+#include<bits/stdc++.h>
+#define ll long long
+using namespace std;
+long long n,b[4][200100],po[200100],mo=998244353;
+struct jg
+{
+	long long x,y;
+}a[6400100];
+void p(int s)
+{
+	a[s*2].x=a[s*2].x*a[s].y%mo;
+	a[s*2+1].x=a[s*2+1].x*a[s].y%mo;
+	a[s*2].y=a[s*2].y*a[s].y%mo;
+	a[s*2+1].y=a[s*2+1].y*a[s].y%mo;
+	a[s].y=1;
+}
+void ch(int s,int l,int r,int x,int y,long long z)
+{
+	if(x<=l&&r<=y)
+	{
+		a[s].x=(a[s].x*z)%mo;
+		a[s].y=(a[s].y*z)%mo;
+		return ;
+	}
+	int m=(l+r)/2;
+	p(s);
+	if(x<=m)
+	{
+		ch(s*2,l,m,x,y,z);
+	}
+	if(y>m)
+	{
+		ch(s*2+1,m+1,r,x,y,z);
+	}
+	a[s].x=(a[s*2].x+a[s*2+1].x)%mo;
+}
+void bu(int s,int l,int r)
+{
+	a[s]={1,1};
+	if(l==r)
+	{
+		return ;
+	}
+	int m=(l+r)/2;
+	bu(s*2,l,m);
+	bu(s*2+1,m+1,r);
+	a[s].x=(a[s*2].x+a[s*2+1].x)%mo;
+}
+int main()
+{
+    cin>>n;
+    po[0]=1;
+    for(int i=1;i<=n;i++)
+	{
+        cin>>b[0][i];
+        po[i]=(po[i-1]*2)%mo;
+    }
+    for(int i=1;i<=3;i++)
+	{
+        for(int j=1;j<=n;j++)
+		{
+            b[i][b[i-1][j]]=n-j+1;
+        }
+    }
+    long long s=((n-1)*(n-1)%mo)*(po[n]-1)%mo;
+    for(int i=0;i<=3;i++)
+	{
+        bu(1,1,n-1);
+        for(int j=1;j<n;j++)
+		{
+            if(b[i][j]<n)
+			{
+                ch(1,1,n-1,b[i][j],n-1,2);
+            }
+            s=(((s-po[j]*(n-1))%mo)+mo)%mo;
+            s=(s+a[1].x)%mo;
+        }
+    }
+    cout<<s<<'\n';
+    return 0;
+}

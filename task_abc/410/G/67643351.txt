@@ -1,0 +1,114 @@
+#include<bits/stdc++.h>
+
+using i64 = long long;
+using u64 = unsigned long long;
+using u32 = unsigned;
+using i128 = unsigned __int128;
+
+const int inf = 1E9;
+struct Info {
+    int max;
+
+    Info() : max(0) {}
+    Info(int m) : max(m) {}
+};
+
+Info operator + (const Info &A, const Info &B) {
+    Info C;
+    C.max = std::max(A.max, B.max);
+    return C;
+}
+
+struct Segment_Tree {
+    int n;
+    std::vector<Info> info;
+
+    void pull(int p) {
+        info[p] = info[2 * p] + info[2 * p + 1];
+    }
+
+    Segment_Tree(int n_) {
+        n = n_;
+        info.assign(4 << std::__lg(n), Info{});
+    }
+
+    void modify(int p, int l, int r, int x, const Info &v) {
+        if (r - l == 1) {
+            info[p] = v;
+            return;
+        }
+        int m = l + r >> 1;
+        if (x < m) {
+            modify(2 * p, l, m, x, v);
+        } else {
+            modify(2 * p + 1, m, r, x, v);
+        }
+        pull(p);
+    }
+    void modify(int x, const Info &v) {
+        modify(1, 0, n, x, v);
+    }
+
+    Info query(int p, int l, int r, int x, int y) {
+        if (l >= y || r <= x) {
+            return Info{};
+        }
+        if (l >= x && r <= y) {
+            return info[p];
+        }
+        int m = l + r >> 1;
+        return query(2 * p, l, m, x, y) + query(2 * p + 1, m, r, x, y);
+    }
+    Info query(int x, int y) {
+        return query(1, 0, n, x, y);
+    }
+};
+
+void solve() {
+    int n;
+    std::cin >> n;
+    std::vector<std::array<int, 2>> a(n), b(n);
+    for (int i = 0; i < n; i++) {
+        int x, y;
+        std::cin >> x >> y;
+        x--, y--;
+        if (x > y) {
+            std::swap(x, y);
+        }
+        a[i] = {y, x};
+        b[i] = {x, y};
+    }
+    std::sort(a.begin(), a.end());
+    std::vector<int> pre(n + 1), suf(n + 1);
+    Segment_Tree seg1(2 * n);
+    for (int i = 0; i < n; i++) {
+        int x = a[i][1];
+        int y = seg1.query(x, n).max;
+        seg1.modify(x, Info{y + 1});
+        pre[i + 1] = std::max(pre[i], y + 1);
+    }
+    Segment_Tree seg2(2 * n);
+    std::sort(b.begin(), b.end());
+    for (int i = n - 1; i >= 0; i--) {
+        int x = b[i][1];
+        int y = seg2.query(0, x).max;
+        seg2.modify(x, Info{y + 1});
+        suf[i] = std::max(suf[i + 1], y + 1);
+    }
+    int ans = suf[0], ps = 0;
+    for (int i = 1; i <= n; i++) {
+        while (ps < n && b[ps][0] < a[i - 1][0]) {
+            ps++;
+        }
+        ans = std::max(ans, pre[i] + suf[ps]);
+    }
+    std::cout << ans << "\n";
+}
+
+int main() {
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+    
+    solve();
+    return 0;
+}

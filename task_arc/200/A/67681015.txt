@@ -1,0 +1,30 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define rep(i,n) for(int i=0;i<(int)(n);++i)
+using ll=long long;
+void solve(){
+  int N;cin>>N;
+  vector<ll>A(N),B(N);
+  rep(i,N)cin>>A[i];
+  rep(i,N)cin>>B[i];
+  vector<int>qi(N);
+  iota(qi.begin(),qi.end(),0);
+  sort(qi.begin(),qi.end(),[&](const int&i,const int&j){
+    if(A[i]*B[j]==A[j]*B[i])return i<j;
+    return A[i]*B[j]<A[j]*B[i];
+  });
+  if(A[qi[0]]*B[qi[N-1]]==A[qi[N-1]]*B[qi[0]]){
+    cout<<"No\n";
+    return;
+  }
+  cout<<"Yes\n";
+  vector<ll>X(N);
+  X[qi[0]]=-A[qi[N-1]]-B[qi[N-1]];
+  X[qi[N-1]]=A[qi[0]]+B[qi[0]];
+  rep(i,N)cout<<X[i]<<" \n"[i+1==N];
+}
+signed main(){
+  cin.tie(0)->sync_with_stdio(0);
+  int t;cin>>t;
+  while(t--)solve();
+}

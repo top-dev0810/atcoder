@@ -1,0 +1,47 @@
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+
+int n, m, q, u[300010], v[300010], f[300010];
+set<int> st[300010];
+
+void merge(int x, int y) {
+    f[y] = x;
+}
+int find(int x) {
+    if(f[x] != x) {
+        f[x] = find(f[x]);
+        return f[x];
+    }
+    return x;
+}
+void count(int x, int y) {
+    if(st[x].size() < st[y].size()) swap(x, y);
+    merge(x, y);
+    for(int i : st[y]) {
+        st[i].erase(y), m--;
+        if(i != x && !st[x].count(i)) 
+            m++, st[x].insert(i), st[i].insert(x);
+    }
+    st[y].clear(), st[x].erase(y);
+}
+
+signed main() {
+    scanf("%lld%lld", &n, &m);
+    for(int i = 1; i <= m; i++) {
+        scanf("%lld%lld", &u[i], &v[i]);
+        st[u[i]].insert(v[i]), st[v[i]].insert(u[i]);
+    }
+    scanf("%lld", &q);
+    for(int i = 1; i <= n; i++) f[i] = i;
+    for(int i = 1; i <= q; i++) {
+        int x, uf, vf;
+        scanf("%lld", &x);
+        uf = find(u[x]), vf = find(v[x]);
+        if(uf != vf) count(uf, vf);
+        //cout << find(u[x]) << ' ' << find(v[x]) << endl;
+        printf("%lld\n", m);
+    }
+
+    return 0;
+}

@@ -1,0 +1,151 @@
+//CAUTION : this template is only suitable with C++17 (above) and home training, do not abuse when practicing offline
+#include <bits/stdc++.h>
+
+using namespace std;
+
+//Benq inspires me lol
+#define tcT template<class T
+#define tcTU tcT, class U
+
+//pairs
+#define mp make_pair
+#define mt make_tuple
+#define ff first
+#define ss second
+
+//vectors
+#define sz(v) (int)v.size()
+#define all(v) begin(v), end(v)
+#define rall(v) rbegin(v), rend(v)
+#define pb push_back
+#define eb emplace_back
+#define compact(v) v.erase(unique(all(v)), end(v))
+
+tcT> int lwb(const vector<T>& a, const T& b){ return int(lower_bound(all(a), b) - begin(a)); }
+tcT> int upb(const vector<T>& a, const T& b){ return int(upper_bound(all(a), b) - begin(a)); }
+
+//loops (warning : ONLY for int)
+#define rep(i, l, r) for(int i = (l); i < (r); ++i)
+#define FOR(i, l, r) for(int i = (l); i <= (r); ++i)
+
+#ifdef LOCAL
+    #include "debug.h"
+#else 
+    #define debug(...) 42
+#endif //LOCAL
+
+//data types
+using ll = long long;
+using db = double;
+using ld = long double;
+
+using pi = pair<int, int>;
+using pl = pair<ll, ll>;
+
+using vi = vector<int>;
+using vl = vector<ll>;
+using vb = vector<bool>;
+using vd = vector<db>;
+using vc = vector<char>;
+using vstr = vector<string>;
+
+using vpi = vector<pi>;
+using vpl = vector<pl>;
+
+tcT> using min_heap = priority_queue<T, vector<T>, greater<T>>;
+tcT> using max_heap = priority_queue<T>;
+
+//bitwise operations
+#define popcount(x) __builtin_popcountll(x) //count bits
+#define BIT(k) (1LL << k) //bit k-th
+
+//functions
+tcT> bool minimize(T& a, const T& b){ if(a > b) return a = b, true; return false; } 
+tcT> bool maximize(T& a, const T& b){ if(a < b) return a = b, true; return false; } 
+
+tcT> T ceil_div(T a, T b){ return (a / b) + ((a ^ b) > 0 && a % b); }
+tcT> T floor_div(T a, T b){ return (a / b) - ((a ^ b) < 0 && a % b); }
+
+tcT> void safe_erase(vector<T>& a, T x){
+    auto it = find(all(a), x);
+    if(it != a.end()) a.erase(it);
+}
+
+#ifdef LOCAL //for checking time elapsed
+const auto start_time = std::chrono::high_resolution_clock::now();
+db time_elapsed(){ return chrono::duration<db>(std::chrono::high_resolution_clock::now() - 
+                                               start_time).count(); }
+#endif //LOCAL
+
+void setIO(){
+    ios_base::sync_with_stdio(0); cin.tie(0);
+#define task "task"
+    if(fopen(task".inp", "r")){
+        freopen(task".inp", "r", stdin);
+        // freopen(task".out", "w", stdout);
+    }
+}
+
+template<int dimension, typename T>
+struct tensor : public vector<tensor<dimension - 1, T>> {
+    static_assert(dimension > 0, "Dimension must be positive !\n");
+    template<typename... Args>
+    tensor(int n = 0, Args... args) : vector<tensor<dimension - 1, T>> (n, tensor<dimension - 1, T>(args...)) {}
+};
+ 
+template<typename T>
+struct tensor<1, T> : public vector<T> {
+    tensor(int n = 0, T val = T()) : vector<T>(n, val) {}
+};
+
+void testcase(int n_case){
+    int N, K;
+    cin >> N >> K;
+    vector<vector<vi>> adj(K, vector<vi>(N));
+    rep(i, 1, N){
+        int u, v;
+        cin >> u >> v;
+        --u, --v;
+        rep(j, 0, K){
+            adj[j][u].pb(v);
+            adj[j][v].pb(u);
+        }
+    }
+
+    tensor<2, int> dist(K, N, -1);
+
+
+    dist[0][0] = 0;
+    deque<tuple<int, int, int, int>> q; q.push_back(mt(0, 0, 0, -1));
+    while(!q.empty()){
+        int cnt, d, u, par; tie(cnt, d, u, par) = q.front(); q.pop_front();
+        bool oki = false;
+        if(dist[d][u] == -1) dist[d][u] = cnt;
+        for(auto v : adj[d][u]){
+            if(v != par){
+                int new_d = (d + 1 == K ? 0 : d + 1);
+                if(new_d == 0){
+                    q.push_back(mt(cnt + 1, new_d, v, -1));
+                } else{
+                    q.push_front(mt(cnt, new_d, v, u));
+                }   
+            } else oki = true;
+        }
+
+        adj[d][u].clear();
+        if(oki) adj[d][u] = {par};
+    }
+
+    rep(i, 1, N) cout << dist[0][i] << " \n"[i == N-1];
+}
+
+int main(){
+    setIO();
+    int T = 1; 
+    cin >> T;
+    rep(i, 0, T) testcase(i);
+#ifdef LOCAL
+    cerr << '\n' << "Execution time : " << (time_elapsed() * 1000.0) << " ms";
+#endif //LOCAL
+    return 0;
+}

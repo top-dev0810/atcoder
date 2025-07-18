@@ -1,0 +1,68 @@
+#include<bits/stdc++.h>
+using namespace std;
+int m,k;
+inline int read(){
+	register int s = 0,w = 1;
+	char ch = getchar();
+	while(!isdigit(ch)){
+		if(ch == '-')w = -1;
+		ch = getchar();
+	}
+	while(isdigit(ch)){
+		s = (s << 3) + (s << 1) + (ch ^ 48);
+		ch = getchar();
+	}
+	return s * w;
+}
+void Readinit(){
+	m = read();
+	k = read();
+}
+void solve(){
+	if(k == 2 && m % 2 != 0){
+		printf("No\n");
+		return;
+	}
+	if(k == 4 && m % 4 != 0){
+		printf("No\n");
+		return;
+	} 
+	printf("Yes\n");
+	if(k == m){
+		printf("%d\n", m);
+		for(int i = 0; i < m; i++)printf("%d ", i);
+		printf("\n");
+		return;
+	}
+	if(k == 2){
+		printf("2\n0 %d\n", m / 2);
+		return;
+	}
+	if(k == 4){
+		printf("4\n0 %d %d %d\n", m / 4,m / 2,m / 4 * 3);
+		return;
+	}
+	if(k % 2 == 0 && k >= 6){
+		printf("%d\n", k / 2);
+		for(int i = 0; i <= k / 2; i++){
+			if(i == 1)continue;
+			printf("%d ", i);
+		}
+		printf("\n");
+		return;
+	}
+	if(k % 2 == 1){
+		printf("%d\n", (k + 1) / 2);
+		for(int i = 0; i <= (k - 1) / 2; i++)printf("%d ", i);
+		printf("\n");
+		return;
+	}
+}
+signed main(){
+	int T = read();
+	while(T--){
+		Readinit();
+		solve();
+	}
+	return 0;
+}

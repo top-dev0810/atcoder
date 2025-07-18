@@ -1,0 +1,49 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+#define pb push_back
+#define eb emplace_back
+#define all(x) (x).begin(),(x).end()
+#define fi first
+#define se second
+#define SZ(x) ((int)(x).size())
+typedef vector<int> VI;
+typedef long long ll;
+typedef pair<int,int> PII;
+const ll MOD=998244353;
+// head
+const int N=3e5+5;
+int a[N];
+int f[N];
+int qpow(int x,int y)
+{
+    x%=MOD;
+    int ans=1;
+    while(y)
+    {
+        if(y&1) (ans*=x)%=MOD;
+        (x*=x)%=MOD;
+        y>>=1;
+    }
+    return ans;
+}
+signed main() 
+{
+    cin.tie(nullptr);
+    ios::sync_with_stdio(false);
+    
+    int n,c;cin>>n>>c;
+    int sum=0;
+    for(int i=1;i<=n;i++) cin>>a[i],sum+=a[i];
+    a[c]++,c=a[c];
+    sort(a+1,a+n+1);
+    int invs=qpow(sum,MOD-2);
+    int x=0,y=0;
+    for(int i=1;i<n;i++) (x+=a[i]*invs%MOD)%=MOD;
+    for(int i=n;i>=1;i--){
+        f[i]=(1+y)*qpow(1-x+MOD,MOD-2)%MOD;
+        if(c==a[i]) {cout<<f[i]<<endl;return 0;}
+        (x-=a[i-1]*invs%MOD-MOD)%=MOD;
+        (y+=a[i]*f[i]%MOD*invs%MOD)%=MOD;
+    }
+}

@@ -1,0 +1,37 @@
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+int n,m;
+vector<int>g[1101010];
+bool vis[1101010];
+int main()
+{
+	cin>>n>>m;
+	for(int i=1;i<=m;i++)
+	{
+		int u,v,w;cin>>u>>v>>w;
+		for(int j=0;j<1024;j++) g[u*1024+j].push_back(v*1024+(j^w));
+	}
+	vis[1024]=1;
+	queue<int>q;q.push(1024);
+	while(!q.empty())
+	{
+		int a=q.front();q.pop();//cout<<a<<endl;
+		for(auto i:g[a])
+		{
+			if(vis[i]) continue;
+			vis[i]=1,q.push(i);
+		}
+	}
+	for(int i=0;i<1024;i++)
+	{
+		if(vis[n*1024+i])
+		{
+			cout<<i;
+			return 0;
+		}
+	}
+	cout<<-1;
+	return 0;
+}
+

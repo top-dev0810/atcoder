@@ -1,0 +1,122 @@
+#include<bits/stdc++.h>
+using namespace std;
+using ll = long long;
+using ull = unsigned long long;
+
+//回文かどうかを判定する
+bool is_pal(string s){
+    int sz = s.size();
+
+    for(int i = 0; i < sz; i++){
+        if(s[i]==s[sz-1-i]) continue;
+        else return false;
+    }
+
+    return true;
+}
+
+//x(10)->N進数に
+string change10toN(string s, int n){
+    long long ret = 0;
+    long long r = 1;
+    long long x = stoll(s);
+
+    while(x > 0){
+        ret += x % n * r;
+        x /= n;
+        r *= 10;
+    }
+
+    return to_string(ret);
+}
+
+// s（10進数の文字列）を n進数の文字列に変換
+std::string change10toN2(std::string s, int n) {
+    if (n < 2 || n > 36) return "Error: invalid base";
+
+    long long x = std::stoll(s);
+    if (x == 0) return "0";
+
+    std::string digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    std::string result;
+    bool isNegative = false;
+
+    if (x < 0) {
+        isNegative = true;
+        x = -x;
+    }
+
+    while (x > 0) {
+        result += digits[x % n];
+        x /= n;
+    }
+
+    if (isNegative) result += '-';
+    std::reverse(result.begin(), result.end());
+
+    return result;
+}
+
+//奇数桁の回文をつくる
+string make_odd_pal(string s){
+    int sz = s.size();
+    string rev_s = "";
+
+    for(int i = 0; i < sz-1; i++){
+        rev_s = s[i] + rev_s;
+    }
+
+    return s + rev_s;
+}
+
+//偶数桁の回文をつくる
+string make_even_pal(string s){
+    int sz = s.size();
+    string rev_s = "";
+
+    for(int i = 0; i < sz; i++){
+        rev_s = s[i] + rev_s;    }
+    return s + rev_s;
+}
+
+int main(){
+    int a; ll n;
+    cin >> a >> n;
+
+    ll buf = 1, ans = 0;
+    while(true){
+        //回文数を作成
+        string pal10_1 = make_odd_pal(to_string(buf));
+        //cout << "10:" << pal10_1 << endl;
+
+        //a進数を作成
+        string a1 = change10toN2(pal10_1, a);
+        //cout << "a:" << a1 << endl;
+
+        //回文数がnを超えていたら終了
+        if(stoll(pal10_1)>n) break;
+        else if(is_pal(a1)) ans += stoll(pal10_1);
+
+        buf++;
+    }
+
+    buf = 1;
+    while(true){
+        //回文数を作成
+        string pal10_2= make_even_pal(to_string(buf));
+        //cout << "10:" << pal10_2 << endl;
+
+        //a進数を作成
+        string a2 = change10toN2(pal10_2, a);
+        //cout << "a:" << a2 << endl;
+
+        //小さい回文数がnを超えていたら終了
+        if(stoll(pal10_2)>n) break;
+        else if(is_pal(a2)) ans += stoll(pal10_2);
+
+        buf++;
+    }    
+
+    cout << ans << endl;
+    return 0;
+}

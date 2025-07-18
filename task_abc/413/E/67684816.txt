@@ -1,0 +1,61 @@
+#include<bits/stdc++.h>
+using namespace std;
+using ll=long long ;
+
+#define fio ios::sync_with_stdio(0);cin.tie(0);
+#define fin freopen("D:/in.txt","r",stdin);
+#define fout freopen("D:/out.txt","w",stdout);
+
+const ll maxn=3e5+5;
+ll a[maxn];
+ll n;
+
+int main()
+{
+  fio;
+   // fin;
+
+    ll kases;cin>>kases;
+    for(ll kase=1;kase<=kases;kase++) {
+        //cout<<"kase"<<" "<<kase<<"\n";
+        cin>>n;
+        ll len=(1<<n);
+        for(ll i=1;i<=len;i++) {
+            cin>>a[i];
+        }
+
+        //开始从小到大交换
+        for(ll i=2;i<=len;i<<=1){
+           // printf("区间长度为%lld\n",i);
+            for(ll j=0;j*i+1<=len;j++){
+                ll l=j*i+1,r=l+i/2; //l：区间左起点 r：区间右起点
+                //printf("l=%lld r=%lld\n",l,r);
+                ll flag=0;
+                for(ll p1=l,p2=r;p1<r;p1++,p2++) {
+                    if(a[p1]<a[p2]) break;
+                    if(a[p2]<a[p1]) {
+                        flag=1;break;
+                    }
+                }
+                if(flag) {
+                    for(ll p1=l,p2=r;p1<r;p1++,p2++) {
+                        swap(a[p1],a[p2]);
+                    }
+                }
+            }
+
+            //printf("a数组：\n");
+            /*
+            for(ll i=1;i<=len;i++) {
+                cout<<a[i]<<" ";
+            }
+            cout<<"\n";*/
+        }
+        for(ll i=1;i<=len;i++) cout<<a[i]<<" ";
+        cout<<"\n";
+    }
+
+
+
+    return 0;
+}

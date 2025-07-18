@@ -1,0 +1,91 @@
+#include<bits/stdc++.h>
+#define psb push_back
+#define fi first
+#define se second
+#define endl '\n'
+#define pii pair<int,int>
+#define int long long
+using namespace std;
+const int N=1e5+5,M=N<<4;
+int n,m,x[N],lc[M],rc[M],tot,d[M],rt1,rt2,rt3,rt4;
+bool vis[M];
+vector<pii> g[M];
+void build(int &p,int s,int t,int tp){
+	if(s==t)return p=s,void(); 
+	p=++tot;
+	int mid=(s+t)>>1;
+	build(lc[p],s,mid,tp);
+	build(rc[p],mid+1,t,tp);
+	if(tp==1){
+		g[lc[p]].psb({p,x[t]-x[mid]});
+		g[rc[p]].psb({p,0});
+	}else if(tp==2){
+		g[p].psb({lc[p],0});
+		g[p].psb({rc[p],x[mid+1]-x[s]});
+	}else if(tp==3){
+		g[lc[p]].psb({p,0});
+		g[rc[p]].psb({p,x[mid+1]-x[s]});
+	}else{
+		g[p].psb({lc[p],x[t]-x[mid]});
+		g[p].psb({rc[p],0});
+	}
+}
+void upd(int p,int l,int r,int tp,int w,int s=1,int t=n){
+	if(l>r||l>t||r<s)return;
+	if(l<=s&&t<=r){
+		if(tp==1)g[p].psb({tot,w+x[r]-x[t]});
+		else if(tp==2)g[tot].psb({p,w+x[s]-x[l]});
+		else if(tp==3)g[p].psb({tot,w+x[s]-x[l]});
+		else g[tot].psb({p,w+x[r]-x[t]});
+		return;
+	}
+	int mid=(s+t)>>1;
+	upd(lc[p],l,r,tp,w,s,mid);
+	upd(rc[p],l,r,tp,w,mid+1,t);
+}
+priority_queue<pii> q;
+void dijkstra(int s){
+	memset(d,63,sizeof(d));
+	d[s]=0;
+	q.push({0,s});
+	while(!q.empty()){
+		int u=q.top().se;q.pop();
+		if(vis[u])continue;
+		vis[u]=1;
+		for(pii i:g[u]){
+			int v=i.fi,w=i.se;
+			if(d[v]>d[u]+w){
+				d[v]=d[u]+w;
+				q.push({-d[v],v});
+			}
+		}
+	}
+}
+signed main(){
+	ios::sync_with_stdio(0),cin.tie(0),cout.tie(0);
+	cin>>n>>m;
+	for(int i=1;i<=n;i++)cin>>x[i];
+	tot=n;
+	build(rt1,1,n,1);
+	build(rt2,1,n,2);
+	build(rt3,1,n,3);
+	build(rt4,1,n,4);
+	for(int i=1;i<=m;i++){
+		int l,r,L,R,c;cin>>l>>r>>L>>R>>c;
+		tot++;
+		if(r<L){
+			upd(rt1,l,r,1,c+x[L]-x[r]);
+			upd(rt2,L,R,2,0);
+		}else{
+			upd(rt3,l,r,3,c+x[l]-x[R]);
+			upd(rt4,L,R,4,0);
+		}
+	}
+	dijkstra(1);
+	for(int i=2;i<=n;i++)cout<<(d[i]==d[0]?-1:d[i])<<" ";
+	return 0;
+}/*
+3 1
+1 3 5
+2 3 1 1 5
+*/

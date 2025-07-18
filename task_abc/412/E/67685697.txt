@@ -1,0 +1,56 @@
+#include<bits/stdc++.h>
+#define eps 1e-10
+#define INF 0x3f3f3f3f
+#define ls k<<1
+#define rs k<<1|1
+#define tmid ((tr[k].l+tr[k].r)>>1)
+#define nmid ((l+r)>>1)
+#define all(v) v.begin(), v.end()
+#define pii pair<int, int>
+using namespace std;
+#define int long long
+void Read(int &x){
+    int f=1; x=0;
+    char c=getchar();
+    while(c<'0' or c>'9'){
+        if(c=='-') f=-1;
+        c=getchar();
+    }
+    while(c>='0' and c<='9'){
+        x=(x<<3)+(x<<1)+c-'0', c=getchar();
+    }
+    x*=f;
+}
+const int N=10000010, p=998244353;
+int l, r;
+int pri[N];
+bool np[N];
+void Euler(int n){
+    for(int i=2; i*i<=n; i++){
+        if(!np[i]) pri[++pri[0]]=i;
+        for(int j=1; j<=pri[0] and i*pri[j]*i*pri[j]<=n; j++){
+            np[i*pri[j]]=1;
+            if(i%pri[j]==0) break;
+        }
+    }
+}
+bool Power(int n, int k){
+    while(n%k==0) n/=k;
+    return n==1;
+}
+signed main(){
+    Read(l), Read(r);
+    Euler(r);
+    memset(np, 0, sizeof np);
+    int ans=1;
+    for(int j=1; j<=pri[0]; j++){
+        for(int i=l/pri[j]+1; i*pri[j]<=r; i++){
+            if(np[i*pri[j]-l]) continue;
+            np[i*pri[j]-l]=1;
+            ans+=Power(i, pri[j]);
+        }
+    }
+    for(int i=1; i<=r-l; i++) ans+=!np[i];
+    printf("%lld\n", ans);
+    return 0;
+}

@@ -1,0 +1,32 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+typedef long long LL;
+typedef pair<int, int> PII;
+
+const int MOD = 998244353;
+
+LL ksm(LL a, LL n, LL MOD = MOD) {
+	LL res = 1;
+	while (n) {
+		if (n & 1) res = res * a % MOD;
+		a = a * a % MOD;
+		n >>= 1;
+	}
+	return res;
+}
+
+int main() {
+	LL n, ans = 0;
+	cin >> n;
+	ans = (((n - 1) % MOD) * (n % MOD)) % MOD * ksm(2, MOD - 2) % MOD;
+	LL l = 1;
+	while (l <= n) {
+		LL q = n / l;
+		LL r = n / q + 1;
+		ans = (ans - (((r - l) % MOD) * ((q - 1) % MOD)) % MOD + MOD) % MOD;
+		l = r;
+	}
+    cout << ans << endl;
+    return 0;
+}

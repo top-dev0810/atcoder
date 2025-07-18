@@ -1,0 +1,61 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define all(a) (a).begin(), (a).end()
+#define st first
+#define se second
+typedef long long ll;
+typedef long double lb;
+typedef pair<int, int> ii;
+
+const int INF = 1e9;
+const ll LINF = 1e18;
+const int dx[4] = {0, 0, -1, 1};
+const int dy[4] = {-1, 1, 0 ,0};
+const int N = (int)3e3 + 4;
+
+int n, m, k;
+int cnt[N][N], d[N][N];
+
+bool check(int x, int y) {
+    return (x >= 1 && x <= n && y >= 1 && y <= m);
+}
+
+int main() {
+	ios::sync_with_stdio(0);
+	cin.tie(0); cout.tie(0);
+
+//	freopen("test.inp","r",stdin);
+//	freopen("test.out","w",stdout);
+
+    memset(d, -1, sizeof d);
+    
+    cin >> n >> m >> k;
+    queue<ii> q;
+    for(int i = 1; i <= k; i++) {
+        int x, y; cin >> x >> y;
+        cnt[x][y] = 4;
+        d[x][y] = 0;
+        q.push({x, y});
+    }
+
+    ll ans = 0;
+    while(!q.empty()) {
+        auto [x, y] = q.front();
+        q.pop();
+        ans += d[x][y];
+
+        for(int i = 0; i < 4; i++) {
+            int nx = x + dx[i]; 
+            int ny = y + dy[i];
+            if(!check(nx, ny)) continue;
+
+            cnt[nx][ny]++;
+            if(d[nx][ny] == -1 && cnt[nx][ny] == 2) {
+                q.push({nx, ny});
+                d[nx][ny] = d[x][y] + 1;
+            }
+        }
+    }
+
+    cout << ans << '\n';
+}

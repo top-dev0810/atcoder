@@ -1,0 +1,14 @@
+#include<iostream>
+#include<string>
+int main()
+{
+	std::string s;
+	std::cin>>s;
+	int l;
+	std::cin>>l;
+	int c = s.size();
+	if(c>=l)
+		std::cout<<"Yes\n";
+	else
+		std::cout<<"No\n";
+}

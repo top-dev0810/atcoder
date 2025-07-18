@@ -1,0 +1,39 @@
+#include "bits/stdc++.h"
+using namespace std;
+#define Lemme_55555555555555555 ios_base::sync_with_stdio(0);cin.tie(NULL);cout.tie(NULL);
+
+#define ll  long long
+#define mem(arr, val) memset(arr,val,sizeof(arr))
+#define sz(s) (int) (s.size())
+#define all(vect) vect.begin(), vect.end()
+//freopen("Input.txt", "r", stdin); freopen("Output.txt", "w", stdout);
+
+int main() {
+    Lemme_55555555555555555;
+
+    int q;
+    cin >> q;
+    deque<pair<int, int>> dq;
+    while (q--) {
+        int t;
+        cin >> t;
+        if (t == 1) {
+            int c, x;
+            cin >> c >> x;
+            dq.push_back({c, x});
+        } else {
+            int k;
+            cin >> k;
+            ll sum = 0;
+            while (k > 0) {
+                auto &[c, x] = dq.front();
+                int mn = min(c, k);
+                c -= mn;
+                k -= mn;
+                if (!c)dq.pop_front();
+                sum += 1ll * mn * x;
+            }
+            cout << sum << "\n";
+        }
+    }
+}

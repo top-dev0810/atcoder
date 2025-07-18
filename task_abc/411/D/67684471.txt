@@ -1,0 +1,69 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+// datatypes:
+#define     ll       long long int
+// #define int long long int
+#define ull unsigned long long int
+#define int128 __int128_t
+
+// I/O:
+#define pb push_back
+#define eb emplace_back
+#define pp pop_back
+
+#define sin insert
+#define all(x) x.begin(), x.end()
+#define amhie const
+
+#define faster                        \
+    ios_base::sync_with_stdio(false); \
+    cin.tie(0);                       \
+    cout.tie(0);
+const int N = 100005;
+
+int32_t main()
+{
+    faster
+
+    int n, m; cin >> n >> m;
+    int p[m + 1], op[m + 1];
+    string ans;
+    vector<string>vs(m + 1);
+
+    for (int i = 1; i <= m; i++) {
+        cin >> op[i] >> p[i];
+        if (op[i] == 2) {
+            cin >> vs[i];
+            reverse(all(vs[i]));
+        }
+    }
+    int x = 0;
+    for (int i = m; i >= 1; i--) {
+        // cout << op[i] << " " << p[i] << '\n';
+        if (op[i] == 1) {
+
+            if (x == p[i])x = 0;
+        }
+        else if (op[i] == 2) {
+            if (p[i] == x) {
+                ans += vs[i];
+            }
+        }
+        else {
+            if (x == 0)
+                x = p[i];
+        }
+    }
+    reverse(all(ans));
+    cout << ans << '\n';
+
+
+
+
+
+
+
+
+
+}

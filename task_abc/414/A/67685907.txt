@@ -1,0 +1,15 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+  int n, l, r;
+  cin >> n >> l >> r;
+  int count = 0;
+  int x, y;
+  while (n--) {
+    cin >> x >> y;
+    count += x <= l && y >= r;
+  }
+  
+  cout << count << endl;
+}
