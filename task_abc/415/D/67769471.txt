@@ -1,0 +1,39 @@
+#include<bits/stdc++.h>
+using i64 = long long;
+using i128 = __int128_t;
+using f64 = long double;
+
+int main(){
+	std::ios::sync_with_stdio(0);
+	std::cin.tie(nullptr);
+
+	i64 N , M;
+	std::cin >> N >> M;
+
+	std::vector<i64> A(M) , B(M);
+	for(int i = 0; i < M; i++){
+		std::cin >> A[i] >> B[i];
+	}
+
+	std::vector<int> o(M);
+	std::iota(o.begin() , o.end() , 0);
+	std::sort(o.begin() , o.end() , [&] (const int& i , const int& j){
+		if(A[i] + B[j] == A[j] + B[i]) return A[i] < A[j];
+		return A[i] - B[i] < A[j] - B[j];
+	});
+
+	i64 ans = 0LL;
+	for(int i = 0; i < M; i++){
+		int j = o[i];
+		if(N >= A[j]){
+			//std::cout << N << ' ' << j << '\n';
+			i64 temp = (N - B[j]) / (A[j] - B[j]);
+			ans += temp;
+			N -= temp * (A[j] - B[j]);
+		}
+	}
+
+	std::cout << ans << '\n';
+
+	return 0;
+}

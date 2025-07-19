@@ -1,0 +1,52 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+
+void input();
+
+
+void fokakmneeee() {
+    long long have, n;
+    cin >> have >> n;
+    vector<tuple<long long, long long, long long> > v(n);
+    for (int i = 0; i < n; i++) {
+        auto &[a, b, c] = v[i];
+        cin >> b >> c;
+        a = b - c;
+    }
+    long long ans = 0;
+    sort(v.begin(), v.end());
+    for (int i = 0; i < n; i++) {
+        auto &[a, b, c] = v[i];
+        if (have >= b) {
+            long long mx = (have - b) / a + 1;
+            ans += mx;
+            have -= mx * a;
+        }
+    }
+    cout << ans;
+}
+
+int main() {
+    input();
+    int t = 1;
+    // cin >> t;
+    while (t--) {
+        fokakmneeee();
+        if (t) cout << '\n';
+    }
+
+    return 0;
+}
+
+void input() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+#if ONLINE_JUDGE
+    // freopen("airport.in", "r", stdin);
+    // freopen("Output.txt", "w", stdout);
+#else
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+}

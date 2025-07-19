@@ -1,0 +1,58 @@
+#include "bits/stdc++.h"
+
+using namespace std;
+
+using ll=long long;
+
+void solve(){
+    ll n;cin>>n;
+    int m;cin>>m;
+    vector<int>drink(301,301);
+    pair<ll,ll>max_eff={0,1};
+    for (int i = 0; i < m; ++i) {
+        int a,b;cin>>a>>b;
+        drink[a]=min(drink[a], a-b);
+        int d=a-b;
+//        cout<<a/d<<"\n";
+        auto [mx_a,mx_d]=max_eff;
+        if(mx_a*d<a*mx_d){
+            max_eff={a,d};
+        }
+//        if(mx_a*d==a*mx_d and mx_d>d){
+//            max_eff={a,d};
+//        }
+    }
+    ll ans=0;
+    ll N=300*301+100;
+    auto [mx_a,mx_d]=max_eff;
+    if(n-N>0) {
+        ans += ((n - N) / mx_d) * mx_a;
+        n = N + (n - N) % mx_d;
+    }
+    vector<ll>dp(n+1,0);
+    for(int i=n;i>=0;i--){
+        for(int a=1;a<=300;a++){
+            if(drink[a]==301)continue;
+            int d= drink[a];
+            if(i>=a){
+                dp[i-d]= max(dp[i-d], dp[i] + a);
+            }
+        }
+    }
+    ll res=0;
+    for(int i=0;i<=n;i++){
+        res=max(res, dp[i]+i+ans);
+    }
+    cout<<res<<"\n";
+}
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    int t=1;
+//    cin>>t;
+    while(t--){
+        solve();
+    }
+    return 0;
+}

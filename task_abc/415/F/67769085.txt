@@ -1,0 +1,160 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+
+void input();
+
+struct Node {
+    char pre, suf;
+    int mx = 0, precnt = 0, sufcnt = 0, len = 0;
+
+
+    Node() {
+        mx = 0, precnt = 0, sufcnt = 0, len = 0;
+    }
+
+    Node(char ch) {
+        //set the default value to n if enter number ok, else set the default.
+        pre = ch;
+        suf = ch;
+        mx = 1, precnt = 1, sufcnt = 1, len = 1;
+    }
+
+    void change(char x) {
+        pre = x;
+        suf = x;
+        mx = 1, precnt = 1, sufcnt = 1, len = 1;
+    }
+};
+
+struct SegmentTree {
+    int tree_size;
+    vector<Node> segData;
+
+    SegmentTree(int n) {
+        tree_size = 1;
+        while (tree_size < n) tree_size <<= 1; // the nearest pw 2 greater than or equal n.
+        segData.assign(2 * tree_size + 2, Node()); // set to the default value.
+    }
+
+    Node merge(Node &lf, Node &ri) {
+        Node parent = Node();
+        parent.len = ri.len + lf.len;
+        parent.mx = max(lf.mx, ri.mx);
+        parent.suf = ri.suf;
+        parent.pre = lf.pre;
+        if (lf.suf == ri.pre) {
+            parent.mx = max(parent.mx, lf.sufcnt + ri.precnt);
+        }
+        parent.precnt = lf.precnt;
+        if (lf.precnt == lf.len && lf.pre == ri.pre) {
+            parent.precnt += ri.precnt;
+        }
+
+        parent.sufcnt = ri.sufcnt;
+        if (ri.sufcnt == ri.len && ri.suf == lf.suf) {
+            parent.sufcnt += lf.sufcnt;
+        }
+        return parent;
+    }
+
+    void init(string &vec, int ni, int lf, int ri) {
+        if (ri - lf == 1) {
+            if (lf < int(vec.size())) {
+                segData[ni] = Node(vec[lf]);
+            }
+            return;
+        }
+        int mid = lf + ri >> 1;
+        init(vec, 2 * ni + 1, lf, mid);
+        init(vec, 2 * ni + 2, mid, ri);
+        segData[ni] = merge(segData[2 * ni + 1], segData[2 * ni + 2]);
+    }
+
+    void init(string &vec) {
+        init(vec, 0, 0, tree_size);
+    }
+
+    void update(int idx, char val, int ni, int lf, int ri) {
+        if (ri - lf == 1) {
+            segData[ni].change(val);
+            return;
+        }
+        int mid = lf + ri >> 1;
+        if (idx < mid) {
+            update(idx, val, 2 * ni + 1, lf, mid);
+        } else {
+            update(idx, val, 2 * ni + 2, mid, ri);
+        }
+        segData[ni] = merge(segData[2 * ni + 1], segData[2 * ni + 2]);
+    }
+
+    void update(int idx, char val) {
+        update(idx, val, 0, 0, tree_size);
+    }
+
+    Node get(int l, int r, int ni, int lf, int ri) {
+        // parse l, r + 1
+        if (lf >= r || ri <= l) return Node();
+        if (lf >= l && ri <= r) return segData[ni];
+        int mid = lf + ri >> 1;
+        Node node_1 = get(l, r, 2 * ni + 1, lf, mid);
+        Node node_2 = get(l, r, 2 * ni + 2, mid, ri);
+        return merge(node_1, node_2);
+    }
+
+    Node get(int l, int r) {
+        return get(l, r + 1, 0, 0, tree_size);
+    }
+};
+
+void fokakmneeee() {
+    int n, q;
+    cin >> n >> q;
+    SegmentTree st = SegmentTree(n);
+    string s;
+    cin >> s;
+    st.init(s);
+    while (q--) {
+        int op;
+        cin >> op;
+        if (op == 2) {
+            int l, r;
+            cin >> l >> r;
+            l--;
+            r--;
+            cout << st.get(l, r).mx << "\n";
+        } else {
+            int idx;
+            cin >> idx;
+            char val;
+            cin >> val;
+            idx--;
+            st.update(idx, val);
+        }
+    }
+}
+
+int main() {
+    input();
+    int t = 1;
+    // cin >> t;
+    while (t--) {
+        fokakmneeee();
+        if (t) cout << '\n';
+    }
+
+    return 0;
+}
+
+void input() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+#if ONLINE_JUDGE
+    // freopen("airport.in", "r", stdin);
+    // freopen("Output.txt", "w", stdout);
+#else
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+}

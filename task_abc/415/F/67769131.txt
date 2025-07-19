@@ -1,0 +1,138 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define F first
+#define S second
+#define EB emplace_back
+#define MP make_pair
+#define all(o) (o).begin(), (o).end()
+#define mset(m,v) memset(m,v,sizeof(m))
+#define fr(i,n) for(ll i=0;i<n;++i)
+#define endl '\n' 
+#define pii pair<int,int>
+#define vi vector<int>
+#define vvi vector<vi>
+
+using ll = long long;
+using ld = long double;
+const int MOD = 1e9+7;
+const int INF = 1e9;
+const ld EPS = 1e-9;
+
+template <class A, class B> ostream& operator << (ostream& out, const pair<A, B> &a) {
+    return out << "(" << a.x << ", " << a.y << ")";
+}
+
+template <class A> ostream& operator << (ostream& out, const vector<A> &v) {
+    out << "[";
+    fr(i, sz(v)) {
+        if(i) out << ", ";
+        out << v[i];
+    }
+    return out << "]";
+}
+const int N = 500500;
+string s;
+struct node{
+    int left,right,tot,mlen;
+    char l,r;
+    node(int li=0,int ri=0,int t=0,int ml=0,char le='\0',char re='\0'){
+        left=li;
+        right=ri;
+        tot=t;
+        mlen=ml;
+        l=le;
+        r=re;
+    }
+};
+node t[4*N];
+
+node merge(node a,node b){
+    node c;
+    int mid=0;
+    if(a.r==b.l){
+        mid = a.right+b.left;
+    }
+    c.mlen = max(a.mlen,max(b.mlen,mid));
+    c.tot = a.tot+b.tot;
+    if(a.l=='\0')c.l=b.l;
+    else c.l = a.l;
+    if(b.r=='\0')c.r=a.r;
+    else c.r = b.r;
+    // cout<<c.r<<endl;
+    if(a.left==a.tot && a.r==b.l){
+        c.left = a.left+b.left;
+    }
+    else{
+        if(a.left==0)c.left=b.left;
+        else c.left=a.left;
+    }
+    if(b.right==b.tot && b.l==a.r){
+        c.right = a.right+b.right;
+    }
+    else{
+        if(b.right==0)c.right=a.right;
+        else c.right=b.right;
+    }
+    return c;
+}
+#define mid ((l+r)/2)
+void build(int idx,int l,int r){
+    if(l==r){
+        t[idx]=node(1,1,1,1,s[l],s[r]);
+        return;
+    }
+    build(idx<<1,l,mid);
+    build(idx<<1|1,mid+1,r);
+    t[idx] = merge(t[idx<<1],t[idx<<1|1]);
+}
+void update(int idx,int l,int r,int pos,char x){
+    if(l==r){
+        t[idx]=node(1,1,1,1,x,x);
+        return;
+    }
+    if(pos<=mid)update(idx<<1,l,mid,pos,x);
+    else update(idx<<1|1,mid+1,r,pos,x);
+    t[idx] = merge(t[idx<<1],t[idx<<1|1]);
+}
+
+node query(int idx,int l,int r,int lq,int rq){
+    if(lq>r or l>rq)return node();
+    if(lq<=l and r<=rq)return t[idx];
+    return merge(query(idx<<1,l,mid,lq,rq),query(idx<<1|1,mid+1,r,lq,rq));
+}
+
+void solve(){
+    int n,q;
+    cin>>n>>q>>s;
+    build(1,0,n-1);
+    // cout<<query(1,0,n-1,0,2).l<<endl;
+    // cout<<query(1,0,n-1,0,2).r<<endl;
+    // cout<<query(1,0,n-1,0,2).left<<endl;
+    // cout<<query(1,0,n-1,0,2).right<<endl;
+    // cout<<query(1,0,n-1,0,2).mlen<<endl;
+    // cout<<query(1,0,n-1,0,2).tot<<endl;
+    while(q--){
+        int ch;
+        cin>>ch;
+        if(ch==1){
+            int i;char x;cin>>i>>x;
+            update(1,0,n-1,i-1,x);
+        }
+        else{
+            int l,r;cin>>l>>r;l--;r--;
+            cout<<query(1,0,n-1,l,r).mlen<<endl;
+        }
+    }
+
+}
+ 
+int main()
+{
+    cin.tie(0);cin.sync_with_stdio(0);
+    cout.tie(0);cout.sync_with_stdio(0);
+    int t = 1;
+    // cin >> t;
+    while (t--)solve();
+    
+    return 0;
+}

@@ -1,0 +1,34 @@
+#include<bits/stdc++.h>
+using namespace std;
+int main(){
+	long n,m;
+	cin>>n>>m;
+	int K=300;
+	vector<int>b(K+1);
+	while(m--){
+		int a,x;
+		cin>>a>>x;
+		b[a]=max(b[a],x);
+	}
+	int p=1;
+	for(int i=2;i<=K;i++){
+		if(b[p]*i<b[i]*p)p=i;
+	}
+	int KK=K*K+K;
+	vector<int>dp(KK+1);
+	for(int i=1;i<=KK;i++){
+		dp[i]=i;
+		for(int j=1;j<=min(i,K);j++){
+			dp[i]=max(dp[i],j+dp[i-j+b[j]]);
+		}
+	}
+	if(n<=KK){
+		cout<<dp[n]<<'\n';
+		return 0;
+	}
+	int d=p-b[p];
+	long c=(n-KK+d-1)/d;
+	assert(n-d*c<=KK&&n-d*c+d>KK);
+	long ans=p*c+dp[n-d*c];
+	cout<<ans<<'\n';
+}

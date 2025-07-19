@@ -1,0 +1,74 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+#define nl '\n'
+#define loop(i,a,b) for(int i = (a); i < (b); i++)
+using vi  = vector<int>;
+using vvi = vector<vi>;
+const int NEG_INF = (int)-4e18;
+
+int H, W;
+vvi A;
+vi P;
+vector<vector<int>> memo;
+int currentX;
+
+int dfs(int i, int j) {
+    // out of bounds → unreachable
+    if (i < 0 || j < 0) 
+        return NEG_INF;
+    // if already computed, return it
+    if (memo[i][j] != LLONG_MIN) 
+        return memo[i][j];
+    int best = NEG_INF;
+    if (i == 0 && j == 0) {
+        // starting cell
+        long long val = currentX + A[0][0] - P[0];
+        best = (val >= 0 ? val : NEG_INF);
+    } else {
+        // from top
+        long long up = dfs(i-1, j);
+        if (up >= 0)
+            best = max(best, up + A[i][j] - P[i + j]);
+        // from left
+        long long lf = dfs(i, j-1);
+        if (lf >= 0)
+            best = max(best, lf + A[i][j] - P[i + j]);
+    }
+    return memo[i][j] = best;
+}
+
+bool canSurvive(int x) {
+    currentX = x;
+    memo.assign(H, vector<int>(W, LLONG_MIN));
+    return dfs(H-1, W-1) >= 0;
+}
+
+void solve() {
+    cin >> H >> W;
+    A.assign(H, vi(W));
+    loop(i, 0, H) loop(j, 0, W)
+        cin >> A[i][j];
+    P.assign(H + W - 1, 0);
+    loop(k, 0, H + W - 1)
+        cin >> P[k];
+
+    int lo = 0, hi = 1000000000000000LL, ans = hi;
+    while (lo <= hi) {
+        int mid = (lo + hi) / 2;
+        if (canSurvive(mid)) {
+            ans = mid;
+            hi = mid - 1;
+        } else {
+            lo = mid + 1;
+        }
+    }
+    cout << ans << nl;
+}
+
+signed main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    solve();
+    return 0;
+}

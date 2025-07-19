@@ -1,0 +1,38 @@
+#include<bits/stdc++.h>
+using i64 = long long;
+using i128 = __int128_t;
+using f64 = long double;
+
+int main(){
+	std::ios::sync_with_stdio(0);
+	std::cin.tie(nullptr);
+
+	int T;
+	std::cin >> T;
+
+	while(T--){
+		int N;
+		std::cin >> N;
+
+		std::string S;
+		std::cin >> S;
+
+		std::vector<bool> dp(1 << N);
+		dp[0] = true;
+		for(int i = 0; i < (1 << N); i++){
+			if(i != 0 && S[i - 1] == '1') continue;
+			if(dp[i] == false) continue;
+			for(int j = 0; j < N; j++){
+				if(i >> j & 1) continue;
+				int s = i | (1 << j);
+				if(S[s - 1] != '1'){
+					dp[s] = dp[s] | dp[i];
+				}
+			}
+		}
+
+		std::cout << (dp[(1 << N) - 1] ? "Yes\n" : "No\n");
+	}
+
+	return 0;
+}
