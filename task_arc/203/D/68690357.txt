@@ -1,0 +1,156 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define ll long long
+#define ull unsigned long long
+#define INF 0x3f3f3f3f
+
+void solve()
+{
+    int n;
+    cin >> n;
+    vector<int> a(n + 1);
+    int sum = 0;
+    for (int i = 1; i <= n; i++)
+    {
+        cin >> a[i];
+        sum += a[i];
+    }
+    set<pair<int, int>> st;
+    int lst1 = 0;
+    for (int i = 1; i <= n; i++)
+    {
+        if(a[i] == 1)
+        {
+            if(lst1 + 1 != i)
+            {
+                st.insert({lst1 + 1, i - 1});
+            }
+            lst1 = i;
+        }
+    }
+    if(lst1 != n)
+        st.insert({lst1 + 1, n});
+    int ans = 0;
+    for (auto [l, r] : st)
+    {
+        if(l != r)
+            ans++;
+    }
+    int q;
+    cin >> q;
+    while (q--)
+    {
+        int x;
+        cin >> x;
+        if(a[x] == 0)
+        {
+            a[x] = 1;
+            sum++;
+            auto it = st.upper_bound(make_pair(x, INF));
+            it--;
+            auto [l, r] = *it;
+            if (l == x && r == x)
+                st.erase(it);
+            else if(l == x)
+            {
+                ans--;
+                st.erase(it);
+                st.insert({l + 1, r});
+                if(l + 1 != r)
+                    ans++;
+            }
+            else if(r == x)
+            {
+                ans--;
+                st.erase(it);
+                st.insert({l, r - 1});
+                if(l != r - 1)
+                    ans++;
+            }
+            else
+            {
+                ans--;
+                st.erase(it);
+                st.insert({l, x - 1});
+                st.insert({x + 1, r});
+                if(l != x - 1)
+                    ans++;
+                if(x + 1 != r)
+                    ans++;
+            }
+        }
+        else
+        {
+            a[x] = 0;
+            sum--;
+            auto it1 = st.upper_bound(make_pair(x, x));
+            auto it2 = it1;
+            if(it1 != st.end() && x == it1->first - 1)
+            {
+                auto [l, r] = *it1;
+                if(it1->first != it1->second)
+                    ans--;
+                st.erase(it1);
+                st.insert({x, r});
+                ans++;
+                it2 = st.find({x, r});
+            }
+            else
+            {
+                st.insert({x, x});
+                it2 = st.find({x, x});
+            }
+            if(it2 != st.begin())
+            {
+                auto it3 = prev(it2);
+                auto [l1, r1] = *it3;
+                auto [l2, r2] = *it2;
+                if(r1 + 1 == l2)
+                {
+                    st.erase({l1, r1});
+                    st.erase({l2, r2});
+                    st.insert({l1, r2});
+                    if(l1 != r1)
+                        ans--;
+                    if(l2 != r2)
+                        ans--;
+                    ans++;
+                }
+            }
+        }
+
+        if(sum == 0)
+            cout << 2 << '\n';
+        else if(sum == n)
+            cout << n << '\n';
+        else if(ans == 0)
+            cout << 2 + (a[1] == 0 && a[n] == 0) << '\n';
+        else
+        {
+            int tans = ans * 2 + ans - 1;
+            if(a[1] == 1)
+                tans++;
+            else if(a[2] == 1)
+                tans += 2;
+            if(a[n] == 1)
+                tans++;
+            else if(a[n - 1] == 1)
+                tans += 2;
+            cout << tans << '\n';
+        }
+    }
+    
+}
+
+int main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
+    int t = 1;
+    // cin >> t;
+    while (t--)
+    {
+        solve();
+    }
+}

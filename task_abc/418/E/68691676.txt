@@ -1,0 +1,60 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+typedef long long ll;
+typedef long double ld;
+
+#define sp <<" "<<
+#define endl "\n"
+
+// https://codeforces.com/contest/650/submission/42102615
+struct HASH{
+    size_t operator()(const pair<int,int>&x)const{
+        return (size_t) x.first * 37U + (size_t) x.second;
+    }
+};
+
+inline pair<int, int> fix(int num, int den) {
+    if (den < 0) den *= -1, num *= -1;
+    int g = __gcd(num, den);
+    return {num / g, den / g};
+}
+
+void solve() {
+    int n; cin >> n;
+    vector<int> x(n), y(n);
+    for (int i = 0; i < n; i++) cin >> x[i] >> y[i];
+
+    unordered_map<pair<int, int>, int, HASH> slope, mid;
+    for (int i = 0; i < n; i++) {
+        for (int j = i+1; j < n; j++) {
+            slope[fix(y[j] - y[i], x[j] - x[i])]++;
+            mid[{x[i] + x[j], y[i] + y[j]}]++;
+        }
+    }
+
+    ll ans = 0;
+    for (auto &[s, x] : slope) {
+        ans += 1LL * x * (x - 1) / 2;
+    }
+
+    for (auto &[m, x] : mid) {
+        ans -= 1LL * x * (x - 1) / 2;
+    }
+
+    // overcounting
+    // https://codeforces.com/problemset/problem/660/D
+    // https://codeforces.com/blog/entry/44259
+
+    cout << ans << endl;
+}
+
+signed main() {
+    cin.tie(0);
+    ios_base::sync_with_stdio(false);
+
+    int t = 1;
+    // cin >> t;
+    while (t--)
+        solve();
+}

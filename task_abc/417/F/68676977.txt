@@ -1,0 +1,150 @@
+#include <bits/stdc++.h>
+#define all(a) a.begin(), a.end()
+using namespace std;
+using ll = long long;  // 2.15e9, 9.22e18
+using pii = pair<int, int>;
+
+template <unsigned MOD>
+struct ModInt {
+    using U = unsigned;
+    using T = int;
+    using eU = unsigned long long;
+    using eT = long long;
+    U data;
+    ModInt(eT v = 0) : data(norm(v % MOD)) {}
+    ModInt operator-() const { return MOD - data; }
+    ModInt& operator+=(const ModInt& rhs) { return data = norm(data + rhs.data), *this; }
+    ModInt& operator-=(const ModInt& rhs) { return data = norm(data - rhs.data), *this; }
+    ModInt& operator*=(const ModInt& rhs) { return data = eU(data) * rhs.data % MOD, *this; }
+    ModInt& operator/=(const ModInt& rhs) { return data = eU(data) * rhs.inv() % MOD, *this; }
+    friend ModInt operator+(ModInt lhs, const ModInt& rhs) { return lhs += rhs; }
+    friend ModInt operator-(ModInt lhs, const ModInt& rhs) { return lhs -= rhs; }
+    friend ModInt operator*(ModInt lhs, const ModInt& rhs) { return lhs *= rhs; }
+    friend ModInt operator/(ModInt lhs, const ModInt& rhs) { return lhs /= rhs; }
+    U inv() const {
+        T a = data, b = MOD, x = 1, y = 0, q;
+        while (b) q = a / b, swap(a -= q * b, b), swap(x -= q * y, y);
+        assert(a == 1);  // Inverse does not exist if a != -1.
+        return norm(x);
+    }
+    ModInt pow(eU n) const {
+        U ret = 1, base = data;
+        for (; n != 0; n /= 2, base = eU(base) * base % MOD)
+            if (n & 1) ret = eU(ret) * base % MOD;
+        return ret;
+    }
+    friend bool operator<(const ModInt& lhs, const ModInt& rhs) { return lhs.data < rhs.data; }
+    friend bool operator==(const ModInt& lhs, const ModInt& rhs) { return lhs.data == rhs.data; }
+    friend bool operator!=(const ModInt& lhs, const ModInt& rhs) { return lhs.data != rhs.data; }
+    friend istream& operator>>(istream& in, ModInt& a) { return in >> a.data, in; }
+    friend ostream& operator<<(ostream& out, const ModInt& a) { return out << a.data; }
+
+  private:
+    static U norm(U x) {
+        if ((x >> (8 * sizeof(U) - 1)) & 1) x += MOD;
+        return x >= MOD ? x -= MOD : x;
+    }
+};
+const unsigned MOD = 998244353;
+using mint = ModInt<MOD>;
+
+template <typename Node, typename Tag, Node (*fun)(const Tag&, const Node&)>
+class SegTree {
+    int n;
+    vector<Tag> tags;
+    vector<Node> tree;
+    void update(int p, const Tag& f) {
+        tree[p] = fun(f, tree[p]);
+        tags[p] = tags[p] + f;
+    }
+    void pushdown(int p) {
+        int lc = p * 2, rc = p * 2 + 1;
+        update(lc, tags[p]), update(rc, tags[p]);
+        tags[p] = Tag();
+    }
+    void build(int p, int pl, int pr, const vector<Node>& a) {
+        if (pr - pl == 1) return tree[p] = a[pl], void();
+        int lc = p * 2, rc = p * 2 + 1, mid = pl + (pr - pl) / 2;
+        build(lc, pl, mid, a), build(rc, mid, pr, a);
+        tree[p] = tree[lc] + tree[rc];
+    }
+    void apply(int p, int pl, int pr, const int l, const int r, const Tag& f) {
+        if (pl >= r || pr <= l) return;
+        if (l <= pl && pr <= r) return update(p, f);
+        int lc = p * 2, rc = p * 2 + 1, mid = pl + (pr - pl) / 2;
+        pushdown(p);
+        apply(lc, pl, mid, l, r, f), apply(rc, mid, pr, l, r, f);
+        tree[p] = tree[lc] + tree[rc];
+    }
+    Node query(int p, int pl, int pr, const int l, const int r) {
+        if (pl >= r || pr <= l) return Node();
+        if (l <= pl && pr <= r) return tree[p];
+        int lc = p * 2, rc = p * 2 + 1, mid = pl + (pr - pl) / 2;
+        pushdown(p);
+        return query(lc, pl, mid, l, r) + query(rc, mid, pr, l, r);
+    }
+
+  public:
+    explicit SegTree(int n) : n(n), tags(4 * n), tree(4 * n) {}
+    explicit SegTree(const vector<Node>& a) : SegTree(a.size()) { build(1, 0, n, a); }
+    void apply(int l, int r, const Tag& f) { apply(1, 0, n, l, r, f); }
+    Node query(int l, int r) { return query(1, 0, n, l, r); }
+};
+struct Node {
+    mint sum;
+    int len;
+    Node() : sum(0), len(1) {}
+    Node(mint sum, int len) : sum(sum), len(len) {}
+    friend Node operator+(const Node& lhs, const Node& rhs) {
+        return {lhs.sum + rhs.sum, lhs.len + rhs.len};
+    }
+};
+struct Tag {
+    int reset;
+    mint add;
+    Tag() : reset(0), add(0) {}
+    Tag(int reset, mint add) : reset(reset), add(add) {}
+    friend Tag operator+(Tag lhs, const Tag& rhs) {
+        if (rhs.reset) {
+            return rhs;
+        } else {
+            lhs.add += rhs.add;
+            return lhs;
+        }
+    }
+};
+Node fun(const Tag& f, const Node& x) {
+    Node ret = x;
+    if (f.reset) ret.sum = 0;
+    ret.sum += f.add * ret.len;
+    return ret;
+}
+
+int main() {
+    cin.tie(nullptr)->sync_with_stdio(false);
+#ifdef DEBUG
+    freopen("cache/main.in", "r", stdin);
+    freopen("cache/main.out", "w", stdout);
+#endif
+    int n, m;
+    cin >> n >> m;
+    vector<int> a(n);
+    for (auto& x : a) cin >> x;
+    vector<Node> f(n);
+    for (int i = 0; i < n; i++) f[i] = {a[i], 1};
+
+    SegTree<Node, Tag, fun> sgt(f);
+
+    for (int i = 0; i < m; i++) {
+        int l, r;
+        cin >> l >> r;
+        l--;
+
+        mint sum = sgt.query(l, r).sum;
+        sum /= r - l;
+
+        sgt.apply(l, r, {1, sum});
+    }
+    for (int i = 0; i < n; i++) cout << sgt.query(i, i + 1).sum << " \n"[i + 1 == n];
+    return 0;
+}

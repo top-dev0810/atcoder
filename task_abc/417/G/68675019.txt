@@ -1,0 +1,60 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define ll long long
+#define F first 
+#define S second 
+#define pb push_back
+
+
+const int mol=998244353;
+
+int l1[500005], r1[500005], d[500005][20];
+ll len[500005], sum[500005][20];
+void solve(){
+    int q;
+    cin>>q;
+    len[0]=1, len[1]=1;
+    
+    for(int iu=2;iu<=q+1;iu++){
+        ll x;
+        cin>>l1[iu]>>r1[iu]>>x;
+        if(len[l1[iu]]>=len[r1[iu]]) d[iu][0]=l1[iu];
+        else d[iu][0]=r1[iu], sum[iu][0]=len[l1[iu]];
+        len[iu]=len[l1[iu]]+len[r1[iu]];
+        len[iu]=min(len[iu], (ll)1e18);
+        for(int i=1;i<20;i++){
+            d[iu][i]=d[d[iu][i-1]][i-1];
+            sum[iu][i]=sum[iu][i-1]+sum[d[iu][i-1]][i-1];
+            sum[iu][i]=min(sum[iu][i], (ll)1e18);
+        }
+
+        ll nv=iu, nl=x;
+        while(nv>1){
+            for(int i=19;i>=0;i--){
+                if(d[nv][i]>1&&sum[nv][i]<nl&&len[d[nv][i]]+sum[nv][i]>=nl){
+                    nl-=sum[nv][i];
+                    nv=d[nv][i];
+                }
+            }
+            if(nl<=len[l1[nv]]){
+                nv=l1[nv];
+            }
+            else{
+                nl-=len[l1[nv]];
+                nv=r1[nv];
+            }
+        }
+        cout<<nv<<"\n";
+    }
+}
+
+signed main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    // int t;
+    // cin>>t;
+    // while(t--)
+    solve();
+    return 0;
+}

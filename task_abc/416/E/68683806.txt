@@ -1,0 +1,83 @@
+#include<bits/stdc++.h>
+using namespace std;
+long long n,m,k,f[510][510];
+int main()
+{
+	cin>>n>>m;
+	for(int i=0;i<=n;i++)
+	{
+		for(int j=0;j<=n;j++)
+		{
+			if(i!=j)
+			{
+				f[i][j]=1e18;
+			}
+		}
+	}
+	for(long long x,y,z;m--;)
+	{
+		cin>>x>>y>>z;
+		f[x][y]=f[y][x]=min(f[x][y],2*z);
+	}
+	cin>>m>>k;
+	for(int x;m--;)
+	{
+		cin>>x;
+		f[0][x]=f[x][0]=k;
+	}
+	for(int k=0;k<=n;k++)
+	{
+		for(int i=0;i<=n;i++)
+		{
+			for(int j=0;j<=n;j++)
+			{
+				f[i][j]=min(f[i][j],f[i][k]+f[k][j]);
+			}
+		}
+	}
+	cin>>m;
+	for(;m--;)
+	{
+		long long op,x,y,z;
+		cin>>op;
+		if(op==3)
+		{
+			long long s=0;
+			for(int i=1;i<=n;i++)
+			{
+				for(int j=1;j<=n;j++)
+				{
+					if(f[i][j]>=1e18)
+					{
+						continue;
+					}
+					s+=f[i][j]/2;
+					//cout<<i<<' '<<j<<' '<<f[i][j]<<endl;
+				}
+			}
+			cout<<s<<"\n";
+		}
+		else
+		{
+			cin>>x;
+			if(op==2)
+			{
+				y=0,z=k;
+			}
+			else
+			{
+				cin>>y>>z;
+				z=z*2;
+			}
+			f[y][x]=f[x][y]=min(f[x][y],z);
+			for(int i=0;i<=n;i++)
+			{
+				for(int j=0;j<=n;j++)
+				{
+	                f[i][j]=min(f[i][j],f[i][x]+z+f[y][j]);
+	                f[i][j]=min(f[i][j],f[i][y]+z+f[x][j]);
+	            }
+	    	}
+		}
+	}
+} 

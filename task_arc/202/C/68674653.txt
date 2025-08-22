@@ -1,0 +1,45 @@
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+
+const int N = 200010;
+const int mod = 998244353;
+
+int n;
+int f[N], invf[N];
+bool ntp[N], vis[N];
+vector<int> d[N];
+
+int qpow(int a, int b)
+{
+	int res = 1;
+	while (b)
+	{
+		if (b & 1) res = res * a % mod;
+		a = a * a % mod;
+		b >>= 1;
+	}
+	return res;
+}
+
+signed main()
+{
+	for (int i = 1; i < N; i++) f[i] = (f[i - 1] * 10 + 1) % mod, invf[i] = qpow(f[i], mod - 2);
+	for (int i = 2; i < N; i++)
+		if (!ntp[i])
+		{
+			for (int j = 2; j * i < N; j++) ntp[j * i] = 1;
+			for (int j = (N - 1) / i; j >= 1; j--) f[j * i] = f[j * i] * invf[j] % mod, invf[j * i] = invf[j * i] * f[j] % mod;
+		}
+	for (int i = 1; i < N; i++) for (int j = 1; i * j < N; j++) d[i * j].emplace_back(i);
+	int ans = 1;
+	scanf("%lld", &n);
+	while (n--)
+	{
+		int a;
+		scanf("%lld", &a);
+		for (int i : d[a]) if (!vis[i]) ans = ans * f[i] % mod, vis[i] = 1;
+		printf("%lld\n", ans);
+	}
+	return 0;
+}

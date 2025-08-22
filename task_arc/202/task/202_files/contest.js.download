@@ -1,0 +1,462 @@
+"use strict";
+$(function () {
+  // fix contest nav-tabs
+  var CNVTB_FIXED = 'cnvtb_fixed';
+  function toggleCNVTB() {
+    var a = $('#fix-cnvtb');
+    if (a.hasClass('disabled')) {
+      setLS(CNVTB_FIXED, true);
+    } else {
+      setLS(CNVTB_FIXED, false);
+    }
+    a.toggleClass('disabled');
+    $('#contest-nav-tabs').toggleClass('cnvtb-fixed');
+  }
+  if (getLS(CNVTB_FIXED) === false) toggleCNVTB();
+  $('#fix-cnvtb').click(toggleCNVTB);
+
+  // convert relative link
+  const RELATIVE_LINKS = ['/assignments', '/submit', '/clarifications', '/submissions', '/submissions/me', '/standings', '/rules', '/glossary', '/tutorial'];
+  $('#main-container a').each(function () {
+    var href = $(this).attr('href');
+    if (RELATIVE_LINKS.indexOf(href) != -1) {
+      $(this).attr('href', '/contests/{0}{1}'.format(contestScreenName, href));
+    }
+  });
+
+  if ($('.form-code-submit').length) {
+    var codeSubmitted = false;
+    $('.form-code-submit').on('submit', function () {
+      if (codeSubmitted) return false;
+      codeSubmitted = true;
+      setTimeout(function () { codeSubmitted = false; }, 10000);
+    });
+  }
+
+  // copy button
+  function copyButton() {
+    window.getSelection().removeAllRanges();
+    try {
+      copy($('#' + $(this).data('target')).text());
+      $(this).tooltip('show');
+      setTimeout(() => { $(this).tooltip('hide'); }, 800);
+    } catch (err) {
+      console.log(err);
+    }
+    window.getSelection().removeAllRanges();
+  }
+  var copyPreCnt = 0;
+  function addCopyButton(elm, text) {
+    var pre_id;
+    if (text === undefined) {
+      pre_id = elm.attr('id');
+    } else {
+      pre_id = "for_copy" + copyPreCnt; copyPreCnt++;
+      var for_copy_html = `<pre id="${pre_id}" class="source-code-for-copy"></pre>`;
+      elm.after($(for_copy_html).text(text));
+    }
+    var btn = $(`<div class="div-btn-copy"><span class="btn-copy btn-pre" tabindex="0" data-toggle="tooltip" data-trigger="manual" title="Copied!" data-target="${pre_id}">Copy</span></div>`);
+    elm.before(btn);
+    btn.children().click(copyButton);
+  }
+  if (document.queryCommandSupported('copy') && (typeof PRINT === 'undefined')) {
+    $('pre.prettyprint').each(function () {
+      addCopyButton($(this), $(this).text());
+    });
+    $("#task-statement h3+pre").each(function (i) {
+      var id = "pre-sample" + i;
+      $(this).attr("id", id);
+      var h3 = $(this).prev('h3');
+      var btn = $(`<span class="btn btn-default btn-sm btn-copy ml-1" tabindex="0" data-toggle="tooltip" data-trigger="manual" title="Copied!" data-target="${id}">Copy</span>`);
+      h3.append(btn);
+      btn.click(copyButton);
+      addCopyButton($(this));
+    });
+  }
+
+  // editor
+  if (typeof ace !== 'undefined') {
+    var commonOptions = {
+      tabSize: 2,
+      useWorker: false,
+      newLineMode: 'unix',
+      printMargin: false,
+      copyWithEmptySelection: true,
+      fixedWidthGutter: true,
+    };
+    if ($('#editor').length === 1) {
+      var editor = ace.edit('editor', commonOptions);
+      var defaultOptions = editor.getOptions();
+      editor.commands.addCommand({
+        Name: "prevent ctrl+s",
+        bindKey: { win: "Ctrl-S", mac: "Command-S" },
+        exec: () => { }
+      });
+
+      var options = getLS('ace-options');
+      if (options) {
+        delete options.readOnly;
+        delete options.maxLines;
+        delete options.newLineMode;
+        editor.setOptions(options);
+      }
+
+      var textarea = $('#plain-textarea');
+      textarea.data('editor', editor);
+
+      $('#btn-customize').click(function () {
+        editor.execCommand('showSettingsMenu');
+        var failCnt = 0;
+        function initCustomizePanel() {
+          var menu = $('#ace_settingsmenu');
+          if (menu.length === 0) {
+            failCnt++;
+            if (failCnt > 500) return;
+            setTimeout(initCustomizePanel, 10);
+            return;
+          }
+          $('#readOnly-label').parents('.ace_optionsMenuEntry').remove();
+          var tr = $('<tr><td><label for="-enableSnippets" id="enableSnippets-label">Snippets</label></td><td><input type="checkbox" id="-enableSnippets"></td></tr>');
+          $('.ace_optionsMenuEntry:last').after(tr);
+          if (editor.getOption('enableSnippets')) tr.find('input').prop('checked', true);
+          tr.find('input').on('change', function () {
+            editor.setOption('enableSnippets', $(this).prop('checked'));
+          });
+
+          var saveBtn = $('<button class="btn btn-sm btn-primary mr-1">Save</button>');
+          var resetBtn = $('<button class="btn btn-sm btn-danger">Reset</button>');
+          var div = $('<div class="mb-1"></div>');
+          menu.prepend(div);
+          if (LANG === 'ja') {
+            div.append('<a class="btn btn-sm btn-info mr-1" href="/posts/1089" target="_blank">使い方</a>');
+          }
+          div.append(saveBtn).append(resetBtn);
+          saveBtn.click(function () {
+            var options = editor.getOptions();
+            setLS('ace-options', options);
+          });
+          resetBtn.click(function () {
+            var confirmText = 'Are you sure to reset your editor settings?\n(Please re-open the customize panel again after reset to refresh it.)';
+            if (LANG === 'ja') confirmText = '本当にエディタの設定をリセットしますか？\n（リセット後に設定パネルを更新するためには、設定パネルを開き直して下さい）';
+            if (confirm(confirmText)) {
+              delLS('ace-options', options);
+              editor.setOptions(defaultOptions);
+            }
+          });
+        }
+        initCustomizePanel();
+      });
+
+      $('#btn-open-file').click(function () {
+        $('#input-open-file').trigger('click');
+      });
+      $('#input-open-file').on('change', function (e) {
+        var fileData = e.target.files[0];
+        var reader = new FileReader();
+        reader.onload = function () {
+          editor.setValue(reader.result);
+          textarea.val(reader.result);
+        };
+        reader.readAsText(fileData);
+      });
+
+      $('.btn-toggle-editor').click(function () {
+        if ($(this).hasClass('active')) {
+          editor.setValue(textarea.val(), 1);
+          textarea.hide();
+          $('#editor').show();
+          delLS('plain_editor');
+        } else {
+          textarea.val(editor.getValue());
+          $('#editor').hide();
+          textarea.show();
+          adjust();
+          setLS('plain_editor', true);
+        }
+      });
+      if (getLS('plain_editor')) $('.btn-toggle-editor').trigger('click');
+
+      $('.btn-auto-height').click(function () {
+        if ($(this).hasClass('active')) {
+          $('#editor').css('height', '');
+          editor.setOption('maxLines', 25);
+          delLS('auto_height');
+        } else {
+          $('#editor').css('height', 'auto');
+          editor.setOption('maxLines', Infinity);
+          setLS('auto_height', true);
+        }
+        adjust();
+      });
+      if (getLS('auto_height')) $('.btn-auto-height').trigger('click');
+      function adjust() {
+        if (getLS('auto_height')) {
+          textarea.css('height', textarea[0].scrollHeight + 'px');
+        } else {
+          textarea.css('height', 'auto');
+        }
+      }
+      textarea.on('input keyup', adjust);
+
+      /* delete old local strage */
+      delLS('auto_completion');
+      delLS('tab_size');
+      delLS('show_invisibles');
+      /* ~~~~~~~~~~~~~~~~~~~~~~~ */
+
+      // submit form
+      $('.form-code-submit').on('submit', function () {
+        if (!$('.btn-toggle-editor').hasClass('active')) {
+          textarea.val(editor.getValue());
+        }
+      });
+      if ($('#select-lang').length) {
+        (function () {
+          var name = $('#select-lang').data('name');
+
+          function langUpdated() {
+            currentLang = $('#select-lang select.current').val();
+            if (currentLang) setLS('defaultLang', currentLang);
+            var aceMode = $('#select-lang select.current>option:selected').data('ace-mode') || 'text';
+            editor.setOption('mode', 'ace/mode/' + aceMode);
+          }
+          $('#select-lang select').on('change', langUpdated);
+
+          function selectLang() {
+            if (currentLang) {
+              function selectLangFunc() {
+                var s = $('#select-lang select.current');
+                if (s.hasClass('select2-hidden-accessible')) {
+                  s.val(currentLang).trigger('change');
+                  langUpdated();
+                }
+                else setTimeout(selectLangFunc, 50);
+              }
+              selectLangFunc();
+            } else langUpdated();
+          }
+
+          if ($('#select-task').length) {
+            function switchSelectLang() {
+              var task = $('#select-task').val();
+              $('#select-lang>div').hide();
+              $('#select-lang select').removeAttr('name');
+              $('#select-lang select').removeAttr('required');
+              $('#select-lang select').removeClass('current');
+              $('#select-lang-' + task).show();
+              $('#select-lang-' + task + '>select').attr('name', name);
+              $('#select-lang-' + task + '>select').attr('required', true);
+              $('#select-lang-' + task + '>select').addClass('current');
+              selectLang();
+            }
+            switchSelectLang();
+            $('#select-task').change(switchSelectLang);
+          } else {
+            selectLang();
+          }
+
+          $('#select-lang').show();
+        })();
+      }
+    }
+
+    // submission page
+    if ($('#submission-code').length === 1) {
+      var tabSize = (() => {
+        var code = $('#submission-code').text();
+        var tabs = 0, spaces = 0, widths = [0, 0, 0, 0];
+        for (var line of code.split('\n')) {
+          if (line === '') continue;
+          if (line[0] === '\t') tabs++;
+          else {
+            var cnt = 0;
+            while (cnt < line.length && line[cnt] === ' ') cnt++;
+            if (cnt) {
+              spaces++;
+              var i = 0;
+              while (i < 3 && cnt % (2 << i) == 0) i++;
+              widths[i]++;
+            }
+          }
+        }
+        if (tabs >= spaces) return 2;
+        if (widths[0] > spaces * 0.5 && widths[0] > 9) return 1;
+        if (widths[1] > spaces * 0.1 || widths[1] > 2) return 2;
+        if (widths[2] > spaces * 0.1 || widths[2] > 2) return 4;
+        return 8;
+      })();
+
+      var aceMode = $('#submission-code').data('ace-mode') || 'text';
+      var editor = ace.edit('submission-code', commonOptions);
+      var options = getLS('ace-options');
+      if (options) editor.setOptions(options);
+      editor.setOptions({
+        readOnly: true,
+        mode: 'ace/mode/' + aceMode,
+        maxLines: 20,
+        minLines: 3,
+        tabSize: tabSize,
+      });
+
+      $('.submission-code-expand-btn').on('change', function () {
+        var state = $(this).hasClass('toggle-btn-on');
+        if (state) editor.setOption('maxLines', Infinity);
+        else editor.setOption('maxLines', 20);
+      });
+
+      addCopyButton($('#submission-code'), editor.getValue());
+    }
+  }
+
+  // clar notification
+  const CLAR_COUNT_SUFFIX = '_clar_count';
+  const CLAR_LAST_READ_SUFFIX = '_last_read';
+  const CLAR_LAST_UPDATE_SUFFIX = '_last_update';
+  const CLAR_EXPIRE_SUFFIX = '_clar_expire';
+  clearClarLS = function () {
+    const items = [], expires = [];
+    for (let i = 0, len = localStorage.length; i < len; i++) {
+      const key = localStorage.key(i);
+      if (!key) continue;
+      if (key.endsWith(CLAR_COUNT_SUFFIX)
+        || key.endsWith(CLAR_LAST_READ_SUFFIX)
+        || key.endsWith(CLAR_LAST_UPDATE_SUFFIX)) items.push(key);
+      else if (key.endsWith(CLAR_EXPIRE_SUFFIX)) expires.push(key);
+    }
+    const serverTime = getServerTime();
+    const tooFarTime = getServerTime().add(1, 'y');
+    for (const key of expires) {
+      const val = getLS(key);
+      if (val) {
+        const t = moment(new Date(val));
+        if (t.isAfter(serverTime) && t.isBefore(tooFarTime)) continue;
+      }
+      delLS(key);
+    }
+    for (const key of items) {
+      const prefix = key.split('_').slice(0, -2).join('_');
+      const expire = prefix + CLAR_EXPIRE_SUFFIX;
+      if (!getLS(expire)) delLS(key);
+    }
+  };
+  if ($('#clar-badge').length) {
+    const CLAR_EXPIRE_HOURS = 24;
+    const clarExpireName = `${contestScreenName}${CLAR_EXPIRE_SUFFIX}`;
+    setLS(clarExpireName, moment(endTime).add(CLAR_EXPIRE_HOURS, 'h'));
+    clearClarLS();
+
+    const CLAR_INTERVAL = 60 * 1000; // ms
+    const CLAR_BEGIN = 5 * 60 * 1000 + rand([0, CLAR_INTERVAL]);
+    const clarCountName = `${contestScreenName}${CLAR_COUNT_SUFFIX}`;
+    const lastReadName = `${contestScreenName}${CLAR_LAST_READ_SUFFIX}`;
+    const lastUpdateName = `${contestScreenName}${CLAR_LAST_UPDATE_SUFFIX}`;
+    const isAlwaysUpdate = $('#clar-badge').attr('data-always-update') === 'true';
+
+    if (typeof CLAR_READ !== 'undefined') {
+      const serverTime = getServerTime();
+      setLS(lastReadName, serverTime);
+      delLS(clarCountName);
+    }
+    function getMomentFromLS(name) {
+      const str = getLS(name);
+      if (!str) return moment(startTime);
+      return moment(new Date(str));
+    }
+    function updateBadge() {
+      const clarCount = getLS(clarCountName) || 0;
+      $('#clar-badge').text(clarCount === 0 ? '' : clarCount);
+    }
+    let timer;
+    function updateClarCount() {
+      const serverTime = getServerTime();
+      if (!isAlwaysUpdate) {
+        if (-CLAR_INTERVAL <= serverTime.diff(startTime) && serverTime.diff(startTime) < CLAR_BEGIN) return;
+      }
+      if (serverTime.isAfter(endTime)) {
+        clearInterval(timer);
+        return;
+      }
+      if (!isTabFocus) {
+        return;
+      }
+      const lastUpdate = getMomentFromLS(lastUpdateName);
+      if (serverTime.diff(lastUpdate) >= CLAR_INTERVAL) {
+        const lastRead = getMomentFromLS(lastReadName);
+        const t = encodeURIComponent(lastRead.format('YYYY-MM-DD HH:mm:ssZZ'));
+        $.ajax(`/contests/${contestScreenName}/clarifications/count?t=${t}`)
+          .done(function (data) {
+            if (typeof data === 'number') {
+              setLS(clarCountName, data);
+              updateBadge();
+            }
+          });
+        setLS(lastUpdateName, serverTime);
+      } else updateBadge();
+    }
+    updateClarCount();
+    timer = setInterval(updateClarCount, 3 * 1000);
+  }
+
+  // waiting judge
+  if ($('.waiting-judge').length) {
+    (function () {
+      $('.waiting-judge').append('<img src="//img.atcoder.jp/assets/icon/waiting.gif">');
+      var timer = null;
+      var sids = [];
+      $('.waiting-judge').each(function () {
+        sids.push($(this).data('id'));
+      });
+      function reloadStatus() {
+        if (sids.length == 0) {
+          timer = null;
+          return;
+        }
+        if (!isTabFocus) {
+          timer = setTimeout(reloadStatus, reloadInterval);
+          return;
+        }
+        var requestURL = '{0}?reload=true&sids[]={1}'.format(submissionAPI, sids.join('&sids[]='));
+        $.ajax(requestURL).done(function (data) {
+          if (typeof data === 'object' && 'Result' in data) {
+            $('.waiting-judge [data-toggle="tooltip"]').tooltip('hide');
+            var results = data['Result'];
+            for (var id in results) {
+              var html = $.parseHTML(results[id].Html);
+              if ($(html).hasClass('waiting-judge')) {
+                $('.waiting-judge[data-id={0}] span'.format(id)).replaceWith($(html).find('span'));
+              } else {
+                $('.waiting-judge[data-id={0}]'.format(id)).replaceWith(html);
+              }
+              $('.submission-score[data-id={0}]'.format(id)).text(results[id].Score);
+            }
+            $('.waiting-judge [data-toggle="tooltip"]').tooltip();
+            if ('Interval' in data) {
+              timer = setTimeout(reloadStatus, data['Interval']);
+            }
+          }
+        });
+      }
+      timer = setTimeout(reloadStatus, reloadInterval);
+    })();
+  }
+});
+
+var clearClarLS;
+var isTabFocus = document.visibilityState === "visible";
+
+document.addEventListener("visibilitychange", function () {
+  if (document.visibilityState === "visible") {
+    isTabFocus = true;
+  }
+  if (document.visibilityState === "hidden") {
+    isTabFocus = false;
+  }
+});
+
+window.addEventListener('focus', function () {
+  isTabFocus = true;
+});
+window.addEventListener('blur', function () {
+  isTabFocus = false;
+});
+

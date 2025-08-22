@@ -1,0 +1,30 @@
+#include <bits/stdc++.h>
+using namespace std;
+ 
+int main() {
+  int n, k, x;
+  cin >> n >> k >> x;
+  x -= 1;
+  
+  vector<string> S(n);
+  for (int i = 0; i < n; i++) cin >> S.at(i);
+  
+  vector<int> A(k, 0);
+  vector<string> st;
+  for(int i = 0; i < pow(n, k); i++){
+    int ji = i;
+    for(int j = 0; j < k; j++){
+      A.at(k - j - 1) = ji % n;
+      ji = (ji - ji % n) / n;
+    }
+    
+    string unchi;
+    for(int a = 0; a < k; a++) unchi += S.at(A.at(a));
+    
+    st.push_back(unchi);
+  }
+  
+  sort(st.begin(), st.end());
+  
+  cout << st.at(x) << endl;
+}

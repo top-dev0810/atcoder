@@ -1,0 +1,55 @@
+#include <math.h>
+#include <bits/stdc++.h>
+typedef long long ll;
+using namespace std;
+const int mod=998244353;
+const int N=1e6+5;
+const int P=1e9+7;
+const int INF=0x3fffffff;
+typedef __int128 i128;
+mt19937_64 rng;
+int vis[N];
+void solve() {
+    int n,m;
+    cin>>n>>m;
+    vector<int> a(n+1,0);
+    vector<int> b(n+1,0);
+    ll ans=0;
+    for(int i=1;i<=n;i++) {
+        cin>>a[i];
+        a[i]%=m;
+        ans+=a[i];
+    }
+    for(int i=1;i<=n;i++) {
+        cin>>b[i];
+        b[i]%=m;
+        ans+=b[i];
+    }
+    sort(a.begin()+1,a.end());
+    sort(b.begin()+1,b.end());
+    vector<int>vis(n+1,0);
+
+    int l=1;
+    for(int i=n;i>=1;i--) {
+        for (;l<=n;l++) {
+            if (a[i]+b[l]>=m) {
+                l++;
+                ans-=m;
+                break;
+            }
+        }
+    }
+    cout<<ans<<'\n';
+}
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    int t;
+    cin>>t;
+    while(t--) {
+        solve();
+    }
+    //solve();
+    return 0;
+}

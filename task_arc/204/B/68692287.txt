@@ -1,0 +1,90 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+// Maksymalna długość cyklu to NK <= 5000 (N <= 500, K <= 10)
+using i16 = int16_t;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, K;
+    if (!(cin >> N >> K)) return 0;
+    const int M = N * K;
+
+    vector<int> a(M + 1);
+    for (int i = 1; i <= M; ++i) cin >> a[i];
+
+    vector<char> vis(M + 1, 0);
+
+    // mapowanie: pozycja -> indeks w bieżącym cyklu (bez globalnego czyszczenia)
+    vector<int> idx_of(M + 1, -1);
+    vector<int> seen_ver(M + 1, 0);
+    int cur_ver = 1;
+
+    long long ans = 0;
+
+    vector<int> cyc; cyc.reserve(5100);
+
+    // dla każdego cyklu permutacji
+    for (int s = 1; s <= M; ++s) if (!vis[s]) {
+        cyc.clear();
+        int v = s;
+        while (!vis[v]) {
+            vis[v] = 1;
+            cyc.push_back(v);
+            v = a[v];
+        }
+        const int o = (int)cyc.size();
+        if (o == 1) { ++cur_ver; continue; }
+
+        // oznacz elementy cyklu w idx_of, wersjonowane znacznikami
+        for (int i = 0; i < o; ++i) {
+            int pos = cyc[i];
+            idx_of[pos] = i;
+            seen_ver[pos] = cur_ver;
+        }
+
+        // DP na przedziałach [l..r] po indeksach 0..o-1
+        // spłaszczony indeks: id(l,r) = l*o + r
+        vector<i16> dp((size_t)o * o);
+        auto ID = [o](int l, int r) -> size_t { return (size_t)l * (size_t)o + (size_t)r; };
+
+        // przetwarzamy l malejąco, r rosnąco — jak w Twoim kodzie
+        for (int l = o - 1; l >= 0; --l) {
+            // reszta kolumnowa dla cyc[l], 1..N (bo w kodzie bazowym u startował od 1)
+            const int res1 = ( (cyc[l] - 1) % N ) + 1;
+
+            for (int r = l; r < o; ++r) {
+                i16 best = 0;
+                if (l < r) best = dp[ID(l + 1, r)];  // opcja "nie łącz l"
+
+                // rozważ połączenie l z j = idx_of[u], gdzie u = res1 + t*N, t = 0..K-1
+                // i tylko jeśli j in (l, r]
+                for (int t = 0; t < K; ++t) {
+                    int u = res1 + t * N;
+                    if (u > M) break;  // bezpieczeństwo, choć u zawsze <= M przy t<K
+
+                    int j = (seen_ver[u] == cur_ver) ? idx_of[u] : -1;
+                    if (j <= l || j > r) continue;
+
+                    // UWAGA: trzymamy identyczną formułę jak w Twoim AC:
+                    // dp[l][r] = max( dp[l][r], dp[l+1][j] + dp[j][r] + 1 )
+                    // (dokładnie tak, nie j-1 / j+1)
+                    i16 left  = (l + 1 <= j ? dp[ID(l + 1, j)] : 0);
+                    i16 right = dp[ID(j, r)];
+                    i16 cand  = (i16)(left + right + 1);
+                    if (cand > best) best = cand;
+                }
+                dp[ID(l, r)] = best;
+            }
+        }
+
+        ans += dp[ID(0, o - 1)];
+
+        ++cur_ver; // nowy cykl → nowa „wersja” bez czyszczenia dużych tablic
+    }
+
+    cout << ans << '\n';
+    return 0;
+}

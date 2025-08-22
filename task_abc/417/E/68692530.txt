@@ -1,0 +1,76 @@
+#include <bits/stdc++.h>
+// #include <bits/extc++.h>
+#define debug(x) cerr << #x << ": " << x << '\n';
+// using namespace __gnu_pbds;
+using namespace std;
+using db = double;
+using ll = long long;
+using ld = long double;
+using i128 = __int128_t;
+using u32 = unsigned int;
+using pll = pair <ll, ll>;
+using pii = pair <int, int>;
+using ull = unsigned long long;
+constexpr db EPS = 1e-9;
+constexpr int N = 1e6 + 5, MOD = 1e9 + 7;
+mt19937_64 rnd (chrono::steady_clock::now().time_since_epoch().count());
+void isac()
+{
+    int n, m, X, Y;
+    cin >> n >> m >> X >> Y;
+
+    vector <vector<int>> e (n + 1);
+    for (int i = 1; i <= m; i ++) {
+        int u, v;
+        cin >> u >> v;
+
+        e[u].push_back(v);
+        e[v].push_back(u);
+    }
+
+    for (int i = 1; i <= n; i ++) {
+        sort (e[i].begin(), e[i].end());
+    }
+
+    vector <int> st (n + 1);
+    vector <int> ans;
+    bool find = 0;
+    auto dfs = [&](auto &&dfs, int u) -> void {
+        st[u] = 1;
+        find |= (u == Y);
+        ans.push_back(u);
+        if (find == 1) {
+            return ;
+        }
+        for (auto v : e[u]) {
+            if (find == 1) {
+                return ;
+            }
+            if (st[v] == 0) {
+                dfs (dfs, v);
+            }
+        }
+        if (find == 1) {
+            return ;
+        }
+        ans.pop_back();
+    };
+
+    dfs (dfs, X);
+
+    for (auto x : ans) {
+        cout << x << ' ';
+    }
+    cout << '\n';
+}
+int main(void)
+{
+    ios::sync_with_stdio(0);
+    cin.tie(0), cout.tie(0);
+    int T = 1;
+    cin >> T;
+    for (int i = 1; i <= T; i ++) {
+        isac();
+    }
+    return 0;
+}

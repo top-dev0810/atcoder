@@ -1,0 +1,16 @@
+#include <iostream>
+#include <string>
+
+int main() {
+  std::string S;
+  std::cin >> S;
+  if (S == "red") {
+    std::cout << "SSS" << std::endl;
+  } else if (S == "blue") {
+    std::cout << "FFF" << std::endl;
+  } else if (S == "green") {
+    std::cout << "MMM" << std::endl;
+  } else {
+    std::cout << "Unknown" << std::endl;
+  }
+}

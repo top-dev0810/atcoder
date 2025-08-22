@@ -1,0 +1,98 @@
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+
+const int N = 2e5 + 5, mod = 998244353;
+
+int n, m;
+int a[N];
+
+struct seg_tree
+{
+	struct node
+	{
+		int l, r, sum, lazy;
+	} tr[4 * N];
+	void push_up(int p)
+	{
+		tr[p].sum = (tr[p * 2].sum + tr[p * 2 + 1].sum) % mod;
+	}
+	void push_down(int p)
+	{
+		if (tr[p].lazy)
+		{
+			tr[p * 2].sum = (tr[p * 2].r - tr[p * 2].l + 1) * tr[p].lazy % mod;
+			tr[p * 2].lazy = tr[p].lazy;
+			tr[p * 2 + 1].sum = (tr[p * 2 + 1].r - tr[p * 2 + 1].l + 1) * tr[p].lazy % mod;
+			tr[p * 2 + 1].lazy = tr[p].lazy;
+			tr[p].lazy = 0;
+		}
+	}
+	void build(int p, int l, int r)
+	{
+		tr[p] = {l, r, 0, 0};
+		if (l == r)
+		{
+			tr[p].sum = a[l];
+			return;
+		}
+		int mid = (l + r) >> 1;
+		build(p * 2, l, mid);
+		build(p * 2 + 1, mid + 1, r);
+		push_up(p);
+	}
+	void modify(int p, int l, int r, int x)
+	{
+		if (l <= tr[p].l && tr[p].r <= r)
+		{
+			tr[p].sum = (tr[p].r - tr[p].l + 1) * x % mod;
+			tr[p].lazy = x;
+			return;
+		}
+		push_down(p);
+		int mid = (tr[p].l + tr[p].r) >> 1;
+		if (l <= mid) modify(p * 2, l, r, x);
+		if (r > mid) modify(p * 2 + 1, l, r, x);
+		push_up(p);
+	}
+	int query(int p, int l, int r)
+	{
+		if (tr[p].l > r || tr[p].r < l) return 0;
+		if (tr[p].l >= l && tr[p].r <= r) return tr[p].sum;
+		push_down(p);
+		int res = 0, mid = (tr[p].l + tr[p].r) >> 1;
+		if (l <= mid) res = (res + query(p * 2, l, r)) % mod;
+		if (r > mid) res = (res + query(p * 2 + 1, l, r)) % mod;
+		return res; 
+	}
+} ST;
+
+int fastPow(int a, int b)
+{
+	int res = 1;
+	while (b)
+	{
+		if (b & 1) res = res * a % mod;
+		a = a * a % mod;
+		b >>= 1;
+	}
+	return res;
+}
+
+signed main()
+{
+	scanf("%lld%lld", &n, &m);
+	for (int i = 1; i <= n; i++)
+		scanf("%lld", &a[i]);
+	ST.build(1, 1, n);
+	for (int i = 1, l, r; i <= m; i++)
+	{
+		scanf("%lld%lld", &l, &r);
+		int val = ST.query(1, l, r);
+		int now = val * fastPow(r - l + 1, mod - 2) % mod;
+		ST.modify(1, l, r, now);
+	}
+	for (int i = 1; i <= n; i++)
+		printf("%lld ", ST.query(1, i, i));
+	return 0;
+}

@@ -1,0 +1,26 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define endl "\n"
+#define ll long long
+const int mod=1e9+7;
+const int N=2e6+5;
+int c[N];
+void solve(){
+	int n,m; cin>>n>>m;
+	string s,t; cin>>s>>t; 
+	s=" "+s; t=" "+t;
+	while(m--){
+		int l,r; cin>>l>>r;
+		c[l]++;
+		c[r+1]--;
+	}
+	for(int i=1;i<=n;i++){
+		c[i]+=c[i-1];
+		cout<<(c[i]%2?t[i]:s[i]);
+	}
+}
+int main(){
+	ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+	int T=1; //cin>>T;
+	while(T--) solve();
+}

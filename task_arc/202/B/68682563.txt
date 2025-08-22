@@ -1,0 +1,65 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+using ll = long long;
+const int MOD = 998244353;
+const int MX = 400000 + 5;
+
+ll modExp(ll base, ll power) {
+    if (power == 0) return 1;
+    ll cur = modExp(base, power / 2);
+    cur = (cur * cur) % MOD;
+    if (power % 2 == 1) cur = (cur * base) % MOD;
+    return cur;
+}
+ll inv(ll x) { return modExp(x, MOD-2); }
+
+ll facs[MX], facInvs[MX];
+void initFacs() {
+    facs[0] = facInvs[0] = 1;
+    for (int i = 1; i < MX; i++) {
+        facs[i] = facs[i-1] * i % MOD;
+        facInvs[i] = inv(facs[i]);
+    }
+}
+ll choose(ll n, ll r) {
+    if (r < 0 || r > n) return 0;
+    return facs[n] * facInvs[r] % MOD * facInvs[n-r] % MOD;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    initFacs();
+
+    int H, W;
+    cin >> H >> W;
+
+    if (H % 2 == 0) {
+        cout << 0 << "\n";
+        return 0;
+    }
+
+    ll res = 0;
+    if (W % 2 == 1) {
+        // odd W
+        for (int right = 0; right <= H; right++) {
+            int delta = 2 * right - H; // net horizontal shift
+            if (std::gcd(abs(delta), W) == 1) {
+                res = (res + choose(H, right)) % MOD;
+            }
+        }
+    } else {
+        // even W → use 2H
+        for (int right = 0; right <= 2*H; right++) {
+            int delta = 2*right - 2*H; // net shift in 2H moves
+            // divide everything by 2
+            if (std::gcd(abs(delta/2), W/2) == 1) {
+                res = (res + choose(2*H, right)) % MOD;
+            }
+        }
+    }
+
+    cout << res % MOD << "\n";
+}

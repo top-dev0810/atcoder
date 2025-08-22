@@ -1,0 +1,18 @@
+#include <iostream>
+#include <string>
+
+std::string solve(std::string s) {
+  if (s == "red")
+    return "SSS";
+  else if (s == "blue")
+    return "FFF";
+  else if (s == "green")
+    return "MMM";
+  return "Unknown";
+}
+int main() {
+  std::string S;
+  std::cin >> S;
+  std::cout << solve(S) << std::endl;
+  return 0;
+}

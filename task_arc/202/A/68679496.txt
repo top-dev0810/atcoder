@@ -1,0 +1,94 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+#define int long long
+
+void solve(){
+	int n; cin >> n;
+	
+	vector <int> a(n);
+	
+	for ( auto &u: a ) cin >> u;
+	
+	vector <vector<int>> sp(20, vector <int> (n));
+	
+	auto opt = [&](int i, int j){
+		if ( i > j ) swap(i, j);
+		
+		return a[i] >= a[j] ? i : j;
+	};
+	
+	for ( int i = 0; i < n; i++ ) sp[0][i] = i;
+	
+	for ( int i = 1; i < 20; i++ ){
+		int k = 1 << (i - 1);
+		
+		for ( int j = 0; j < n; j++ ){
+			sp[i][j] = opt(sp[i - 1][j], sp[i - 1][min(n - 1, j + k)]);
+		}
+	}
+	
+	auto qry = [&](int l, int r){
+		if ( l > r ) return -1LL;
+		
+		int lg = __lg(r - l + 1), k = 1 << lg;
+		
+		return opt(sp[lg][l], sp[lg][r - k + 1]);
+	};
+	
+	auto add = [&](pair <int,int> &A, const pair <int,int> &B){
+		A.first += B.first;
+		A.second += B.second;
+	};
+	
+	auto calc = [&](auto calc, int l, int r, int x) -> pair <int,int>{
+		if ( l > r ) return {0, 0};
+		
+		int p = qry(l, r), lst = l - 1;
+		
+		pair <int,int> ans = {0, 0};
+		
+		while ( true ){
+			add(ans, calc(calc, lst + 1, p - 1, a[p]));
+			
+			ans.first += 1;
+			
+			swap(p, lst);
+			p = qry(lst + 1, r);
+			
+			if ( p == -1 || a[p] != a[lst] ) break;
+		}
+		
+		add(ans, calc(calc, lst + 1, r, a[lst]));
+		
+		int val = a[lst];
+		
+		while ( ans.first > 1 && val < x ){
+			ans.second += ans.first & 1;
+			ans.first = (ans.first + 1) / 2;
+			val += 1;
+		}
+		
+		ans.second += x - val;
+		
+		return ans;
+	};
+	
+	auto [len, ans] = calc(calc, 0, n - 1, a[qry(0, n - 1)]);
+	
+	while ( len > 1 ){
+		ans += len & 1;
+		len = (len + 1) / 2;
+	}
+	
+	cout << ans << '\n';
+}
+
+signed main(){
+	int t; cin >> t;
+	
+	while ( t-- ){
+		solve();
+	}
+}

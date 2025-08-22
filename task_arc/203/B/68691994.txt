@@ -1,0 +1,33 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int n, cnt1, cnt2, a1, b1, an, bn;
+
+inline void solve() {
+    scanf("%d", &n);
+    cnt1 = cnt2 = 0, a1 = b1 = an = bn = -1;
+    for (int i = 1; i <= n; i++) {
+        int x;
+        scanf("%d", &x);
+        if (a1 == -1) a1 = x;
+        an = x;
+        cnt1 += x;
+    }
+    for (int i = 1; i <= n; i++) {
+        int x;
+        scanf("%d", &x);
+        if (b1 == -1) b1 = x;
+        bn = x;
+        cnt2 += x;
+    }
+    if (cnt1 == cnt2 && (cnt1 != 1 || (a1 == b1 && an == bn))) printf("Yes\n");
+    else printf("No\n");
+}
+
+int main() {
+    int _;
+    for (scanf("%d", &_); _; --_) {
+        solve();
+    }
+    return 0;
+}

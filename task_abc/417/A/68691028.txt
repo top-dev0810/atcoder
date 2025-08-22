@@ -1,0 +1,49 @@
+#include <bits/stdc++.h>
+// #include <bits/extc++.h>
+#define debug(x) cerr << #x << ": " << x << '\n';
+// using namespace __gnu_pbds;
+using namespace std;
+using db = double;
+using ll = long long;
+using ld = long double;
+using i128 = __int128_t;
+using u32 = unsigned int;
+using pll = pair <ll, ll>;
+using pii = pair <int, int>;
+using ull = unsigned long long;
+constexpr db EPS = 1e-9;
+constexpr int N = 1e6 + 5, MOD = 1e9 + 7;
+mt19937_64 rnd (chrono::steady_clock::now().time_since_epoch().count());
+void isac()
+{
+    int n, a, b;
+    cin >> n >> a >> b;
+
+    string s;
+    cin >> s;
+
+    while (b --) {
+        s.pop_back();
+    }
+
+    reverse(s.begin(), s.end());
+
+    while (a --) {
+        s.pop_back();
+    }
+
+    reverse(s.begin(), s.end());
+
+    cout << s;
+}
+int main(void)
+{
+    ios::sync_with_stdio(0);
+    cin.tie(0), cout.tie(0);
+    int T = 1;
+    // cin >> T;
+    for (int i = 1; i <= T; i ++) {
+        isac();
+    }
+    return 0;
+}

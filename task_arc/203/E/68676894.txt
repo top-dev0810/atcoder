@@ -1,0 +1,69 @@
+#include <bits/stdc++.h>
+
+inline void solve() {
+    int H, W, L, n, m, r, c;
+    scanf("%d%d%d%d%d%d%d", &H, &W, &L, &n, &m, &r, &c);
+
+    auto tile = [&](int sx, int tx, int sy, int ty,
+                    std::vector<std::pair<int, int>> &hor, std::vector<std::pair<int, int>> &ver) {
+        for (int x = sx; x <= tx; x += L) {
+            for (int y = sy; y <= ty; y += L) {
+                if (hor.size() < n) {
+                    for (int z = 0; z < L; z++) hor.emplace_back(x + z, y);
+                } else {
+                    for (int z = 0; z < L; z++) ver.emplace_back(x, y + z);
+                }
+            }
+        }
+    };
+
+    if (H % L == 1 && W % L == 1 && r % L == 1 && c % L == 1) {
+        std::vector<std::pair<int, int>> hor, ver;
+        for (int i = 1; i < c; i += L) hor.emplace_back(r, i);
+        for (int i = c + 1; i <= W; i += L) hor.emplace_back(r, i);
+        for (int i = 1; i < r; i += L) ver.emplace_back(i, c);
+        for (int i = r + 1; i <= H; i += L) ver.emplace_back(i, c);
+
+        if (n < hor.size() || m < ver.size()) return puts("No"), void();
+        if ((n - hor.size()) % L || (m - ver.size()) % L) return puts("No"), void();
+
+        tile(1, r - 1, 1, c - 1, hor, ver);
+        tile(r + 1, H, 1, c - 1, hor, ver);
+        tile(1, r - 1, c + 1, W, hor, ver);
+        tile(r + 1, H, c + 1, W, hor, ver);
+
+        puts("Yes");
+        for (auto [x, y] : hor) printf("%d %d\n", x, y);
+        for (auto [x, y] : ver) printf("%d %d\n", x, y);
+    } else if (H % L == L - 1 && W % L == L - 1 && r % L == 0 && c % L == 0) {
+        std::vector<std::pair<int, int>> hor, ver;
+        for (int i = 1; i < r; i += L)
+            for (int j = -L + 1; j <= -1; j++) ver.emplace_back(i, c + j);
+        for (int i = r; i <= H; i += L)
+            for (int j = 1; j <= L - 1; j++) ver.emplace_back(i, c + j);
+        for (int i = 1; i <= L - 1; i++)
+            for (int j = 1; j < c; j += L) hor.emplace_back(r + i, j);
+        for (int i = -L + 1; i <= -1; i++)
+            for (int j = c; j <= W; j += L) hor.emplace_back(r + i, j);
+        
+        if (n < hor.size() || m < ver.size()) return puts("No"), void();
+        if ((n - hor.size()) % L || (m - ver.size()) % L) return puts("No"), void();
+
+        tile(1, r, 1, c - L, hor, ver);
+        tile(r + L, H, 1, c, hor, ver);
+        tile(1, r - L, c, W, hor, ver);
+        tile(r, H, c + L, W, hor, ver);
+
+        puts("Yes");
+        for (auto [x, y] : hor) printf("%d %d\n", x, y);
+        for (auto [x, y] : ver) printf("%d %d\n", x, y);
+    } else {
+        puts("No");
+    }
+}
+
+int main() {
+    int t; scanf("%d", &t);
+    while (t--) solve();
+    return 0;
+}

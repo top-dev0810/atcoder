@@ -1,0 +1,30 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+typedef long long ll;
+
+const int N = 3e5 + 5;
+ll a[N], sum[N];
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    
+    int n, q;
+    cin >> n >> q;
+    for (int i = 1; i <= n; ++i) cin >> a[i];
+    sort(a + 1, a + n + 1);
+    for (int i = 1; i <= n; ++i) sum[i] = sum[i - 1] + a[i];
+    while (q--) {
+        ll B;
+        cin >> B;
+        int p = lower_bound(a + 1, a + n + 1, B) - a;
+        if (p == n + 1) {
+            cout << -1 << '\n';
+            continue;
+        }
+        cout << sum[p - 1] + (n - p + 1) * (B - 1) + 1 << '\n';
+    }
+
+    return 0;
+}

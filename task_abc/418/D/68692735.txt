@@ -1,0 +1,24 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+constexpr int nmax = 2e5 + 10;
+int dp[nmax][2];
+
+int main() {
+  int N;
+  string S;
+  cin >> N >> S;
+  for (int r = 1; r <= N; r++) {
+    if (S[r - 1] == '0') {
+      dp[r][0] = dp[r - 1][1];
+      dp[r][1] = dp[r - 1][0] + 1;
+    } else {
+      dp[r][0] = dp[r - 1][0] + 1;
+      dp[r][1] = dp[r - 1][1];
+    }
+  }
+  long long ans = 0;
+  for (int r = 1; r <= N; r++) ans += dp[r][0];
+  cout << ans << "\n";
+}

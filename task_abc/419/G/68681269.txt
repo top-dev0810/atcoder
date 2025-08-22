@@ -1,0 +1,131 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Edge { int to,len; };
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N,M;
+    cin >> N >> M;
+
+    vector<vector<pair<int,int>>> G(N);
+    for(int i=0;i<M;i++){
+        int u,v; cin >> u >> v; --u; --v;
+        G[u].emplace_back(v,i);
+        G[v].emplace_back(u,i);
+    }
+
+    // --- 葉削除 ---
+    vector<int> deg(N);
+    for(int v=0; v<N; v++) deg[v] = G[v].size();
+    vector<char> alive(N,1);
+    deque<int> dq;
+    for(int v=0; v<N; v++)
+        if(v!=0 && v!=N-1 && deg[v]==1) dq.push_back(v);
+    while(!dq.empty()){
+        int v = dq.front(); dq.pop_front();
+        if(!alive[v]) continue;
+        alive[v]=0;
+        for(auto [u,id]: G[v]){
+            if(!alive[u]) continue;
+            if(--deg[u]==1 && u!=0 && u!=N-1) dq.push_back(u);
+        }
+    }
+
+    // --- 圧縮グラフ作成 ---
+    vector<char> isS(N,0);
+    for(int v=0; v<N; v++)
+        if(alive[v] && (v==0 || v==N-1 || deg[v]>=3)) isS[v]=1;
+
+    vector<vector<pair<int,int>>> H(N);
+    vector<char> usedE(M,0);
+    for(int s=0; s<N; s++) if(isS[s]){
+        for(auto [v,e]: G[s]){
+            if(!alive[v] || usedE[e]) continue;
+            usedE[e]=1;
+            int len=1, par=s, cur=v;
+            while(alive[cur] && !isS[cur] && deg[cur]==2){
+                int nxt=-1, e2=-1;
+                for(auto [w,id2]: G[cur]){
+                    if(!alive[w]) continue;
+                    if(w!=par){ nxt=w; e2=id2; break;}
+                }
+                usedE[e2]=1;
+                ++len;
+                par=cur; cur=nxt;
+            }
+            H[s].emplace_back(cur,len);
+            H[cur].emplace_back(s,len);
+        }
+    }
+
+    // --- SにID振ってHH作成 ---
+    vector<int> id(N,-1), rid;
+    for(int v=0; v<N; v++) if(isS[v]){
+        id[v] = rid.size();
+        rid.push_back(v);
+    }
+    int VS = rid.size();
+    vector<vector<Edge>> HH(VS);
+    for(int v=0; v<N; v++) if(isS[v])
+        for(auto [to,w]: H[v]) HH[id[v]].push_back({id[to],w});
+
+    int S = id[0], T = id[N-1];
+
+    // --- Tまでの最短距離を BFS で事前計算 ---
+    vector<int> min_dist(VS, INT_MAX);
+    queue<pair<int,int>> q;
+    min_dist[T] = 0;
+    q.push({T,0});
+    while(!q.empty()){
+        auto [v,d] = q.front(); q.pop();
+        for(auto e: HH[v]){
+            int u = e.to;
+            int w = e.len;
+            if(d + w < min_dist[u]){
+                min_dist[u] = d + w;
+                q.push({u, d + w});
+            }
+        }
+    }
+
+    // --- スタック DFS ---
+    vector<long long> ans(N,0);
+    vector<char> vis(VS,0);
+    struct State { int v, dist, idx; };
+    stack<State> st;
+
+    st.push({S,0,-1});
+    vis[S]=1;
+
+    while(!st.empty()){
+        auto &cur = st.top();
+        int v = cur.v, dist = cur.dist, &i = cur.idx;
+
+        i++;
+        if(i < (int)HH[v].size()){
+            int u = HH[v][i].to;
+            int w = HH[v][i].len;
+            int ndist = dist + w;
+            if(!vis[u] && ndist + min_dist[u] <= N-1){
+                if(u==T){
+                    ans[ndist]++;
+                } else {
+                    vis[u]=1;
+                    st.push({u, ndist, -1});
+                }
+            }
+        } else {
+            vis[v]=0;
+            st.pop();
+        }
+    }
+
+    for(int k=1; k<=N-1; k++){
+        if(k>1) cout << ' ';
+        cout << ans[k];
+    }
+    cout << '\n';
+}

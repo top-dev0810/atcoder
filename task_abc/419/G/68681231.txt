@@ -1,0 +1,261 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+
+struct EdgeRaw {
+    int u, v, w;
+    bool active;
+    EdgeRaw() {}
+    EdgeRaw(int _u,int _v,int _w):u(_u),v(_v),w(_w),active(true){}
+};
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, M;
+    if (!(cin >> N >> M)) return 0;
+    const int S = 1, T = N;
+
+    // 原始图（允许多重边），为便于压缩保留边表 + 端点入边列表
+    vector<EdgeRaw> edges;
+    edges.reserve(M + 64);
+    vector<vector<int>> inc(N + 1);
+
+    auto add_edge = [&](int a, int b, int w){
+        if (a == b) return; // 自环无用
+        int id = (int)edges.size();
+        edges.emplace_back(a, b, w);
+        edges.back().active = true;
+        inc[a].push_back(id);
+        inc[b].push_back(id);
+    };
+
+    for (int i = 0; i < M; i++) {
+        int u, v; cin >> u >> v;
+        add_edge(u, v, 1);
+    }
+
+    vector<char> removed(N + 1, 0);
+    vector<int> deg(N + 1, 0);
+
+    auto recompute_deg = [&](){
+        fill(deg.begin(), deg.end(), 0);
+        for (int v = 1; v <= N; v++) {
+            for (int id: inc[v]) {
+                if (!edges[id].active) continue;
+                int a = edges[id].u, b = edges[id].v;
+                if (a == b) continue;
+                if (a == v || b == v) deg[v]++;
+            }
+        }
+    };
+    recompute_deg();
+
+    deque<int> qLeaf, qDeg2;
+    for (int v = 1; v <= N; v++) {
+        if (v == S || v == T) continue;
+        if (deg[v] == 1) qLeaf.push_back(v);
+        else if (deg[v] == 2) qDeg2.push_back(v);
+    }
+
+    auto one_edge_of = [&](int v)->int{
+        int eid = -1;
+        for (int id: inc[v]) if (edges[id].active) {
+            int a = edges[id].u, b = edges[id].v;
+            if (a == b) continue;
+            if (a == v || b == v) {
+                if (eid == -1) eid = id;
+                else return -2;
+            }
+        }
+        return eid;
+    };
+    auto two_edges_of = [&](int v, int &e1, int &e2)->bool{
+        e1 = e2 = -1;
+        for (int id: inc[v]) if (edges[id].active) {
+            int a = edges[id].u, b = edges[id].v;
+            if (a == b) continue;
+            if (a == v || b == v) {
+                if (e1 == -1) e1 = id;
+                else if (e2 == -1) { e2 = id; break; }
+            }
+        }
+        return (e1 != -1 && e2 != -1);
+    };
+    auto deactivate = [&](int id){
+        if (!edges[id].active) return;
+        int a = edges[id].u, b = edges[id].v;
+        if (a != b) { deg[a]--; deg[b]--; }
+        edges[id].active = false;
+    };
+
+    // 叶子剥离优先，其次度2链压缩；反复直到稳定
+    while (!qLeaf.empty() || !qDeg2.empty()) {
+        // 先清叶
+        while (!qLeaf.empty()) {
+            int v = qLeaf.front(); qLeaf.pop_front();
+            if (removed[v] || v == S || v == T) continue;
+            if (deg[v] != 1) continue;
+            int e = one_edge_of(v);
+            if (e < 0) continue;
+            int a = edges[e].u ^ edges[e].v ^ v;
+            deactivate(e);
+            removed[v] = 1;
+            if (a != S && a != T && !removed[a]) {
+                if (deg[a] == 1) qLeaf.push_back(a);
+                else if (deg[a] == 2) qDeg2.push_back(a);
+            }
+        }
+        // 再压缩一个度2点
+        if (!qDeg2.empty()) {
+            int v = qDeg2.front(); qDeg2.pop_front();
+            if (removed[v] || v == S || v == T) continue;
+            if (deg[v] != 2) continue;
+            int e1, e2;
+            if (!two_edges_of(v, e1, e2)) continue;
+            if (!edges[e1].active || !edges[e2].active) continue;
+
+            int a = edges[e1].u ^ edges[e1].v ^ v;
+            int b = edges[e2].u ^ edges[e2].v ^ v;
+            int w = edges[e1].w + edges[e2].w;
+
+            deactivate(e1);
+            deactivate(e2);
+            removed[v] = 1;
+
+            if (a != b) {
+                add_edge(a, b, w);
+                deg[a]++; deg[b]++;
+                if (a != S && a != T && !removed[a]) {
+                    if (deg[a] == 1) qLeaf.push_back(a);
+                    else if (deg[a] == 2) qDeg2.push_back(a);
+                }
+                if (b != S && b != T && !removed[b]) {
+                    if (deg[b] == 1) qLeaf.push_back(b);
+                    else if (deg[b] == 2) qDeg2.push_back(b);
+                }
+            }
+        }
+    }
+
+    // 保留仍存活且连接的点，建立新编号
+    vector<int> idmap(N + 1, -1);
+    int K = 0;
+    auto keep = [&](int v)->bool{
+        if (removed[v]) return false;
+        if (v == S || v == T) return true;
+        for (int id: inc[v]) if (edges[id].active) {
+            int a = edges[id].u, b = edges[id].v;
+            if (a == b) continue;
+            if (a == v || b == v) return true;
+        }
+        return false;
+    };
+    for (int v = 1; v <= N; v++) if (keep(v)) idmap[v] = 0;
+    for (int v = 1; v <= N; v++) if (idmap[v] == 0) idmap[v] = ++K;
+
+    if (idmap[S] == -1 || idmap[T] == -1) {
+        for (int k = 1; k <= N - 1; k++) cout << 0 << (k == N - 1 ? '\n' : ' ');
+        return 0;
+    }
+    int s = idmap[S], t = idmap[T];
+
+    struct E2 { int u, v, w; };
+    vector<E2> Elist;
+    vector<vector<array<int,3>>> G(K + 1); // {to, w, eid}
+    auto addG = [&](int a, int b, int w){
+        int eid = (int)Elist.size();
+        Elist.push_back({a,b,w});
+        G[a].push_back({b,w,eid});
+        G[b].push_back({a,w,eid});
+    };
+    for (auto &e: edges) if (e.active) {
+        int u = e.u, v = e.v;
+        if (u == v) continue;
+        if (idmap[u] == -1 || idmap[v] == -1) continue;
+        int a = idmap[u], b = idmap[v];
+        if (a == b) continue;
+        addG(a,b,e.w);
+    }
+
+    // Dijkstra from t for下界剪枝
+    const int INF = 0x3f3f3f3f;
+    vector<int> dmin(K + 1, INF);
+    priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> pq;
+    dmin[t] = 0; pq.push({0, t});
+    while (!pq.empty()) {
+        auto [d,u] = pq.top(); pq.pop();
+        if (d != dmin[u]) continue;
+        for (auto &ar: G[u]) {
+            int v = ar[0], w = ar[1];
+            if (dmin[v] > d + w) {
+                dmin[v] = d + w;
+                pq.push({dmin[v], v});
+            }
+        }
+    }
+
+    // 桥判定（以 t 为根），并记录父亲
+    int timer = 0;
+    vector<int> tin(K + 1, -1), low(K + 1, -1), parent(K + 1, -1);
+    vector<char> vis(K + 1, 0);
+    vector<char> isBridge(Elist.size(), 0);
+
+    function<void(int,int)> dfs_bridge = [&](int u, int peid){
+        vis[u] = 1;
+        tin[u] = low[u] = ++timer;
+        for (auto &ar: G[u]) {
+            int v = ar[0], eid = ar[2];
+            if (eid == peid) continue;
+            if (vis[v]) {
+                low[u] = min(low[u], tin[v]);
+            } else {
+                parent[v] = u;
+                dfs_bridge(v, eid);
+                low[u] = min(low[u], low[v]);
+                if (low[v] > tin[u]) isBridge[eid] = 1;
+            }
+        }
+    };
+    dfs_bridge(t, -1);
+
+    // 为了更快剪枝，按 dmin 升序排序邻接
+    for (int u = 1; u <= K; u++) {
+        sort(G[u].begin(), G[u].end(), [&](const array<int,3>& a, const array<int,3>& b){
+            if (dmin[a[0]] != dmin[b[0]]) return dmin[a[0]] < dmin[b[0]];
+            return a[1] < b[1];
+        });
+    }
+
+    // DFS 计数
+    vector<ll> ans(N, 0);
+    vector<char> used(K + 1, 0);
+
+    function<void(int,int)> dfs = [&](int u, int dist){
+        if (dist + dmin[u] > N - 1) return;
+        if (u == t) {
+            if (dist >= 1) ans[dist]++;
+            return;
+        }
+        for (auto &ar: G[u]) {
+            int v = ar[0], w = ar[1], eid = ar[2];
+            if (used[v]) continue;
+            int nd = dist + w;
+            if (nd > N - 1) continue;
+            // 桥方向剪枝：禁止沿桥远离 t（父->子）
+            if (isBridge[eid] && parent[v] == u) continue;
+            used[v] = 1;
+            dfs(v, nd);
+            used[v] = 0;
+        }
+    };
+
+    used[s] = 1;
+    dfs(s, 0);
+
+    for (int k = 1; k <= N - 1; k++) {
+        cout << ans[k] << (k == N - 1 ? '\n' : ' ');
+    }
+    return 0;
+}

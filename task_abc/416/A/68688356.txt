@@ -1,0 +1,185 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+using ll = long long;
+using ii = pair<int, int>;
+
+#ifdef ONLINE_JUDGE
+#define cerr \
+    if (false) cerr  // Disable cerr output by making it an empty statement
+#endif
+
+#define dbg1(a) std::cerr << "  " << #a << " = " << (a) << '\n'
+#define dbg2(a, b) dbg1(a) << "  " << #b << " = " << (b) << '\n'
+#define dbg3(a, b, c) dbg2(a, b) << "  " << #c << " = " << (c) << '\n'
+#define dbg4(a, b, c, d) dbg3(a, b, c) << "  " << #d << " = " << (d) << '\n'
+
+#define GET_DBG(_1, _2, _3, _4, NAME, ...) NAME
+#define dbg(...)                               \
+    std::cerr << "Line " << __LINE__ << ":\n", \
+        GET_DBG(__VA_ARGS__, dbg4, dbg3, dbg2, dbg1)(__VA_ARGS__)
+
+#define FOR1(a) for (ll _ = 0; _ < ll(a); ++_)
+#define FOR2(i, a) for (ll i = 0; i < ll(a); ++i)
+#define FOR3(i, a, b) for (ll i = a; i < ll(b); ++i)
+#define FOR4(i, a, b, c) for (ll i = a; i < ll(b); i += (c))
+#define FOR1_R(a) for (ll i = (a) - 1; i >= ll(0); --i)
+#define FOR2_R(i, a) for (ll i = (a) - 1; i >= ll(0); --i)
+#define FOR3_R(i, a, b) for (ll i = (b) - 1; i >= ll(a); --i)
+#define overload4(a, b, c, d, e, ...) e
+#define overload3(a, b, c, d, ...) d
+#define FOR(...) overload4(__VA_ARGS__, FOR4, FOR3, FOR2, FOR1)(__VA_ARGS__)
+#define FOR_R(...) overload3(__VA_ARGS__, FOR3_R, FOR2_R, FOR1_R)(__VA_ARGS__)
+
+#define INT(...)     \
+    int __VA_ARGS__; \
+    IN(__VA_ARGS__)
+#define LL(...)     \
+    ll __VA_ARGS__; \
+    IN(__VA_ARGS__)
+#define STR(...)        \
+    string __VA_ARGS__; \
+    IN(__VA_ARGS__)
+#define CHR(...)      \
+    char __VA_ARGS__; \
+    IN(__VA_ARGS__)
+#define DBL(...)             \
+    long double __VA_ARGS__; \
+    IN(__VA_ARGS__)
+
+#define VEC(type, name, size) \
+    vector<type> name(size);  \
+    read(name)
+#define VV(type, name, h, w)                       \
+    vector<vector<type>> name(h, vector<type>(w)); \
+    read(name)
+
+void read(int &a) { cin >> a; }
+void read(unsigned int &a) { cin >> a; }
+void read(long long &a) { cin >> a; }
+void read(char &a) { cin >> a; }
+void read(double &a) { cin >> a; }
+void read(long double &a) { cin >> a; }
+void read(string &a) { cin >> a; }
+template <class T, class S>
+void read(pair<T, S> &p) {
+    read(p.first), read(p.second);
+}
+template <size_t N>
+void read(bitset<N> &a) {
+    string s;
+    cin >> s;
+    a = std::bitset<N>(s);
+}
+template <typename... Args>
+void read(tuple<Args...> &t) {
+    apply([&](auto &...xs) { (read(xs), ...); }, t);
+}
+template <class T>
+void read(vector<T> &a) {
+    for (auto &i : a) read(i);
+}
+template <class T>
+void read(T &a) {
+    cin >> a;
+}
+
+void IN() {}
+template <class Head, class... Tail>
+void IN(Head &head, Tail &...tail) {
+    read(head);
+    IN(tail...);
+}
+
+template <typename T, typename U>
+ostream &operator<<(ostream &os, const pair<T, U> &A) {
+    os << A.first << " " << A.second;
+    return os;
+}
+
+template <typename... Args>
+ostream &operator<<(ostream &os, const tuple<Args...> &t) {
+    apply(
+        [&os](const auto &...xs) {
+            size_t n = 0;
+            ((os << (n++ ? " " : "") << xs), ...);
+        },
+        t);
+    return os;
+}
+
+template <typename T>
+ostream &operator<<(ostream &os, const vector<T> &A) {
+    for (size_t i = 0; i < A.size(); i++) {
+        if (i) os << " ";
+        os << A[i];
+    }
+    return os;
+}
+
+template <typename T, size_t N>
+ostream &operator<<(ostream &os, const array<T, N> &A) {
+    for (size_t i = 0; i < A.size(); i++) {
+        if (i) os << " ";
+        os << A[i];
+    }
+    return os;
+}
+
+class CoutInitializer {
+   public:
+    CoutInitializer() { std::cout << std::fixed << std::setprecision(15); }
+};
+static CoutInitializer cout_initializer;
+
+void print() {
+    cout << '\n';
+    // cout.flush();
+}
+
+template <class Head, class... Tail>
+void print(Head &&head, Tail &&...tail) {
+    cout << head;
+    if (sizeof...(Tail)) cout << " ";
+    print(forward<Tail>(tail)...);
+}
+
+template <class T, class S>
+inline bool chmax(T &a, const S &b) {
+    return (a < b ? a = b, 1 : 0);
+}
+template <class T, class S>
+inline bool chmin(T &a, const S &b) {
+    return (a > b ? a = b, 1 : 0);
+}
+
+void YES(bool t = 1) { print(t ? "YES" : "NO"); }
+void NO(bool t = 1) { YES(!t); }
+void Yes(bool t = 1) { print(t ? "Yes" : "No"); }
+void No(bool t = 1) { Yes(!t); }
+void yes(bool t = 1) { print(t ? "yes" : "no"); }
+void no(bool t = 1) { yes(!t); }
+
+void solve() {
+    INT(n, l, r);
+    --l;
+
+    STR(s);
+    int res = 1;
+    FOR(i, l, r) {
+        if (s[i] == 'x') res = 0;
+    }
+    Yes(res);
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    int t = 1;
+
+    while (t--) {
+        solve();
+    }
+    return 0;
+}

@@ -1,0 +1,85 @@
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const ll N=2e5+5,P=998244353;
+ll n,q,x,y,a[N],f[N],fac[N];
+ll qpow(ll a,ll b){ll ans=1;while(b){if(b&1) ans=ans*a%P;a=a*a%P;b>>=1;}return ans;}
+ll C(ll n,ll m){return (n<m||m<0)?0:fac[n]*qpow(fac[m],P-2)%P*qpow(fac[n-m],P-2)%P;}
+ll cal(ll n,ll m){return C(n-m+1,m);}
+struct M{
+	ll a[2][2];
+	M(){memset(a,0,sizeof(a));}
+} one,t[N<<2];
+M mul(M x,M y){
+	M z;
+	for(ll i=0;i<2;i++){
+		for(ll j=0;j<2;j++){
+			(z.a[i][j]+=x.a[i][0]*y.a[0][j]+x.a[i][1]*y.a[1][j])%=P;
+		}
+	}
+	return z;
+}
+void up(ll id,ll l,ll r,ll x,M k){
+	if(l==r) return t[id]=k,void();
+	ll mid=(l+r)>>1;
+	if(x<=mid) up(id<<1,l,mid,x,k);
+	else up(id<<1|1,mid+1,r,x,k);
+	t[id]=mul(t[id<<1],t[id<<1|1]);
+}
+set<ll> st;
+M get(ll l,ll r){
+	M t;t.a[1][0]=cal(r-l-2,a[r]-a[l]);t.a[0][0]=cal(r-l-1,a[r]-a[l]);
+	t.a[0][1]=cal(r-l-2,a[r]-a[l]-1);t.a[1][1]=cal(r-l-3,a[r]-a[l]-1);
+	return t;
+}
+void del(ll x){
+	if(a[x]!=-1){
+		auto l=st.lower_bound(x);l--;
+		up(1,1,n,x,one);
+		auto r=st.upper_bound(x);
+		if(r!=st.end()) up(1,1,n,*r,get(*l,*r));
+		st.erase(x);
+	}
+}
+void add(ll x){
+	if(a[x]!=-1){
+		auto l=st.lower_bound(x);l--;
+		up(1,1,n,x,get(*l,x));
+		auto r=st.upper_bound(x);
+		if(r!=st.end()) up(1,1,n,(*r),get(x,*r));
+		st.insert(x);
+	}
+}
+int main(){
+    //freopen("ABC481F.in","r",stdin);
+    //freopen("ABC481F.out","w",stdout);
+	ios::sync_with_stdio(0);
+	cin>>n>>q;
+    one.a[0][0]=one.a[1][1]=1;
+	f[0]=1;
+    f[1]=2;
+    fac[0]=1;
+	for(ll i=1;i<=n;i++){
+        fac[i]=fac[i-1]*i%P;
+        a[i]=-1;
+    }
+	for(ll i=2;i<=n;i++){
+        f[i]=(f[i-1]+f[i-2])%P;
+    }
+	for(ll i=1;i<=(n<<2);i++){
+        t[i]=one;
+    }
+	st.insert(0);
+	while(q--){
+		cin>>x>>y;
+        del(x);
+        a[x]=y;
+        add(x);
+		M ans;
+        ans.a[0][0]=1;
+        ans=mul(ans,t[1]);
+		auto it=st.end();it--;
+		cout<<(ans.a[0][0]*f[n-(*it)]+ans.a[0][1]*f[max(0ll,n-(*it)-1)])%P<<"\n";
+	}
+	return 0;
+}

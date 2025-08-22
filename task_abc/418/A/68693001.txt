@@ -1,0 +1,23 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+  int n;
+  string s;
+  cin >> n >> s;
+
+  int nn = n - 3;
+  if (nn < 0) {
+    cout << "No" << "\n";
+    return 0;
+  }
+
+  string result = s.substr(nn);
+  if (result == "tea") {
+    cout << "Yes" << "\n";
+  } else {
+    cout << "No" << "\n";
+  }
+
+  return 0;
+}

@@ -1,0 +1,107 @@
+#include <bits/stdc++.h>
+using namespace std;
+static const long long MOD = 998244353;
+
+struct AC {
+    struct Node {
+        int next[26];
+        int fail;
+        int outmask;
+        Node() : fail(0), outmask(0) { fill(begin(next), end(next), -1); }
+    };
+    vector<Node> t;
+    AC(){ t.emplace_back(); }
+
+    void add(const string& s, int id){
+        int u = 0;
+        for(char ch: s){
+            int c = ch - 'a';
+            if(t[u].next[c] == -1){
+                t[u].next[c] = (int)t.size();
+                t.emplace_back();
+            }
+            u = t[u].next[c];
+        }
+        t[u].outmask |= (1<<id);
+    }
+
+    // 構築：fail と outmask 伝播、さらに遷移を全て埋める
+    void build(){
+        queue<int> q;
+        // root の欠損遷移を 0 へ
+        for(int c=0;c<26;c++){
+            int v = t[0].next[c];
+            if(v != -1){
+                t[v].fail = 0;
+                q.push(v);
+            }else{
+                t[0].next[c] = 0;
+            }
+        }
+        while(!q.empty()){
+            int u = q.front(); q.pop();
+            int f = t[u].fail;
+            t[u].outmask |= t[f].outmask; // 出力を伝播
+            for(int c=0;c<26;c++){
+                int v = t[u].next[c];
+                if(v != -1){
+                    t[v].fail = t[f].next[c];
+                    q.push(v);
+                }else{
+                    t[u].next[c] = t[f].next[c];
+                }
+            }
+        }
+    }
+};
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, L;
+    if(!(cin >> N >> L)) return 0;
+    vector<string> S(N);
+    for(int i=0;i<N;i++) cin >> S[i];
+
+    AC ac;
+    for(int i=0;i<N;i++) ac.add(S[i], i);
+    ac.build();
+    int Ssz = (int)ac.t.size();
+    int FULL = (1<<N) - 1;
+
+    // dp[len][state][mask] を長さ方向 2 層で
+    vector<vector<long long>> dp0(Ssz, vector<long long>(1<<N, 0));
+    vector<vector<long long>> dp1(Ssz, vector<long long>(1<<N, 0));
+    dp0[0][0] = 1;
+
+    for(int len=0; len<L; len++){
+        for(int u=0; u<Ssz; u++){
+            auto &row = dp0[u];
+            for(int m=0; m<=FULL; m++){
+                long long cur = row[m];
+                if(!cur) continue;
+                for(int c=0;c<26;c++){
+                    int v = ac.t[u].next[c];
+                    int m2 = m | ac.t[v].outmask;
+                    long long &ref = dp1[v][m2];
+                    ref += cur;
+                    if(ref >= MOD) ref -= MOD;
+                }
+            }
+        }
+        // 次へ
+        for(int u=0; u<Ssz; u++){
+            fill(dp0[u].begin(), dp0[u].end(), 0);
+        }
+        swap(dp0, dp1);
+    }
+
+    long long ans = 0;
+    for(int u=0; u<Ssz; u++){
+        ans += dp0[u][FULL];
+        if(ans >= MOD) ans -= MOD;
+    }
+    cout << ans % MOD << '\n';
+    return 0;
+}

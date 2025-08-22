@@ -1,0 +1,155 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+#define int ll
+#define ff first
+#define ss second
+#define pb push_back
+#define eb emplace_back
+typedef pair<int, int> pii;
+const ll inf=3e18;
+const int maxn=1e6+10;
+
+void fill_h(int a, int b, int l, int&n, int&m, vector<pii>&ansh, vector<pii>&ansv)
+{
+    n--;
+    ansh.eb(a, b);
+}
+
+void fill_v(int a, int b, int l, int&n, int&m, vector<pii>&ansh, vector<pii>&ansv)
+{
+    m--;
+    ansv.eb(a, b);
+}
+
+void fill_lxl(int a, int b, int l, int&n, int&m, vector<pii>&ansh, vector<pii>&ansv)
+{
+    if(n >= l)
+    {
+        for(int i=a; i<=a+l-1; i++)
+        {
+            n--;
+            ansh.eb(i, b);
+        }
+        return;
+    }
+    assert(m >= l);
+    for(int j=b; j<=b+l-1; j++)
+    {
+        m--;
+        ansv.eb(a, j);
+    }
+}
+
+void fill_multiple_l(int a, int b, int c, int d, int l, int&n, int&m, vector<pii>&ansh, vector<pii>&ansv)
+{
+    for(int i=a; i<=c; i+=l)
+    {
+        for(int j=b; j<=d; j+=l)
+        {
+            fill_lxl(i, j, l, n, m, ansh, ansv);
+        }
+    }
+}
+
+int32_t main()
+{
+    #ifndef ONLINE_JUDGE
+    freopen("input.txt","r",stdin);
+    freopen("error.txt","w",stderr);
+    freopen("output.txt","w",stdout);
+    #endif
+    ios::sync_with_stdio(0);cin.tie(0);
+
+    int T = 1;
+    cin>> T;
+    while(T--)
+    {
+        int h, w, l, n, m, r, c; cin>> h>> w>> l>> n>> m>> r>> c;
+        vector<pii> ansh, ansv;
+        if(h % l == 1 && w % l == 1 && r % l == 1 && c % l == 1)
+        {
+            if(n < (w-1)/l || n % l != (w-1)/l%l || m < (h-1)/l || m % l != (h-1)/l%l)
+            {
+                cout<< "No\n";
+                continue;
+            }
+            for(int j=1; j<c; j+=l)
+            {
+                fill_h(r, j, l, n, m, ansh, ansv);
+            }
+            for(int j=c+1; j<=w; j+=l)
+            {
+                fill_h(r, j, l, n, m, ansh, ansv);
+            }
+            for(int i=1; i<r; i+=l)
+            {
+                fill_v(i, c, l, n, m, ansh, ansv);
+            }
+            for(int i=r+1; i<=h; i+=l)
+            {
+                fill_v(i, c, l, n, m, ansh, ansv);
+            }
+            fill_multiple_l(1, 1, r-1, c-1, l, n, m, ansh, ansv);
+            fill_multiple_l(r+1, 1, h, c-1, l, n, m, ansh, ansv);
+            fill_multiple_l(1, c+1, r-1, w, l, n, m, ansh, ansv);
+            fill_multiple_l(r+1, c+1, h, w, l, n, m, ansh, ansv);
+            cout<< "Yes\n";
+            for(auto [x, y]: ansh)
+                cout<< x<< " "<< y<< "\n";
+            for(auto [x, y]: ansv)
+                cout<< x<< " "<< y<< "\n";
+        }
+        else if(h % l == l-1 && w % l == l-1 && r % l == 0 && c % l == 0)
+        {
+            if(n < (w+1)/l*(l-1) || n % l != (w+1)/l*(l-1)%l || m < (h+1)/l*(l-1) || m % l != (h+1)/l*(l-1)%l)
+            {
+                cout<< "No\n";
+                continue;
+            }
+            for(int i=r-l+1; i<r; i++)
+            {
+                for(int j=1; j<c; j+=l)
+                {
+                    fill_h(i, j, l, n, m, ansh, ansv);
+                }
+            }
+            for(int i=r+1; i<=r+l-1; i++)
+            {
+                for(int j=c; j<=w; j+=l)
+                {
+                    fill_h(i, j, l, n, m, ansh, ansv);
+                }
+            }
+            for(int i=1; i<r; i+=l)
+            {
+                for(int j=c+1; j<=c+l-1; j++)
+                {
+                    fill_v(i, j, l, n, m, ansh, ansv);
+                }
+            }
+            for(int i=r; i<=h; i+=l)
+            {
+                for(int j=c-l+1; j<c; j++)
+                {
+                    fill_v(i, j, l, n, m, ansh, ansv);
+                }
+            }
+            fill_multiple_l(1, 1, r-l, c, l, n, m, ansh, ansv);
+            fill_multiple_l(1, c+l, r, w, l, n, m, ansh, ansv);
+            fill_multiple_l(r, 1, h, c-l, l, n, m, ansh, ansv);
+            fill_multiple_l(r+l, c, h, w, l, n, m, ansh, ansv);
+            cout<< "Yes\n";
+            for(auto [x, y]: ansh)
+                cout<< x<< " "<< y<< "\n";
+            for(auto [x, y]: ansv)
+                cout<< x<< " "<< y<< "\n";
+        }
+        else
+        {
+            cout<< "No\n";
+        }
+    }
+
+    return 0;
+}

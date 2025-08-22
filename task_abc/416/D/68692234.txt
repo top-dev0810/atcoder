@@ -1,0 +1,33 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+void solve(int x,ll y,vector<ll> c,vector<ll> d){
+  int r=0; ll ans=0;
+  for(int i=0; i<x; i++) ans+=c[i]+d[i];
+  for(int i=0; i<x; i++){
+    for(int j=r; j<x; j++){
+      if(c[i]+d[j]>=y){
+        ans-=y;
+        r=j+1;
+        break;
+      }
+      if(j==x-1) goto skip;
+    }
+  }
+  skip:
+  cout << ans << endl;
+}
+int main() {
+  int t;
+  cin >> t;
+  for(int i=0; i<t; i++){
+    int n; ll m;
+    cin >> n >> m;
+    vector<ll> a(n),b(n);
+    for(int i=0; i<n; i++) cin >> a[i];
+    for(int i=0; i<n; i++) cin >> b[i];
+    sort(a.begin(),a.end(),greater<int>());
+    sort(b.begin(),b.end());
+    solve(n,m,a,b);
+  }
+}

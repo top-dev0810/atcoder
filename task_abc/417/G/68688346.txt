@@ -1,0 +1,106 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define rep(i, l, r) for (int i = l; i < (int)(r); i++)
+
+using vi = vector<int>; using vvi = vector<vi>; using vvvi = vector<vvi>;
+using vs = vector<string>;
+using vc = vector<char>;
+using vvc = vector<vector<char>>;
+using ll = long long;
+using vl = vector<ll>; using vvl = vector<vl>; using vvvl = vector<vvl>;
+using pii = pair<int, int>;
+using pll = pair<ll, ll>;
+
+template<typename T>
+void v_cout(T &vec) {
+    for (auto k : vec) cout << k << ' ';
+    cout << endl;
+    return;
+}
+
+template<typename S>
+void vv_cout(S &vec) {
+    for (auto v : vec) {
+        for (auto k : v) cout << k << ' ';
+        cout << endl;
+    }
+    return;
+}
+template<typename T>
+void chmax(T &a, T b) { a = max(a, b);}
+template<typename T>
+void chmin(T &a, T b) { a = min(a, b);}
+//getlineの使い方： getline(cin, (stringの変数名))
+//#pragma GCC optimize("Ofast")
+//--------------------------------------------------
+
+int main() {
+    int Q;
+    cin >> Q;
+    int N = Q + 10;
+    int D = 21;
+    ll mx = 1e18;
+    vl sz(N, -1);
+    sz[0] = 1; sz[1] = 1;
+    vl light(N, -1);
+    vl lx(N, -1);
+    vvl heavy(N, vl(D, -1));
+    vvl hx(N, vl(D, -1));
+    rep(qi, 0, Q) {
+        int l, r;
+        cin >> l >> r;
+        ll x;
+        cin >> x;
+        int id = qi + 2;
+        sz[id] = sz[l] + sz[r];
+        chmin(sz[id], mx);
+        if(sz[l] > sz[id] - sz[l]) {
+            heavy[id][0] = l;
+            light[id] = r;
+            hx[id][0] = 0;
+            lx[id] = sz[l];
+        }
+        else {
+            heavy[id][0] = r;
+            light[id] = l;
+            hx[id][0] = sz[l];
+            lx[id] = 0;
+        }
+        rep(i, 1, D) {
+            heavy[id][i] = heavy[heavy[id][i - 1]][i - 1];
+            if(heavy[id][i] == -1) break;
+            hx[id][i] = hx[id][i - 1] + hx[heavy[id][i - 1]][i - 1];
+        }
+        int now = id;
+        ll num = x;
+        while(true) {
+            for(int i = D - 1; i >= 0; i--) {
+                int nxt = heavy[now][i];
+                if(nxt == -1) continue;
+                ll tmp = hx[now][i];
+                if(!(tmp < num && num <= tmp + sz[nxt])) continue;
+                now = nxt;
+                num -= tmp;
+            }
+            if(now < 2) break;
+            num -= lx[now];
+            now = light[now];
+            if(now < 2) break;
+        }
+        assert(num <= 1);
+        assert(now == 0 || now == 1);
+        cout << now << endl;
+    }
+    /*
+    cout << "sz" << endl;
+    v_cout(sz);
+    cout << "light" << endl;
+    v_cout(light);
+    cout << "lx" << endl;
+    v_cout(lx);
+    cout << "heavy" << endl;
+    vv_cout(heavy); 
+    cout << "hx" << endl;
+    vv_cout(hx);
+    */
+}

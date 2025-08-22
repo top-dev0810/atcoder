@@ -1,0 +1,75 @@
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int N=2e5+10,M=6;
+vector<int> e[N];
+int sz[N];
+int a[N];
+int f[N][M][3],g[M][3];
+int n,m;
+
+void cmax(int &a,int b)
+{
+	if(a<b) a=b;
+}
+
+void Dp(int u,int p)
+{
+	sz[u]=0;
+	for(auto v:e[u])
+	{
+		if(v==p) continue;
+		Dp(v,u);
+		memset(g,0,sizeof g);
+		for(int j=0;j<=min(m,sz[u]);j++)
+		{
+			for(int k=0;k<=sz[v] && (j+k)<=m;k++)
+			{
+				for(int x=0;x<=2;x++)
+				{
+					for(int y=0;y<=1 && x+y<=2;y++)
+					{
+						cmax(g[j+k][x+y],f[u][j][x]+f[v][k][y]);
+					}
+				}
+			}
+		}
+		memcpy(f[u],g,sizeof g);
+		sz[u]+=sz[v];
+	}
+	memcpy(g,f[u],sizeof f[u]);
+	for(int j=0;j<=min(m,sz[u]);j++)
+	{
+		if(j+1<=m)
+		{
+			cmax(f[u][j+1][1],g[j][0]+a[u]);
+			cmax(f[u][j+1][0],g[j][1]+a[u]);
+			cmax(f[u][j+1][0],g[j][2]+a[u]);	
+		}
+		cmax(f[u][j][0],g[j][0]);
+		cmax(f[u][j][1],g[j][1]+a[u]);
+	}
+	sz[u]++;
+}
+
+signed main()
+{
+	ios::sync_with_stdio(false),cin.tie(0),cout.tie(0);
+	
+	cin>>n>>m;
+	m=min(m,n);
+	for(int i=1;i<=n;i++) cin>>a[i];
+	
+	for(int i=1,a,b;i<n;i++)
+	{
+		cin>>a>>b;
+		e[a].push_back(b);
+		e[b].push_back(a);
+	}
+	
+	Dp(1,0);
+	
+	cout<<f[1][m][0]<<"\n";
+	
+	return 0;
+}

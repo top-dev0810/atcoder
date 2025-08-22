@@ -1,0 +1,128 @@
+// ARC204 C - Maximize Sum of Mex
+// Implementacja dokładnie wg editorialu: score = 2*A0 + X - Y,
+// gdzie X = #krawędzi (min=0,max=1), Y = #krawędzi (0->0).
+// Precompute C2[A0], C1[A0], Y[A0] i odpowiadaj w O(1) na każde zapytanie.
+
+#include <bits/stdc++.h>
+using namespace std;
+
+static const int MAXS = 150005; // maks. suma polówek parzystych cykli: N/2, N<=3e5
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N; 
+    if (!(cin >> N)) return 0;
+    vector<int> P(N+1);
+    for (int i = 1; i <= N; ++i) cin >> P[i];
+
+    // dekompozycja permutacji na cykle
+    vector<char> vis(N+1, 0);
+    vector<int> oddSizes;            // długości nieparzyste >= 3
+    long long sumEvenHalf = 0;       // suma (len/2) po parzystych cyklach
+    long long sumOdd = 0;            // suma długości nieparzystych >=3
+    int cntOdd = 0;                  // liczba nieparzystych >=3
+    int cntLen1 = 0;                 // liczba cykli długości 1
+    int maxHalf = 0;
+
+    // zlicz częstotliwości "połówek" parzystych cykli (do knapsacku bitsetem)
+    vector<int> freqHalf(N/2 + 2, 0);
+
+    for (int i = 1; i <= N; ++i) if (!vis[i]) {
+        int v = i, len = 0;
+        while (!vis[v]) { vis[v] = 1; v = P[v]; ++len; }
+        if (len == 1) ++cntLen1;
+        else if (len % 2 == 0) { 
+            int h = len / 2;
+            sumEvenHalf += h;
+            ++freqHalf[h];
+            maxHalf = max(maxHalf, h);
+        } else { // len odd >= 3
+            ++cntOdd;
+            sumOdd += len;
+            oddSizes.push_back(len);
+        }
+    }
+
+    // sortuj nieparzyste >=3 malejąco; prefiksy v_i = (len_i - 1)/2
+    sort(oddSizes.begin(), oddSizes.end(), greater<int>());
+    vector<long long> prefV(cntOdd, 0);
+    for (int i = 0; i < cntOdd; ++i) {
+        long long v = (oddSizes[i] - 1) / 2;
+        prefV[i] = v + (i ? prefV[i-1] : 0);
+    }
+    long long sumOddMinusCntOddOver2 = (sumOdd - cntOdd) / 2; // = sum prefV
+    long long sumOddPlusCntOddOver2  = (sumOdd + cntOdd) / 2;
+
+    // bitset subset-sum dla parzystych cykli: czy istnieje T z sum(T)/2 = A0
+    bitset<MAXS> dp;
+    dp[0] = 1;
+    for (int h = 1; h <= maxHalf; ++h) if (freqHalf[h]) {
+        int f = freqHalf[h];
+        // bounded knapsack przez rozkład na potęgi 2
+        for (int t = 1; f > 0; t <<= 1) {
+            int take = min(t, f);
+            int w = h * take;
+            if (w < MAXS) dp |= (dp << w);
+            f -= take;
+        }
+    }
+
+    // precompute C2, C1, Y dla wszystkich A0
+    vector<int> C2(N+1, 0), C1(N+1, 0), Y(N+1, 0);
+
+    auto get_k_for_extra = [&](long long extra)->int {
+        // minimalne k s.t. sum_{i=1..k} (S_odd[i]-1)/2 >= extra
+        // prefV jest 0-index; zwróć k w [1..cntOdd]
+        int k = int(lower_bound(prefV.begin(), prefV.end(), extra) - prefV.begin()) + 1;
+        return k;
+    };
+
+    long long T1 = sumEvenHalf;
+    long long T2 = sumEvenHalf + sumOddMinusCntOddOver2;
+    long long T3 = sumEvenHalf + sumOddPlusCntOddOver2;
+    long long T4 = T3 + cntLen1;
+
+    for (int A0 = 0; A0 <= N; ++A0) {
+        if (A0 <= T1) {
+            if (dp[A0]) { C2[A0] = A0; C1[A0] = 0; Y[A0] = 0; }
+            else         { C2[A0] = max(0, A0 - 1); C1[A0] = (A0 ? 2 : 0); Y[A0] = 0; }
+        } else if (A0 <= T2) {
+            long long extra = A0 - T1; // ile "ponad" parzyste
+            int k = get_k_for_extra(extra); // 1..cntOdd
+            C2[A0] = A0 - k;
+            C1[A0] = 2 * k;
+            Y[A0]  = 0;
+        } else if (A0 <= T3) {
+            long long r = A0 - T1 - sumOddMinusCntOddOver2; // 0..cntOdd
+            C2[A0] = A0 - cntOdd;
+            C1[A0] = 2 * (cntOdd - (int)r);
+            Y[A0]  = (int)r;
+        } else if (A0 <= T4) {
+            C2[A0] = (int)(T1 + sumOddMinusCntOddOver2);
+            C1[A0] = 0;
+            Y[A0]  = (int)(A0 - T1 - sumOddMinusCntOddOver2);
+        } else {
+            C2[A0] = N - A0;
+            C1[A0] = 0;
+            Y[A0]  = 2*A0 - N;
+        }
+    }
+
+    int Q; 
+    cin >> Q;
+    while (Q--) {
+        long long A0, A1, A2;
+        cin >> A0 >> A1 >> A2; // A0+A1+A2=N
+        // z C2[A0], C1[A0], Y[A0] wyliczamy najlepsze X:
+        long long take2 = min<long long>(A1, C2[(int)A0]);                   // ile miejsc da +2 do X
+        long long rem   = A1 - take2;
+        long long take1 = min<long long>(C1[(int)A0], max<long long>(0, rem)); // ile miejsc da +1 do X
+        long long X = 2*take2 + take1;
+
+        long long ans = 2*A0 + X - Y[(int)A0];
+        cout << ans << '\n';
+    }
+    return 0;
+}

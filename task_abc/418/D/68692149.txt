@@ -1,0 +1,28 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+using ll = long long;
+
+int main() {
+
+    ll N;
+    cin >> N;
+
+    string T;
+    cin >> T;
+    
+    ll cnt = 0;
+    ll parityZero = 0;
+
+    vector<ll> freq = {0, 0};
+
+    for (ll i = 0; i < N; i++) {
+        if (T[i] == '0') parityZero = 1 - parityZero;
+        freq[parityZero]++;
+        // if (parityZero == 1 && freq[parityZero] == 1) continue;
+        cnt += freq[parityZero] - parityZero;
+    }
+
+    cout << cnt << endl;
+
+}

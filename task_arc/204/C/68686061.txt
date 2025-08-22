@@ -1,0 +1,100 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define pb push_back
+#define ll long long
+#define vec vector<ll>
+const int N=300005,g=3,mod=998244353,M=1<<19;
+int n,q,rv[M],lim,p[N],s[N];
+bool vis[N];
+vec w[2],F;
+ll qp(ll x,ll y){
+	ll res=1;
+	while(y){
+		if(y&1) res=res*x%mod;
+		x=x*x%mod,y>>=1;
+	}
+	return res;
+}
+void NTT(vec &a,int tp){
+	for(int i=0;i<lim;i++)
+		if(i<rv[i]) swap(a[i],a[rv[i]]);
+	for(int i=2;i<=lim;i<<=1){
+		ll wn=qp(g,(mod-1)/i);
+		if(tp==-1) wn=qp(wn,mod-2);
+		int mid=i>>1;
+		for(int j=0;j<lim;j+=i){
+			ll w=1;
+			for(int k=0;k<mid;k++,w=w*wn%mod){
+				ll x=a[j+k],y=a[j+k+mid]*w%mod;
+				a[j+k]=(x+y)%mod,a[j+k+mid]=(x-y+mod)%mod;
+			}
+		}
+	}
+	if(tp==-1){
+		ll inv=qp(lim,mod-2);
+		for(int i=0;i<lim;i++) a[i]=a[i]*inv%mod;
+	}
+}
+vec solve(int l,int r){
+	if(l==r){
+		vec res(w[0][l-1]+1);
+		res[0]=res[w[0][l-1]]=1;
+		return res;
+	}
+	int mid=(l+r)/2;
+	vec r1=solve(l,mid),r2=solve(mid+1,r);
+	int L=0,all=r1.size()+r2.size()-2;lim=1;
+	while(lim<=all) lim<<=1,L++;
+	for(int i=0;i<lim;i++) rv[i]=rv[i>>1]>>1|(i&1)<<(L-1);
+	r1.resize(lim),r2.resize(lim);
+	NTT(r1,1),NTT(r2,1);
+	for(int i=0;i<lim;i++) r1[i]=r1[i]*r2[i]%mod;
+	NTT(r1,-1);
+	r1.resize(all+1);
+	return r1;
+}
+int A[3],S[2],C[2],K;
+void out(int c2,int c1,int Y){
+	int ans=2*A[0]-Y;
+	if(A[1]<=c2) ans+=2*A[1];
+	else if(A[1]<=c1+c2) ans+=2*c2+A[1]-c2;
+	else ans+=2*c2+c1;
+	printf("%d\n",ans);
+}
+int main(){
+	scanf("%d",&n);
+	for(int i=1;i<=n;i++) scanf("%d",&p[i]);
+	for(int i=1;i<=n;i++){
+		if(vis[i]) continue;
+		int u=i,len=0;
+		while(!vis[u]) len++,vis[u]=1,u=p[u];
+		if(len==1){
+			K++;continue;
+		}
+		w[len&1].pb(len),S[len&1]+=len/2;
+	}
+	if(w[0].size()) F=solve(1,w[0].size());
+	else F={1};
+	sort(w[1].begin(),w[1].end(),greater<int>());
+	C[0]=w[0].size(),C[1]=w[1].size();
+	for(int i=1;i<=C[1];i++) s[i]=s[i-1]+w[1][i-1]/2;
+	scanf("%d",&q);
+	while(q--){
+		scanf("%d%d%d",&A[0],&A[1],&A[2]);
+		if(A[0]<=S[0]){
+			if(F[2*A[0]]) out(A[0],0,0);
+			else out(A[0]-1,2,0);
+		}
+		else if(A[0]<=S[0]+S[1]){
+			int k=lower_bound(s+1,s+C[1]+1,A[0]-S[0])-s;
+			out(A[0]-k,2*k,0);
+		}
+		else if(A[0]<=S[0]+S[1]+C[1]){
+			int Y=A[0]-(S[0]+S[1]);
+			out(A[0]-C[1],2*(C[1]-Y),Y);
+		}
+		else if(A[0]<=S[0]+S[1]+C[1]+K) out(S[0]+S[1],0,A[0]-(S[0]+S[1]));
+		else out(n-A[0],0,2*A[0]-n);
+	}
+	return 0;
+}

@@ -1,0 +1,75 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+const int N = 1e3 + 10, P = 998244353;
+
+int n, m, res;
+string s[N];
+
+struct AC {
+	int tr[N][26], idx;
+	int fail[N];
+	int f[N], d[N];
+	
+	void modify(string s, int i) {
+		int p = 0;
+		for (char _ : s) {
+			int w = _ - 'a';
+			if (!tr[p][w]) tr[p][w] = ++ idx;
+			p = tr[p][w];
+		}
+		f[p] = 1 << i;
+	}
+	
+	int dp[110][N][1 << 8];
+
+	void build() {
+		queue<int> q;
+		for (int i = 0; i < 26; ++ i )
+			if (tr[0][i]) {
+				q.push(tr[0][i]);
+				fail[tr[0][i]] = 0;
+			}
+		while (q.size()) {
+			int u = q.front();
+			q.pop();
+			
+			for (int i = 0; i < 26; ++ i )
+				if (tr[u][i]) {
+					fail[tr[u][i]] = tr[fail[u]][i];
+					f[tr[u][i]] |= f[fail[tr[u][i]]];
+					q.push(tr[u][i]);
+				} else {
+					tr[u][i] = tr[fail[u]][i];
+				}
+		}
+		
+		dp[0][0][0] = 1;
+		for (int i = 1; i <= m; ++ i ) {
+			for (int j = 0; j <= idx; ++ j ) {
+				for (int s = 0; s < 1 << n; ++ s ) {
+					for (int k = 0; k < 26; ++ k ) {
+						(dp[i][tr[j][k]][s | f[tr[j][k]]] += dp[i - 1][j][s]) %= P;
+					}
+				}
+			}
+		}
+		
+		for (int i = 0; i <= idx; ++ i )
+			(res += dp[m][i][(1 << n) - 1]) %= P;
+	}
+}T;
+
+signed main() {
+	ios::sync_with_stdio(0);
+	cin.tie(0), cout.tie(0);
+	cin >> n >> m;
+	for (int i = 0; i < n; ++ i ) {
+		cin >> s[i];
+		T.modify(s[i], i);
+	}
+	T.build();
+	cout << res;
+	return 0;
+}

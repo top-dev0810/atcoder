@@ -1,0 +1,48 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+const int N=1e6+5;
+int n,m,k,sum,cnt,a[N],b[N],d[1005][1005];
+void f(int x,int y,int z)
+{
+	for(int i=0;i<=n;i++)
+		for(int j=0;j<=n;j++)
+			d[i][j]=d[j][i]=min(min(d[i][j],d[i][x]+z+d[y][j]),d[i][y]+z+d[x][j]);
+}
+signed main()
+{
+	ios::sync_with_stdio(0),cin.tie(0),cout.tie(0); 
+	int i,j,x,y,z,t;
+	cin>>n>>m;
+	memset(d,0x3f,sizeof(d));
+	for(i=0;i<=n;i++)
+		d[i][i]=0;
+	for(i=1;i<=m;i++)
+		cin>>x>>y>>z,d[x][y]=d[y][x]=min(d[x][y],z*2);
+	cin>>k>>t;
+	for(i=1;i<=k;i++)
+		cin>>x,d[x][0]=d[0][x]=t;
+	for(k=0;k<=n;k++)
+		for(i=0;i<=n;i++)
+			for(j=0;j<=n;j++)
+				d[i][j]=min(d[i][j],d[i][k]+d[k][j]);
+	cin>>k;
+	while(k--)
+	{
+		cin>>x;
+		if(x==1)
+			cin>>x>>y>>z,d[x][y]=d[y][x]=min(d[x][y],z*2),f(x,y,z*2);
+		else if(x==2)
+			cin>>x,d[x][0]=d[0][x]=t,f(x,0ll,t);
+		else if(x==3)
+		{
+			sum=0;
+			for(i=1;i<=n;i++)
+				for(j=1;j<=n;j++)
+					if(d[i][j]<1e16)
+						sum+=d[i][j];
+			cout<<sum/2<<"\n";
+		}
+	}
+	return 0;
+}

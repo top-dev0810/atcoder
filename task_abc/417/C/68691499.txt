@@ -1,0 +1,29 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+  ios::sync_with_stdio(0);
+  cin.tie(nullptr);
+
+  int n;
+  cin >> n;
+
+  map<int, int> u, v;
+  for (int i = 1; i <= n; ++i) {
+    int x;
+    cin >> x;
+    u[x + i]++;
+    if (i - x >= 0) {
+      v[i - x]++;
+    }
+  }
+
+  long long ans = 0;
+  for (auto [x, y] : v) {
+    ans += 1ll * y * u[x];
+  }
+
+  cout << ans << '\n';
+
+  return 0;
+}

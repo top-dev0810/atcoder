@@ -1,0 +1,16 @@
+#include <bits/stdc++.h>
+using namespace std;
+int n, l, r;
+string s;
+int main(){
+	cin >> n >> l >> r;
+	cin >> s;
+	for(int i = l - 1; i < r; i++){
+		if(s[i] != 'o'){
+			cout << "No" << endl;
+			return 0;
+		}
+	}
+	cout << "Yes" << endl;
+	return 0;
+}//A - Vacation Validation

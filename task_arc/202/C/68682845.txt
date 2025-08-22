@@ -1,0 +1,111 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+using ll = long long;
+const int MOD = 998244353;
+const int MAXA = 200000;
+
+// modular exponentiation
+ll modpow(ll a, ll e) {
+    ll res = 1;
+    while (e > 0) {
+        if (e & 1) res = res * a % MOD;
+        a = a * a % MOD;
+        e >>= 1;
+    }
+    return res;
+}
+
+// modular inverse
+ll inv(ll x) { return modpow(x, MOD-2); }
+
+int mu[MAXA+1];     // Möbius function
+ll R[MAXA+1];       // repunits
+ll F[MAXA+1];       // factors
+bool used[MAXA+1];  // divisor used?
+
+// sieve for Möbius
+void mobius_sieve(int n) {
+    vector<int> primes;
+    vector<int> mu(n+1, 1), isprime(n+1, 1);
+    mu[0] = 0;
+    for (int i = 2; i <= n; i++) {
+        if (isprime[i]) {
+            primes.push_back(i);
+            mu[i] = -1;
+        }
+        for (int p : primes) {
+            if (i * p > n) break;
+            isprime[i*p] = 0;
+            if (i % p == 0) {
+                mu[i*p] = 0;
+                break;
+            } else {
+                mu[i*p] = -mu[i];
+            }
+        }
+    }
+    for (int i = 0; i <= n; i++) ::mu[i] = mu[i];
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N; cin >> N;
+    vector<int> A(N);
+    for (int i = 0; i < N; i++) cin >> A[i];
+    int M = *max_element(A.begin(), A.end());
+
+    // precompute
+    mobius_sieve(M);
+
+    // repunits R[n] = (10^n - 1)/9
+    ll inv9 = inv(9);
+    for (int n = 1; n <= M; n++) {
+        R[n] = (modpow(10, n) - 1 + MOD) % MOD;
+        R[n] = R[n] * inv9 % MOD;
+    }
+
+    // compute F[n] via Möbius inversion
+    for (int n = 1; n <= M; n++) {
+        ll val = 1;
+        for (int d = 1; d * d <= n; d++) {
+            if (n % d == 0) {
+                int q1 = d, q2 = n/d;
+                if (mu[n/q1] != 0) {
+                    if (mu[n/q1] == 1) val = val * R[q1] % MOD;
+                    else val = val * inv(R[q1]) % MOD;
+                }
+                if (q1 != q2) {
+                    if (mu[n/q2] != 0) {
+                        if (mu[n/q2] == 1) val = val * R[q2] % MOD;
+                        else val = val * inv(R[q2]) % MOD;
+                    }
+                }
+            }
+        }
+        F[n] = val;
+    }
+
+    // process
+    ll ans = 1;
+    for (int i = 0; i < N; i++) {
+        int x = A[i];
+        for (int d = 1; d * d <= x; d++) {
+            if (x % d == 0) {
+                if (!used[d]) {
+                    ans = ans * F[d] % MOD;
+                    used[d] = true;
+                }
+                int d2 = x/d;
+                if (d2 != d && !used[d2]) {
+                    ans = ans * F[d2] % MOD;
+                    used[d2] = true;
+                }
+            }
+        }
+        cout << ans % MOD << "\n";
+    }
+    return 0;
+}

@@ -1,0 +1,95 @@
+#include <bits/stdc++.h>
+
+#define all(x) (x).begin(), (x).end()
+
+typedef std::vector<int> VI;
+typedef long long ll;
+typedef std::pair<int, int> ii;
+
+template <class C> C& mini(C& a, C b) { if (b < a) a = b; return a; }
+template <class C> C& maxi(C& a, C b) { if (a < b) a = b; return a; }
+
+template <typename T> void read(std::vector<T>& A) { for (T& x: A) std::cin >> x; }
+template <typename T> void readv(std::vector<T>& A) { int N; std::cin >> N; A.resize(N); read(A); }
+
+using namespace std;
+
+int dp[5000][8192];
+int solve(const VI& _A, int N, vector<VI>& byn) {
+    VI A(_A.size());
+    for (int i = 0; i < A.size(); i++) {
+        A[i] = _A[i] % N;
+        byn[A[i]].clear();
+    }
+    for (int i = 0; i < A.size(); i++) {
+        byn[A[i]].push_back(i);
+    }
+
+    int m = A.size();
+    if (m <= 1)
+        return 0;
+
+    for (int d = 1; d < m; d++) {
+        for (int i = 0; i < m-d; i++) {
+            int j = i + d;
+            int ret = dp[i][j-1];
+            for (auto c: byn[A[j]]) {
+                if (i <= c && c < j) {
+                    maxi(ret, dp[i][c] + dp[c][j-1] + 1);
+                }
+            }
+            dp[i][j] = ret;
+        }
+        for (int i = m-d; i < m; i++) {
+            int j = i + d - m;
+            int pj = j-1;
+            if (pj < 0)
+                pj += m;
+            int ret = dp[i][pj];
+            for (auto c: byn[A[j]]) {
+                if (c < j || c >= i) {
+                    maxi(ret, dp[i][c] + dp[c][pj] + 1);
+                }
+            }
+            dp[i][j] = ret;
+        }
+    }
+
+    auto pr = [m](int x) { return x > 0 ? x - 1 : m - 1; };
+    int ret = 0;
+    for (int i = 0; i < m; i++)
+        for (int j = i+1; j < m; j++)
+            maxi(ret, dp[i][pr(j)] + dp[j][pr(i)] + (A[i] == A[j] ? 1 : 0));
+    return ret;
+}
+
+int main(int argc, const char* argv[]) {
+    ios_base::sync_with_stdio(0); cin.tie(0); cout.precision(20); cout.setf(ios::fixed);
+    int N, K;
+    cin >> N >> K;
+    VI P(N*K);
+    read(P);
+    for (auto& p: P)
+        p--;
+    int ret = 0;
+    vector<bool> vis(P.size());
+    vector<VI> byn(N);
+    for (int i = 0; i < vis.size(); i++) {
+        if (vis[i])
+            continue;
+        VI A;
+        A.push_back(P[i]);
+        int c = P[P[i]];
+        while (c != A[0]) {
+            A.push_back(c);
+            c = P[c];
+        }
+        for (auto x: A)
+            vis[x] = true;
+        if (A.size() == 1)
+            continue;
+        ret += solve(A, N, byn);
+    }
+    cout << ret << endl;
+    return 0;
+}

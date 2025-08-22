@@ -1,0 +1,145 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define mid (l + r >> 1)
+#define pl p << 1
+#define pr p << 1 | 1
+
+const int N = 2e5;
+int n, q;
+bool a[N + 1];
+
+struct SGT {
+	struct node {
+		int x;
+		bool l, r, h0, h1, l0, r0, bj;
+		
+		void init(bool o) {
+			x = 1;
+			l = r = h1 = o;
+			h0 = l0 = r0 = !o;
+			bj = 0;
+			return;
+		}
+	} t[N << 2];
+	
+	friend node operator + (const node &x, const node &y) {
+		node res = {x.x + y.x, x.l, y.r, x.h0 | y.h0, x.h1 | y.h1, 0, 0, x.bj | y.bj};
+		if (x.l0 && (x.h1 || y.l)) {
+			res.l0 = 1;
+		}
+		if (y.r0 && (y.h1 || x.r)) {
+			res.r0 = 1;
+		}
+		if (res.h0) {
+			if (!x.h0) {
+				res.x -= x.x - 1;
+			}
+			if (!y.h0) {
+				res.x -= y.x - 1;
+			}
+		}
+		if (x.r && y.l) {
+			res.x -= res.h0 + (x.bj && y.bj);
+			if (x.bj && !y.bj && y.h0) {
+				--res.x;
+				res.bj = 0;
+			}
+			if (y.bj && !x.bj && x.h0) {
+				--res.x;
+				res.bj = 0;
+			}
+		}
+		else if (x.r && !y.l) {
+			if (y.l0 && y.h1) {
+				--res.x;
+				if (x.bj && y.x == 2) {
+					--res.x;
+				}
+				else {
+					if (y.x == 2 && !x.h0) {
+						res.bj = 1;
+					}
+					else {
+						res.bj = 0;
+						res.x -= 1 + x.bj;
+					}
+				}
+			}
+			else if (x.bj) {
+				--res.x;
+				res.bj = 0;
+			}
+		}
+		else if (!x.r && y.l) {
+			if (x.r0 && x.h1) {
+				--res.x;
+				if (y.bj && x.x == 2) {
+					--res.x;
+				}
+				else {
+					if (x.x == 2 && !y.h0) {
+						res.bj = 1;
+					}
+					else {
+						res.bj = 0;
+						res.x -= 1 + y.bj;
+					}
+				}
+			}
+			else if (y.bj) {
+				--res.x;
+				res.bj = 0;
+			}
+		}
+		else {
+			res.x -= !x.r0 + !y.l0;
+		}
+		return res;
+	}
+	
+	void build(int p, int l, int r) {
+		if (l == r) {
+			t[p].init(a[l]);
+			return;
+		}
+		build(pl, l, mid);
+		build(pr, mid + 1, r);
+		t[p] = t[pl] + t[pr];
+		return;
+	}
+	
+	void chg(int p, int l, int r, int x) {
+		if (l == r) {
+			t[p].init(!t[p].l);
+			return;
+		}
+		if (x <= mid) {
+			chg(pl, l, mid, x);
+		}
+		else {
+			chg(pr, mid + 1, r, x);
+		}
+		t[p] = t[pl] + t[pr];
+		return;
+	}
+} sgt;
+
+int main() {
+	ios::sync_with_stdio(0), cin.tie(0);
+	cin >> n;
+	for (int i = 1; i <= n; i++) {
+		cin >> a[i];
+	}
+	sgt.build(1, 1, n);
+	cin >> q;
+	while (q--) {
+		int x;
+		cin >> x;
+		sgt.chg(1, 1, n, x);
+		cout << sgt.t[1].x << "\n";
+	}
+	return 0;
+}
+/*
+17:03.
+*/
